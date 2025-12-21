@@ -1,17 +1,21 @@
 ---
 export const prerender = false;
 
-import Layout from "../../layouts/Layout.astro";
+import Layout from "../../../layouts/Layout.astro";
 import { getCollection } from "astro:content";
+import { t } from "../../../utils/t";
+
+const { lang = "es" } = Astro.params;
 const products = await getCollection("products");
 ---
 
 <Layout title="Menu">
   <div class="bg-red-50">Menu</div>
+  {lang}<br />
   {products.length}
   {
     products.map(({ data }) => {
-      return <div>{data.id}</div>;
+      return <div>{t(data.name, lang)}</div>;
     })
   }
 </Layout>
