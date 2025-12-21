@@ -4,9 +4,9 @@ import { t } from "../../utils/t";
 
 interface Props {
   product: Product;
-  lang: string;
 }
-const { product, lang } = Astro.props;
+const { product } = Astro.props;
+const { lang = "es" } = Astro.params;
 ---
 
 <div>
