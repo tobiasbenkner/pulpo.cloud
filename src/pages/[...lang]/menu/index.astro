@@ -4,6 +4,7 @@ export const prerender = false;
 import Layout from "../../../layouts/Layout.astro";
 import { getCollection } from "astro:content";
 import { t } from "../../../utils/t";
+import CategoryCard from "../../../components/menu/CategoryCard.astro";
 
 const { lang = "es" } = Astro.params;
 const categories = await getCollection("categories");
@@ -18,28 +19,14 @@ const categories = await getCollection("categories");
         {
           categories.map(({ data: category }) => {
             return (
-              <div>
+              <CategoryCard category={category}>
                 <h1>{t(category.name, lang)}</h1>
                 {category.products.length}
-              </div>
+              </CategoryCard>
             );
           })
         }
-        <!-- <MenuCategory
-            category={category}
-            products={sortedProducts}
-            block={block}
-          /> -->
       </div>
     </div>
   </div>
-
-  <div class="bg-red-50">Menu</div>
-  {lang}<br />
-  <!-- {products.length}
-  {
-    products.map(({ data }) => {
-      return <ProductCard product={data} lang={lang} />;
-    })
-  } -->
 </Layout>
