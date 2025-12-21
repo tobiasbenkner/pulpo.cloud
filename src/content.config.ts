@@ -1,6 +1,7 @@
 import { z } from "astro/zod";
 import { defineCollection } from "astro:content";
 import { I18nSchema } from "./utils/t";
+import { getFileUrl } from "./utils/getFile";
 
 const products = defineCollection({
   loader: async () => {
@@ -16,7 +17,22 @@ const products = defineCollection({
     const json = await response.json();
     const items = json.items;
     // console.log(items[0]);
-    return items;
+    return items.map((item: any) => ({
+      ...item,
+      allergies: item.allergies || [],
+      photo: getFileUrl(item.id, item.photo, "products"),
+      expand: {
+        ...(item?.expand ?? {}),
+        category: {
+          ...(item?.expand?.category ?? {}),
+          photo: getFileUrl(
+            item?.expand?.category?.id,
+            item?.expand?.category?.photo,
+            "categories"
+          ),
+        },
+      },
+    }));
   },
   schema: z.object({
     id: z.string(),
