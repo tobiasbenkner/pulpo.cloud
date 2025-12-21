@@ -7,8 +7,69 @@ interface Props {
 }
 const { product } = Astro.props;
 const { lang = "es" } = Astro.params;
+
+const name = t(product.name, lang);
+const description = t(product.description, lang);
+const note = t(product.note, lang);
+
+function formatPrice(price: number) {
+  return new Intl.NumberFormat("de-DE", {
+    style: "currency",
+    currency: "EUR",
+  }).format(price);
+}
 ---
 
-<div>
-  {t(product.name, lang)}
-</div>
+<article class={`border-b border-border/30 pb-8`}>
+  <div class="flex items-start gap-6">
+    <div class="grow">
+      <h3 class="text-2xl font-bold text-foreground">
+        {name}
+      </h3>
+
+      {
+        description && (
+          <div class="mt-2 text-muted-foreground">
+            <Fragment set:html={description} />
+          </div>
+        )
+      }
+
+      {note && <span>{note}</span>}
+
+      <div class="mt-4 flex flex-wrap items-center gap-2">
+        {
+          product.allergies?.map((allergy) => (
+            <img
+              src={`/icons/allergies/${allergy}.svg`}
+              alt={`${allergy}`}
+              title={allergy}
+              class="w-8 h-8"
+            />
+          ))
+        }
+      </div>
+    </div>
+
+    <div class="shrink-0 w-32 text-center">
+      {
+        product.photo && (
+          <img
+            src={product.photo}
+            alt={t(product.name, lang)}
+            width={96}
+            height={96}
+            class="w-24 h-24 rounded-full object-cover mx-auto"
+          />
+        )
+      }
+      <p class="mt-4 font-semibold text-foreground">
+        {
+          typeof product.price === "number"
+            ? formatPrice(product.price / 100)
+            : ""
+        }
+      </p>
+    </div>
+  </div>
+</article>

@@ -22,7 +22,7 @@ const categories = defineCollection({
           (product: any) => {
             return {
               ...product,
-              photo: getFileUrl(category.id, category.photo, "products"),
+              photo: getFileUrl(product.id, product.photo, "products"),
             };
           }
         ),
