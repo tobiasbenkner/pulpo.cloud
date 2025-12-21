@@ -1,7 +1,6 @@
-import { z } from "astro/zod";
 import { defineCollection } from "astro:content";
-import { I18nSchema } from "./utils/t";
 import { getFileUrl } from "./utils/getFile";
+import { ProductSchema } from "./collections/Product";
 
 const products = defineCollection({
   loader: async () => {
@@ -34,24 +33,7 @@ const products = defineCollection({
       },
     }));
   },
-  schema: z.object({
-    id: z.string(),
-    name: I18nSchema,
-    description: I18nSchema,
-    note: I18nSchema,
-    price: z.number(),
-    photo: z.string(),
-    allergies: z.array(z.string()),
-    category: z.string(),
-    expand: z.object({
-      category: z.object({
-        id: z.string(),
-        name: I18nSchema,
-        sort: z.number(),
-        photo: z.string(),
-      }),
-    }),
-  }),
+  schema: ProductSchema,
 });
 
 export const collections = { products };
