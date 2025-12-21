@@ -1,0 +1,14 @@
+---
+import type { Product } from "../../collections/Product";
+import { t } from "../../utils/t";
+
+interface Props {
+  product: Product;
+  lang: string;
+}
+const { product, lang } = Astro.props;
+---
+
+<div>
+  {t(product.name, lang)}
+</div>

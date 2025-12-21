@@ -3,7 +3,7 @@ export const prerender = false;
 
 import Layout from "../../../layouts/Layout.astro";
 import { getCollection } from "astro:content";
-import { t } from "../../../utils/t";
+import ProductCard from "../../../components/menu/ProductCard.astro";
 
 const { lang = "es" } = Astro.params;
 const products = await getCollection("products");
@@ -15,13 +15,7 @@ const products = await getCollection("products");
   {products.length}
   {
     products.map(({ data }) => {
-      return (
-        <div>
-          {t(data.name, lang)}
-          {data.photo && <img src={data.photo} width="100" height="100" />}
-          {data.expand.category.photo && <img src={data.expand.category.photo} width="100" height="100" />}
-        </div>
-      );
+      return <ProductCard product={data} lang={lang} />;
     })
   }
 </Layout>
