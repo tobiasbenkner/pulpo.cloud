@@ -1,13 +1,6 @@
 import { z } from "astro/zod";
 import { I18nSchema } from "../utils/t";
 
-export const CategorySchema = z.object({
-  id: z.string(),
-  name: I18nSchema,
-  sort: z.number(),
-  photo: z.string(),
-});
-
 export const ProductSchema = z.object({
   id: z.string(),
   name: I18nSchema,
@@ -17,9 +10,14 @@ export const ProductSchema = z.object({
   photo: z.string(),
   allergies: z.array(z.string()),
   category: z.string(),
-  expand: z.object({
-    category: CategorySchema,
-  }),
+});
+
+export const CategorySchema = z.object({
+  id: z.string(),
+  name: I18nSchema,
+  sort: z.number(),
+  photo: z.string(),
+  products: z.array(ProductSchema),
 });
 
 export type Category = z.infer<typeof CategorySchema>;
