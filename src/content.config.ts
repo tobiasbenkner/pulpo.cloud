@@ -1,12 +1,11 @@
 import { defineCollection } from "astro:content";
+import { CategorySchema } from "./collections/Product";
 import { getFileUrl } from "./utils/getFile";
-import { ProductSchema } from "./collections/Product";
 
-const products = defineCollection({
+const categories = defineCollection({
   loader: async () => {
-    const records = 200;
     const response = await fetch(
-      `https://pulpo.cloud/api/collections/products/records?perPage=${records}&expand=category`,
+      `https://pulpo.cloud/api/collections/categories/records?expand=products_via_category&sort=sort`,
       {
         headers: {
           tenant: "mffp8qnmsnzuubx",
@@ -14,26 +13,23 @@ const products = defineCollection({
       }
     );
     const json = await response.json();
-    const items = json.items;
-    // console.log(items[0]);
-    return items.map((item: any) => ({
-      ...item,
-      allergies: item.allergies || [],
-      photo: getFileUrl(item.id, item.photo, "products"),
-      expand: {
-        ...(item?.expand ?? {}),
-        category: {
-          ...(item?.expand?.category ?? {}),
-          photo: getFileUrl(
-            item?.expand?.category?.id,
-            item?.expand?.category?.photo,
-            "categories"
-          ),
-        },
-      },
-    }));
+
+    return json.items.map((category: any) => {
+      return {
+        ...category,
+        photo: getFileUrl(category.id, category.photo, "categories"),
+        products: (category.expand?.products_via_category ?? []).map(
+          (product: any) => {
+            return {
+              ...product,
+              photo: getFileUrl(category.id, category.photo, "products"),
+            };
+          }
+        ),
+      };
+    });
   },
-  schema: ProductSchema,
+  schema: CategorySchema,
 });
 
-export const collections = { products };
+export const collections = { categories };
