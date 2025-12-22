@@ -1,0 +1,73 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import SectionHeader from "../../components/ui/SectionHeader.astro";
+
+const lastUpdate = "Enero 2025";
+---
+
+<Layout title="Política de Cookies | El Búho Tuerto">
+  <main class="bg-background min-h-screen py-32 px-6">
+    <div class="max-w-3xl mx-auto">
+      <div class="mb-16 text-center">
+        <SectionHeader
+          title="Cookies"
+          subtitle="Uso de Cookies"
+          align="center"
+        />
+        <p class="text-xs tracking-[0.2em] uppercase text-white/30 mt-8">
+          Última actualización: {lastUpdate}
+        </p>
+      </div>
+
+      <article
+        class="prose prose-invert prose-lg max-w-none
+        prose-headings:font-serif prose-headings:font-normal prose-headings:text-amber-200
+        prose-p:text-gray-300 prose-p:leading-relaxed prose-p:font-light
+        prose-strong:text-white prose-strong:font-medium"
+      >
+        <h3>¿Qué son las cookies?</h3>
+        <p>
+          Una cookie es un fichero que se descarga en su ordenador al acceder a
+          determinadas páginas web. Las cookies permiten a una página web, entre
+          otras cosas, almacenar y recuperar información sobre los hábitos de
+          navegación de un usuario o de su equipo.
+        </p>
+
+        <h3>¿Qué tipos de cookies utiliza esta web?</h3>
+        <p>Esta página web utiliza los siguientes tipos de cookies:</p>
+        <ul>
+          <li>
+            <strong>Cookies de análisis:</strong> Son aquéllas que bien tratadas por
+            nosotros o por terceros, nos permiten cuantificar el número de usuarios
+            y así realizar la medición y análisis estadístico de la utilización que
+            hacen los usuarios del servicio ofertado.
+          </li>
+          <li>
+            <strong>Cookies técnicas:</strong> Son aquellas que permiten al usuario
+            la navegación a través del área restringida y la utilización de sus diferentes
+            funciones.
+          </li>
+        </ul>
+
+        <h3>Desactivar las cookies</h3>
+        <p>
+          Puede usted permitir, bloquear o eliminar las cookies instaladas en su
+          equipo mediante la configuración de las opciones del navegador
+          instalado en su ordenador.
+        </p>
+        <p>
+          En la mayoría de los navegadores web se ofrece la posibilidad de
+          permitir, bloquear o eliminar las cookies instaladas en su equipo.
+        </p>
+
+        <h3>Cookies de terceros</h3>
+        <p>
+          Esta página web utiliza servicios de terceros para recopilar
+          información con fines estadísticos y de uso de la web. En concreto,
+          usamos servicios de Google Maps para la localización y,
+          potencialmente, Google Analytics para estadísticas.
+        </p>
+      </article>
+    </div>
+  </main>
+</Layout>
