@@ -1,0 +1,79 @@
+---
+import SectionHeader from "../ui/SectionHeader.astro";
+
+const story = {
+  title: "El Nacimiento de El Búho Tuerto",
+  image: "/team.webp",
+  paragraphs: [
+    "En muchas culturas, y especialmente en Argentina, el búho es símbolo de conocimiento y sabiduría. Su mirada imponente, con ojos fijos hacia adelante y una visión de 270°, lo convierte en un observador nato, siempre atento, siempre estratégico.",
+    "Cuando decidimos abrir nuestro restaurante de parrilla a la brasa, sabíamos que necesitábamos un nombre que fuera memorable, auténtico y con una historia que reflejara nuestra esencia. Así nació El Búho Tuerto.",
+    "El búho es un guerrero de la naturaleza, un sobreviviente. La imagen de un búho tuerto representa la lucha constante, la capacidad de adaptarse y seguir adelante a pesar de las adversidades. Es un símbolo de resiliencia, igual que quienes dejan su tierra en busca de nuevas oportunidades, llevando consigo sus raíces y su pasión.",
+    "En El Búho Tuerto, honramos esa lucha con cada plato, con cada brasa encendida y con cada cliente que se sienta a nuestra mesa. Porque, al igual que el búho, vemos más allá de los desafíos y creemos en la fuerza de seguir adelante, siempre con la mejor visión del futuro.",
+  ],
+  footer: ["Bienvenidos a nuestra historia.", "Bienvenidos a El Búho Tuerto."],
+};
+---
+
+<section class="bg-background py-24 px-6 overflow-hidden">
+  <div class="max-w-7xl mx-auto">
+    <SectionHeader
+      subtitle="Nuestra Historia"
+      title="El Nacimiento"
+      align="center"
+    />
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-start">
+      <div class="lg:col-span-5 relative group">
+        <div
+          class="absolute -top-4 -left-4 w-full h-full border border-border rounded-2xl transition-transform duration-700 group-hover:-translate-x-2 group-hover:-translate-y-2"
+        >
+        </div>
+
+        <div class="relative rounded-2xl overflow-hidden shadow-2xl">
+          <img
+            src={story.image}
+            alt="El Búho Tuerto Team"
+            class="w-full h-auto object-cover scale-100 group-hover:scale-105 transition-transform duration-[2s]"
+          />
+
+          <div
+            class="absolute inset-0 bg-linear-to-t from-gray-700 via-transparent to-transparent"
+          >
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-7 space-y-8">
+        <div class="prose prose-invert max-w-none">
+          {
+            story.paragraphs.map((para) => (
+              <p class="text-gray-300 font-serif italic text-lg md:text-xl leading-relaxed mb-6 last:mb-0">
+                {para}
+              </p>
+            ))
+          }
+        </div>
+
+        <div class="pt-8 space-y-2">
+          {
+            story.footer.map((line, index) => (
+              <p
+                class={`text-white uppercase tracking-[0.3em] text-sm md:text-base ${index === 1 ? "font-bold text-amber-200/80" : "font-light"}`}
+              >
+                {line}
+              </p>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..700;1,400..700&display=swap");
+
+  .font-serif {
+    font-family: "Playfair Display", serif;
+  }
+</style>

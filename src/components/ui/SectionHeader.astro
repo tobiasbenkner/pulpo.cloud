@@ -1,0 +1,37 @@
+---
+interface Props {
+  subtitle?: string;
+  title: string;
+  align?: "center" | "left";
+}
+
+const { subtitle, title, align = "center" } = Astro.props;
+
+const alignmentClasses =
+  align === "center" ? "items-center text-center" : "items-start text-left";
+const lineClasses =
+  align === "center"
+    ? "mx-auto bg-linear-to-r from-transparent via-white/40 to-transparent"
+    : "bg-linear-to-r from-white/40 to-transparent";
+---
+
+<div class={`flex flex-col mb-16 md:mb-24 ${alignmentClasses}`}>
+  {
+    subtitle && (
+      <span class="text-xs md:text-sm tracking-[0.5em] text-amber-200/60 uppercase mb-4 block font-medium">
+        {subtitle}
+      </span>
+    )
+  }
+
+  <h2
+    class="text-3xl md:text-4xl lg:text-5xl font-light tracking-[0.2em] text-white uppercase mb-8 leading-tight"
+  >
+    {title}
+  </h2>
+
+  <!-- Line -->
+  <div class={`relative w-48 h-px ${lineClasses}`}>
+    <div class="absolute inset-0 blur-sm bg-white/20"></div>
+  </div>
+</div>

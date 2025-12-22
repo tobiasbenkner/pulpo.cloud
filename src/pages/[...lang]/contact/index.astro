@@ -1,4 +1,5 @@
 ---
+import Contact from "../../../components/blocks/Contact.astro";
 import { defaultLang } from "../../../i18n";
 import Layout from "../../../layouts/Layout.astro";
 
@@ -15,6 +16,6 @@ export function getStaticPaths() {
 const { lang = defaultLang } = Astro.params;
 ---
 
-<Layout title="Contact">
-  <div>Contact {lang}</div>
+<Layout title="Contact | El Búho Tuerto">
+  <Contact />
 </Layout>
