@@ -189,7 +189,14 @@ const getPathForLang = (newLang: string) => {
   const menuIcon = document.getElementById("menu-icon");
   const closeIcon = document.getElementById("close-icon");
 
-  menuToggle?.addEventListener("click", () => {
+  function closeMobileMenu() {
+    mobileMenu?.classList.add("hidden");
+    menuIcon?.classList.remove("hidden");
+    closeIcon?.classList.add("hidden");
+  }
+
+  menuToggle?.addEventListener("click", (e) => {
+    e.stopPropagation();
     mobileMenu?.classList.toggle("hidden");
     menuIcon?.classList.toggle("hidden");
     closeIcon?.classList.toggle("hidden");
@@ -207,12 +214,19 @@ const getPathForLang = (newLang: string) => {
   });
 
   document.addEventListener("click", (event) => {
-    if (
-      !langButton?.contains(event.target as Node) &&
-      !langMenu?.contains(event.target as Node)
-    ) {
+    const target = event.target as Node;
+
+    if (!langButton?.contains(target) && !langMenu?.contains(target)) {
       langMenu?.classList.add("hidden");
       langButton?.setAttribute("aria-expanded", "false");
+    }
+
+    if (
+      !mobileMenu?.classList.contains("hidden") &&
+      !menuToggle?.contains(target) &&
+      !mobileMenu?.contains(target)
+    ) {
+      closeMobileMenu();
     }
   });
 </script>
