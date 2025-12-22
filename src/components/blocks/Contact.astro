@@ -1,0 +1,183 @@
+---
+const contactInfo = {
+  address: "Calle de la Gastronomía 12, 35001 Las Palmas de Gran Canaria",
+  email: "hola@chiquitarestaurante.com",
+  phones: [
+    { label: "Reservas", number: "+34 928 123 456", href: "+34928123456" },
+    {
+      label: "Eventos & Grupos",
+      number: "+34 600 000 000",
+      href: "+34600000000",
+    },
+  ],
+  socials: [
+    {
+      name: "Instagram",
+      url: "#",
+      svg: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>`,
+    },
+    {
+      name: "Facebook",
+      url: "#",
+      svg: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>`,
+    },
+    {
+      name: "Tripadvisor",
+      url: "#",
+      svg: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8.5 14.5c.9 0 1.5-.6 1.5-1.5s-.6-1.5-1.5-1.5-1.5.6-1.5 1.5.6 1.5 1.5 1.5Z"/><path d="M15.5 14.5c.9 0 1.5-.6 1.5-1.5s-.6-1.5-1.5-1.5-1.5.6-1.5 1.5.6 1.5 1.5 1.5Z"/><path d="M8 9c0-1.7 1.3-3 4-3s4 1.3 4 3"/></svg>`,
+    },
+  ],
+  mapsUrl:
+    "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3519.123456789!2d-15.4123456789!3d28.123456789!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjjCsDA3JzI0LjQiTiAxNcKwMjQnNDQuNCJX!5e0!3m2!1sde!2ses!4v1234567890",
+};
+
+const openingHours = [
+  { days: "Lunes - Jueves", hours: "13:00 - 16:00 | 20:00 - 23:30" },
+  { days: "Viernes - Sábado", hours: "13:00 - 24:00" },
+  { days: "Domingo", hours: "13:00 - 17:00" },
+];
+---
+
+<section class="bg-background py-24 px-6 relative overflow-hidden text-white">
+  <div class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="flex flex-col items-center mb-20 text-center">
+      <span class="text-xs tracking-[0.5em] text-white/40 uppercase mb-3 block"
+        >¿Hablamos?</span
+      >
+      <h2
+        class="text-3xl md:text-5xl font-light tracking-[0.3em] uppercase mb-6"
+      >
+        Contacto
+      </h2>
+      <div
+        class="relative w-48 h-px bg-linear-to-r from-transparent via-white/40 to-transparent"
+      >
+        <div class="absolute inset-0 blur-sm bg-white/20"></div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+      <!-- Linke Spalte: Info -->
+      <div class="lg:col-span-5 space-y-12">
+        <!-- Anschrift -->
+        <div>
+          <h3 class="text-[10px] tracking-[0.3em] text-white/30 uppercase mb-4">
+            Ubicación
+          </h3>
+          <p
+            class="text-xl md:text-2xl font-serif italic text-gray-200 leading-relaxed max-w-sm"
+          >
+            {contactInfo.address}
+          </p>
+        </div>
+
+        <!-- Telefone & Email -->
+        <div class="space-y-8">
+          <div class="flex flex-col gap-6">
+            <h3
+              class="text-[10px] tracking-[0.3em] text-white/30 uppercase mb-2"
+            >
+              Teléfonos
+            </h3>
+            {
+              contactInfo.phones.map((phone) => (
+                <a href={`tel:${phone.href}`} class="group block w-fit">
+                  <span class="block text-[9px] text-white/20 uppercase tracking-[0.2em] mb-1 group-hover:text-white/50 transition-colors">
+                    {phone.label}
+                  </span>
+                  <span class="text-xl font-light border-b border-white/10 pb-1 group-hover:border-white transition-all duration-500">
+                    {phone.number}
+                  </span>
+                </a>
+              ))
+            }
+          </div>
+
+          <div>
+            <h3
+              class="text-[10px] tracking-[0.3em] text-white/30 uppercase mb-3"
+            >
+              Email
+            </h3>
+            <a
+              href={`mailto:${contactInfo.email}`}
+              class="text-lg md:text-xl font-light text-gray-400 hover:text-white transition-colors"
+            >
+              {contactInfo.email}
+            </a>
+          </div>
+        </div>
+
+        <!-- Social Media Icons (Edel & Minimalistisch) -->
+        <div>
+          <h3 class="text-[10px] tracking-[0.3em] text-white/30 uppercase mb-6">
+            Síguenos
+          </h3>
+          <div class="flex gap-6">
+            {
+              contactInfo.socials.map((social) => (
+                <a
+                  href={social.url}
+                  target="_blank"
+                  aria-label={social.name}
+                  class="w-12 h-12 flex items-center justify-center rounded-full border border-white/10 text-white/50 hover:text-white hover:border-white hover:bg-white/5 transition-all duration-500"
+                  set:html={social.svg}
+                />
+              ))
+            }
+          </div>
+        </div>
+
+        <!-- Horario -->
+        <div class="pt-4">
+          <h3 class="text-[10px] tracking-[0.3em] text-white/30 uppercase mb-6">
+            Horario
+          </h3>
+          <ul class="space-y-4">
+            {
+              openingHours.map((item) => (
+                <li class="flex justify-between items-end border-b border-white/5 pb-3">
+                  <span class="text-sm text-gray-400 font-light">
+                    {item.days}
+                  </span>
+                  <span class="text-sm md:text-base font-serif italic text-white tracking-wide">
+                    {item.hours}
+                  </span>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+
+      <!-- Rechte Spalte: Map -->
+      <div class="lg:col-span-7 h-full min-h-112.5 lg:min-h-162.5 relative">
+        <div
+          class="absolute inset-0 border border-white/10 rounded-3xl overflow-hidden group"
+        >
+          <div
+            class="absolute inset-0 bg-black/20 pointer-events-none group-hover:bg-transparent transition-all duration-700 z-10"
+          >
+          </div>
+          <iframe
+            src={contactInfo.mapsUrl}
+            class="w-full h-full grayscale-[0.9] contrast-[1.1] opacity-60 group-hover:opacity-100 group-hover:grayscale-0 transition-all duration-1000"
+            style="border:0;"
+            allowfullscreen=""
+            loading="lazy"
+          >
+          </iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital@0;1&display=swap");
+
+  .font-serif {
+    font-family: "Playfair Display", serif;
+  }
+</style>
