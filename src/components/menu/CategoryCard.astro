@@ -37,4 +37,12 @@ const { category } = Astro.props;
   <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
     {category.products.map((product) => <ProductCard product={product} />)}
   </div>
+
+  {
+    category.id === "ilvveqttxq754go" && (
+      <div class="mt-8 w-full flex justify-center">
+        <img class="w-full max-w-3xl" src="/punto.webp" />
+      </div>
+    )
+  }
 </section>
