@@ -1,0 +1,214 @@
+---
+const awards = [
+  {
+    src: "https://www.pulpo.cloud/api/files/oejuxb8pu427psz/kn3uedrg4n3skfq/2025_removebg_preview_bNgjSkZk6Z.png",
+    alt: "Tripadvisor Travelers Choice 2024",
+  },
+  {
+    src: "https://www.pulpo.cloud/api/files/oejuxb8pu427psz/kn3uedrg4n3skfq/imagen_de_whats_app_2025_10_16_a_las_11_07_PEEq8yjgcu.47_acf6d49e.jpg",
+    alt: "Mejor Restaurante Asador",
+  },
+  {
+    src: "https://www.pulpo.cloud/api/files/oejuxb8pu427psz/kn3uedrg4n3skfq/8191ecb2_6f39_4cc0_ab3d_5a852438c171_WSviRxa7aZ.JPG",
+    alt: "Certificado de Excelencia",
+  },
+  {
+    src: "https://www.pulpo.cloud/api/files/oejuxb8pu427psz/kn3uedrg4n3skfq/medium_whats_app_image_2023_05_16_at_10_28_21_80bc106aab_JoloAt8mCe.jpeg",
+    alt: "Certificado de Excelencia",
+  },
+  {
+    src: "https://www.pulpo.cloud/api/files/oejuxb8pu427psz/kn3uedrg4n3skfq/2025_removebg_preview_bNgjSkZk6Z.png",
+    alt: "Tripadvisor Travelers Choice 2024",
+  },
+  {
+    src: "https://www.pulpo.cloud/api/files/oejuxb8pu427psz/kn3uedrg4n3skfq/imagen_de_whats_app_2025_10_16_a_las_11_07_PEEq8yjgcu.47_acf6d49e.jpg",
+    alt: "Mejor Restaurante Asador",
+  },
+  {
+    src: "https://www.pulpo.cloud/api/files/oejuxb8pu427psz/kn3uedrg4n3skfq/8191ecb2_6f39_4cc0_ab3d_5a852438c171_WSviRxa7aZ.JPG",
+    alt: "Certificado de Excelencia",
+  },
+  {
+    src: "https://www.pulpo.cloud/api/files/oejuxb8pu427psz/kn3uedrg4n3skfq/medium_whats_app_image_2023_05_16_at_10_28_21_80bc106aab_JoloAt8mCe.jpeg",
+    alt: "Certificado de Excelencia",
+  },
+  {
+    src: "https://www.pulpo.cloud/api/files/oejuxb8pu427psz/kn3uedrg4n3skfq/2025_removebg_preview_bNgjSkZk6Z.png",
+    alt: "Tripadvisor Travelers Choice 2024",
+  },
+  {
+    src: "https://www.pulpo.cloud/api/files/oejuxb8pu427psz/kn3uedrg4n3skfq/imagen_de_whats_app_2025_10_16_a_las_11_07_PEEq8yjgcu.47_acf6d49e.jpg",
+    alt: "Mejor Restaurante Asador",
+  },
+  {
+    src: "https://www.pulpo.cloud/api/files/oejuxb8pu427psz/kn3uedrg4n3skfq/8191ecb2_6f39_4cc0_ab3d_5a852438c171_WSviRxa7aZ.JPG",
+    alt: "Certificado de Excelencia",
+  },
+  {
+    src: "https://www.pulpo.cloud/api/files/oejuxb8pu427psz/kn3uedrg4n3skfq/medium_whats_app_image_2023_05_16_at_10_28_21_80bc106aab_JoloAt8mCe.jpeg",
+    alt: "Certificado de Excelencia",
+  },
+];
+
+const title = "Premios";
+const description =
+  "Con pasión, fuego y los mejores ingredientes, llevamos la auténtica experiencia del asado argentino a tu mesa. Nuestra dedicación ha sido premiada en múltiples ocasiones: somos orgullosos ganadores de varios reconocidos premios.";
+---
+
+<section class="relative bg-background py-16 md:py-24 px-6 overflow-hidden">
+  <div class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="flex flex-col items-center mb-12 md:mb-20 text-center">
+      <h2
+        class="text-2xl md:text-5xl font-light tracking-[0.3em] text-white uppercase mb-4 md:mb-6"
+      >
+        {title}
+      </h2>
+      <div
+        class="relative w-32 md:w-48 h-px bg-linear-to-r from-transparent via-white/40 to-transparent"
+      >
+        <div class="absolute inset-0 blur-sm bg-white/20"></div>
+      </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div
+      class="flex flex-col lg:grid lg:grid-cols-2 gap-12 lg:gap-24 items-center"
+    >
+      <!-- Desktop: Vertical Marquee -->
+      <div class="hidden lg:block relative h-125 w-full overflow-hidden group">
+        <div
+          class="absolute inset-x-0 top-0 h-20 bg-linear-to-b from-background to-transparent z-10"
+        >
+        </div>
+        <div
+          class="absolute inset-x-0 bottom-0 h-20 bg-linear-to-t from-background to-transparent z-10"
+        >
+        </div>
+
+        <div
+          class="grid grid-cols-2 gap-4 animate-marquee-vertical group-hover:[animation-play-state:paused]"
+        >
+          {
+            awards.slice(0, 16).map((award) => (
+              <div class="aspect-square flex items-center justify-center p-6 bg-white/3 border border-white/10 rounded-2xl transition-all duration-700">
+                <img
+                  src={award.src}
+                  alt={award.alt}
+                  class="max-w-[80%] h-auto object-contain filter grayscale opacity-50"
+                />
+              </div>
+            ))
+          }
+        </div>
+      </div>
+
+      <!-- Text Content -->
+      <div class="flex flex-col justify-center order-first lg:order-0">
+        <div class="relative">
+          <span
+            class="text-5xl md:text-7xl text-white/10 font-serif absolute -top-6 -left-4 md:-top-10 md:-left-8 select-none"
+            >“</span
+          >
+          <p
+            class="text-lg md:text-2xl font-serif italic text-gray-300 leading-relaxed tracking-wide relative z-10"
+          >
+            {description}
+          </p>
+        </div>
+
+        <!-- Desktop Label -->
+        <div class="hidden lg:flex mt-10 items-center gap-4">
+          <div class="h-px w-12 bg-white/20"></div>
+          <span class="text-xs tracking-[0.4em] text-white/40 uppercase"
+            >Excelencia & Tradición</span
+          >
+        </div>
+      </div>
+
+      <!-- Mobile: Horizontal Marquee -->
+      <div class="lg:hidden w-full overflow-hidden py-4">
+        <!-- Mobile Label (Über den Awards wie im Screenshot) -->
+        <div class="flex items-center justify-center gap-4 mb-8">
+          <div class="h-px w-8 bg-white/10"></div>
+          <span class="text-[10px] tracking-[0.4em] text-white/40 uppercase"
+            >Excelencia & Tradición</span
+          >
+          <div class="h-px w-8 bg-white/10"></div>
+        </div>
+
+        <div class="relative">
+          <!-- Maskierung für weiche Kanten ohne Striche -->
+          <div
+            class="absolute inset-y-0 left-0 w-12 bg-linear-to-r from-background to-transparent z-10"
+          >
+          </div>
+          <div
+            class="absolute inset-y-0 right-0 w-12 bg-linear-to-l from-background to-transparent z-10"
+          >
+          </div>
+
+          <div class="flex animate-marquee-horizontal-fast">
+            {
+              awards.map((award) => (
+                <div class="flex-none w-32 mx-3 aspect-square flex items-center justify-center p-4 bg-white/4 rounded-xl">
+                  <img
+                    src={award.src}
+                    alt={award.alt}
+                    class="max-w-full h-auto object-contain filter grayscale opacity-70"
+                  />
+                </div>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital@0;1&display=swap");
+
+  .font-serif {
+    font-family: "Playfair Display", serif;
+  }
+
+  /* Desktop Animation */
+  @keyframes marquee-vertical {
+    0% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(-50%);
+    }
+  }
+
+  /* Mobile Animation */
+  @keyframes marquee-horizontal-fast {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-33.333%);
+    }
+  }
+
+  .animate-marquee-vertical {
+    animation: marquee-vertical 40s linear infinite;
+  }
+
+  .animate-marquee-horizontal-fast {
+    animation: marquee-horizontal-fast 40s linear infinite;
+    display: flex;
+    width: max-content;
+  }
+
+  img,
+  div {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+</style>
