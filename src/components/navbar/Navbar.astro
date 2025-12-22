@@ -71,8 +71,7 @@ const getPathForLang = (newLang: string) => {
             id="lang-button"
             class="flex items-center gap-2 px-3 py-2 text-sm font-medium border border-border rounded-md hover:bg-muted transition-colors uppercase"
           >
-            <span>{currentLangObj.flag}</span>
-            {currentLangObj.code}
+            <span class="text-xl">{currentLangObj.flag}</span>
             <svg
               class="w-4 h-4 opacity-50"
               fill="none"
@@ -98,7 +97,7 @@ const getPathForLang = (newLang: string) => {
                     href={getPathForLang(l.code)}
                     class={`flex items-center gap-3 px-4 py-2 text-sm hover:bg-muted ${lang === l.code ? "text-primary font-bold" : "text-foreground"}`}
                   >
-                    <span>{l.flag}</span>
+                    <span class="text-2xl">{l.flag}</span>
                     {l.label}
                   </a>
                 ))

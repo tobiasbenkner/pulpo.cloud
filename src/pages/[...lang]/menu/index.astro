@@ -11,22 +11,18 @@ const categories = await getCollection("categories");
 ---
 
 <Layout title="Menu">
-  <div class="w-full">
-    <!-- <CategoryNav categories={sortedCategories} /> -->
-
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-      <div class="space-y-24">
-        {
-          categories.map(({ data: category }) => {
-            return (
-              <CategoryCard category={category}>
-                <h1>{t(category.name, lang)}</h1>
-                {category.products.length}
-              </CategoryCard>
-            );
-          })
-        }
-      </div>
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
+    <div class="space-y-24">
+      {
+        categories.map(({ data: category }) => {
+          return (
+            <CategoryCard category={category}>
+              <h1>{t(category.name, lang)}</h1>
+              {category.products.length}
+            </CategoryCard>
+          );
+        })
+      }
     </div>
   </div>
 </Layout>
