@@ -1,6 +1,10 @@
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..700;1,400..700&display=swap");
+
 @import "tailwindcss";
 
 @theme inline {
+  --font-serif: "Playfair Display", serif;
+
   --color-background: #0a0a0a;
   --color-foreground: #fafafa;
 
@@ -17,4 +21,8 @@
 
   --color-text: #fafafa;
   --color-text-muted: #a3a3a3;
+}
+
+html {
+  scroll-behavior: smooth;
 }
