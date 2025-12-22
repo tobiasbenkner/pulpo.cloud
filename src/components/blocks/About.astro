@@ -2,68 +2,87 @@
 import SectionHeader from "../ui/SectionHeader.astro";
 
 const story = {
-  title: "El Nacimiento de El Búho Tuerto",
+  chapter: "Nuestra Esencia",
+  title: "El Nacimiento",
   image: "/team.webp",
-  paragraphs: [
-    "En muchas culturas, y especialmente en Argentina, el búho es símbolo de conocimiento y sabiduría. Su mirada imponente, con ojos fijos hacia adelante y una visión de 270°, lo convierte en un observador nato, siempre atento, siempre estratégico.",
-    "Cuando decidimos abrir nuestro restaurante de parrilla a la brasa, sabíamos que necesitábamos un nombre que fuera memorable, auténtico y con una historia que reflejara nuestra esencia. Así nació El Búho Tuerto.",
-    "El búho es un guerrero de la naturaleza, un sobreviviente. La imagen de un búho tuerto representa la lucha constante, la capacidad de adaptarse y seguir adelante a pesar de las adversidades. Es un símbolo de resiliencia, igual que quienes dejan su tierra en busca de nuevas oportunidades, llevando consigo sus raíces y su pasión.",
-    "En El Búho Tuerto, honramos esa lucha con cada plato, con cada brasa encendida y con cada cliente que se sienta a nuestra mesa. Porque, al igual que el búho, vemos más allá de los desafíos y creemos en la fuerza de seguir adelante, siempre con la mejor visión del futuro.",
-  ],
-  footer: ["Bienvenidos a nuestra historia.", "Bienvenidos a El Búho Tuerto."],
+  content: `
+    <span class="first-phrase">En muchas culturas</span>, y especialmente en Argentina, el búho es símbolo de conocimiento y sabiduría. Su mirada imponente, con ojos fijos hacia adelante y una visión de 270°, lo convierte en un observador nato, siempre atento, siempre estratégico.
+    <br><br>
+    Cuando decidimos abrir nuestro restaurante de parrilla a la brasa, sabíamos que necesitábamos un nombre que fuera memorable, auténtico y con una historia que reflejara nuestra esencia. Así nació El Búho Tuerto.
+    <br><br>
+    El búho es un guerrero de la naturaleza, un sobreviviente. La imagen de un búho tuerto representa la lucha constante, la capacidad de adaptarse y seguir adelante a pesar de las adversidades. Es un símbolo de resiliencia, igual que quienes dejan su tierra en busca de nuevas oportunidades, llevando consigo sus raíces y su pasión.
+    <br><br>
+    En El Búho Tuerto, honramos esa lucha con cada plato, con cada brasa encendida y con cada cliente que se sienta a nuestra mesa. Porque, al igual que el búho, vemos más allá de los desafíos y creemos en la fuerza de seguir adelante, siempre con la mejor visión del futuro.
+  `,
+  footer: "Bienvenidos a nuestra historia.",
 };
 ---
 
-<section class="bg-background py-24 px-6 overflow-hidden">
+<section class="bg-background py-24 px-6 relative overflow-hidden">
   <div class="max-w-7xl mx-auto">
-    <SectionHeader
-      subtitle="Nuestra Historia"
-      title="El Nacimiento"
-      align="center"
-    />
+    <!-- Header -->
+    <div class="mb-16 text-center">
+      <span
+        class="text-[10px] tracking-[0.4em] text-white/40 uppercase mb-2 block"
+        >Capítulo I</span
+      >
+      <SectionHeader title={story.title} align="center" />
+    </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-start">
-      <div class="lg:col-span-5 relative group">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-start">
+      <!-- Seite 1: Das Bild -->
+      <div class="relative w-full max-w-md mx-auto aspect-3/4">
+        <!-- Rahmen 1 (Innen): Gold, aber dezenter (20% Opacity) -->
         <div
-          class="absolute -top-4 -left-4 w-full h-full border border-border rounded-2xl transition-transform duration-700 group-hover:-translate-x-2 group-hover:-translate-y-2"
+          class="absolute inset-4 border border-amber-200/20 z-20 pointer-events-none"
         >
         </div>
 
-        <div class="relative rounded-2xl overflow-hidden shadow-2xl">
+        <!-- Rahmen 2 (Außen): Sehr subtil (10% Opacity) -->
+        <div
+          class="absolute inset-0 border border-amber-200/10 z-20 pointer-events-none translate-x-3 translate-y-3"
+        >
+        </div>
+
+        <div
+          class="w-full h-full overflow-hidden relative grayscale-[0.3] hover:grayscale-0 transition-all duration-1000"
+        >
           <img
             src={story.image}
-            alt="El Búho Tuerto Team"
-            class="w-full h-auto object-cover scale-100 group-hover:scale-105 transition-transform duration-[2s]"
+            alt="Team El Búho Tuerto"
+            class="w-full h-full object-cover opacity-90"
           />
-
           <div
-            class="absolute inset-0 bg-linear-to-t from-gray-700 via-transparent to-transparent"
+            class="absolute inset-0 bg-[radial-gradient(circle,transparent_40%,rgba(10,10,10,0.8)_100%)] z-10"
           >
           </div>
         </div>
+
+        <div class="absolute -bottom-8 left-0 right-0 text-center">
+          <span class="text-[9px] tracking-[0.3em] uppercase text-amber-200/40"
+            >Fig. 1 — La Familia</span
+          >
+        </div>
       </div>
 
-      <div class="lg:col-span-7 space-y-8">
-        <div class="prose prose-invert max-w-none">
-          {
-            story.paragraphs.map((para) => (
-              <p class="text-gray-300 font-serif italic text-lg md:text-xl leading-relaxed mb-6 last:mb-0">
-                {para}
-              </p>
-            ))
-          }
+      <!-- Seite 2: Der Text -->
+      <div class="relative">
+        <div
+          class="prose-book text-gray-300 font-serif italic text-lg leading-relaxed text-justify relative z-10"
+        >
+          <p set:html={story.content} />
         </div>
 
-        <div class="pt-8 space-y-2">
-          {
-            story.footer.map((line, index) => (
-              <p
-                class={`text-white uppercase tracking-[0.3em] text-sm md:text-base ${index === 1 ? "font-bold text-amber-200/80" : "font-light"}`}
-              >
-                {line}
-              </p>
-            ))
-          }
+        <!-- Trennlinie unten: Subtil Weiß/Gold gemischt -->
+        <div
+          class="mt-12 flex flex-col items-center gap-4 border-t border-white/10 pt-8"
+        >
+          <div class="text-amber-200/40 text-2xl">❦</div>
+          <p
+            class="text-white uppercase tracking-[0.3em] text-xs font-bold text-center"
+          >
+            {story.footer}
+          </p>
         </div>
       </div>
     </div>
@@ -75,5 +94,38 @@ const story = {
 
   .font-serif {
     font-family: "Playfair Display", serif;
+  }
+
+  .prose-book {
+    column-count: 1;
+    column-gap: 4rem;
+    position: relative;
+  }
+
+  @media (min-width: 1024px) {
+    .prose-book {
+      column-count: 2;
+      column-rule: 1px solid rgba(253, 230, 138, 0.15);
+    }
+  }
+
+  .prose-book :global(.first-phrase) {
+    font-variant: small-caps;
+    letter-spacing: 0.1em;
+    font-style: normal;
+    color: white;
+    font-weight: 600;
+  }
+
+  .prose-book :global(p::first-letter) {
+    float: left;
+    font-size: 5.5rem;
+    line-height: 0.75;
+    margin-top: 0.1em;
+    padding-right: 0.15em;
+    font-family: "Playfair Display", serif;
+    font-weight: 400;
+    color: rgb(253, 230, 138);
+    font-style: normal;
   }
 </style>
