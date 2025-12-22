@@ -42,18 +42,15 @@ const getPathForLang = (newLang: string) => {
 <header class="bg-background border-b border-border sticky top-0 z-50">
   <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative" aria-label="Top">
     <div class="flex justify-between items-center h-16">
-      <!-- Logo -->
-      <div class="shrink-0 flex items-center">
-        <a
-          href={`/${lang}/`}
-          class="text-2xl font-bold transition-opacity hover:opacity-80"
-        >
+      <!-- 1. Logo (Links) -->
+      <div class="flex-1 flex justify-start">
+        <a href={`/${lang}/`} class="transition-opacity hover:opacity-80">
           <img src="/logo.webp" alt="Logo" class="h-10" />
         </a>
       </div>
 
-      <!-- Desktop Navigation -->
-      <div class="hidden md:flex space-x-8 items-center">
+      <!-- 2. Desktop Navigation (Zentriert) -->
+      <div class="hidden md:flex flex-1 justify-center space-x-8 items-center">
         {
           navLinks.map((link) => (
             <a
@@ -64,14 +61,15 @@ const getPathForLang = (newLang: string) => {
             </a>
           ))
         }
+      </div>
 
+      <!-- 3. Desktop Language Dropdown (Rechts) -->
+      <div class="hidden md:flex flex-1 justify-end items-center">
         <div class="relative inline-block text-left" id="lang-dropdown-wrapper">
           <button
             type="button"
             id="lang-button"
             class="flex items-center gap-2 px-3 py-2 text-sm font-medium border border-border rounded-md hover:bg-muted transition-colors uppercase"
-            aria-haspopup="true"
-            aria-expanded="false"
           >
             <span>{currentLangObj.flag}</span>
             {currentLangObj.code}
@@ -98,7 +96,7 @@ const getPathForLang = (newLang: string) => {
                 languages.map((l) => (
                   <a
                     href={getPathForLang(l.code)}
-                    class={`flex items-center gap-3 px-4 py-2 text-sm hover:bg-muted transition-colors ${lang === l.code ? "text-primary font-bold" : "text-foreground"}`}
+                    class={`flex items-center gap-3 px-4 py-2 text-sm hover:bg-muted ${lang === l.code ? "text-primary font-bold" : "text-foreground"}`}
                   >
                     <span>{l.flag}</span>
                     {l.label}
@@ -147,6 +145,7 @@ const getPathForLang = (newLang: string) => {
       </div>
     </div>
 
+    <!-- Mobile Menu -->
     <div
       id="mobile-menu"
       class="hidden md:hidden absolute top-16 left-0 right-0 bg-background border-b border-border shadow-xl z-50 max-h-[calc(100vh-64px)] overflow-y-auto"
@@ -202,7 +201,6 @@ const getPathForLang = (newLang: string) => {
     closeIcon?.classList.toggle("hidden");
   });
 
-  // Language Dropdown Logic
   const langButton = document.getElementById("lang-button");
   const langMenu = document.getElementById("lang-menu");
 
