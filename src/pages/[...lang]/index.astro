@@ -1,0 +1,19 @@
+---
+import Layout from "../../layouts/Layout.astro";
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: undefined } },
+    { params: { lang: "es" } },
+    { params: { lang: "es-ar" } },
+    { params: { lang: "en" } },
+    { params: { lang: "de" } },
+  ];
+}
+
+const { lang = "es" } = Astro.params;
+---
+
+<Layout title="Start">
+  <div>Index {lang}</div>
+</Layout>

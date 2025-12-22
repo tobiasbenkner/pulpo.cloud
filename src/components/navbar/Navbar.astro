@@ -1,0 +1,219 @@
+---
+import { defaultLang, languages } from "../../i18n";
+const { lang = defaultLang } = Astro.params;
+
+const translations = {
+  es: {
+    home: "Inicio",
+    menu: "Menú",
+    contact: "Contacto",
+    selectLang: "Idioma",
+  },
+  en: {
+    home: "Home",
+    menu: "Menu",
+    contact: "Contact",
+    selectLang: "Language",
+  },
+  de: { home: "Home", menu: "Menü", contact: "Kontakt", selectLang: "Sprache" },
+};
+
+const t = translations[lang as keyof typeof translations] || translations.es;
+
+const navLinks = [
+  { name: t.home, href: `/${lang}/` },
+  { name: t.menu, href: `/${lang}/menu` },
+  { name: t.contact, href: `/${lang}/contact` },
+];
+
+const currentLangObj = languages.find((l) => l.code === lang) || languages[0];
+
+const currentPath = Astro.url.pathname;
+const getPathForLang = (newLang: string) => {
+  const parts = currentPath.split("/").filter(Boolean);
+  if (parts.length > 0 && languages.some((l) => l.code === parts[0])) {
+    parts[0] = newLang;
+    return "/" + parts.join("/");
+  }
+  return `/${newLang}/`;
+};
+---
+
+<header class="bg-background border-b border-border sticky top-0 z-50">
+  <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-label="Top">
+    <div class="flex justify-between items-center h-16">
+      <!-- Logo -->
+      <div class="shrink-0 flex items-center">
+        <a
+          href={`/${lang}/`}
+          class="text-2xl font-bold transition-opacity hover:opacity-80"
+        >
+          <img src="/logo.webp" alt="Logo" class="h-10" />
+        </a>
+      </div>
+
+      <div class="hidden md:flex space-x-8 items-center">
+        {
+          navLinks.map((link) => (
+            <a
+              href={link.href}
+              class="text-sm font-medium hover:text-primary transition-colors"
+            >
+              {link.name}
+            </a>
+          ))
+        }
+
+        <div class="relative inline-block text-left" id="lang-dropdown-wrapper">
+          <button
+            type="button"
+            id="lang-button"
+            class="flex items-center gap-2 px-3 py-2 text-sm font-medium border border-border rounded-md hover:bg-muted transition-colors uppercase"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >
+            <span>{currentLangObj.flag}</span>
+            {currentLangObj.code}
+            <svg
+              class="w-4 h-4 opacity-50"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+
+          <div
+            id="lang-menu"
+            class="hidden absolute right-0 mt-2 w-40 origin-top-right bg-background border border-border rounded-md shadow-xl z-50"
+          >
+            <div class="py-1">
+              {
+                languages.map((l) => (
+                  <a
+                    href={getPathForLang(l.code)}
+                    class={`flex items-center gap-3 px-4 py-2 text-sm hover:bg-muted transition-colors ${lang === l.code ? "text-primary font-bold" : "text-foreground"}`}
+                  >
+                    <span>{l.flag}</span>
+                    {l.label}
+                  </a>
+                ))
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Menu Button -->
+      <div class="md:hidden flex items-center">
+        <button
+          id="menu-toggle"
+          type="button"
+          class="p-2 hover:text-primary focus:outline-none"
+        >
+          <svg
+            id="menu-icon"
+            class="h-7 w-7"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+          <svg
+            id="close-icon"
+            class="h-7 w-7 hidden"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div id="mobile-menu" class="hidden md:hidden border-t border-border">
+      <div class="flex flex-col space-y-1 py-4">
+        {
+          navLinks.map((link) => (
+            <a
+              href={link.href}
+              class="block px-4 py-2 text-lg font-medium hover:bg-muted rounded-md"
+            >
+              {link.name}
+            </a>
+          ))
+        }
+
+        <div class="pt-4 mt-2 border-t border-border px-4">
+          <p
+            class="text-xs font-semibold text-muted-foreground uppercase mb-2 tracking-wider"
+          >
+            {t.selectLang}
+          </p>
+          <div class="grid grid-cols-1 gap-2">
+            {
+              languages.map((l) => (
+                <a
+                  href={getPathForLang(l.code)}
+                  class={`flex items-center gap-3 py-2 text-base ${lang === l.code ? "text-primary font-bold" : "text-foreground"}`}
+                >
+                  <span class="text-xl">{l.flag}</span>
+                  {l.label}
+                </a>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<script>
+  const menuToggle = document.getElementById("menu-toggle");
+  const mobileMenu = document.getElementById("mobile-menu");
+  const menuIcon = document.getElementById("menu-icon");
+  const closeIcon = document.getElementById("close-icon");
+
+  menuToggle?.addEventListener("click", () => {
+    const isExpanded = mobileMenu?.classList.contains("hidden");
+    mobileMenu?.classList.toggle("hidden");
+    menuIcon?.classList.toggle("hidden");
+    closeIcon?.classList.toggle("hidden");
+  });
+
+  const langButton = document.getElementById("lang-button");
+  const langMenu = document.getElementById("lang-menu");
+
+  langButton?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    langMenu?.classList.toggle("hidden");
+    const isExpanded = !langMenu?.classList.contains("hidden");
+    langButton.setAttribute("aria-expanded", isExpanded.toString());
+  });
+
+  document.addEventListener("click", (event) => {
+    if (
+      !langButton?.contains(event.target as Node) &&
+      !langMenu?.contains(event.target as Node)
+    ) {
+      langMenu?.classList.add("hidden");
+      langButton?.setAttribute("aria-expanded", "false");
+    }
+  });
+</script>
