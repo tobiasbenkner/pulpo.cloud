@@ -1,0 +1,113 @@
+---
+const { lang = "es" } = Astro.params;
+
+const navLinks = [
+  { name: "Home", href: "/" },
+  { name: "Menu", href: "/menu" },
+  { name: "Contact", href: "/contact" },
+];
+---
+
+<header class="bg-background border-b border-border sticky top-0 z-50">
+  <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-label="Top">
+    <div class="flex justify-between items-center h-16">
+      <!-- Logo -->
+      <div class="shrink-0 flex items-center">
+        <a href="/" class="text-2xl font-bold">
+          <img src="/logo.webp" class="h-10" />
+        </a>
+      </div>
+
+      <!-- Desktop Menü (Sichtbar ab 'md') -->
+      <div class="hidden md:flex space-x-8 items-center">
+        {
+          navLinks.map((link) => (
+            <a
+              href={link.href}
+              class="hover:text-primary font-medium transition-colors"
+            >
+              {link.name}
+            </a>
+          ))
+        }
+      </div>
+
+      <!-- Mobile Menu Button (Hamburger) -->
+      <div class="md:hidden flex items-center">
+        <button
+          id="menu-toggle"
+          type="button"
+          class="hover:text-primary focus:outline-none"
+          aria-expanded="false"
+        >
+          <span class="sr-only">Menü öffnen</span>
+          <!-- Icon: Hamburger -->
+          <svg
+            id="menu-icon"
+            class="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+          <!-- Icon: X (Close) -->
+          <svg
+            id="close-icon"
+            class="h-6 w-6 hidden"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobiles Menü (Hidden by default) -->
+    <div
+      id="mobile-menu"
+      class="hidden md:hidden pb-4 transition-all duration-300"
+    >
+      <div class="flex flex-col space-y-2">
+        {
+          navLinks.map((link) => (
+            <a
+              href={link.href}
+              class="block px-3 py-2 text-base font-medium hover:text-primary rounded-md"
+            >
+              {link.name}
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </nav>
+</header>
+
+<script>
+  // Script für das Toggle-Verhalten
+  const menuToggle = document.getElementById("menu-toggle");
+  const mobileMenu = document.getElementById("mobile-menu");
+  const menuIcon = document.getElementById("menu-icon");
+  const closeIcon = document.getElementById("close-icon");
+
+  menuToggle?.addEventListener("click", () => {
+    const isExpanded = menuToggle.getAttribute("aria-expanded") === "true";
+
+    // Toggle State
+    menuToggle.setAttribute("aria-expanded", (!isExpanded).toString());
+    mobileMenu?.classList.toggle("hidden");
+    menuIcon?.classList.toggle("hidden");
+    closeIcon?.classList.toggle("hidden");
+  });
+</script>
