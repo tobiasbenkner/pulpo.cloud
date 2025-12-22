@@ -1,0 +1,115 @@
+---
+const sittings = [
+  {
+    days: "Domingo y Lunes",
+    type: "almuerzo",
+    range: "13:00h — 17:00h",
+    turnos: [
+      { label: "1º Turno", time: "13:00h - 15:00h" },
+      { label: "2º Turno", time: "15:00h - 17:00h" }
+    ]
+  },
+  {
+    days: "Martes",
+    type: "closed",
+    label: "Descanso del Equipo",
+    message: "Cerrado por descanso del personal."
+  },
+  {
+    days: "Miércoles a Sábado",
+    type: "full",
+    sessions: [
+      {
+        label: "Almuerzo",
+        range: "13:00h — 17:00h",
+        turnos: [
+          { label: "1º Turno", time: "13:00h - 15:00h" },
+          { label: "2º Turno", time: "15:00h - 17:00h" }
+        ]
+      },
+      {
+        label: "Cena",
+        range: "20:00h — 00:00h",
+        turnos: [
+          { label: "1º Turno", time: "20:00h - 22:00h" },
+          { label: "2º Turno", time: "22:00h - 00:00h" }
+        ]
+      }
+    ]
+  }
+];
+---
+
+<section class="bg-background py-24 px-6 relative overflow-hidden text-white">
+  <div class="max-w-6xl mx-auto">
+    
+    <!-- Header -->
+    <div class="text-center mb-16">
+      <span class="text-sm tracking-[0.4em] text-amber-200/60 uppercase mb-4 block font-medium">Horarios</span>
+      <h2 class="text-3xl md:text-5xl font-light tracking-tight uppercase mb-6">Nuestra rutina de sabores</h2>
+      <div class="w-24 h-px bg-amber-200/30 mx-auto"></div>
+    </div>
+
+    <!-- Grid Layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      
+      {sittings.map((item) => (
+        <div class={`relative flex flex-col p-8 md:p-10 rounded-2xl border ${item.type === 'closed' ? 'border-white/5 bg-white/1' : 'border-white/10 bg-white/3'}`}>
+          
+          <!-- Wochentage (Größe angehoben) -->
+          <div class="mb-10">
+            <h3 class="text-amber-200 text-lg md:text-xl tracking-widest uppercase font-medium">{item.days}</h3>
+          </div>
+
+          <div class="flex-1 space-y-12">
+            {item.type === 'closed' ? (
+              <div class="py-10">
+                <span class="text-white/30 uppercase tracking-widest text-sm block mb-2">{item.label}</span>
+                <p class="text-gray-400 font-serif italic text-xl">{item.message}</p>
+              </div>
+            ) : (
+              (item.sessions || [item]).map((session) => (
+                <div class="space-y-6">
+                  <!-- Session Header (Almuerzo/Cena) -->
+                  <div class="flex justify-between items-end border-b border-white/10 pb-3">
+                    <span class="text-white text-lg tracking-widest uppercase font-light">{session.label || 'Horario'}</span>
+                    <!-- Zeitspanne (Größe angehoben von 10px auf sm) -->
+                    <span class="text-sm text-amber-200/40 tracking-wider font-medium">{session.range}</span>
+                  </div>
+                  
+                  <div class="space-y-5">
+                    {(session.turnos ?? []).map((turno) => (
+                      <div class="flex justify-between items-center group">
+                        <div class="flex items-center gap-3">
+                           <div class="w-1.5 h-1.5 rounded-full bg-amber-200/40 group-hover:bg-amber-200 transition-colors"></div>
+                           <!-- Turno Label (Größe angehoben von 10px auf sm) -->
+                           <span class="text-gray-400 text-sm uppercase tracking-widest group-hover:text-white transition-colors">
+                            {turno.label}
+                           </span>
+                        </div>
+                        <!-- Uhrzeit (Klassisch groß, aber nicht übertrieben) -->
+                        <span class="text-white font-serif italic text-xl md:text-2xl tracking-wide group-hover:text-amber-200 transition-colors">
+                          {turno.time}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      ))}
+
+    </div>
+
+  </div>
+</section>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..700;1,400..700&display=swap');
+  
+  .font-serif {
+    font-family: 'Playfair Display', serif;
+  }
+</style>
