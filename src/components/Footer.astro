@@ -1,0 +1,175 @@
+---
+const currentYear = new Date().getFullYear();
+
+const links = [
+  { label: "Inicio", href: "/" },
+  { label: "Historia", href: "/historia" },
+  { label: "Menú", href: "/menu" },
+  { label: "Reservas", href: "/reservas" },
+  { label: "Contacto", href: "/contacto" },
+];
+
+const legal = [
+  { label: "Aviso Legal", href: "/legal" },
+  { label: "Política de Privacidad", href: "/privacidad" },
+  { label: "Cookies", href: "/cookies" },
+];
+
+const socialIcons = [
+  {
+    name: "Instagram",
+    href: "#",
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>`,
+  },
+  {
+    name: "Facebook",
+    href: "#",
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>`,
+  },
+  {
+    name: "Tripadvisor",
+    href: "#",
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8.5 14.5c.9 0 1.5-.6 1.5-1.5s-.6-1.5-1.5-1.5-1.5.6-1.5 1.5.6 1.5 1.5 1.5Z"/><path d="M15.5 14.5c.9 0 1.5-.6 1.5-1.5s-.6-1.5-1.5-1.5-1.5.6-1.5 1.5.6 1.5 1.5 1.5Z"/><path d="M8 9c0-1.7 1.3-3 4-3s4 1.3 4 3"/></svg>`,
+  },
+];
+---
+
+<footer
+  class="bg-[#050505] text-white pt-24 pb-12 relative overflow-hidden border-t border-white/5"
+>
+  <!-- Dekorativer "Schein" im Hintergrund -->
+  <div
+    class="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-px bg-linear-to-r from-transparent via-amber-200/20 to-transparent"
+  >
+  </div>
+
+  <div class="max-w-7xl mx-auto px-6">
+    <div
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-16 lg:gap-8 mb-20"
+    >
+      <!-- Spalte 1: Brand (4 Spalten) -->
+      <div class="lg:col-span-4 space-y-6">
+        <!-- Logo (Bild oder Text) -->
+        <a href="/" class="block">
+          <img
+            src="/chiquita.webp"
+            alt="Logo"
+            class="h-16 w-auto opacity-90 grayscale hover:grayscale-0 transition-all duration-500"
+          />
+          <!-- Fallback Text falls kein Bild: -->
+          <!-- <span class="text-2xl font-serif tracking-wider">EL BÚHO TUERTO</span> -->
+        </a>
+
+        <p
+          class="text-gray-500 font-serif italic text-lg leading-relaxed max-w-xs"
+        >
+          Pasión, fuego y tradición argentina en el corazón de Las Palmas.
+        </p>
+
+        <!-- Social Icons -->
+        <div class="flex gap-4 pt-4">
+          {
+            socialIcons.map((icon) => (
+              <a
+                href={icon.href}
+                aria-label={icon.name}
+                class="w-10 h-10 flex items-center justify-center rounded-full border border-white/10 text-gray-400 hover:text-amber-200 hover:border-amber-200/50 hover:bg-white/5 transition-all duration-300"
+                set:html={icon.svg}
+              />
+            ))
+          }
+        </div>
+      </div>
+
+      <!-- Spalte 2: Navigation (3 Spalten) -->
+      <div class="lg:col-span-3 lg:pl-8">
+        <h3 class="text-xs tracking-[0.3em] uppercase text-amber-200/50 mb-8">
+          Explorar
+        </h3>
+        <ul class="space-y-4">
+          {
+            links.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  class="text-sm tracking-[0.2em] uppercase text-gray-400 hover:text-white transition-colors duration-300 flex items-center gap-2 group"
+                >
+                  <span class="w-0 h-px bg-amber-200 transition-all duration-300 group-hover:w-4" />
+                  {link.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <!-- Spalte 3: Kontakt Kurzinfo (3 Spalten) -->
+      <div class="lg:col-span-3">
+        <h3 class="text-xs tracking-[0.3em] uppercase text-amber-200/50 mb-8">
+          Visítanos
+        </h3>
+        <div class="space-y-6">
+          <div class="space-y-1">
+            <p class="text-gray-400 font-serif italic">
+              Calle de la Gastronomía 12
+            </p>
+            <p class="text-gray-400 font-serif italic">
+              Las Palmas de Gran Canaria
+            </p>
+          </div>
+          <div class="space-y-1">
+            <a
+              href="tel:+34928123456"
+              class="block text-gray-400 hover:text-white transition-colors tracking-widest text-sm"
+              >+34 928 123 456</a
+            >
+            <a
+              href="mailto:hola@elbuho.com"
+              class="block text-gray-400 hover:text-white transition-colors tracking-widest text-sm"
+              >hola@elbuho.com</a
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Spalte 4: CTA (2 Spalten) -->
+      <div class="lg:col-span-2 flex flex-col justify-start lg:items-end">
+        <a
+          href="/reservas"
+          class="group relative inline-flex flex-col items-center justify-center p-8 border border-white/10 rounded-sm hover:border-amber-200/30 transition-colors duration-500 text-center w-full"
+        >
+          <span
+            class="text-[10px] tracking-[0.4em] uppercase text-amber-200/70 mb-2"
+            >Reservar</span
+          >
+          <span
+            class="font-serif italic text-2xl text-white group-hover:text-amber-200 transition-colors"
+            >Una Mesa</span
+          >
+        </a>
+      </div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div
+      class="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6"
+    >
+      <p class="text-[10px] tracking-[0.2em] uppercase text-gray-600">
+        © {currentYear} El Búho Tuerto. Todos los derechos reservados.
+      </p>
+
+      <div class="flex flex-wrap gap-6 justify-center">
+        {
+          legal.map((item) => (
+            <a
+              href={item.href}
+              class="text-[10px] tracking-[0.1em] uppercase text-gray-600 hover:text-gray-400 transition-colors"
+            >
+              {item.label}
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</footer>
