@@ -1,0 +1,96 @@
+---
+import { defaultLang } from "../../i18n";
+
+const { lang = defaultLang } = Astro.params;
+
+const navHeight = 64;
+const video = "/hero.mp4";
+const background = "";
+const height = `calc(100svh - ${navHeight}px)`;
+const logo = "/chiquita.webp";
+const title = "";
+const description = "Un rincón argentino en Las Palmas";
+const links = [
+  {
+    href: `/${lang}/menu`,
+    label: "Menu",
+  },
+];
+---
+
+<section
+  class="relative w-full overflow-hidden flex z-10"
+  style=`height: calc(100svh - ${navHeight}px)`
+>
+  <div class="absolute inset-0 z-[-1]">
+    {
+      !!video ? (
+        <video
+          class="w-full h-full object-cover"
+          src={video}
+          autoplay
+          muted
+          loop
+        />
+      ) : (
+        <div
+          class="w-full h-full bg-cover bg-no-repeat"
+          style={{
+            backgroundImage: background ? `url("${background}")` : undefined,
+          }}
+        />
+      )
+    }
+  </div>
+
+  <div class="absolute inset-0"></div>
+
+  {/* Inhalt */}
+  <div
+    class="relative z-10 w-full flex p-8 md:p-12 justify-center items-center text-center"
+  >
+    <div class="container">
+      {
+        logo && (
+          <div class="mb-8">
+            <img src={logo} alt="Logo" class="h-auto w-full mx-auto max-w-96" />
+          </div>
+        )
+      }
+
+      {
+        title && (
+          <h1 class="whitespace-pre-line text-5xl sm:text-6xl md:text-8xl font-bold tracking-tighter drop-shadow-lg text-white">
+            {title}
+          </h1>
+        )
+      }
+
+      {
+        description && (
+          <div class="prose prose-p:text-lg md:prose-p:text-xl max-w-none mt-6 prose-p:text-gray-700">
+            {description}
+          </div>
+        )
+      }
+
+      {
+        links && links.length > 0 && (
+          <div class="gap-4 flex justify-center mt-10">
+            {links.map((link) => {
+              return (
+                <a
+                  href={link.href}
+                  target={"_self"}
+                  class="inline-block rounded-md px-8 py-3 text-lg font-semibold transition-transform duration-300 ease-in-out hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                >
+                  {link.label}
+                </a>
+              );
+            })}
+          </div>
+        )
+      }
+    </div>
+  </div>
+</section>

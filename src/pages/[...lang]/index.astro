@@ -1,4 +1,5 @@
 ---
+import Hero from "../../components/blocks/Hero.astro";
 import Layout from "../../layouts/Layout.astro";
 
 export function getStaticPaths() {
@@ -15,5 +16,6 @@ const { lang = "es" } = Astro.params;
 ---
 
 <Layout title="Start">
+  <Hero />
   <div>Index {lang}</div>
 </Layout>
