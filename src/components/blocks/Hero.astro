@@ -42,17 +42,17 @@ const links = [
       )
     }
     <div
-      class="absolute inset-0 bg-linear-to-b from-black/40 via-transparent to-black/60"
+      class="absolute inset-0 bg-linear-to-b from-black/50 via-transparent to-black/70"
     >
     </div>
   </div>
 
   <!-- Content Layer -->
-  <div class="relative z-10 w-full max-w-4xl px-6 text-center">
+  <div class="relative z-10 w-full max-w-4xl px-6 text-center -mt-20 md:-mt-32">
     <div class="animate-fade-in">
       {
         logo && (
-          <div class="mb-10 drop-shadow-2xl">
+          <div class="mb-8 drop-shadow-2xl">
             <img
               src={logo}
               alt="Logo"
@@ -72,7 +72,7 @@ const links = [
 
       {
         description && (
-          <p class="text-xl md:text-2xl text-gray-200 font-serif italic tracking-wide mb-12 max-w-2xl mx-auto leading-relaxed drop-shadow-sm">
+          <p class="text-xl md:text-2xl text-gray-200 font-serif italic tracking-wide mb-10 max-w-2xl mx-auto leading-relaxed drop-shadow-sm">
             {description}
           </p>
         )
@@ -80,7 +80,7 @@ const links = [
 
       {
         links && links.length > 0 && (
-          <div class="flex justify-center mt-8">
+          <div class="flex justify-center mt-6">
             {links.map((link) => (
               <a
                 href={link.href}
@@ -99,7 +99,7 @@ const links = [
   </div>
 
   <div
-    class="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce opacity-50"
+    class="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce opacity-40"
   >
     <div class="w-px h-12 bg-linear-to-b from-white to-transparent"></div>
   </div>
@@ -107,13 +107,13 @@ const links = [
 
 <style>
   .animate-fade-in {
-    animation: fadeIn 1.8s ease-out forwards;
+    animation: fadeIn 1.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   }
 
   @keyframes fadeIn {
     from {
       opacity: 0;
-      transform: translateY(20px);
+      transform: translateY(30px);
     }
     to {
       opacity: 1;
