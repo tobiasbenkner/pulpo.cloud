@@ -1,4 +1,6 @@
 ---
+import SectionHeader from "../ui/SectionHeader.astro";
+
 const sittings = [
   {
     days: "Domingo y Lunes",
@@ -44,11 +46,10 @@ const sittings = [
   <div class="max-w-6xl mx-auto">
     
     <!-- Header -->
-    <div class="text-center mb-16">
-      <span class="text-sm tracking-[0.4em] text-amber-200/60 uppercase mb-4 block font-medium">Horarios</span>
-      <h2 class="text-3xl md:text-5xl font-light tracking-tight uppercase mb-6">Nuestra rutina de sabores</h2>
-      <div class="w-24 h-px bg-amber-200/30 mx-auto"></div>
-    </div>
+     <SectionHeader 
+      subtitle="Horarios" 
+      title="Nuestra rutina de sabores" 
+    />
 
     <!-- Grid Layout -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">

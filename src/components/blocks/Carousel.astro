@@ -1,4 +1,6 @@
 ---
+import SectionHeader from "../ui/SectionHeader.astro";
+
 const awards = [
   {
     src: "https://www.pulpo.cloud/api/files/oejuxb8pu427psz/kn3uedrg4n3skfq/2025_removebg_preview_bNgjSkZk6Z.png",
@@ -58,18 +60,7 @@ const description =
 <section class="relative bg-background py-16 md:py-24 px-6 overflow-hidden">
   <div class="max-w-6xl mx-auto">
     <!-- Header -->
-    <div class="flex flex-col items-center mb-12 md:mb-20 text-center">
-      <h2
-        class="text-2xl md:text-5xl font-light tracking-[0.3em] text-white uppercase mb-4 md:mb-6"
-      >
-        {title}
-      </h2>
-      <div
-        class="relative w-32 md:w-48 h-px bg-linear-to-r from-transparent via-white/40 to-transparent"
-      >
-        <div class="absolute inset-0 blur-sm bg-white/20"></div>
-      </div>
-    </div>
+    <SectionHeader subtitle="Nuestra Excelencia" title="Premios" />
 
     <!-- Main Content Grid -->
     <div

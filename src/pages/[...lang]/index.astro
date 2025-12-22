@@ -1,4 +1,5 @@
 ---
+import About from "../../components/blocks/About.astro";
 import Carousel from "../../components/blocks/Carousel.astro";
 import Contact from "../../components/blocks/Contact.astro";
 import Hero from "../../components/blocks/Hero.astro";
@@ -16,9 +17,10 @@ export function getStaticPaths() {
 }
 ---
 
-<Layout title="Start">
+<Layout title="El Búho Tuerto">
   <Hero />
   <Carousel />
   <Schedule />
   <Contact />
+  <About />
 </Layout>
