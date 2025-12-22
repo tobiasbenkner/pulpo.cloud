@@ -6,61 +6,65 @@ const { lang = defaultLang } = Astro.params;
 const navHeight = 64;
 const video = "/hero.mp4";
 const background = "";
-const height = `calc(100svh - ${navHeight}px)`;
 const logo = "/chiquita.webp";
 const title = "";
 const description = "Un rincón argentino en Las Palmas";
 const links = [
   {
     href: `/${lang}/menu`,
-    label: "Menu",
+    label: "VER MENÚ",
   },
 ];
 ---
 
 <section
-  class="relative w-full overflow-hidden flex z-10"
-  style=`height: calc(100svh - ${navHeight}px)`
+  class="relative w-full overflow-hidden flex items-center justify-center"
+  style={`height: calc(100svh - ${navHeight}px)`}
 >
-  <div class="absolute inset-0 z-[-1]">
+  <div class="absolute inset-0 z-0">
     {
       !!video ? (
         <video
-          class="w-full h-full object-cover"
+          class="w-full h-full object-cover opacity-70"
           src={video}
           autoplay
           muted
           loop
+          playsinline
         />
       ) : (
         <div
-          class="w-full h-full bg-cover bg-no-repeat"
+          class="w-full h-full bg-cover bg-center opacity-70"
           style={{
             backgroundImage: background ? `url("${background}")` : undefined,
           }}
         />
       )
     }
+    <div
+      class="absolute inset-0 bg-linear-to-b from-black/40 via-transparent to-black/60"
+    >
+    </div>
   </div>
 
-  <div class="absolute inset-0"></div>
-
-  {/* Inhalt */}
-  <div
-    class="relative z-10 w-full flex p-8 md:p-12 justify-center items-center text-center"
-  >
-    <div class="container">
+  <!-- Content Layer -->
+  <div class="relative z-10 w-full max-w-4xl px-6 text-center">
+    <div class="animate-fade-in">
       {
         logo && (
-          <div class="mb-8">
-            <img src={logo} alt="Logo" class="h-auto w-full mx-auto max-w-96" />
+          <div class="mb-10 drop-shadow-2xl">
+            <img
+              src={logo}
+              alt="Logo"
+              class="h-auto w-full mx-auto max-w-70 md:max-w-md brightness-110"
+            />
           </div>
         )
       }
 
       {
         title && (
-          <h1 class="whitespace-pre-line text-5xl sm:text-6xl md:text-8xl font-bold tracking-tighter drop-shadow-lg text-white">
+          <h1 class="text-4xl md:text-7xl font-light tracking-tight text-white mb-4 uppercase">
             {title}
           </h1>
         )
@@ -68,29 +72,52 @@ const links = [
 
       {
         description && (
-          <div class="prose prose-p:text-lg md:prose-p:text-xl max-w-none mt-6 prose-p:text-gray-700">
+          <p class="text-xl md:text-2xl text-gray-200 font-serif italic tracking-wide mb-12 max-w-2xl mx-auto leading-relaxed drop-shadow-sm">
             {description}
-          </div>
+          </p>
         )
       }
 
       {
         links && links.length > 0 && (
-          <div class="gap-4 flex justify-center mt-10">
-            {links.map((link) => {
-              return (
-                <a
-                  href={link.href}
-                  target={"_self"}
-                  class="inline-block rounded-md px-8 py-3 text-lg font-semibold transition-transform duration-300 ease-in-out hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-                >
+          <div class="flex justify-center mt-8">
+            {links.map((link) => (
+              <a
+                href={link.href}
+                class="group relative inline-block px-10 py-4 overflow-hidden border border-white/30 rounded-sm transition-all duration-500 hover:border-white"
+              >
+                <span class="relative z-10 text-sm md:text-base font-medium tracking-[0.2em] text-white uppercase transition-colors duration-500">
                   {link.label}
-                </a>
-              );
-            })}
+                </span>
+                <div class="absolute inset-0 z-0 bg-white/10 translate-y-full transition-transform duration-500 ease-out group-hover:translate-y-0" />
+              </a>
+            ))}
           </div>
         )
       }
     </div>
   </div>
+
+  <div
+    class="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce opacity-50"
+  >
+    <div class="w-px h-12 bg-linear-to-b from-white to-transparent"></div>
+  </div>
 </section>
+
+<style>
+  .animate-fade-in {
+    animation: fadeIn 1.8s ease-out forwards;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
