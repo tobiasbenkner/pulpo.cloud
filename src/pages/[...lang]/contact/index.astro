@@ -1,0 +1,20 @@
+---
+import { defaultLang } from "../../../i18n";
+import Layout from "../../../layouts/Layout.astro";
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: undefined } },
+    { params: { lang: "es" } },
+    { params: { lang: "es-ar" } },
+    { params: { lang: "en" } },
+    { params: { lang: "de" } },
+  ];
+}
+
+const { lang = defaultLang } = Astro.params;
+---
+
+<Layout title="Contact">
+  <div>Contact {lang}</div>
+</Layout>
