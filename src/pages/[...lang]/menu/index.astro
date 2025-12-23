@@ -5,16 +5,21 @@ import Layout from "../../../layouts/Layout.astro";
 import { getCollection } from "astro:content";
 import { t } from "../../../utils/t";
 import CategoryCard from "../../../components/menu/CategoryCard.astro";
+import { defaultLang } from "../../../i18n";
+import CategoryNav from "../../../components/menu/CategoryNav.astro";
 
-const { lang = "es" } = Astro.params;
-const categories = await getCollection("categories");
+const { lang = defaultLang } = Astro.params;
+const response = await getCollection("categories");
+const categories = response.map(({ data: category }) => category);
 ---
 
 <Layout title="Menu">
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
+    <CategoryNav categories={categories} lang={lang} />
+
     <div class="space-y-24">
       {
-        categories.map(({ data: category }) => {
+        categories.map((category) => {
           return (
             <CategoryCard category={category}>
               <h1>{t(category.name, lang)}</h1>

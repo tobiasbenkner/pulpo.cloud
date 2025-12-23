@@ -11,7 +11,7 @@ const { lang = defaultLang } = Astro.params;
 const { category } = Astro.props;
 ---
 
-<section id={category.id} class="scroll-mt-36">
+<section id={category.id} class="mb-24" style="scroll-margin-top: 64px;">
   <div class="relative h-64 md:h-80 w-full overflow-hidden rounded-lg mb-12">
     {
       category.photo ? (
