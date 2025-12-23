@@ -51,7 +51,7 @@ const { categories, lang } = Astro.props;
     color: rgba(255, 255, 255, 0.5);
   }
 
-  .category-link:hover {
+  .category-link:not(.active):hover {
     border-color: rgba(255, 255, 255, 0.3);
     color: white;
   }
@@ -70,26 +70,51 @@ const { categories, lang } = Astro.props;
   function initScrollSpy() {
     const navLinks = document.querySelectorAll(".category-link");
     const sections = document.querySelectorAll("section[id]");
+    const SCROLL_OFFSET = 150;
 
     if (sections.length === 0) return;
 
+    navLinks.forEach((link) => {
+      link.addEventListener("click", (e) => {
+        e.preventDefault();
+
+        const targetId = link.getAttribute("href")?.substring(1);
+        const targetSection = document.getElementById(targetId || "");
+
+        if (targetSection) {
+          const elementPosition = targetSection.getBoundingClientRect().top;
+          const offsetPosition =
+            elementPosition + window.pageYOffset - SCROLL_OFFSET;
+
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: "auto",
+          });
+
+          updateActiveState(targetId || "");
+        }
+      });
+    });
+
     function onScroll() {
       const scrollY = window.scrollY;
-      const offset = 250;
-
       let currentSectionId = sections[0].id;
 
       sections.forEach((section) => {
         const sectionTop = (section as HTMLElement).offsetTop;
-        if (scrollY >= sectionTop - offset) {
+        if (scrollY >= sectionTop - SCROLL_OFFSET - 20) {
           currentSectionId = section.id;
         }
       });
 
+      updateActiveState(currentSectionId);
+    }
+
+    function updateActiveState(activeId: string) {
       navLinks.forEach((link) => {
         link.classList.remove("active");
 
-        if (link.getAttribute("href") === `#${currentSectionId}`) {
+        if (link.getAttribute("href") === `#${activeId}`) {
           link.classList.add("active");
           link.scrollIntoView({
             behavior: "smooth",
