@@ -1,0 +1,109 @@
+---
+import type { Category } from "../../collections/Product";
+import { t } from "../../utils/t";
+
+interface Props {
+  categories: Category[];
+  lang: string;
+}
+
+const { categories, lang } = Astro.props;
+---
+
+<nav
+  id="category-nav"
+  class="sticky top-16 z-30 w-full bg-background/90 backdrop-blur-xl border-b border-white/10 shadow-lg"
+>
+  <div class="w-full overflow-x-auto scrollbar-hide py-3">
+    <div class="min-w-full w-max flex justify-center">
+      <ul class="flex items-center gap-2 px-4 md:px-0">
+        {
+          categories.map((category, index) => (
+            <li class="shrink-0">
+              <a
+                href={`#${category.id}`}
+                class={`category-link block px-4 py-1.5 rounded-full border transition-all duration-300 text-[10px] uppercase tracking-[0.15em] font-medium
+                ${index === 0 ? "active" : ""}`}
+                data-target={category.id}
+              >
+                {t(category.name, lang)}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<style>
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .category-link {
+    background-color: rgba(255, 255, 255, 0.02);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .category-link:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+    color: white;
+  }
+
+  .category-link.active {
+    background-color: rgb(253, 230, 138) !important;
+    border-color: rgb(253, 230, 138) !important;
+    color: black !important;
+    font-weight: 700;
+    box-shadow: 0 0 10px rgba(253, 230, 138, 0.2);
+    transform: scale(1.02);
+  }
+</style>
+
+<script>
+  function initScrollSpy() {
+    const navLinks = document.querySelectorAll(".category-link");
+    const sections = document.querySelectorAll("section[id]");
+
+    if (sections.length === 0) return;
+
+    function onScroll() {
+      const scrollY = window.scrollY;
+      const offset = 250;
+
+      let currentSectionId = sections[0].id;
+
+      sections.forEach((section) => {
+        const sectionTop = (section as HTMLElement).offsetTop;
+        if (scrollY >= sectionTop - offset) {
+          currentSectionId = section.id;
+        }
+      });
+
+      navLinks.forEach((link) => {
+        link.classList.remove("active");
+
+        if (link.getAttribute("href") === `#${currentSectionId}`) {
+          link.classList.add("active");
+          link.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest",
+            inline: "center",
+          });
+        }
+      });
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+  }
+
+  initScrollSpy();
+  document.addEventListener("astro:page-load", initScrollSpy);
+</script>
