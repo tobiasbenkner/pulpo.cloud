@@ -1,5 +1,9 @@
 ---
+import { getEntry } from "astro:content";
+
 const currentYear = new Date().getFullYear();
+const entry = await getEntry("tenant", "1");
+const tenant = entry?.data;
 
 const links = [
   { label: "Inicio", href: "/" },
@@ -111,8 +115,7 @@ const socialIcons = [
           <!-- Adresse & Kontakt -->
           <div class="space-y-4">
             <div class="space-y-1 text-gray-400 font-serif italic">
-              <p>Calle de la Gastronomía 12</p>
-              <p>Las Palmas de Gran Canaria</p>
+              <p>{tenant?.address}</p>
             </div>
             <div class="space-y-1">
               <a
