@@ -1,5 +1,6 @@
 ---
 import Contact from "../../../components/blocks/Contact.astro";
+import ContactOptions from "../../../components/ContactOptions.astro";
 import { defaultLang } from "../../../i18n";
 import Layout from "../../../layouts/Layout.astro";
 
@@ -17,5 +18,6 @@ const { lang = defaultLang } = Astro.params;
 ---
 
 <Layout title="Contact | El Búho Tuerto">
+  <ContactOptions />
   <Contact />
 </Layout>
