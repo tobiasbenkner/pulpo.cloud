@@ -1,9 +1,15 @@
 ---
 import Footer from "../components/Footer.astro";
 import Navbar from "../components/navbar/Navbar.astro";
+import { defaultLang } from "../i18n";
 import "../styles/global.css";
-const { title = "hello world" } = Astro.props;
-const { lang = "es" } = Astro.params;
+
+interface Props {
+  title?: string;
+}
+
+const { title = "El Búho Tuerto" } = Astro.props;
+const { lang = defaultLang } = Astro.params;
 ---
 
 <!doctype html>
@@ -15,10 +21,11 @@ const { lang = "es" } = Astro.params;
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
   </head>
-
-  <body class="bg-background text-text">
+  <body class="bg-background text-text flex flex-col min-h-screen">
     <Navbar />
-    <slot />
+    <main class="flex-1 w-full" style="padding-top: calc(var(--nav-height))">
+      <slot />
+    </main>
     <Footer />
   </body>
 </html>

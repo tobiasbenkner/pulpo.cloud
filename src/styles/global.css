@@ -27,3 +27,13 @@
 html {
   scroll-behavior: smooth;
 }
+
+:root {
+  --nav-height: 64px; /* Mobile Standard (h-16) */
+}
+
+@media (min-width: 768px) {
+  :root {
+    --nav-height: 80px; /* Desktop Standard (h-20) */
+  }
+}
