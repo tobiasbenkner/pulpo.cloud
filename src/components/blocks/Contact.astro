@@ -1,5 +1,9 @@
 ---
 import SectionHeader from "../ui/SectionHeader.astro";
+import { getEntry } from "astro:content";
+
+const entry = await getEntry("tenant", "1");
+const tenant = entry?.data;
 
 const contactInfo = {
   address: "Calle de la Gastronomía 12, 35001 Las Palmas de Gran Canaria",
@@ -56,7 +60,7 @@ const openingHours = [
           <p
             class="text-xl md:text-2xl font-serif italic text-gray-200 leading-relaxed max-w-sm"
           >
-            {contactInfo.address}
+            {tenant?.address}
           </p>
         </div>
 

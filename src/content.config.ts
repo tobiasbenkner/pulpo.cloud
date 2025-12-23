@@ -1,6 +1,8 @@
 import { defineCollection } from "astro:content";
 import { CategorySchema } from "./collections/Product";
 import { getFileUrl } from "./utils/getFile";
+import { file } from "astro/loaders";
+import { TenantSchema } from "./collections/Tenant";
 
 const categories = defineCollection({
   loader: async () => {
@@ -32,4 +34,9 @@ const categories = defineCollection({
   schema: CategorySchema,
 });
 
-export const collections = { categories };
+const tenant = defineCollection({
+  loader: file("src/data/tenant.yaml"),
+  schema: TenantSchema,
+});
+
+export const collections = { categories, tenant };
