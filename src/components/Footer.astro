@@ -3,10 +3,8 @@ const currentYear = new Date().getFullYear();
 
 const links = [
   { label: "Inicio", href: "/" },
-  { label: "Historia", href: "/historia" },
   { label: "Menú", href: "/menu" },
-  { label: "Reservas", href: "/reservas" },
-  { label: "Contacto", href: "/contacto" },
+  { label: "Contacto", href: "/contact" },
 ];
 
 const legal = [
@@ -44,30 +42,30 @@ const socialIcons = [
   </div>
 
   <div class="max-w-7xl mx-auto px-6">
+    <!-- Grid jetzt optimiert auf 3 Hauptspalten -->
     <div
-      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-16 lg:gap-8 mb-20"
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-8 mb-20"
     >
-      <!-- Spalte 1: Brand (4 Spalten) -->
-      <div class="lg:col-span-4 space-y-6">
-        <!-- Logo (Bild oder Text) -->
+      <!-- Spalte 1: Brand -->
+      <div class="lg:col-span-5 space-y-8">
+        <!-- Logo -->
         <a href="/" class="block">
           <img
             src="/chiquita.webp"
             alt="Logo"
             class="h-16 w-auto opacity-90 grayscale hover:grayscale-0 transition-all duration-500"
           />
-          <!-- Fallback Text falls kein Bild: -->
-          <!-- <span class="text-2xl font-serif tracking-wider">EL BÚHO TUERTO</span> -->
         </a>
 
         <p
-          class="text-gray-500 font-serif italic text-lg leading-relaxed max-w-xs"
+          class="text-gray-500 font-serif italic text-lg leading-relaxed max-w-sm"
         >
-          Pasión, fuego y tradición argentina en el corazón de Las Palmas.
+          Pasión, fuego y tradición argentina en el corazón de Las Palmas. Donde
+          cada brasa cuenta una historia.
         </p>
 
         <!-- Social Icons -->
-        <div class="flex gap-4 pt-4">
+        <div class="flex gap-4">
           {
             socialIcons.map((icon) => (
               <a
@@ -81,8 +79,8 @@ const socialIcons = [
         </div>
       </div>
 
-      <!-- Spalte 2: Navigation (3 Spalten) -->
-      <div class="lg:col-span-3 lg:pl-8">
+      <!-- Spalte 2: Navigation -->
+      <div class="lg:col-span-3 lg:pl-4">
         <h3 class="text-xs tracking-[0.3em] uppercase text-amber-200/50 mb-8">
           Explorar
         </h3>
@@ -103,50 +101,57 @@ const socialIcons = [
         </ul>
       </div>
 
-      <!-- Spalte 3: Kontakt Kurzinfo (3 Spalten) -->
-      <div class="lg:col-span-3">
+      <!-- Spalte 3: Kontakt & CTA -->
+      <div class="lg:col-span-4">
         <h3 class="text-xs tracking-[0.3em] uppercase text-amber-200/50 mb-8">
           Visítanos
         </h3>
-        <div class="space-y-6">
-          <div class="space-y-1">
-            <p class="text-gray-400 font-serif italic">
-              Calle de la Gastronomía 12
-            </p>
-            <p class="text-gray-400 font-serif italic">
-              Las Palmas de Gran Canaria
-            </p>
+
+        <div class="flex flex-col gap-8">
+          <!-- Adresse & Kontakt -->
+          <div class="space-y-4">
+            <div class="space-y-1 text-gray-400 font-serif italic">
+              <p>Calle de la Gastronomía 12</p>
+              <p>Las Palmas de Gran Canaria</p>
+            </div>
+            <div class="space-y-1">
+              <a
+                href="tel:+34928123456"
+                class="block text-white hover:text-amber-200 transition-colors tracking-widest text-sm"
+                >+34 928 123 456</a
+              >
+              <a
+                href="mailto:hola@elbuho.com"
+                class="block text-gray-500 hover:text-white transition-colors tracking-widest text-sm"
+                >hola@elbuho.com</a
+              >
+            </div>
           </div>
-          <div class="space-y-1">
+
+          <div>
             <a
-              href="tel:+34928123456"
-              class="block text-gray-400 hover:text-white transition-colors tracking-widest text-sm"
-              >+34 928 123 456</a
+              href="/contact"
+              class="group inline-flex items-center gap-3 px-8 py-3 border border-amber-200/30 text-amber-200 hover:bg-amber-200 hover:text-black transition-all duration-500"
             >
-            <a
-              href="mailto:hola@elbuho.com"
-              class="block text-gray-400 hover:text-white transition-colors tracking-widest text-sm"
-              >hola@elbuho.com</a
-            >
+              <span class="text-[10px] uppercase tracking-[0.3em] font-bold"
+                >Reservar Mesa</span
+              >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="group-hover:translate-x-1 transition-transform"
+                ><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg
+              >
+            </a>
           </div>
         </div>
-      </div>
-
-      <!-- Spalte 4: CTA (2 Spalten) -->
-      <div class="lg:col-span-2 flex flex-col justify-start lg:items-end">
-        <a
-          href="/reservas"
-          class="group relative inline-flex flex-col items-center justify-center p-8 border border-white/10 rounded-sm hover:border-amber-200/30 transition-colors duration-500 text-center w-full"
-        >
-          <span
-            class="text-[10px] tracking-[0.4em] uppercase text-amber-200/70 mb-2"
-            >Reservar</span
-          >
-          <span
-            class="font-serif italic text-2xl text-white group-hover:text-amber-200 transition-colors"
-            >Una Mesa</span
-          >
-        </a>
       </div>
     </div>
 
@@ -155,7 +160,7 @@ const socialIcons = [
       class="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6"
     >
       <p class="text-[10px] tracking-[0.2em] uppercase text-gray-600">
-        © {currentYear} El Búho Tuerto. Todos los derechos reservados.
+        © {currentYear} El Búho Tuerto.
       </p>
 
       <div class="flex flex-wrap gap-6 justify-center">
@@ -163,7 +168,7 @@ const socialIcons = [
           legal.map((item) => (
             <a
               href={item.href}
-              class="text-[10px] tracking-[0.1em] uppercase text-gray-600 hover:text-gray-400 transition-colors"
+              class="text-[10px] tracking-widest uppercase text-gray-600 hover:text-gray-400 transition-colors"
             >
               {item.label}
             </a>
