@@ -3,7 +3,7 @@ import { getEntry } from "astro:content";
 import Icon from "./ui/Icon.astro";
 
 const currentYear = new Date().getFullYear();
-const entry = await getEntry("tenant", "1");
+const entry = await getEntry("tenant", "main");
 const tenant = entry?.data;
 
 const links = [
@@ -20,7 +20,7 @@ const legal = [
 ---
 
 <footer
-  class="bg-[#050505] text-white pt-24 pb-12 relative overflow-hidden border-t border-white/5"
+  class="bg-background text-white pt-24 pb-12 relative overflow-hidden border-t border-white/5"
 >
   <!-- Dekorativer "Schein" im Hintergrund -->
   <div
@@ -52,16 +52,16 @@ const legal = [
         </p>
 
         <!-- Social Icons -->
-        <div class="flex gap-4">
+        <div class="flex flex-wrap gap-4">
           {
-            Object.keys(tenant?.social ?? {}).map((key) => (
+            (tenant?.social_links ?? []).map((social) => (
               <a
-                href={(tenant?.social as any)[key]}
+                href={social.url}
                 target="_blank"
-                aria-label={key}
+                aria-label={social.name}
                 class="w-10 h-10 flex items-center justify-center rounded-full border border-white/10 text-gray-400 hover:text-amber-200 hover:border-amber-200/50 hover:bg-white/5 transition-all duration-300"
               >
-                <Icon name={key as any} size={26} />
+                <Icon name={social.name as any} size={26} />
               </a>
             ))
           }
@@ -100,14 +100,19 @@ const legal = [
           <!-- Adresse & Kontakt -->
           <div class="space-y-4">
             <div class="space-y-1 text-gray-400 font-serif italic">
-              <p>{tenant?.address}</p>
+              <p>
+                {tenant?.name}<br />
+                {tenant?.street}<br />
+                {tenant?.postcode}
+                {tenant?.city}
+              </p>
             </div>
             <div class="space-y-1">
               <a
                 href="tel:+34928123456"
                 class="block text-white hover:text-amber-200 transition-colors tracking-widest text-sm"
-                >+34 928 123 456</a
-              >
+                >+34 928 123 456
+              </a>
               <a
                 href="mailto:hola@elbuho.com"
                 class="block text-gray-500 hover:text-white transition-colors tracking-widest text-sm"
