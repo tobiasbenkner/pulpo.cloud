@@ -3,7 +3,7 @@ import Icon from "../ui/Icon.astro";
 import SectionHeader from "../ui/SectionHeader.astro";
 import { getEntry } from "astro:content";
 
-const entry = await getEntry("tenant", "1");
+const entry = await getEntry("tenant", "main");
 const tenant = entry?.data;
 
 const contactInfo = {
@@ -16,8 +16,6 @@ const contactInfo = {
       href: "+34600000000",
     },
   ],
-  mapsUrl:
-    "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d7036.6475869064!2d-15.436047724464938!3d28.136629575939175!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xc409515a6173bf3%3A0x727a399792854111!2sB%C3%BAho%20Tuerto!5e0!3m2!1sen!2ses!4v1766447570139!5m2!1sen!2ses",
 };
 
 const openingHours = [
@@ -43,7 +41,10 @@ const openingHours = [
           <p
             class="text-xl md:text-2xl font-serif italic text-gray-200 leading-relaxed max-w-sm"
           >
-            {tenant?.address}
+            {tenant?.name}
+            {tenant?.street}
+            {tenant?.postcode}
+            {tenant?.city}
           </p>
         </div>
 
@@ -89,16 +90,16 @@ const openingHours = [
           <h3 class="text-[10px] tracking-[0.3em] text-white/30 uppercase mb-6">
             Síguenos
           </h3>
-          <div class="flex gap-6">
+          <div class="flex flex-wrap gap-6">
             {
-              Object.keys(tenant?.social ?? {}).map((key) => (
+              (tenant?.social_links ?? []).map((social) => (
                 <a
-                  href={(tenant?.social as any)[key]}
+                  href={social.url}
                   target="_blank"
-                  aria-label={key}
+                  aria-label={social.name}
                   class="w-12 h-12 flex items-center justify-center rounded-full border border-white/10 text-gray-400 hover:text-amber-200 hover:border-amber-200/50 hover:bg-white/5 transition-all duration-300"
                 >
-                  <Icon name={key as any} size={26} />
+                  <Icon name={social.name as any} size={26} />
                 </a>
               ))
             }
@@ -137,7 +138,7 @@ const openingHours = [
           >
           </div>
           <iframe
-            src={contactInfo.mapsUrl}
+            src={tenant?.maps}
             class="w-full h-full"
             style="border:0;"
             allowfullscreen=""

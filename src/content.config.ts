@@ -1,8 +1,9 @@
 import { defineCollection } from "astro:content";
 import { CategorySchema } from "./collections/Product";
 import { getFileUrl } from "./utils/getFile";
-import { file } from "astro/loaders";
 import { TenantSchema } from "./collections/Tenant";
+import { directus } from "./lib/directus";
+import { readItem } from "@directus/sdk";
 
 const categories = defineCollection({
   loader: async () => {
@@ -35,7 +36,20 @@ const categories = defineCollection({
 });
 
 const tenant = defineCollection({
-  loader: file("src/data/tenant.yaml"),
+  loader: async () => {
+    const tenantId = import.meta.env.TENANT_ID;
+
+    if (!tenantId) {
+      throw new Error("TENANT_ID environment variable is missing!");
+    }
+    const tenant = await directus.request(readItem("tenants", tenantId));
+    return [
+      {
+        ...tenant,
+        id: "main",
+      },
+    ];
+  },
   schema: TenantSchema,
 });
 

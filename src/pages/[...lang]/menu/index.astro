@@ -1,6 +1,4 @@
 ---
-export const prerender = false;
-
 import Layout from "../../../layouts/Layout.astro";
 import { getCollection } from "astro:content";
 import { t } from "../../../utils/t";
@@ -8,7 +6,18 @@ import CategoryCard from "../../../components/menu/CategoryCard.astro";
 import { defaultLang } from "../../../i18n";
 import CategoryNav from "../../../components/menu/CategoryNav.astro";
 
+export function getStaticPaths() {
+  return [
+    { params: { lang: undefined } },
+    { params: { lang: "es" } },
+    { params: { lang: "es-ar" } },
+    { params: { lang: "en" } },
+    { params: { lang: "de" } },
+  ];
+}
+
 const { lang = defaultLang } = Astro.params;
+
 const response = await getCollection("categories");
 const categories = response.map(({ data: category }) => category);
 ---
