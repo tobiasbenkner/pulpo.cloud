@@ -1,0 +1,9 @@
+{
+    "scripts": {
+        "snapshop:create": "docker compose exec directus npx directus schema snapshot ./schema/snapshot.yaml",
+        "snapshot:apply": "docker compose exec directus npx directus schema apply ./schema/snapshot.yaml",
+        "migration:create": "docker compose exec directus npx directus migration:create create_reviews_table",
+        "migrattion:apply": "docker compose exec directus npx directus migrate:latest",
+        "sync": "docker compose exec -it directus npx directus schema-sync install --force"
+    }
+}
