@@ -1,6 +1,10 @@
 ---
-import { defaultLang, languages } from "../../i18n";
-const { lang = defaultLang } = Astro.params;
+import { getCollection } from "astro:content";
+
+const languages = ((await getCollection("languages")) ?? []).map(
+  (it) => it.data
+);
+const { lang = languages[0] ? languages[0].code : "" } = Astro.params;
 
 const translations = {
   es: { home: "Inicio", menu: "Menú", contact: "Contacto" },
@@ -119,7 +123,7 @@ const getPathForLang = (newLang: string) => {
                       <span
                         class={`font-serif italic text-lg ${lang === l.code ? "text-amber-200" : "text-gray-400 group-hover:text-white"}`}
                       >
-                        {l.label}
+                        {l.name}
                       </span>
                       {lang === l.code && (
                         <span class="w-1 h-1 rounded-full bg-amber-200 shadow-[0_0_8px_rgba(253,230,138,0.5)]" />
@@ -185,7 +189,7 @@ const getPathForLang = (newLang: string) => {
     <!-- Mobile Menu Overlay (Keine Animation, nur hidden Toggle) -->
     <div
       id="mobile-menu"
-      class="hidden md:hidden fixed inset-0 top-20 bg-[#0a0a0a] z-40 overflow-y-auto"
+      class="hidden md:hidden fixed inset-0 top-20 bg-background z-40 overflow-y-auto"
     >
       <div
         class="flex flex-col items-center justify-center min-h-[60vh] space-y-8 p-6"
