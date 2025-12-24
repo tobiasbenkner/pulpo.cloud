@@ -3,7 +3,8 @@ import { CategorySchema } from "./collections/Product";
 import { getFileUrl } from "./utils/getFile";
 import { TenantSchema } from "./collections/Tenant";
 import { directus } from "./lib/directus";
-import { readItem } from "@directus/sdk";
+import { readItem, readItems } from "@directus/sdk";
+import { LanguageSchema } from "./collections/Language";
 
 const categories = defineCollection({
   loader: async () => {
@@ -53,4 +54,30 @@ const tenant = defineCollection({
   schema: TenantSchema,
 });
 
-export const collections = { categories, tenant };
+const languages = defineCollection({
+  loader: async () => {
+    const tenantId = import.meta.env.TENANT_ID;
+
+    if (!tenantId) {
+      throw new Error("TENANT_ID environment variable is missing!");
+    }
+    const languages = await directus.request(
+      readItems("languages", {
+        sort: ["sort"],
+        filter: {
+          tenant: {
+            _eq: tenantId,
+          },
+        },
+      })
+    );
+
+    return languages.map((lang) => ({
+      ...lang,
+      id: lang.id,
+    }));
+  },
+  schema: LanguageSchema,
+});
+
+export const collections = { categories, languages, tenant };

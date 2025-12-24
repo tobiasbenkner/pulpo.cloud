@@ -6,14 +6,13 @@ import CategoryCard from "../../../components/menu/CategoryCard.astro";
 import { defaultLang } from "../../../i18n";
 import CategoryNav from "../../../components/menu/CategoryNav.astro";
 
-export function getStaticPaths() {
-  return [
-    { params: { lang: undefined } },
-    { params: { lang: "es" } },
-    { params: { lang: "es-ar" } },
-    { params: { lang: "en" } },
-    { params: { lang: "de" } },
-  ];
+export async function getStaticPaths() {
+  const languages = await getCollection("languages");
+  const result = languages.map((it) => {
+    return { params: { lang: it.data.code } };
+  });
+  result.push({ params: { lang: undefined as any } });
+  return result;
 }
 
 const { lang = defaultLang } = Astro.params;
