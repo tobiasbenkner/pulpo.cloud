@@ -29,6 +29,7 @@ jobs:
               env:
                   TENANT_ID: ${{ github.event.client_payload.tenant_id }}
                   DIRECTUS_TOKEN: ${{ secrets.DIRECTUS_TOKEN }}
+                  DIRECTUS_URL: https://directus.pulpo.cloud
               run: |
                 echo "Tenant ID is: $TENANT_ID"
                 pnpm run build
