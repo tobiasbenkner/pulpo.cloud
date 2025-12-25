@@ -3,6 +3,9 @@ import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
+  // image: {
+  //   domains: ['directus.pulpo.cloud'],
+  // },
   vite: {
     plugins: [tailwindcss()]
   },

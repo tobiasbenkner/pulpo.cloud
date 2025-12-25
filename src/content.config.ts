@@ -1,10 +1,44 @@
-import { defineCollection } from "astro:content";
-import { CategorySchema, type Category } from "./collections/Product";
+import { defineCollection, z } from "astro:content";
+import { ProductSchema } from "./collections/Product";
 import { TenantSchema } from "./collections/Tenant";
 import { directus } from "./lib/directus";
 import { readItem, readItems } from "@directus/sdk";
 import { LanguageSchema } from "./collections/Language";
 import { getDefaultLanguage } from "./utils/getDefaultLangauge";
+import { I18nSchema } from "./utils/t";
+
+function convertI18n(trans: any[], fieldName: string, defaultLanguage: string) {
+  const translations = (trans ?? []).reduce((acc: any, trans: any) => {
+    acc[trans.languages_id.code] = trans?.[fieldName] ?? "";
+    return acc;
+  }, {} as Record<string, string>);
+
+  return {
+    value: translations[defaultLanguage],
+    translations: translations,
+  };
+}
+
+function getImage(image: any) {
+  let photoData = null;
+  if (image && typeof image === "object") {
+    const filename = image.filename_disk || "image.jpg";
+
+    photoData = {
+      src: `${import.meta.env.DIRECTUS_URL}/assets/${
+        image.id
+      }/${filename}?access_token=${import.meta.env.DIRECTUS_TOKEN}`,
+      title: image.title,
+      width: image.width,
+      height: image.height,
+      focalPoint: {
+        x: image.focal_point_x,
+        y: image.focal_point_y,
+      },
+    };
+  }
+  return photoData;
+}
 
 const categories = defineCollection({
   loader: async () => {
@@ -16,10 +50,11 @@ const categories = defineCollection({
 
     const defaultLanguage = await getDefaultLanguage(tenantId);
 
-    const result = await directus.request(
+    const response = await directus.request(
       readItems("categories", {
         fields: [
           "*",
+          "image.*",
           "translations.*",
           "translations.languages_id.*",
           "products.*",
@@ -34,56 +69,48 @@ const categories = defineCollection({
       })
     );
 
-    function convertI18n(trans: any[], fieldName: string) {
-      const translations = trans.reduce((acc: any, trans: any) => {
-        acc[trans.languages_id.code] = trans?.[fieldName] ?? "";
-        return acc;
-      }, {} as Record<string, string>);
-
+    const categories = response.map((category) => {
       return {
-        value: translations[defaultLanguage.code],
-        translations: translations,
-      };
-    }
-
-    const categories: Category[] = result.map((it) => {
-      return {
-        id: it.id,
-        name: convertI18n(it.translations ?? [], "name"),
-        description: convertI18n(it.translations ?? [], "description"),
+        id: category.id,
+        name: convertI18n(category.translations, "name", defaultLanguage.code),
+        description: convertI18n(
+          category.translations,
+          "description",
+          defaultLanguage.code
+        ),
         products: [],
-        sort: it.sort,
+        sort: category.sort,
+        image: getImage(category.image),
       };
     });
 
+    console.log(categories);
     return categories;
-
-    // const response = await fetch(
-    //   `https://pulpo.cloud/api/collections/categories/records?expand=products_via_category&sort=sort`,
-    //   {
-    //     headers: {
-    //       tenant: "mffp8qnmsnzuubx",
-    //     },
-    //   }
-    // );
-    // const json = await response.json();
-
-    // return json.items.map((category: any) => {
-    //   return {
-    //     ...category,
-    //     photo: getFileUrl(category.id, category.photo, "categories"),
-    //     products: (category.expand?.products_via_category ?? []).map(
-    //       (product: any) => {
-    //         return {
-    //           ...product,
-    //           photo: getFileUrl(product.id, product.photo, "products"),
-    //         };
-    //       }
-    //     ),
-    //   };
-    // });
   },
-  schema: CategorySchema,
+  schema: ({ image }) =>
+    z.object({
+      id: z.string(),
+      name: I18nSchema,
+      description: I18nSchema,
+      image: z
+        .object({
+          src: image(),
+          title: z.string().nullable().optional(),
+          width: z.number().optional(),
+          height: z.number().optional(),
+          focalPoint: z
+            .object({
+              x: z.number().nullable().optional(),
+              y: z.number().nullable().optional(),
+            })
+            .optional(),
+        })
+        .nullable()
+        .optional(),
+
+      sort: z.number().nullable().optional(),
+      products: z.array(ProductSchema),
+    }),
 });
 
 const tenant = defineCollection({
