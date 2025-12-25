@@ -1,7 +1,8 @@
 ---
-import type { Category } from "../../collections/Product";
+import type { CollectionEntry } from "astro:content";
 import { t } from "../../utils/t";
 
+type Category = CollectionEntry<"categories">["data"];
 interface Props {
   categories: Category[];
 }

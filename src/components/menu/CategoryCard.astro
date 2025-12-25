@@ -11,10 +11,6 @@ type Props = {
 };
 const { lang = "" } = Astro.params;
 const { category } = Astro.props;
-
-const objectPosition = category.image?.focalPoint
-  ? `${category.image.focalPoint.x}% ${category.image.focalPoint.y}%`
-  : "center center";
 ---
 
 <section id={category.id} class="mb-24" style="scroll-margin-top: 64px;">
@@ -27,7 +23,6 @@ const objectPosition = category.image?.focalPoint
           height={category.image.height}
           alt={category.image.title || t(category.name, lang)}
           class="absolute inset-0 w-full h-full object-cover"
-          style={{ objectPosition: objectPosition }}
         />
       ) : (
         <div class="absolute inset-0 bg-card" />

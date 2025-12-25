@@ -1,5 +1,4 @@
 import { defineCollection, z } from "astro:content";
-import { ProductSchema } from "./collections/Product";
 import { TenantSchema } from "./collections/Tenant";
 import { directus } from "./lib/directus";
 import { readItem, readItems } from "@directus/sdk";
@@ -61,6 +60,7 @@ const categories = defineCollection({
           "translations.languages_id.*",
           "products.*",
           "products.translations.*",
+          "products.translations.languages_id.*",
           "products.image.*",
         ],
         filter: {
@@ -72,6 +72,24 @@ const categories = defineCollection({
     );
 
     const categories = response.map((category) => {
+      const products = category.products.map((product: any) => {
+        return {
+          id: product.id,
+          sort: product.sort,
+          price: product.price,
+          image: getImage(product.image),
+          allergies: [],
+          name: convertI18n(product.translations, "name", defaultLanguage.code),
+          description: convertI18n(
+            product.translations,
+            "description",
+            defaultLanguage.code
+          ),
+          note: [],
+          category: product.category,
+        };
+      });
+
       return {
         id: category.id,
         name: convertI18n(category.translations, "name", defaultLanguage.code),
@@ -80,13 +98,12 @@ const categories = defineCollection({
           "description",
           defaultLanguage.code
         ),
-        products: [],
+        products: products,
         sort: category.sort,
         image: getImage(category.image),
       };
     });
 
-    console.log(categories);
     return categories;
   },
   schema: ({ image }) =>
@@ -109,9 +126,33 @@ const categories = defineCollection({
         })
         .nullable()
         .optional(),
-
       sort: z.number().nullable().optional(),
-      products: z.array(ProductSchema),
+      products: z.array(
+        z.object({
+          id: z.string(),
+          name: I18nSchema,
+          description: I18nSchema,
+          note: z.array(z.string()),
+          price: z.number(),
+          image: z
+            .object({
+              src: image(),
+              title: z.string().nullable().optional(),
+              width: z.number().optional(),
+              height: z.number().optional(),
+              focalPoint: z
+                .object({
+                  x: z.number().nullable().optional(),
+                  y: z.number().nullable().optional(),
+                })
+                .optional(),
+            })
+            .nullable()
+            .optional(),
+          allergies: z.array(z.string()),
+          category: z.string(),
+        })
+      ),
     }),
 });
 
