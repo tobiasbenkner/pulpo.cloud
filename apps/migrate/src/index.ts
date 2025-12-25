@@ -31,12 +31,14 @@ interface PBProduct extends RecordModel {
   category: string;
   photo?: string;
   allergies: string[];
+  note: I18N;
 }
 
 interface TranslationItem {
   languages_id: string;
   name: string;
   description?: string;
+  note?: string;
 }
 
 // Directus Schema (Ziel)
@@ -262,24 +264,28 @@ async function runMigration() {
             languages_id: "c4836a78-a698-4640-9bb7-47b11809e77a",
             name: prod.name?.value ?? "",
             description: prod.description?.value ?? undefined,
+            note: prod.note?.value ?? "",
           });
         } else if (lang === "gb") {
           translations.push({
             languages_id: "8bfe8257-10c4-41bf-8ca2-b5eabdd9ab86",
             name: prod.name?.translations?.["gb"] ?? prod.name.value ?? "",
             description: prod.description?.translations?.["gb"] ?? undefined,
+            note: prod.note?.translations?.["gb"] ?? undefined,
           });
         } else if (lang === "de") {
           translations.push({
             languages_id: "6c7bd7c2-fcb4-4b05-bae6-9c92713bad01",
             name: prod.name?.translations?.[lang] ?? prod.name.value ?? "",
             description: prod.description?.translations?.[lang] ?? undefined,
+            note: prod.note?.translations?.[lang] ?? undefined,
           });
         } else if (lang === "es-ar") {
           translations.push({
             languages_id: "273b9bf2-68d7-49f1-8c2e-80585b022a59",
             name: prod.name?.translations?.[lang] ?? prod.name?.value ?? "",
             description: prod.description?.translations?.[lang] ?? undefined,
+            note: prod.note?.translations?.[lang] ?? undefined,
           });
         }
       }

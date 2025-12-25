@@ -85,7 +85,7 @@ const categories = defineCollection({
             "description",
             defaultLanguage.code
           ),
-          note: [],
+          note: convertI18n(product.translations, "note", defaultLanguage.code),
           category: product.category,
         };
       });
@@ -132,7 +132,7 @@ const categories = defineCollection({
           id: z.string(),
           name: I18nSchema,
           description: I18nSchema,
-          note: z.array(z.string()),
+          note: I18nSchema,
           price: z.number(),
           image: z
             .object({
