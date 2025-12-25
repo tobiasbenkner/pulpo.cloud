@@ -30,6 +30,7 @@ interface PBProduct extends RecordModel {
   price: number;
   category: string;
   photo?: string;
+  allergies: string[];
 }
 
 interface TranslationItem {
@@ -54,6 +55,7 @@ interface DirectusProduct {
   image: string | null;
   tenant: string;
   sort: number;
+  allergies: string[];
 }
 
 interface MyDirectusSchema {
@@ -292,6 +294,7 @@ async function runMigration() {
             image: directusImageId,
             tenant: CONFIG.directus.tenant,
             sort: count++,
+            allergies: prod.allergies ?? [],
           })
         );
       } catch (err: any) {
