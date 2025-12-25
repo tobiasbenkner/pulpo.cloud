@@ -4,10 +4,10 @@ import { t } from "../../utils/t";
 
 interface Props {
   categories: Category[];
-  lang: string;
 }
 
-const { categories, lang } = Astro.props;
+const { lang = "" } = Astro.params;
+const { categories } = Astro.props;
 ---
 
 <nav

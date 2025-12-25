@@ -15,8 +15,9 @@ export const ProductSchema = z.object({
 export const CategorySchema = z.object({
   id: z.string(),
   name: I18nSchema,
+  description: I18nSchema,
   sort: z.number(),
-  photo: z.string(),
+  photo: z.string().optional(),
   products: z.array(ProductSchema),
 });
 
