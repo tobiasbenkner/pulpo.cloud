@@ -1,6 +1,9 @@
 ---
-import type { Product } from "../../collections/Product";
+import type { CollectionEntry } from "astro:content";
 import { t } from "../../utils/t";
+import { Image } from "astro:assets";
+
+type Product = CollectionEntry<"categories">["data"]["products"][0];
 
 interface Props {
   product: Product;
@@ -10,7 +13,7 @@ const { lang = "" } = Astro.params;
 
 const name = t(product.name, lang);
 const description = t(product.description, lang);
-const note = t(product.note, lang);
+const note = ""; //t(product.note, lang);
 
 function formatPrice(price: number) {
   return new Intl.NumberFormat("de-DE", {
@@ -53,9 +56,9 @@ function formatPrice(price: number) {
 
     <div class="shrink-0 w-32 text-center">
       {
-        product.photo && (
-          <img
-            src={product.photo}
+        product.image && (
+          <Image
+            src={product.image.src}
             alt={t(product.name, lang)}
             width={96}
             height={96}
