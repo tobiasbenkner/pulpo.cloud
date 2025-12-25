@@ -1,23 +1,33 @@
 ---
-import type { Category } from "../../collections/Product";
+import type { CollectionEntry } from "astro:content";
 import { t } from "../../utils/t";
 import ProductCard from "./ProductCard.astro";
+import { Image } from "astro:assets";
+
+type Category = CollectionEntry<"categories">["data"];
 
 type Props = {
   category: Category;
 };
 const { lang = "" } = Astro.params;
 const { category } = Astro.props;
+
+const objectPosition = category.image?.focalPoint
+  ? `${category.image.focalPoint.x}% ${category.image.focalPoint.y}%`
+  : "center center";
 ---
 
 <section id={category.id} class="mb-24" style="scroll-margin-top: 64px;">
   <div class="relative h-64 md:h-80 w-full overflow-hidden rounded-lg mb-12">
     {
-      category.photo ? (
-        <img
-          src={category.photo}
-          alt={t(category.name, lang)}
+      category.image ? (
+        <Image
+          src={category.image.src}
+          width={category.image.width}
+          height={category.image.height}
+          alt={category.image.title || t(category.name, lang)}
           class="absolute inset-0 w-full h-full object-cover"
+          style={{ objectPosition: objectPosition }}
         />
       ) : (
         <div class="absolute inset-0 bg-card" />
