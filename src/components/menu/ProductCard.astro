@@ -1,13 +1,12 @@
 ---
 import type { Product } from "../../collections/Product";
-import { defaultLang } from "../../i18n";
 import { t } from "../../utils/t";
 
 interface Props {
   product: Product;
 }
 const { product } = Astro.props;
-const { lang = defaultLang } = Astro.params;
+const { lang = "" } = Astro.params;
 
 const name = t(product.name, lang);
 const description = t(product.description, lang);

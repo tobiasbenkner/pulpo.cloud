@@ -1,13 +1,12 @@
 ---
 import type { Category } from "../../collections/Product";
-import { defaultLang } from "../../i18n";
 import { t } from "../../utils/t";
 import ProductCard from "./ProductCard.astro";
 
 type Props = {
   category: Category;
 };
-const { lang = defaultLang } = Astro.params;
+const { lang = "" } = Astro.params;
 const { category } = Astro.props;
 ---
 
