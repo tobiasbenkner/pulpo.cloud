@@ -78,7 +78,7 @@ const categories = defineCollection({
           sort: product.sort,
           price: product.price,
           image: getImage(product.image),
-          allergies: [],
+          allergies: product.allergies ?? [],
           name: convertI18n(product.translations, "name", defaultLanguage.code),
           description: convertI18n(
             product.translations,
