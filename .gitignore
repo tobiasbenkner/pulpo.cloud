@@ -1,3 +1,5 @@
+deploy.http
+
 # build output
 dist/
 # generated types
