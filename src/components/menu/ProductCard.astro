@@ -13,7 +13,7 @@ const { lang = "" } = Astro.params;
 
 const name = t(product.name, lang);
 const description = t(product.description, lang);
-const note = ""; //t(product.note, lang);
+const note = t(product.note, lang);
 
 function formatPrice(price: number) {
   return new Intl.NumberFormat("de-DE", {
