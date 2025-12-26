@@ -51,8 +51,8 @@ function formatPrice(price: number) {
               src={`/icons/allergies/2/${allergy}.svg`}
               alt={`${allergy}`}
               title={allergy}
-              decoding="sync"
-              loading="eager"
+              decoding="async"
+              loading="lazy"
               width="28"
               height="28"
               class="w-7 h-7"
@@ -70,8 +70,8 @@ function formatPrice(price: number) {
             alt={t(product.name, lang)}
             width={192}
             height={192}
-            decoding="sync"
-            loading="eager"
+            decoding="async"
+            loading="lazy"
             class="w-24 h-24 rounded-full object-cover mx-auto will-change-transform bg-gray-100"
           />
         )
