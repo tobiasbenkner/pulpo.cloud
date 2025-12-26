@@ -77,7 +77,7 @@ const { categories } = Astro.props;
     const sections = document.querySelectorAll("section[id]");
     const navContainer = document.querySelector(".overflow-x-auto");
 
-    const SCROLL_OFFSET = 180;
+    const SCROLL_OFFSET = 150;
 
     if (sections.length === 0) return;
 
@@ -125,17 +125,28 @@ const { categories } = Astro.props;
         .querySelector(".category-link.active")
         ?.classList.remove("active");
 
-      const activeLink = document.querySelector(
+      const activeLink = document.querySelector<HTMLElement>(
         `.category-link[href="#${id}"]`
       );
 
-      if (activeLink) {
+      if (activeLink && navContainer) {
         activeLink.classList.add("active");
 
-        activeLink.scrollIntoView({
+        const linkRect = activeLink.getBoundingClientRect();
+        const containerRect = navContainer.getBoundingClientRect();
+
+        const currentScrollLeft = navContainer.scrollLeft;
+        const linkRelativeLeft = linkRect.left - containerRect.left;
+
+        const targetScrollLeft =
+          currentScrollLeft +
+          linkRelativeLeft -
+          navContainer.clientWidth / 2 +
+          linkRect.width / 2;
+
+        navContainer.scrollTo({
+          left: targetScrollLeft,
           behavior: "smooth",
-          block: "nearest",
-          inline: "center",
         });
       }
     }
