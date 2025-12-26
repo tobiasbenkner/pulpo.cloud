@@ -23,12 +23,13 @@ function formatPrice(price: number) {
 }
 ---
 
-<article class={`border-b border-border/30 pb-8`}>
+<article
+  class="border-b border-border/30 pb-8 contain-content"
+  style="content-visibility: auto; contain-intrinsic-size: 150px;"
+>
   <div class="flex items-start gap-6">
     <div class="grow">
-      <h3 class="text-2xl font-bold text-foreground">
-        {name}
-      </h3>
+      <h3 class="text-2xl font-bold text-foreground">{name}</h3>
 
       {
         description && (
@@ -49,10 +50,14 @@ function formatPrice(price: number) {
       <div class="mt-4 flex flex-wrap items-center gap-2">
         {
           product.allergies?.map((allergy) => (
-            <img
+            <Image
               src={`/icons/allergies/2/${allergy}.svg`}
               alt={`${allergy}`}
               title={allergy}
+              loading="lazy"
+              decoding="async"
+              width="28"
+              height="28"
               class="w-7 h-7"
             />
           ))
@@ -66,9 +71,11 @@ function formatPrice(price: number) {
           <Image
             src={product.image.src}
             alt={t(product.name, lang)}
-            width={96}
-            height={96}
-            class="w-24 h-24 rounded-full object-cover mx-auto"
+            width={192}
+            height={192}
+            decoding="async"
+            loading="lazy"
+            class="w-24 h-24 rounded-full object-cover mx-auto will-change-transform bg-gray-100"
           />
         )
       }
