@@ -41,29 +41,6 @@ jobs:
           path: dist/
           retention-days: 5
 
-      - name: Deploy via Rsync
-        env:
-          SSH_KEY: ${{ secrets.SSH_KEY }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_USER: deployer
-          DOMAIN: ${{ github.event.client_payload.domain }}
-        run: |
-          # --- SSH Setup ---
-          mkdir -p ~/.ssh
-          echo "$SSH_KEY" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H $SSH_HOST >> ~/.ssh/known_hosts
-
-          # --- Deploy HTML ---
-          # -a: archive mode (erhält Rechte/Zeitstempel)
-          # -v: verbose
-          # -z: compression
-          # --delete: Löscht Dateien auf dem Server, die im Build nicht mehr existieren
-          rsync -avz --delete -e "ssh -i ~/.ssh/id_ed25519" dist/ $SSH_USER@$SSH_HOST:/srv/web-deploy/www/$DOMAIN/
-
-          # --- Deploy Traefik Config ---
-          # rsync -avz -e "ssh -i ~/.ssh/id_ed25519" tenant-*.yml $SSH_USER@$SSH_HOST:/srv/web-deploy/www/traefik_dynamic/
-
       - name: Create Traefik Dynamic Config
         id: traefik-conf
         env:
@@ -91,3 +68,26 @@ jobs:
           name: ${{ github.event.client_payload.tenant_id }}.yml
           path: ${{ github.event.client_payload.tenant_id }}.yml
           retention-days: 5
+
+      - name: Deploy via Rsync
+        env:
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: deployer
+          DOMAIN: ${{ github.event.client_payload.domain }}
+        run: |
+          # --- SSH Setup ---
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H $SSH_HOST >> ~/.ssh/known_hosts
+
+          # --- Deploy HTML ---
+          # -a: archive mode (erhält Rechte/Zeitstempel)
+          # -v: verbose
+          # -z: compression
+          # --delete: Löscht Dateien auf dem Server, die im Build nicht mehr existieren
+          rsync -avz --delete -e "ssh -i ~/.ssh/id_ed25519" dist/ $SSH_USER@$SSH_HOST:/srv/web-deploy/www/$DOMAIN/
+
+          # --- Deploy Traefik Config ---
+          rsync -avz -e "ssh -i ~/.ssh/id_ed25519" ${{ github.event.client_payload.tenant_id }}.yml $SSH_USER@$SSH_HOST:/srv/web-deploy/www-traefik/
