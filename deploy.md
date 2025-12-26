@@ -1,4 +1,5 @@
 # Create User
+
 ```bash
 adduser --disabled-password deployer
 groupadd web-deploy
@@ -6,6 +7,7 @@ usermod -aG web-deploy deployer
 ```
 
 # Setup SSH Keys
+
 ```bash
 su deployer
 cd ~
@@ -19,6 +21,7 @@ exit
 ```
 
 # Setup SSH Keys
+
 ```bash
 nano /etc/ssh/sshd_config.d/deployer.conf
 Match User deployer
@@ -30,6 +33,7 @@ Match User deployer
 ```
 
 # Configure Permissions
+
 ```bash
 chown -R deployer:web-deploy /srv/web-deploy/www
 chown -R deployer:web-deploy /srv/web-deploy/www-traefik
@@ -39,12 +43,14 @@ chmod -R 775 /srv/web-deploy/www-traefik
 ```
 
 Docker
+
 ```bash
 sudo find www -type d -exec chmod g+s {} +
 sudo find traefik_dynamic -type d -exec chmod g+s {} +
 ```
 
 # test
+
 ```bash
 su deployer
 ssh deployer@example.com

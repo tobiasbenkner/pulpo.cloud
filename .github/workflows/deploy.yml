@@ -48,7 +48,7 @@ jobs:
         run: |
           DOMAIN="${{ github.event.client_payload.domain }}"
           FILENAME="${{ github.event.client_payload.tenant_id }}.yml"
-          
+
           # Erstelle YAML Konfiguration für diesen Tenant
           cat <<EOF > $FILENAME
           http:
@@ -59,7 +59,7 @@ jobs:
                 tls:
                   certResolver: le
           EOF
-          
+
           echo "config_file=$FILENAME" >> $GITHUB_OUTPUT
 
       - name: Archive Config
