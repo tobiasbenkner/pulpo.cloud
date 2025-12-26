@@ -59,7 +59,7 @@ jobs:
           # -v: verbose
           # -z: compression
           # --delete: Löscht Dateien auf dem Server, die im Build nicht mehr existieren
-          rsync -avz --delete -e "ssh -i ~/.ssh/id_ed25519" dist/ $SSH_USER@$SSH_HOST:/opt/stack/www/$DOMAIN/
+          rsync -avz --delete -e "ssh -i ~/.ssh/id_ed25519" dist/ $SSH_USER@$SSH_HOST:/srv/web-deploy/www/$DOMAIN/
 
           # --- Deploy Traefik Config ---
-          # rsync -avz -e "ssh -i ~/.ssh/id_ed25519" tenant-*.yml $SSH_USER@$SSH_HOST:/opt/stack/traefik_dynamic/
+          # rsync -avz -e "ssh -i ~/.ssh/id_ed25519" tenant-*.yml $SSH_USER@$SSH_HOST:/srv/web-deploy/www/traefik_dynamic/
