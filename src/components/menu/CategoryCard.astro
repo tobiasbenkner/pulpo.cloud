@@ -11,6 +11,8 @@ type Props = {
 };
 const { lang = "" } = Astro.params;
 const { category } = Astro.props;
+
+const categoryId = "6725faf2-68ba-4b11-aa84-73005896bd7b";
 ---
 
 <section id={category.id} class="mb-24" style="scroll-margin-top: 64px;">
@@ -44,7 +46,7 @@ const { category } = Astro.props;
   </div>
 
   {
-    category.id === "ilvveqttxq754go" && (
+    category.id === categoryId && (
       <div class="mt-8 w-full flex justify-center">
         <img class="w-full max-w-3xl" src="/punto.webp" />
       </div>
