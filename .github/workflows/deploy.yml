@@ -41,12 +41,12 @@ jobs:
           path: dist/
           retention-days: 5
 
-      - name: Deploy via Rsync (Best Practice)
+      - name: Deploy via Rsync
         env:
           SSH_KEY: ${{ secrets.SSH_KEY }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: deployer
-          DOMAIN: buho.pulpo.cloud
+          DOMAIN: ${{ github.event.client_payload.domain }}
         run: |
           # --- SSH Setup ---
           mkdir -p ~/.ssh
@@ -63,3 +63,31 @@ jobs:
 
           # --- Deploy Traefik Config ---
           # rsync -avz -e "ssh -i ~/.ssh/id_ed25519" tenant-*.yml $SSH_USER@$SSH_HOST:/srv/web-deploy/www/traefik_dynamic/
+
+      - name: Create Traefik Dynamic Config
+        id: traefik-conf
+        env:
+          TENANT_ID: ${{ github.event.client_payload.tenant_id }}
+        run: |
+          DOMAIN="${{ github.event.client_payload.domain }}"
+          FILENAME="${{ github.event.client_payload.tenant_id }}.yml"
+          
+          # Erstelle YAML Konfiguration für diesen Tenant
+          cat <<EOF > $FILENAME
+          http:
+            routers:
+              router-$TENANT_ID:
+                rule: "Host(\`$DOMAIN\`)"
+                service: "web-deploy@docker"
+                tls:
+                  certResolver: le
+          EOF
+          
+          echo "config_file=$FILENAME" >> $GITHUB_OUTPUT
+
+      - name: Archive Config
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.event.client_payload.tenant_id }}.yml
+          path: ${{ github.event.client_payload.tenant_id }}.yml
+          retention-days: 5
