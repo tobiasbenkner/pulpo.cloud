@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   image: {
-    domains: ['directus.pulpo.cloud'],
+    domains: ['admin.pulpo.cloud'],
   },
   vite: {
     plugins: [tailwindcss()]
