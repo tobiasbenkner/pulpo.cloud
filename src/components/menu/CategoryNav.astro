@@ -16,7 +16,10 @@ const { categories } = Astro.props;
   class="sticky top-16 z-30 w-full bg-background/90 backdrop-blur-xl border-b border-white/10 shadow-lg"
 >
   <div class="w-full overflow-x-auto scrollbar-hide py-3">
-    <div class="min-w-full w-max flex justify-center">
+    <div
+      class="min-w-full w-max flex justify-center"
+      style="touch-action: pan-x;"
+    >
       <ul class="flex items-center gap-2 px-4 md:px-0">
         {
           categories.map((category, index) => (
@@ -50,6 +53,7 @@ const { categories } = Astro.props;
     background-color: rgba(255, 255, 255, 0.02);
     border-color: rgba(255, 255, 255, 0.1);
     color: rgba(255, 255, 255, 0.5);
+    -webkit-tap-highlight-color: transparent;
   }
 
   .category-link:not(.active):hover {
@@ -71,63 +75,70 @@ const { categories } = Astro.props;
   function initScrollSpy() {
     const navLinks = document.querySelectorAll(".category-link");
     const sections = document.querySelectorAll("section[id]");
-    const SCROLL_OFFSET = 150;
+    const navContainer = document.querySelector(".overflow-x-auto");
+
+    const SCROLL_OFFSET = 180;
 
     if (sections.length === 0) return;
 
     navLinks.forEach((link) => {
       link.addEventListener("click", (e) => {
         e.preventDefault();
-
         const targetId = link.getAttribute("href")?.substring(1);
-        const targetSection = document.getElementById(targetId || "");
+        if (!targetId) return;
 
+        const targetSection = document.getElementById(targetId);
         if (targetSection) {
-          const elementPosition = targetSection.getBoundingClientRect().top;
-          const offsetPosition =
-            elementPosition + window.pageYOffset - SCROLL_OFFSET;
+          const top =
+            targetSection.getBoundingClientRect().top +
+            window.scrollY -
+            SCROLL_OFFSET;
 
           window.scrollTo({
-            top: offsetPosition,
-            behavior: "auto",
+            top: top,
+            behavior: "smooth",
           });
 
-          updateActiveState(targetId || "");
+          setActiveLink(targetId);
         }
       });
     });
 
-    function onScroll() {
-      const scrollY = window.scrollY;
-      let currentSectionId = sections[0].id;
+    const observerOptions = {
+      root: null,
+      rootMargin: `-${SCROLL_OFFSET}px 0px -60% 0px`,
+      threshold: 0,
+    };
 
-      sections.forEach((section) => {
-        const sectionTop = (section as HTMLElement).offsetTop;
-        if (scrollY >= sectionTop - SCROLL_OFFSET - 20) {
-          currentSectionId = section.id;
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setActiveLink(entry.target.id);
         }
       });
+    }, observerOptions);
 
-      updateActiveState(currentSectionId);
+    sections.forEach((section) => observer.observe(section));
+
+    function setActiveLink(id: string) {
+      document
+        .querySelector(".category-link.active")
+        ?.classList.remove("active");
+
+      const activeLink = document.querySelector(
+        `.category-link[href="#${id}"]`
+      );
+
+      if (activeLink) {
+        activeLink.classList.add("active");
+
+        activeLink.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+          inline: "center",
+        });
+      }
     }
-
-    function updateActiveState(activeId: string) {
-      navLinks.forEach((link) => {
-        link.classList.remove("active");
-
-        if (link.getAttribute("href") === `#${activeId}`) {
-          link.classList.add("active");
-          link.scrollIntoView({
-            behavior: "smooth",
-            block: "nearest",
-            inline: "center",
-          });
-        }
-      });
-    }
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
   }
 
   initScrollSpy();
