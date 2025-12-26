@@ -79,6 +79,9 @@ const { categories } = Astro.props;
 
     const SCROLL_OFFSET = 150;
 
+    let isClickScrolling = false;
+    let clickScrollTimeout: any;
+
     if (sections.length === 0) return;
 
     navLinks.forEach((link) => {
@@ -89,6 +92,9 @@ const { categories } = Astro.props;
 
         const targetSection = document.getElementById(targetId);
         if (targetSection) {
+          isClickScrolling = true;
+          if (clickScrollTimeout) clearTimeout(clickScrollTimeout);
+
           const top =
             targetSection.getBoundingClientRect().top +
             window.scrollY -
@@ -100,6 +106,10 @@ const { categories } = Astro.props;
           });
 
           setActiveLink(targetId);
+
+          clickScrollTimeout = setTimeout(() => {
+            isClickScrolling = false;
+          }, 1000);
         }
       });
     });
@@ -111,6 +121,8 @@ const { categories } = Astro.props;
     };
 
     const observer = new IntersectionObserver((entries) => {
+      if (isClickScrolling) return;
+
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           setActiveLink(entry.target.id);
@@ -121,9 +133,14 @@ const { categories } = Astro.props;
     sections.forEach((section) => observer.observe(section));
 
     function setActiveLink(id: string) {
-      document
-        .querySelector(".category-link.active")
-        ?.classList.remove("active");
+      if (!id) return;
+
+      const currentActive = document.querySelector(".category-link.active");
+      if (currentActive && currentActive.getAttribute("href") === `#${id}`) {
+        return;
+      }
+
+      currentActive?.classList.remove("active");
 
       const activeLink = document.querySelector<HTMLElement>(
         `.category-link[href="#${id}"]`
