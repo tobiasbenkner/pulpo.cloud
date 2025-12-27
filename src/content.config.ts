@@ -2,7 +2,6 @@ import { defineCollection, z } from "astro:content";
 import { TenantSchema } from "./collections/Tenant";
 import { directus } from "./lib/directus";
 import { readItem, readItems } from "@directus/sdk";
-import { LanguageSchema } from "./collections/Language";
 import { getDefaultLanguage } from "./utils/getDefaultLangauge";
 import { I18nSchema } from "./utils/t";
 
@@ -197,7 +196,66 @@ const languages = defineCollection({
       id: lang.id,
     }));
   },
-  schema: LanguageSchema,
+  schema: z.object({
+    id: z.string(),
+    code: z.string(),
+    name: z.string(),
+    flag: z.string(),
+  }),
 });
 
-export const collections = { categories, languages, tenant };
+const pages = defineCollection({
+  loader: async () => {
+    const tenantId = import.meta.env.TENANT_ID;
+
+    if (!tenantId) {
+      throw new Error("TENANT_ID environment variable is missing!");
+    }
+
+    const defaultLanguage = await getDefaultLanguage(tenantId);
+
+    const pages = await directus.request(
+      readItems("pages", {
+        sort: ["sort"],
+        fields: [
+          "*",
+          "blocks.*",
+          "seo.*",
+          "seo.languages_id.*",
+          // "products.*",
+          // "products.translations.*",
+          // "products.translations.languages_id.*",
+          // "products.image.*",
+        ],
+        filter: {
+          tenant: {
+            _eq: tenantId,
+          },
+        },
+      })
+    );
+
+    // let localVideoPath = null;
+    //   if (prod.video_file) {
+    //      const remoteUrl = `${process.env.DIRECTUS_URL}/assets/${prod.video_file.id}`;
+    //      // Download starten und lokalen Pfad (/videos/xyz.mp4) erhalten
+    //      localVideoPath = await downloadVideoToPublic(remoteUrl, prod.id, prod.video_file.filename_disk);
+    //   }
+
+    return pages.map((page) => ({
+      ...page,
+      id: page.id,
+    }));
+  },
+  schema: z.object({
+    id: z.string(),
+    date_created: z.string(),
+    date_updated: z.string().optional().nullable(),
+    slug: z.string().optional().nullable(),
+    title: z.string().optional(),
+    seo: z.array(z.any()),
+    blocks: z.array(z.any()),
+  }),
+});
+
+export const collections = { categories, languages, pages, tenant };

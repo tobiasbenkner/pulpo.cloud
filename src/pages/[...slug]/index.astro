@@ -1,0 +1,53 @@
+---
+import { getCollection } from "astro:content";
+import About from "../../components/blocks/blocks/About.astro";
+import Carousel from "../../components/blocks/blocks/Carousel.astro";
+import Contact from "../../components/blocks/blocks/Contact.astro";
+import Hero from "../../components/blocks/blocks/Hero.astro";
+import Schedule from "../../components/blocks/blocks/Schedule.astro";
+import Layout from "../../layouts/Layout.astro";
+
+export async function getStaticPaths() {
+  const pages = await getCollection("pages");
+  const languages = await getCollection("languages");
+  const defaultLanguage = languages[0].data;
+
+  const paths = [];
+  for (const { data: page } of pages) {
+    for (const { data: language } of languages) {
+      if (language.code === defaultLanguage.code) {
+        paths.push({
+          params: { slug: page.slug || undefined },
+          props: {
+            page: page,
+            lang: defaultLanguage,
+          },
+        });
+      } else {
+        paths.push({
+          params: {
+            slug: page.slug ? `${language.code}/${page.slug}` : language.code,
+          },
+          props: {
+            page: page,
+            lang: language,
+          },
+        });
+      }
+    }
+  }
+
+  console.log(paths);
+  return paths;
+}
+
+const { page, lang } = Astro.props;
+---
+
+<Layout title="El Búho Tuerto" lang={lang.code}>
+  <Hero />
+  <Carousel />
+  <Schedule />
+  <About />
+  <Contact />
+</Layout>
