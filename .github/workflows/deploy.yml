@@ -28,6 +28,7 @@ jobs:
       - name: Build
         env:
           TENANT_ID: ${{ github.event.client_payload.tenant_id }}
+          SITE_URL: https://${{ github.event.client_payload.domain }}
           DIRECTUS_TOKEN: ${{ secrets.DIRECTUS_TOKEN }}
           DIRECTUS_URL: ${{ secrets.DIRECTUS_URL }}
         run: |
