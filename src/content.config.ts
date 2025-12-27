@@ -6,8 +6,14 @@ import { getDefaultLanguage } from "./utils/getDefaultLangauge";
 import { I18nSchema } from "./utils/t";
 
 function convertI18n(trans: any[], fieldName: string, defaultLanguage: string) {
+  const getNestedValue = (obj: any, path: string) => {
+    return path.split(".").reduce((acc, part) => acc?.[part], obj);
+  };
+
   const translations = (trans ?? []).reduce((acc: any, trans: any) => {
-    acc[trans.languages_id.code] = trans?.[fieldName] ?? "";
+    const value = getNestedValue(trans, fieldName);
+
+    acc[trans.languages_id.code] = value ?? "";
     return acc;
   }, {} as Record<string, string>);
 
@@ -242,10 +248,21 @@ const pages = defineCollection({
     //      localVideoPath = await downloadVideoToPublic(remoteUrl, prod.id, prod.video_file.filename_disk);
     //   }
 
-    return pages.map((page) => ({
-      ...page,
-      id: page.id,
-    }));
+    return pages.map((page) => {      
+      return {
+        ...page,
+        id: page.id,
+        seo: {
+          title: convertI18n(page.seo, "seo.title", defaultLanguage.code),
+          description: convertI18n(
+            page.seo,
+            "seo.meta_description",
+            defaultLanguage.code
+          ),
+          og_image: convertI18n(page.seo, "seo.og_image", defaultLanguage.code),
+        },
+      };
+    });
   },
   schema: z.object({
     id: z.string(),
@@ -253,7 +270,11 @@ const pages = defineCollection({
     date_updated: z.string().optional().nullable(),
     slug: z.string().optional().nullable(),
     title: z.string().optional(),
-    seo: z.array(z.any()),
+    seo: z.object({
+      title: I18nSchema,
+      description: I18nSchema,
+      og_image: I18nSchema,
+    }),
     blocks: z.array(z.any()),
   }),
 });

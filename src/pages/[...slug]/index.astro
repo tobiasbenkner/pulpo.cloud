@@ -6,6 +6,7 @@ import Contact from "../../components/blocks/blocks/Contact.astro";
 import Hero from "../../components/blocks/blocks/Hero.astro";
 import Schedule from "../../components/blocks/blocks/Schedule.astro";
 import Layout from "../../layouts/Layout.astro";
+import { t } from "../../utils/t";
 
 export async function getStaticPaths() {
   const pages = await getCollection("pages");
@@ -36,15 +37,17 @@ export async function getStaticPaths() {
       }
     }
   }
-
-  console.log(paths);
   return paths;
 }
 
 const { page, lang } = Astro.props;
+
+const title = t(page.seo.title, lang.code);
+const description = t(page.seo.description, lang.code);
+const og_image = t(page.seo.og_image, lang.code);
 ---
 
-<Layout title="El Búho Tuerto" lang={lang.code}>
+<Layout title={title} description={description} og_image={og_image} lang={lang.code}>
   <Hero />
   <Carousel />
   <Schedule />
