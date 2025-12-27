@@ -7,9 +7,9 @@ import CategoryNav from "../../../components/menu/CategoryNav.astro";
 export async function getStaticPaths() {
   const languages = await getCollection("languages");
   const result = languages.map((it) => {
-    return { params: { lang: it.data.code } };
+    return { params: { slug: it.data.code } };
   });
-  result.push({ params: { lang: undefined as any } });
+  result.push({ params: { slug: undefined as any } });
   return result;
 }
 const response = await getCollection("categories");

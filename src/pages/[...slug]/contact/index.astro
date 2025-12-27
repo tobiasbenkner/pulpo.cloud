@@ -1,15 +1,15 @@
 ---
 import { getCollection } from "astro:content";
-import Contact from "../../../components/blocks/Contact.astro";
+import Contact from "../../../components/blocks/blocks/Contact.astro";
 import ContactOptions from "../../../components/ContactOptions.astro";
 import Layout from "../../../layouts/Layout.astro";
 
 export async function getStaticPaths() {
   const languages = await getCollection("languages");
   const result = languages.map((it) => {
-    return { params: { lang: it.data.code } };
+    return { params: { slug: it.data.code } };
   });
-  result.push({ params: { lang: undefined as any } });
+  result.push({ params: { slug: undefined as any } });
   return result;
 }
 ---

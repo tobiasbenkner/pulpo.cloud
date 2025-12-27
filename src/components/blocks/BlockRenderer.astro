@@ -1,0 +1,23 @@
+---
+import Hero from './blocks/Hero.astro';
+import Text from './blocks/Text.astro';
+import Contact from './blocks/Contact.astro';
+
+const { block } = Astro.props;
+
+const type = block.collection;
+const data = block.item;
+---
+
+{/* Switch Case für deine Blöcke */}
+
+{type === 'block_hero' && <Hero {...data} />}
+{type === 'block_text' && <Text {...data} />}
+{type === 'block_contact' && <Contact {...data} />}
+
+{/* Fallback für Entwicklung: Zeigt an, wenn ein Block fehlt */}
+{!['block_hero', 'block_text', 'block_contact'].includes(type) && (
+  <div class="p-4 bg-red-100 text-red-600">
+    Unbekannter Block-Typ: {type}
+  </div>
+)}
