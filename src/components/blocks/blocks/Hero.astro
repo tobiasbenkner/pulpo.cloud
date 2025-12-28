@@ -1,14 +1,27 @@
 ---
-const { lang = "" } = Astro.params;
+import type { CollectionEntry } from "astro:content";
+import { convertI18n } from "../../../content/utils";
+import { t } from "../../../utils/t";
+
+type Props = {
+  lang: CollectionEntry<"languages">["data"];
+  data: any;
+};
+
+const { data, lang } = Astro.props;
 
 const video = "/hero.mp4";
 const background = "";
 const logo = "/chiquita.webp";
-const title = "";
-const description = "Un rincón argentino en Las Palmas";
+const title = t(convertI18n(data?.translations, "title", "es"), lang?.code);
+const subtitle = t(
+  convertI18n(data?.translations, "subtitle", "es"),
+  lang?.code
+);
+
 const links = [
   {
-    href: lang ? `/${lang}/menu` : "/menu",
+    href: "/menu",
     label: "VER MENÚ",
   },
 ];
@@ -69,9 +82,9 @@ const links = [
       }
 
       {
-        description && (
+        subtitle && (
           <p class="text-xl md:text-2xl text-gray-200 font-serif italic tracking-wide mb-10 max-w-2xl mx-auto leading-relaxed drop-shadow-sm">
-            {description}
+            {subtitle}
           </p>
         )
       }
