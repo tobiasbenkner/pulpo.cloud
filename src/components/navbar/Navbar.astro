@@ -41,18 +41,19 @@ const isActive = (href: string) => {
 
 const getPathForLang = (newLang: string) => {
   const parts = currentPath.split("/").filter(Boolean);
-  const isDefaultLanguage = defaultLang?.code === newLang;
+  const firstSegmentIsLang =
+    parts.length > 0 && languages.some((l) => l.code === parts[0]);
 
-  if (parts.length > 0 && languages.some((l) => l.code === parts[0])) {
-    if (isDefaultLanguage) {
-      parts.shift();
-    } else {
-      parts[0] = newLang;
-    }
-    return "/" + parts.join("/");
+  const slugParts = firstSegmentIsLang ? parts.slice(1) : parts;
+  const cleanSlug = slugParts.join("/");
+
+  const isTargetDefault = defaultLang?.code === newLang;
+
+  if (isTargetDefault) {
+    return cleanSlug ? `/${cleanSlug}` : "/";
+  } else {
+    return cleanSlug ? `/${newLang}/${cleanSlug}` : `/${newLang}/`;
   }
-
-  return isDefaultLanguage ? "/" : `/${newLang}/`;
 };
 ---
 
