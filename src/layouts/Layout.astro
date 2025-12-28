@@ -13,6 +13,7 @@ interface Props {
   siteName?: string;
   lang: CollectionEntry<"languages">["data"];
   languages: CollectionEntry<"languages">["data"][];
+  alternateLinks: Record<string, string>;
 }
 
 const {
@@ -23,6 +24,7 @@ const {
   siteName = "sitename",
   lang,
   languages,
+  alternateLinks,
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
@@ -99,7 +101,7 @@ if (og_image) {
     <!-- <link rel="sitemap" href="/sitemap-index.xml" /> -->
   </head>
   <body class="bg-background text-text flex flex-col min-h-screen">
-    <Navbar lang={lang} languages={languages} />
+    <Navbar lang={lang} languages={languages} alternateLinks={alternateLinks} />
     <main class="flex-1 w-full pt-16">
       <slot />
     </main>
