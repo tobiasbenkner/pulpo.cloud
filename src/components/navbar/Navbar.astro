@@ -18,12 +18,13 @@ const isDefaultLanguage = defaultLang?.code === lang.code;
 
 const navLinks = (headerNav?.navigation_items ?? []).map((it) => {
   const name = t(it.label, lang.code);
+  const slug = t(it.page?.slug, lang.code);
 
   let href = "";
   if (isDefaultLanguage) {
-    href = it.page?.slug ? `/${it.page?.slug}` : "/";
+    href = slug ? `/${slug}` : "/";
   } else {
-    href = it.page?.slug ? `/${lang.code}/${it.page?.slug}` : `/${lang.code}`;
+    href = slug ? `/${lang.code}/${slug}` : `/${lang.code}`;
   }
 
   return {
