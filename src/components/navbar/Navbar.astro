@@ -1,26 +1,37 @@
 ---
-import { getCollection } from "astro:content";
+import { getCollection, type CollectionEntry } from "astro:content";
+import { t } from "../../utils/t";
 
-const languages = ((await getCollection("languages")) ?? []).map(
-  (it) => it.data
-);
-const { lang = languages[0] ? languages[0].code : "" } = Astro.params;
+interface Props {
+  lang: CollectionEntry<"languages">["data"];
+  languages: CollectionEntry<"languages">["data"][];
+}
 
-const translations = {
-  es: { home: "Inicio", menu: "Menú", contact: "Contacto" },
-  en: { home: "Home", menu: "Menu", contact: "Contact" },
-  de: { home: "Start", menu: "Menü", contact: "Kontakt" },
-};
+const { data: headerNav } =
+  (await getCollection("navigations"))
+    .filter((it) => it.data.type === "header")
+    .at(0) ?? {};
 
-const t = translations[lang as keyof typeof translations] || translations.es;
+const { lang, languages } = Astro.props;
+const defaultLang = languages.at(0);
+const isDefaultLanguage = defaultLang?.code === lang.code;
 
-const navLinks = [
-  { name: t.home, href: `/${lang}/` },
-  { name: t.menu, href: `/${lang}/menu` },
-  { name: t.contact, href: `/${lang}/contact` },
-];
+const navLinks = (headerNav?.navigation_items ?? []).map((it) => {
+  const name = t(it.label, lang.code);
 
-const currentLangObj = languages.find((l) => l.code === lang) || languages[0];
+  let href = "";
+  if (isDefaultLanguage) {
+    href = it.page?.slug ? `/${it.page?.slug}` : "/";
+  } else {
+    href = it.page?.slug ? `/${lang.code}/${it.page?.slug}` : `/${lang.code}`;
+  }
+
+  return {
+    name: name,
+    href: href,
+  };
+});
+
 const currentPath = Astro.url.pathname;
 
 const isActive = (href: string) => {
@@ -30,11 +41,18 @@ const isActive = (href: string) => {
 
 const getPathForLang = (newLang: string) => {
   const parts = currentPath.split("/").filter(Boolean);
+  const isDefaultLanguage = defaultLang?.code === newLang;
+
   if (parts.length > 0 && languages.some((l) => l.code === parts[0])) {
-    parts[0] = newLang;
+    if (isDefaultLanguage) {
+      parts.shift();
+    } else {
+      parts[0] = newLang;
+    }
     return "/" + parts.join("/");
   }
-  return `/${newLang}/`;
+
+  return isDefaultLanguage ? "/" : `/${newLang}/`;
 };
 ---
 
@@ -46,7 +64,10 @@ const getPathForLang = (newLang: string) => {
     <div class="flex justify-between items-center h-16">
       <!-- 1. Logo -->
       <div class="flex-1 flex justify-start">
-        <a href={`/${lang}/`} class="group transition-opacity hover:opacity-80">
+        <a
+          href={isDefaultLanguage ? "/" : `/${lang.code}/`}
+          class="group transition-opacity hover:opacity-80"
+        >
           <img
             src="/logo.webp"
             alt="Logo"
@@ -85,7 +106,7 @@ const getPathForLang = (newLang: string) => {
             <span
               class="text-2xl drop-shadow-sm group-hover:scale-110 transition-transform duration-300"
             >
-              {currentLangObj.flag}
+              {lang.flag}
             </span>
             <span
               class="h-4 w-px bg-white/10 group-hover:bg-amber-200/50 transition-colors"
@@ -121,11 +142,11 @@ const getPathForLang = (newLang: string) => {
                     </span>
                     <div class="flex-1 flex justify-between items-center">
                       <span
-                        class={`font-serif italic text-lg ${lang === l.code ? "text-amber-200" : "text-gray-400 group-hover:text-white"}`}
+                        class={`font-serif italic text-lg ${lang.code === l.code ? "text-amber-200" : "text-gray-400 group-hover:text-white"}`}
                       >
                         {l.name}
                       </span>
-                      {lang === l.code && (
+                      {lang.code === l.code && (
                         <span class="w-1 h-1 rounded-full bg-amber-200 shadow-[0_0_8px_rgba(253,230,138,0.5)]" />
                       )}
                     </div>
@@ -146,7 +167,7 @@ const getPathForLang = (newLang: string) => {
           class="flex items-center justify-center active:scale-95 transition-transform"
           aria-label="Change Language"
         >
-          <span class="text-2xl drop-shadow-md">{currentLangObj.flag}</span>
+          <span class="text-2xl drop-shadow-md">{lang.flag}</span>
         </button>
 
         <!-- Burger Icon -->
@@ -219,11 +240,11 @@ const getPathForLang = (newLang: string) => {
               <a
                 href={getPathForLang(l.code)}
                 class={`flex flex-col items-center gap-2 p-3 rounded-md transition-all border border-transparent
-                ${lang === l.code ? "border-amber-200/20 bg-white/5" : "text-gray-500"}`}
+                ${lang.code === l.code ? "border-amber-200/20 bg-white/5" : "text-gray-500"}`}
               >
                 <span class="text-3xl drop-shadow-md">{l.flag}</span>
                 <span
-                  class={`text-[10px] uppercase tracking-widest ${lang === l.code ? "text-amber-200" : "text-white/50"}`}
+                  class={`text-[10px] uppercase tracking-widest ${lang.code === l.code ? "text-amber-200" : "text-white/50"}`}
                 >
                   {l.code}
                 </span>
