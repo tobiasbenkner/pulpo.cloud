@@ -7,21 +7,27 @@ import Hero from "../../components/blocks/blocks/Hero.astro";
 import Schedule from "../../components/blocks/blocks/Schedule.astro";
 import Layout from "../../layouts/Layout.astro";
 import { t } from "../../utils/t";
+import ContactOptions from "../../components/ContactOptions.astro";
 
 export async function getStaticPaths() {
   const pages = await getCollection("pages");
-  const languages = await getCollection("languages");
-  const defaultLanguage = languages[0].data;
+  const languages = (await getCollection("languages")).map((it) => {
+    return {
+      ...it.data,
+    };
+  });
+  const defaultLanguage = languages[0];
 
   const paths = [];
   for (const { data: page } of pages) {
-    for (const { data: language } of languages) {
+    for (const language of languages) {
       if (language.code === defaultLanguage.code) {
         paths.push({
           params: { slug: page.slug || undefined },
           props: {
             page: page,
             lang: defaultLanguage,
+            languages: languages,
           },
         });
       } else {
@@ -32,6 +38,7 @@ export async function getStaticPaths() {
           props: {
             page: page,
             lang: language,
+            languages: languages,
           },
         });
       }
@@ -40,17 +47,24 @@ export async function getStaticPaths() {
   return paths;
 }
 
-const { page, lang } = Astro.props;
+const { page, lang, languages } = Astro.props;
 
 const title = t(page.seo.title, lang.code);
 const description = t(page.seo.description, lang.code);
 const og_image = t(page.seo.og_image, lang.code);
 ---
 
-<Layout title={title} description={description} og_image={og_image} lang={lang.code}>
+<Layout
+  title={title}
+  description={description}
+  og_image={og_image}
+  lang={lang}
+  languages={languages}
+>
   <Hero />
   <Carousel />
   <Schedule />
   <About />
+  <ContactOptions />
   <Contact />
 </Layout>

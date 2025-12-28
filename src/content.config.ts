@@ -2,49 +2,10 @@ import { defineCollection, z } from "astro:content";
 import { TenantSchema } from "./collections/Tenant";
 import { directus } from "./lib/directus";
 import { readItem, readItems } from "@directus/sdk";
-import { getDefaultLanguage } from "./utils/getDefaultLangauge";
 import { I18nSchema } from "./utils/t";
-
-function convertI18n(trans: any[], fieldName: string, defaultLanguage: string) {
-  const getNestedValue = (obj: any, path: string) => {
-    return path.split(".").reduce((acc, part) => acc?.[part], obj);
-  };
-
-  const translations = (trans ?? []).reduce((acc: any, trans: any) => {
-    const value = getNestedValue(trans, fieldName);
-
-    acc[trans.languages_id.code] = value ?? "";
-    return acc;
-  }, {} as Record<string, string>);
-
-  return {
-    value: translations[defaultLanguage],
-    translations: translations,
-  };
-}
-
-function getImage(image: any) {
-  let photoData = null;
-  if (image && typeof image === "object") {
-    const filename = image.filename_disk || "image.jpg";
-
-    photoData = {
-      src: `${import.meta.env.DIRECTUS_URL}/assets/${
-        image.id
-      }/${filename}?access_token=${
-        import.meta.env.DIRECTUS_TOKEN
-      }&width=1500&withoutEnlargement=true`,
-      title: image.title,
-      width: image.width,
-      height: image.height,
-      focalPoint: {
-        x: image.focal_point_x,
-        y: image.focal_point_y,
-      },
-    };
-  }
-  return photoData;
-}
+import { getDefaultLanguage } from "./content/language";
+import { navigations } from "./content/navigation";
+import { convertI18n, getImage } from "./content/utils";
 
 const categories = defineCollection({
   loader: async () => {
@@ -248,7 +209,7 @@ const pages = defineCollection({
     //      localVideoPath = await downloadVideoToPublic(remoteUrl, prod.id, prod.video_file.filename_disk);
     //   }
 
-    return pages.map((page) => {      
+    return pages.map((page) => {
       return {
         ...page,
         id: page.id,
@@ -279,4 +240,10 @@ const pages = defineCollection({
   }),
 });
 
-export const collections = { categories, languages, pages, tenant };
+export const collections = {
+  categories,
+  languages,
+  pages,
+  tenant,
+  navigations,
+};

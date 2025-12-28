@@ -1,11 +1,14 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import SectionHeader from "../../components/ui/SectionHeader.astro";
+import { getCollection } from "astro:content";
+
+const languages = (await getCollection("languages")).map((it) => it.data);
 
 const lastUpdate = "Enero 2025";
 ---
 
-<Layout noindex title="Aviso Legal">
+<Layout noindex title="Aviso Legal" languages={languages} lang={languages[0]}>
   <main class="bg-background min-h-screen py-32 px-6">
     <div class="max-w-3xl mx-auto">
       <!-- Header -->
