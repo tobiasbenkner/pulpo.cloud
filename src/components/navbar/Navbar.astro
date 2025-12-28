@@ -5,6 +5,7 @@ import { t } from "../../utils/t";
 interface Props {
   lang: CollectionEntry<"languages">["data"];
   languages: CollectionEntry<"languages">["data"][];
+  alternateLinks: Record<string, string>;
 }
 
 const { data: headerNav } =
@@ -12,7 +13,7 @@ const { data: headerNav } =
     .filter((it) => it.data.type === "header")
     .at(0) ?? {};
 
-const { lang, languages } = Astro.props;
+const { lang, languages, alternateLinks } = Astro.props;
 const defaultLang = languages.at(0);
 const isDefaultLanguage = defaultLang?.code === lang.code;
 
@@ -40,21 +41,9 @@ const isActive = (href: string) => {
   return normalize(currentPath) === normalize(href);
 };
 
-const getPathForLang = (newLang: string) => {
-  const parts = currentPath.split("/").filter(Boolean);
-  const firstSegmentIsLang =
-    parts.length > 0 && languages.some((l) => l.code === parts[0]);
-
-  const slugParts = firstSegmentIsLang ? parts.slice(1) : parts;
-  const cleanSlug = slugParts.join("/");
-
-  const isTargetDefault = defaultLang?.code === newLang;
-
-  if (isTargetDefault) {
-    return cleanSlug ? `/${cleanSlug}` : "/";
-  } else {
-    return cleanSlug ? `/${newLang}/${cleanSlug}` : `/${newLang}/`;
-  }
+const getPathForLang = (targetLangCode: string) => {
+  const specificPath = alternateLinks?.[targetLangCode];
+  return specificPath || "/";
 };
 ---
 
