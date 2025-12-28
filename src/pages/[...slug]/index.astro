@@ -3,11 +3,11 @@ import { getCollection } from "astro:content";
 import About from "../../components/blocks/blocks/About.astro";
 import Carousel from "../../components/blocks/blocks/Carousel.astro";
 import Contact from "../../components/blocks/blocks/Contact.astro";
-import Hero from "../../components/blocks/blocks/Hero.astro";
 import Schedule from "../../components/blocks/blocks/Schedule.astro";
 import Layout from "../../layouts/Layout.astro";
 import { t } from "../../utils/t";
 import ContactOptions from "../../components/ContactOptions.astro";
+import BlockRenderer from "../../components/blocks/BlockRenderer.astro";
 
 export async function getStaticPaths() {
   const pages = (await getCollection("pages")).map((it) => it.data);
@@ -81,7 +81,11 @@ const og_image = t(page.seo.og_image, lang.code);
   languages={languages}
   alternateLinks={alternateLinks}
 >
-  <Hero />
+  {
+    page.blocks.map((block) => {
+      return <BlockRenderer block={block} lang={lang} />;
+    })
+  }
   <Carousel />
   <Schedule />
   <About />
