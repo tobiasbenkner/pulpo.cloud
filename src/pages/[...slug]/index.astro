@@ -10,7 +10,7 @@ import { t } from "../../utils/t";
 import ContactOptions from "../../components/ContactOptions.astro";
 
 export async function getStaticPaths() {
-  const pages = await getCollection("pages");
+  const pages = (await getCollection("pages")).map((it) => it.data);
   const languages = (await getCollection("languages")).map((it) => {
     return {
       ...it.data,
@@ -19,11 +19,13 @@ export async function getStaticPaths() {
   const defaultLanguage = languages[0];
 
   const paths = [];
-  for (const { data: page } of pages) {
+  for (const page of pages) {
     for (const language of languages) {
+      const slug = t(page.slug, language.code);
+
       if (language.code === defaultLanguage.code) {
         paths.push({
-          params: { slug: page.slug || undefined },
+          params: { slug: slug || undefined },
           props: {
             page: page,
             lang: defaultLanguage,
@@ -33,7 +35,7 @@ export async function getStaticPaths() {
       } else {
         paths.push({
           params: {
-            slug: page.slug ? `${language.code}/${page.slug}` : language.code,
+            slug: slug ? `${language.code}/${slug}` : language.code,
           },
           props: {
             page: page,

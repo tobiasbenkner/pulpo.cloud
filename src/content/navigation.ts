@@ -24,6 +24,8 @@ export const navigations = defineCollection({
           "navigation_items.navigation_items_id.translations.*",
           "navigation_items.navigation_items_id.translations.languages_id.*",
           "navigation_items.navigation_items_id.page.*",
+          "navigation_items.navigation_items_id.page.slugs.*",
+          "navigation_items.navigation_items_id.page.slugs.languages_id.*",
         ],
         filter: {
           tenant: {
@@ -47,6 +49,14 @@ export const navigations = defineCollection({
               "label",
               defaultLanguage.code
             ),
+            page: {
+              ...navItem.page,
+              slug: convertI18n(
+                navItem.page.slugs,
+                "slug",
+                defaultLanguage.code
+              ),
+            },
           };
         }),
       };
@@ -65,7 +75,7 @@ export const navigations = defineCollection({
           page: z
             .object({
               id: z.string(),
-              slug: z.string().optional().nullable(),
+              slug: I18nSchema,
             })
             .optional()
             .nullable(),
