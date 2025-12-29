@@ -83,7 +83,7 @@ const og_image = t(page.seo.og_image, lang.code);
 >
   {
     page.blocks.map((block) => {
-      return <BlockRenderer block={block} lang={lang} />;
+      return <BlockRenderer block={block} lang={lang} defaultLang={languages[0]} />;
     })
   }
   <Carousel />
