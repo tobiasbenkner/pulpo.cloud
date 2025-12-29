@@ -1,4 +1,5 @@
 ---
+import FoodMenuBlock from "./blocks/FoodMenuBlock.astro";
 import Hero from "./blocks/Hero.astro";
 
 const { block, lang, defaultLang } = Astro.props;
@@ -12,3 +13,5 @@ const data = block.item;
     <Hero data={data} lang={lang} defaultLang={defaultLang} />
   )
 }
+
+{type === "block_food_menu" && <FoodMenuBlock />}
