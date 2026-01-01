@@ -11,7 +11,7 @@ import type {
   Customer,
 } from "../types/shop";
 
-// --- TYPEN FÜR PARKED CART ---
+// --- TYPEN ---
 export interface ParkedCart {
   id: string;
   items: Record<string, CartItem>;
@@ -23,63 +23,54 @@ export interface ParkedCart {
 
 // --- KONFIGURATION ---
 const TAX_RATES: Record<TaxClassCode, number> = {
-  STD: 0.07,
-  RED: 0.03,
+  STD: 0.07, // 7% IGIC
+  RED: 0.03, // 3%
   ZERO: 0.0,
 };
 
 // --- STATE (PERSISTENT) ---
 
-// 1. Warenkorb
 export const cartItems = persistentMap<Record<string, CartItem>>(
   "cart:data",
   {},
-  {
-    encode: JSON.stringify,
-    decode: JSON.parse,
-  }
+  { encode: JSON.stringify, decode: JSON.parse }
 );
 
-// 2. Letzte Transaktion
 export const lastTransaction = persistentAtom<TransactionResult | null>(
   "cart:last_tx",
   null,
-  {
-    encode: JSON.stringify,
-    decode: JSON.parse,
-  }
+  { encode: JSON.stringify, decode: JSON.parse }
 );
 
-// 3. Einstellungen (Drucken)
 export const shouldPrintReceipt = persistentAtom<boolean>(
   "settings:print",
   true,
-  {
-    encode: JSON.stringify,
-    decode: JSON.parse,
-  }
+  { encode: JSON.stringify, decode: JSON.parse }
 );
 
-// 4. Geparkte Warenkörbe
 export const parkedCarts = persistentMap<Record<string, ParkedCart>>(
   "cart:parked",
   {},
-  {
-    encode: JSON.stringify,
-    decode: JSON.parse,
-  }
+  { encode: JSON.stringify, decode: JSON.parse }
 );
+
+// NEU: Globaler Rabatt (persistent)
+export const globalDiscount = persistentAtom<{
+  type: "percent" | "fixed";
+  value: number;
+} | null>("cart:global_discount", null, {
+  encode: JSON.stringify,
+  decode: JSON.parse,
+});
 
 // --- STATE (SESSION) ---
 
 export const isPaymentModalOpen = atom<boolean>(false);
 export const isCustomAmountOpen = atom<boolean>(false);
 export const isCustomerModalOpen = atom<boolean>(false);
-// NEU: State für das Rabatt-Modal (speichert die ID des betroffenen Items)
 export const isDiscountModalOpen = atom<{ itemId: string | null }>({
   itemId: null,
-});
-
+}); // 'GLOBAL' or ID
 export const selectedCustomer = atom<Customer | null>(null);
 
 // --- ACTIONS: CART ---
@@ -87,7 +78,6 @@ export const selectedCustomer = atom<Customer | null>(null);
 export const addToCart = (product: Product) => {
   const current = cartItems.get();
   const existing = current[product.id];
-
   if (existing) {
     cartItems.setKey(product.id, {
       ...existing,
@@ -101,9 +91,7 @@ export const addToCart = (product: Product) => {
 export const decreaseQuantity = (productId: string) => {
   const current = cartItems.get();
   const existing = current[productId];
-
   if (!existing) return;
-
   if (existing.quantity > 1) {
     cartItems.setKey(productId, {
       ...existing,
@@ -130,23 +118,30 @@ export const setCustomer = (customer: Customer | null) => {
 
 // --- ACTIONS: DISCOUNT ---
 
-/**
- * Wendet einen Rabatt auf ein spezifisches Item im Warenkorb an.
- */
+// Helper für Global
+const setGlobalDiscount = (type: "percent" | "fixed", value: number) => {
+  let validated = value < 0 ? 0 : value;
+  if (type === "percent" && validated > 100) validated = 100;
+  globalDiscount.set({ type, value: validated });
+};
+
+// Haupt-Funktion (Router für Item oder Global)
 export const applyDiscount = (
   id: string,
   type: "percent" | "fixed",
   value: number
 ) => {
+  if (id === "GLOBAL") {
+    setGlobalDiscount(type, value);
+    return;
+  }
+
   const current = cartItems.get();
   const item = current[id];
-
   if (item) {
-    // Validierung: Prozentualer Rabatt darf 100% nicht überschreiten
     let validatedValue = value;
     if (type === "percent" && value > 100) validatedValue = 100;
     if (value < 0) validatedValue = 0;
-
     cartItems.setKey(id, {
       ...item,
       discount: { type, value: validatedValue },
@@ -154,14 +149,14 @@ export const applyDiscount = (
   }
 };
 
-/**
- * Entfernt den Rabatt von einem Item.
- */
 export const removeDiscount = (id: string) => {
+  if (id === "GLOBAL") {
+    globalDiscount.set(null);
+    return;
+  }
   const current = cartItems.get();
   const item = current[id];
   if (item) {
-    // Destructuring um den discount Key zu entfernen
     const { discount, ...rest } = item;
     cartItems.setKey(id, rest as CartItem);
   }
@@ -175,10 +170,7 @@ export const parkCurrentCart = () => {
   if (keys.length === 0) return;
 
   const id = `park-${Date.now()}`;
-
-  // Wir nutzen die computed cartTotals um die Summe für die Vorschau zu erhalten
-  const totals = cartTotals.get();
-
+  const totals = cartTotals.get(); // Aktuelle Totals nutzen
   const cust = selectedCustomer.get();
   const label = cust
     ? cust.name
@@ -198,6 +190,7 @@ export const parkCurrentCart = () => {
 
   parkedCarts.setKey(id, newParked);
   cartItems.set({});
+  globalDiscount.set(null); // Global Discount beim Parken auch resetten
   selectedCustomer.set(null);
 };
 
@@ -207,6 +200,7 @@ export const restoreParkedCart = (parkId: string) => {
 
   cartItems.set(parked.items);
   selectedCustomer.set(parked.customer);
+  globalDiscount.set(null); // Sicherstellen, dass kein alter Global Discount aktiv ist
 
   const currentParked = { ...parkedCarts.get() };
   delete currentParked[parkId];
@@ -257,47 +251,76 @@ export const completeTransaction = (
     triggerPrint(txData);
   }
 
+  // Reset alles
   cartItems.set({});
+  globalDiscount.set(null);
   selectedCustomer.set(null);
   isPaymentModalOpen.set(false);
 };
 
 // --- COMPUTED: TOTALS ---
 
-export const cartTotals = computed(cartItems, (items): CartTotals => {
-  let totalGross = 0;
-  let totalNet = 0;
+export const cartTotals = computed(
+  [cartItems, globalDiscount],
+  (items, globalDisc): CartTotals => {
+    let subtotalGross = 0; // Summe nach Artikel-Rabatten
+    let totalNet = 0;
 
-  Object.values(items).forEach((item) => {
-    // 1. Basis-Brutto (Menge * Einzelpreis)
-    let lineGross = item.priceGross * item.quantity;
+    // 1. Zwischensumme berechnen (Artikelrabatte anwenden)
+    Object.values(items).forEach((item) => {
+      let lineGross = item.priceGross * item.quantity;
+      if (item.discount) {
+        if (item.discount.type === "fixed") {
+          lineGross -= item.discount.value; // Festbetrag
+        } else {
+          lineGross -= lineGross * (item.discount.value / 100); // Prozent
+        }
+      }
+      if (lineGross < 0) lineGross = 0;
+      subtotalGross += lineGross;
+    });
 
-    // 2. Rabatt anwenden
-    if (item.discount) {
-      if (item.discount.type === "fixed") {
-        // Festbetrag wird von der Gesamtsumme der Zeile abgezogen
-        lineGross -= item.discount.value;
+    // 2. Globalen Rabatt berechnen
+    let finalTotalGross = subtotalGross;
+    if (globalDisc) {
+      if (globalDisc.type === "fixed") {
+        finalTotalGross -= globalDisc.value;
       } else {
-        // Prozentualer Abzug
-        lineGross -= lineGross * (item.discount.value / 100);
+        finalTotalGross -= finalTotalGross * (globalDisc.value / 100);
       }
     }
+    if (finalTotalGross < 0) finalTotalGross = 0;
 
-    // Preis darf niemals negativ sein (z.B. wenn Rabatt > Preis)
-    if (lineGross < 0) lineGross = 0;
+    // 3. Steuer rückrechnen
+    // Wir ermitteln das Verhältnis (Ratio) zwischen Endpreis und Zwischensumme,
+    // um den Global-Rabatt fair auf alle Steuersätze zu verteilen.
+    const discountRatio =
+      subtotalGross > 0 ? finalTotalGross / subtotalGross : 1;
 
-    // 3. Steuer herausrechnen (Netto-Ermittlung)
-    const rate = TAX_RATES[item.taxClass] || 0;
-    const lineNet = lineGross / (1 + rate);
+    Object.values(items).forEach((item) => {
+      // a) Zeilenpreis nach Artikelrabatt
+      let lineGross = item.priceGross * item.quantity;
+      if (item.discount) {
+        if (item.discount.type === "fixed") lineGross -= item.discount.value;
+        else lineGross -= lineGross * (item.discount.value / 100);
+      }
+      if (lineGross < 0) lineGross = 0;
 
-    totalGross += lineGross;
-    totalNet += lineNet;
-  });
+      // b) Globalen Rabatt-Faktor anwenden
+      const lineGrossAfterGlobal = lineGross * discountRatio;
 
-  return {
-    gross: totalGross.toFixed(2),
-    net: totalNet.toFixed(2),
-    tax: (totalGross - totalNet).toFixed(2),
-    count: Object.values(items).reduce((sum, item) => sum + item.quantity, 0),
-  };
-});
+      // c) Steuer herausrechnen
+      const rate = TAX_RATES[item.taxClass] || 0;
+      const lineNet = lineGrossAfterGlobal / (1 + rate);
+
+      totalNet += lineNet;
+    });
+
+    return {
+      gross: finalTotalGross.toFixed(2),
+      net: totalNet.toFixed(2),
+      tax: (finalTotalGross - totalNet).toFixed(2),
+      count: Object.values(items).reduce((sum, item) => sum + item.quantity, 0),
+    };
+  }
+);
