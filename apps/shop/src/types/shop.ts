@@ -9,7 +9,7 @@ export interface Product {
   taxClass: TaxClassCode;
   image: string;
   category: string;
-  stock: number; // NEU: Lagerbestand
+  stock?: number;
 }
 
 export interface CartItem extends Product {
@@ -21,7 +21,9 @@ export interface CartItem extends Product {
 }
 
 export interface CartTotals {
-  gross: string;
+  subtotal: string; // NEU: Zwischensumme vor Global-Rabatt
+  discountTotal: string; // NEU: Globaler Rabatt in Euro
+  gross: string; // Endbetrag
   net: string;
   tax: string;
   count: number;
@@ -29,21 +31,20 @@ export interface CartTotals {
 
 export interface Customer {
   id: string;
-  name: string; // z.B. "Hotel Paradiso S.L."
-  nif: string; // z.B. "B12345678"
-  address: string; // z.B. "Calle Principal 1"
+  name: string;
+  nif: string;
+  address: string;
   zip: string;
   city: string;
   email?: string;
 }
 
-// Update TransactionResult um den Kunden
 export interface TransactionResult {
   total: string;
   tendered: string;
   change: string;
   timestamp: number;
   method: "cash" | "card";
-  customer?: Customer; // NEU: Optionaler Kunde
-  type: "ticket" | "invoice"; // NEU: Typ
+  customer?: Customer;
+  type: "ticket" | "invoice";
 }

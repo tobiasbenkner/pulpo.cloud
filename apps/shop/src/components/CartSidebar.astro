@@ -125,54 +125,93 @@ import LastChangeWidget from "./LastChangeWidget.astro";
   <div
     class="flex-none p-4 bg-zinc-50 border-t border-zinc-200 shadow-[0_-4px_10px_-2px_rgba(0,0,0,0.05)] z-20 relative"
   >
-    <div class="space-y-1 mb-3">
-      <div class="flex justify-between text-zinc-500 text-xs">
+    <!-- 1. Bereich: Zahlen & Fakten -->
+    <div class="space-y-1 mb-4">
+      <!-- Mehr Abstand nach unten -->
+
+      <!-- Zwischensumme (Conditional) -->
+      <div
+        id="row-subtotal"
+        class="hidden justify-between text-zinc-400 text-sm pb-1"
+      >
+        <span>Zwischensumme</span>
+        <span id="val-subtotal" class="font-medium">0.00 €</span>
+      </div>
+
+      <!-- Rabatt Wert (Conditional) -->
+      <div
+        id="row-discount"
+        class="hidden justify-between text-orange-600 text-sm font-bold border-b border-zinc-200/50 pb-2 mb-2"
+      >
+        <span class="flex items-center gap-1">
+          Gesamtrabatt
+          <span
+            id="lbl-discount-percent"
+            class="text-[10px] bg-orange-100 px-1 rounded ml-1 font-normal hidden"
+          ></span>
+        </span>
+        <span id="val-discount">-0.00 €</span>
+      </div>
+
+      <!-- Netto / Steuer -->
+      <div
+        class="flex justify-between text-zinc-400 text-[10px] uppercase tracking-wide"
+      >
         <span>Netto</span>
         <span id="total-net" class="font-mono">0.00 €</span>
       </div>
-      <div class="flex justify-between text-zinc-500 text-xs">
+      <div
+        class="flex justify-between text-zinc-400 text-[10px] uppercase tracking-wide"
+      >
         <span>Steuer</span>
         <span id="total-tax" class="font-mono">0.00 €</span>
       </div>
 
-      <!-- Zeile für Gesamtrabatt -->
+      <!-- TOTAL GROSS -->
       <div
-        id="global-discount-row"
-        class="hidden justify-between text-orange-600 text-xs font-bold pt-1"
+        class="pt-3 border-t border-zinc-200 flex justify-between items-baseline mt-2"
       >
-        <span>Gesamtrabatt</span>
-        <span id="total-discount-val">-0.00 €</span>
-      </div>
-
-      <div
-        class="pt-2 border-t border-zinc-200 flex justify-between items-baseline mt-1"
-      >
-        <div class="flex items-center gap-2">
-          <span class="text-zinc-900 font-bold text-sm">Gesamt</span>
-          <!-- Button für Gesamtrabatt -->
-          <button
-            onclick="window.cartActions.openGlobalDiscount()"
-            class="text-[10px] bg-zinc-200 hover:bg-zinc-300 text-zinc-600 px-1.5 py-0.5 rounded font-bold transition-colors uppercase tracking-wider"
-            title="Rabatt auf alles"
-          >
-            % Rabatt
-          </button>
-        </div>
+        <span class="text-zinc-900 font-bold text-xl">Gesamt</span>
         <span
           id="total-gross"
-          class="text-2xl font-extrabold text-zinc-900 tracking-tight"
+          class="text-3xl font-extrabold text-zinc-900 tracking-tight leading-none"
           >0.00 €</span
         >
       </div>
     </div>
 
-    <button
-      id="checkout-btn"
-      class="w-full bg-zinc-900 text-white font-medium text-base py-3 rounded-xl hover:bg-black active:scale-[0.98] transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-md"
-      disabled
-    >
-      Bezahlen
-    </button>
+    <!-- 2. Bereich: Große Buttons -->
+    <div class="flex flex-col gap-3">
+      <!-- NEU: Großer Rabatt Button -->
+      <button
+        id="btn-global-discount"
+        onclick="window.cartActions.openGlobalDiscount()"
+        class="w-full py-3 rounded-xl border-2 border-dashed border-zinc-300 text-zinc-500 font-bold text-sm hover:border-zinc-400 hover:bg-zinc-100 hover:text-zinc-800 transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
+      >
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          ><path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+          ></path></svg
+        >
+        <span>Rabatt</span>
+      </button>
+
+      <!-- Checkout Button -->
+      <button
+        id="checkout-btn"
+        class="w-full bg-zinc-900 text-white font-medium text-lg py-4 rounded-xl hover:bg-black active:scale-[0.98] transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-lg shadow-zinc-200"
+        disabled
+      >
+        Bezahlen
+      </button>
+    </div>
   </div>
 </aside>
 
@@ -191,131 +230,199 @@ import LastChangeWidget from "./LastChangeWidget.astro";
     deleteParkedCart,
   } from "../stores/cartStore";
 
-  // @ts-ignore
+  // --- TYPESCRIPT DEFINITIONEN ---
+  declare global {
+    interface Window {
+      cartActions: {
+        add: (jsonStr: string) => void;
+        decrease: (id: string) => void;
+        openDiscount: (id: string) => void;
+        openGlobalDiscount: () => void;
+      };
+      parkActions: {
+        restore: (id: string) => void;
+        delete: (id: string) => void;
+      };
+    }
+  }
+
+  // --- GLOBALE FUNKTIONEN ---
   window.cartActions = {
-    add: (jsonStr: string) => {
-      addToCart(JSON.parse(jsonStr));
-    },
-    decrease: (id: string) => {
-      decreaseQuantity(id);
-    },
-    openDiscount: (id: string) => {
-      isDiscountModalOpen.set({ itemId: id });
-    },
-    openGlobalDiscount: () => {
-      isDiscountModalOpen.set({ itemId: "GLOBAL" });
-    },
+    add: (jsonStr: string) => addToCart(JSON.parse(jsonStr)),
+    decrease: (id: string) => decreaseQuantity(id),
+    openDiscount: (id: string) => isDiscountModalOpen.set({ itemId: id }),
+    openGlobalDiscount: () => isDiscountModalOpen.set({ itemId: "GLOBAL" }),
   };
 
-  // @ts-ignore
   window.parkActions = {
     restore: (id: string) => {
       restoreParkedCart(id);
       hideParkedOverlay();
     },
-    delete: (id: string) => {
-      deleteParkedCart(id);
-    },
+    delete: (id: string) => deleteParkedCart(id),
   };
 
+  // --- DOM ELEMENTE ---
   const listEl = document.getElementById("cart-list")!;
   const btnCheckout = document.getElementById(
     "checkout-btn"
   ) as HTMLButtonElement;
   const countEl = document.getElementById("cart-count")!;
+
   const netEl = document.getElementById("total-net")!;
   const taxEl = document.getElementById("total-tax")!;
   const grossEl = document.getElementById("total-gross")!;
-  const globalDiscRow = document.getElementById("global-discount-row")!;
-  const globalDiscVal = document.getElementById("total-discount-val")!;
-  const topShadow = document.getElementById("top-scroll-shadow")!;
 
+  const rowSubtotal = document.getElementById("row-subtotal")!;
+  const valSubtotal = document.getElementById("val-subtotal")!;
+  const rowDiscount = document.getElementById("row-discount")!;
+  const valDiscount = document.getElementById("val-discount")!;
+  const lblDiscountPercent = document.getElementById("lbl-discount-percent")!;
+
+  // Rabatt Button für Styling Updates
+  const btnGlobalDiscount = document.getElementById("btn-global-discount")!;
+
+  const topShadow = document.getElementById("top-scroll-shadow")!;
   const btnPark = document.getElementById("btn-park")!;
   const btnShowParked = document.getElementById("btn-show-parked")!;
   const parkedOverlay = document.getElementById("parked-list-overlay")!;
   const parkedContainer = document.getElementById("parked-items-container")!;
   const btnCloseParked = document.getElementById("close-parked-list")!;
 
-  btnCheckout.addEventListener("click", () => isPaymentModalOpen.set(true));
-  btnPark.addEventListener("click", () => {
+  // --- EVENT LISTENERS ---
+  btnCheckout?.addEventListener("click", () => isPaymentModalOpen.set(true));
+
+  btnPark?.addEventListener("click", () => {
     if (Object.keys(cartItems.get()).length > 0) parkCurrentCart();
   });
 
   const showParkedOverlay = () => {
-    parkedOverlay.classList.remove("hidden");
-    parkedOverlay.classList.add("flex");
+    parkedOverlay?.classList.remove("hidden");
+    parkedOverlay?.classList.add("flex");
   };
   const hideParkedOverlay = () => {
-    parkedOverlay.classList.add("hidden");
-    parkedOverlay.classList.remove("flex");
+    parkedOverlay?.classList.add("hidden");
+    parkedOverlay?.classList.remove("flex");
   };
 
-  btnShowParked.addEventListener("click", showParkedOverlay);
-  btnCloseParked.addEventListener("click", hideParkedOverlay);
+  btnShowParked?.addEventListener("click", showParkedOverlay);
+  btnCloseParked?.addEventListener("click", hideParkedOverlay);
 
-  listEl.addEventListener("scroll", () => {
-    if (listEl.scrollTop > 10) topShadow.classList.remove("opacity-0");
-    else topShadow.classList.add("opacity-0");
+  listEl?.addEventListener("scroll", () => {
+    if (listEl.scrollTop > 10) topShadow?.classList.remove("opacity-0");
+    else topShadow?.classList.add("opacity-0");
   });
 
+  // --- LOGIC: TOTALS ---
   cartTotals.subscribe((totals) => {
-    netEl.innerText = `${totals.net} €`;
-    taxEl.innerText = `${totals.tax} €`;
-    grossEl.innerText = `${totals.gross} €`;
-    countEl.innerText = totals.count.toString();
-    btnCheckout.disabled = totals.count === 0;
+    if (netEl) netEl.innerText = `${totals.net} €`;
+    if (taxEl) taxEl.innerText = `${totals.tax} €`;
+    if (grossEl) grossEl.innerText = `${totals.gross} €`;
+    if (countEl) countEl.innerText = totals.count.toString();
+    if (btnCheckout) btnCheckout.disabled = totals.count === 0;
 
-    // Global Discount Anzeige
     const gDisc = globalDiscount.get();
+
     if (gDisc) {
-      globalDiscRow.classList.remove("hidden");
-      globalDiscRow.classList.add("flex");
-      const label =
-        gDisc.type === "percent"
-          ? `-${gDisc.value}%`
-          : `-${gDisc.value.toFixed(2)}€`;
-      globalDiscVal.innerText = label;
+      rowSubtotal?.classList.remove("hidden");
+      rowSubtotal?.classList.add("flex");
+
+      rowDiscount?.classList.remove("hidden");
+      rowDiscount?.classList.add("flex");
+
+      if (valSubtotal) valSubtotal.innerText = `${totals.subtotal} €`;
+      if (valDiscount) valDiscount.innerText = `-${totals.discountTotal} €`;
+
+      if (gDisc.type === "percent") {
+        lblDiscountPercent?.classList.remove("hidden");
+        if (lblDiscountPercent)
+          lblDiscountPercent.innerText = `${gDisc.value}%`;
+      } else {
+        lblDiscountPercent?.classList.add("hidden");
+      }
+
+      // Button Style ändern wenn Rabatt aktiv
+      if (btnGlobalDiscount) {
+        btnGlobalDiscount.classList.remove(
+          "border-dashed",
+          "border-zinc-300",
+          "text-zinc-500"
+        );
+        btnGlobalDiscount.classList.add(
+          "border-solid",
+          "border-orange-200",
+          "bg-orange-50",
+          "text-orange-700"
+        );
+        btnGlobalDiscount.querySelector("span")!.innerText =
+          "Rabatt bearbeiten";
+      }
     } else {
-      globalDiscRow.classList.add("hidden");
-      globalDiscRow.classList.remove("flex");
+      rowSubtotal?.classList.add("hidden");
+      rowSubtotal?.classList.remove("flex");
+
+      rowDiscount?.classList.add("hidden");
+      rowDiscount?.classList.remove("flex");
+
+      // Button Reset
+      if (btnGlobalDiscount) {
+        btnGlobalDiscount.classList.add(
+          "border-dashed",
+          "border-zinc-300",
+          "text-zinc-500"
+        );
+        btnGlobalDiscount.classList.remove(
+          "border-solid",
+          "border-orange-200",
+          "bg-orange-50",
+          "text-orange-700"
+        );
+        btnGlobalDiscount.querySelector("span")!.innerText = "Rabatt";
+      }
     }
   });
 
+  // --- LOGIC: PARKED & ITEMS (Wie zuvor) ---
   parkedCarts.subscribe((carts) => {
     const ids = Object.keys(carts);
-    if (ids.length > 0) btnShowParked.classList.remove("hidden");
+    if (ids.length > 0) btnShowParked?.classList.remove("hidden");
     else {
-      btnShowParked.classList.add("hidden");
+      btnShowParked?.classList.add("hidden");
       hideParkedOverlay();
     }
-    parkedContainer.innerHTML = "";
-    ids.forEach((id) => {
-      const cart = carts[id];
-      const div = document.createElement("div");
-      div.className =
-        "bg-white p-3 rounded-xl border border-zinc-200 shadow-sm flex justify-between items-center group hover:border-blue-300 transition-colors cursor-pointer";
-      div.onclick = (e) => {
-        if (!(e.target as HTMLElement).closest("button"))
-          window.parkActions.restore(id);
-      };
-      div.innerHTML = `
-          <div class="flex-1">
-              <div class="font-bold text-zinc-800 text-sm mb-0.5">${cart.customerName}</div>
-              <div class="text-xs text-zinc-500 font-mono flex items-center gap-2">
-                  <span class="bg-zinc-100 px-1.5 rounded text-zinc-600 border border-zinc-100">${cart.total} €</span>
-                  <span>${new Date(cart.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+
+    if (parkedContainer) {
+      parkedContainer.innerHTML = "";
+      ids.forEach((id) => {
+        const cart = carts[id];
+        const div = document.createElement("div");
+        div.className =
+          "bg-white p-3 rounded-xl border border-zinc-200 shadow-sm flex justify-between items-center group hover:border-blue-300 transition-colors cursor-pointer";
+        div.onclick = (e) => {
+          if (!(e.target as HTMLElement).closest("button")) {
+            window.parkActions.restore(id);
+          }
+        };
+        div.innerHTML = `
+              <div class="flex-1">
+                  <div class="font-bold text-zinc-800 text-sm mb-0.5">${cart.customerName}</div>
+                  <div class="text-xs text-zinc-500 font-mono flex items-center gap-2">
+                      <span class="bg-zinc-100 px-1.5 rounded text-zinc-600 border border-zinc-100">${cart.total} €</span>
+                      <span>${new Date(cart.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+                  </div>
               </div>
-          </div>
-          <button onclick="window.parkActions.delete('${id}')" class="p-2 text-zinc-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors z-10 relative">
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-          </button>
-      `;
-      parkedContainer.appendChild(div);
-    });
+              <button onclick="window.parkActions.delete('${id}')" class="p-2 text-zinc-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors z-10 relative">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+              </button>
+          `;
+        parkedContainer.appendChild(div);
+      });
+    }
   });
 
   cartItems.subscribe((items) => {
     const entries = Object.entries(items);
+    if (!listEl) return;
     if (entries.length === 0) {
       listEl.innerHTML = `<div class="h-full flex flex-col items-center justify-center text-zinc-300 gap-2 opacity-50 select-none"><svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg><span class="text-xs font-medium">Leer</span></div>`;
       return;
@@ -323,12 +430,10 @@ import LastChangeWidget from "./LastChangeWidget.astro";
     listEl.innerHTML = "";
     entries.forEach(([id, item]) => {
       const div = document.createElement("div");
-
       const hasDiscount = !!item.discount;
       const originalPriceTotal = item.priceGross * item.quantity;
       let finalPriceTotal = originalPriceTotal;
       let discountLabel = "";
-
       if (item.discount) {
         if (item.discount.type === "percent") {
           discountLabel = `-${item.discount.value}%`;
@@ -342,7 +447,6 @@ import LastChangeWidget from "./LastChangeWidget.astro";
           );
         }
       }
-
       const itemJson = JSON.stringify(item).replace(/"/g, "&quot;");
       const isSingleItem = item.quantity === 1;
       const minusBtnClass = isSingleItem
