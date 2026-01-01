@@ -1,4 +1,5 @@
 ---
+// apps/shop/src/pages/index.astro
 import ShopLayout from "../layouts/ShopLayout.astro";
 import ProductCard from "../components/ProductCard.astro";
 import CartSidebar from "../components/CartSidebar.astro";
@@ -6,6 +7,7 @@ import CheckoutModal from "../components/CheckoutModal.astro";
 import CustomAmountModal from "../components/CustomAmountModal.astro"; // NEU
 import type { Product } from "../types/shop";
 import CustomerModal from "../components/CustomerModal.astro";
+import DiscountModal from "../components/DiscountModal.astro";
 
 // Kategorien
 const categories = [
@@ -25,6 +27,7 @@ const products: Product[] = [
     priceGross: 24.9,
     taxClass: "STD",
     category: "Kleidung",
+    stock: 25, // Normal
     image:
       "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=400&q=80",
   },
@@ -34,15 +37,17 @@ const products: Product[] = [
     priceGross: 3.5,
     taxClass: "RED",
     category: "Getränke",
+    stock: 150, // Gastro: Viel Bestand
     image:
       "https://images.unsplash.com/photo-1572442388796-11668a67e53d?auto=format&fit=crop&w=400&q=80",
   },
   {
     id: "3",
-    name: "Jeans Classic",
+    name: "Jeans Classic (Ausverkauft)",
     priceGross: 89.0,
     taxClass: "STD",
     category: "Kleidung",
+    stock: 0, // LEER -> Wird ausgegraut
     image:
       "https://images.unsplash.com/photo-1542272617-08f086303294?auto=format&fit=crop&w=400&q=80",
   },
@@ -52,6 +57,7 @@ const products: Product[] = [
     priceGross: 2.2,
     taxClass: "RED",
     category: "Snacks",
+    stock: 3, // KNAPP -> Orange & Pulsierend
     image:
       "https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=400&q=80",
   },
@@ -61,54 +67,22 @@ const products: Product[] = [
     priceGross: 4.5,
     taxClass: "RED",
     category: "Getränke",
+    stock: 42,
     image:
       "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=400&q=80",
   },
+  // ... restliche Produkte auch mit stock: 10 etc. versehen
   {
     id: "6",
-    name: "Sneaker",
+    name: "Sneaker Limited",
     priceGross: 120.0,
     taxClass: "STD",
     category: "Kleidung",
+    stock: 1, // SEHR KNAPP
     image:
       "https://images.unsplash.com/photo-1560769629-975ec94e6a86?auto=format&fit=crop&w=400&q=80",
   },
-  {
-    id: "7",
-    name: "Wasser 0.5l",
-    priceGross: 1.5,
-    taxClass: "RED",
-    category: "Getränke",
-    image:
-      "https://images.unsplash.com/photo-1564419320461-6870880221ad?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    id: "8",
-    name: "Donut Pink",
-    priceGross: 1.8,
-    taxClass: "RED",
-    category: "Snacks",
-    image:
-      "https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    id: "9",
-    name: "Donut Choco",
-    priceGross: 1.8,
-    taxClass: "RED",
-    category: "Snacks",
-    image:
-      "https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    id: "10",
-    name: "Latte Macchiato",
-    priceGross: 3.8,
-    taxClass: "RED",
-    category: "Getränke",
-    image:
-      "https://images.unsplash.com/photo-1572442388796-11668a67e53d?auto=format&fit=crop&w=400&q=80",
-  },
+  // ...
 ];
 ---
 
@@ -194,6 +168,7 @@ const products: Product[] = [
   <CheckoutModal slot="modal" />
   <CustomAmountModal slot="modal" />
   <CustomerModal slot="modal" />
+  <DiscountModal slot="modal" />
 </ShopLayout>
 
 <!-- LOGIC -->

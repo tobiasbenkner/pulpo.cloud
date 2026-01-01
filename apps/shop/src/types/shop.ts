@@ -1,16 +1,23 @@
+// apps/shop/src/types/shop.ts
+
 export type TaxClassCode = "STD" | "RED" | "ZERO";
 
 export interface Product {
   id: string;
   name: string;
-  priceGross: number; // Brutto Preis
+  priceGross: number;
   taxClass: TaxClassCode;
   image: string;
   category: string;
+  stock: number; // NEU: Lagerbestand
 }
 
 export interface CartItem extends Product {
   quantity: number;
+  discount?: {
+    type: "percent" | "fixed";
+    value: number;
+  };
 }
 
 export interface CartTotals {
