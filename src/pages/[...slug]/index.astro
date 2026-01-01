@@ -2,7 +2,6 @@
 import { getCollection } from "astro:content";
 import About from "../../components/blocks/blocks/About.astro";
 import Carousel from "../../components/blocks/blocks/Carousel.astro";
-import Contact from "../../components/blocks/blocks/Contact.astro";
 import Schedule from "../../components/blocks/blocks/Schedule.astro";
 import Layout from "../../layouts/Layout.astro";
 import { t } from "../../utils/t";
@@ -83,12 +82,13 @@ const og_image = t(page.seo.og_image, lang.code);
 >
   {
     page.blocks.map((block) => {
-      return <BlockRenderer block={block} lang={lang} defaultLang={languages[0]} />;
+      return (
+        <BlockRenderer block={block} lang={lang} defaultLang={languages[0]} />
+      );
     })
   }
   <Carousel />
   <Schedule />
   <About />
   <ContactOptions />
-  <Contact />
 </Layout>
