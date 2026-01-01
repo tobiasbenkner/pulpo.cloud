@@ -1,0 +1,230 @@
+<div
+  id="custom-amount-modal"
+  class="fixed inset-0 z-50 hidden"
+  role="dialog"
+  aria-modal="true"
+>
+  <!-- Backdrop -->
+  <div
+    class="fixed inset-0 bg-zinc-900/40 backdrop-blur-md transition-opacity opacity-0"
+    id="cam-backdrop"
+  >
+  </div>
+
+  <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+    <div
+      class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0"
+    >
+      <!-- Modal Panel -->
+      <div
+        class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-sm opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+        id="cam-panel"
+      >
+        <!-- Close Button -->
+        <div class="absolute right-4 top-4 z-20">
+          <button
+            id="cam-close-btn"
+            class="rounded-full p-2 bg-zinc-100 text-zinc-400 hover:text-zinc-600 transition-colors"
+          >
+            <svg
+              class="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="2"
+              stroke="currentColor"
+              ><path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M6 18L18 6M6 6l12 12"></path></svg
+            >
+          </button>
+        </div>
+
+        <div class="px-6 py-6 h-full flex flex-col">
+          <h3 class="text-xl font-bold text-center text-zinc-900 mb-6">
+            Freier Betrag
+          </h3>
+
+          <!-- NEU: TEXT INPUT (Optional) -->
+          <div class="mb-4">
+            <label
+              for="cam-name-input"
+              class="block text-xs font-bold text-zinc-400 uppercase tracking-wide mb-1.5 ml-1"
+            >
+              Bezeichnung (Optional)
+            </label>
+            <input
+              type="text"
+              id="cam-name-input"
+              placeholder="z.B. Reparatur, Pfand..."
+              class="w-full bg-zinc-50 border border-zinc-200 text-zinc-900 text-lg rounded-xl focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 block w-full p-3 placeholder-zinc-300 transition-shadow"
+              autocomplete="off"
+            />
+          </div>
+
+          <!-- PREIS DISPLAY -->
+          <div
+            class="bg-zinc-900 rounded-2xl p-4 mb-4 text-right shadow-inner flex flex-col justify-center h-20"
+          >
+            <span
+              class="text-zinc-400 text-[10px] font-medium uppercase tracking-wider mb-0.5"
+              >Preis (Brutto)</span
+            >
+            <div
+              id="cam-display"
+              class="text-3xl font-mono text-white tracking-tight"
+            >
+              0.00 €
+            </div>
+          </div>
+
+          <!-- NUMPAD -->
+          <div class="grid grid-cols-3 gap-3 mb-4 select-none">
+            {
+              [1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                <button
+                  class="cam-num-btn bg-white border border-zinc-200 text-2xl font-medium py-3 rounded-xl hover:bg-zinc-50 active:scale-95 shadow-sm text-zinc-700"
+                  data-val={num}
+                >
+                  {num}
+                </button>
+              ))
+            }
+            <button
+              class="cam-num-btn bg-white border border-zinc-200 text-2xl font-medium py-3 rounded-xl hover:bg-zinc-50 active:scale-95 shadow-sm text-zinc-700"
+              data-val="0">0</button
+            >
+            <button
+              class="cam-num-btn bg-white border border-zinc-200 text-2xl font-medium py-3 rounded-xl hover:bg-zinc-50 active:scale-95 shadow-sm text-zinc-700"
+              data-val="00">00</button
+            >
+            <button
+              id="cam-clear"
+              class="bg-red-50 text-red-600 text-xl font-bold py-3 rounded-xl hover:bg-red-100 active:scale-95"
+              >C</button
+            >
+          </div>
+
+          <!-- ACTION BUTTON -->
+          <button
+            id="cam-confirm-btn"
+            class="w-full bg-zinc-900 text-white font-bold text-lg py-4 rounded-2xl shadow-lg hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
+            disabled
+          >
+            Hinzufügen
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { isCustomAmountOpen, addToCart } from "../stores/cartStore";
+  import type { Product } from "../types/shop";
+
+  const modal = document.getElementById("custom-amount-modal")!;
+  const backdrop = document.getElementById("cam-backdrop")!;
+  const panel = document.getElementById("cam-panel")!;
+  const display = document.getElementById("cam-display")!;
+  const confirmBtn = document.getElementById(
+    "cam-confirm-btn"
+  ) as HTMLButtonElement;
+  const closeBtn = document.getElementById("cam-close-btn")!;
+  const clearBtn = document.getElementById("cam-clear")!;
+  const numBtns = document.querySelectorAll(".cam-num-btn");
+  // NEU: Input Feld Referenz
+  const nameInput = document.getElementById(
+    "cam-name-input"
+  ) as HTMLInputElement;
+
+  let inputCents = 0;
+
+  // Toggle Visibility
+  isCustomAmountOpen.subscribe((isOpen) => {
+    if (isOpen) {
+      // RESET beim Öffnen
+      inputCents = 0;
+      nameInput.value = ""; // Text leeren
+      updateDisplay();
+
+      modal.classList.remove("hidden");
+      setTimeout(() => {
+        backdrop.classList.remove("opacity-0");
+        panel.classList.remove(
+          "opacity-0",
+          "translate-y-4",
+          "sm:translate-y-0",
+          "sm:scale-95"
+        );
+        // Optional: Fokus auf das Name-Feld setzen, falls man eine Tastatur hat?
+        // nameInput.focus();
+        // ABER: Auf Touchscreens öffnet das die Tastatur und verdeckt das Numpad.
+        // Besser: Kein Auto-Focus.
+      }, 10);
+    } else {
+      backdrop.classList.add("opacity-0");
+      panel.classList.add(
+        "opacity-0",
+        "translate-y-4",
+        "sm:translate-y-0",
+        "sm:scale-95"
+      );
+      setTimeout(() => modal.classList.add("hidden"), 300);
+    }
+  });
+
+  function updateDisplay() {
+    const val = inputCents / 100;
+    display.textContent = val.toFixed(2) + " €";
+
+    if (inputCents > 0) {
+      confirmBtn.disabled = false;
+    } else {
+      confirmBtn.disabled = true;
+    }
+  }
+
+  // Numpad Logic
+  numBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const val = btn.getAttribute("data-val");
+      if (inputCents.toString().length > 6) return;
+      inputCents =
+        val === "00" ? inputCents * 100 : inputCents * 10 + parseInt(val!);
+      updateDisplay();
+    });
+  });
+
+  clearBtn.addEventListener("click", () => {
+    inputCents = 0;
+    updateDisplay();
+  });
+
+  closeBtn.addEventListener("click", () => isCustomAmountOpen.set(false));
+
+  // Confirm Logic
+  confirmBtn.addEventListener("click", () => {
+    const price = inputCents / 100;
+
+    // NEU: Name ermitteln
+    // Wenn Input leer ist -> Standardtext "Diverses"
+    // Sonst -> Eingegebener Text
+    const customName =
+      nameInput.value.trim() !== ""
+        ? nameInput.value.trim()
+        : "Diverses / Manuell";
+
+    const customProduct: Product = {
+      id: `custom-${Date.now()}`, // Unique ID
+      name: customName, // Dynamischer Name
+      priceGross: price,
+      taxClass: "STD",
+      category: "Manuell",
+      image: "",
+    };
+
+    addToCart(customProduct);
+    isCustomAmountOpen.set(false);
+  });
+</script>

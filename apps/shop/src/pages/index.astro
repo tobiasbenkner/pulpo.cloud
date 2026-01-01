@@ -1,0 +1,247 @@
+---
+import ShopLayout from "../layouts/ShopLayout.astro";
+import ProductCard from "../components/ProductCard.astro";
+import CartSidebar from "../components/CartSidebar.astro";
+import CheckoutModal from "../components/CheckoutModal.astro";
+import CustomAmountModal from "../components/CustomAmountModal.astro"; // NEU
+import type { Product } from "../types/shop";
+import CustomerModal from "../components/CustomerModal.astro";
+
+// Kategorien
+const categories = [
+  "Alle",
+  "Kleidung",
+  "Snacks",
+  "Getränke",
+  "Aktionen",
+  "Gutscheine",
+];
+
+// Demo Produkte
+const products: Product[] = [
+  {
+    id: "1",
+    name: "T-Shirt White",
+    priceGross: 24.9,
+    taxClass: "STD",
+    category: "Kleidung",
+    image:
+      "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=400&q=80",
+  },
+  {
+    id: "2",
+    name: "Cappuccino",
+    priceGross: 3.5,
+    taxClass: "RED",
+    category: "Getränke",
+    image:
+      "https://images.unsplash.com/photo-1572442388796-11668a67e53d?auto=format&fit=crop&w=400&q=80",
+  },
+  {
+    id: "3",
+    name: "Jeans Classic",
+    priceGross: 89.0,
+    taxClass: "STD",
+    category: "Kleidung",
+    image:
+      "https://images.unsplash.com/photo-1542272617-08f086303294?auto=format&fit=crop&w=400&q=80",
+  },
+  {
+    id: "4",
+    name: "Croissant",
+    priceGross: 2.2,
+    taxClass: "RED",
+    category: "Snacks",
+    image:
+      "https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=400&q=80",
+  },
+  {
+    id: "5",
+    name: "Limonade",
+    priceGross: 4.5,
+    taxClass: "RED",
+    category: "Getränke",
+    image:
+      "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=400&q=80",
+  },
+  {
+    id: "6",
+    name: "Sneaker",
+    priceGross: 120.0,
+    taxClass: "STD",
+    category: "Kleidung",
+    image:
+      "https://images.unsplash.com/photo-1560769629-975ec94e6a86?auto=format&fit=crop&w=400&q=80",
+  },
+  {
+    id: "7",
+    name: "Wasser 0.5l",
+    priceGross: 1.5,
+    taxClass: "RED",
+    category: "Getränke",
+    image:
+      "https://images.unsplash.com/photo-1564419320461-6870880221ad?auto=format&fit=crop&w=400&q=80",
+  },
+  {
+    id: "8",
+    name: "Donut Pink",
+    priceGross: 1.8,
+    taxClass: "RED",
+    category: "Snacks",
+    image:
+      "https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=400&q=80",
+  },
+  {
+    id: "9",
+    name: "Donut Choco",
+    priceGross: 1.8,
+    taxClass: "RED",
+    category: "Snacks",
+    image:
+      "https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=400&q=80",
+  },
+  {
+    id: "10",
+    name: "Latte Macchiato",
+    priceGross: 3.8,
+    taxClass: "RED",
+    category: "Getränke",
+    image:
+      "https://images.unsplash.com/photo-1572442388796-11668a67e53d?auto=format&fit=crop&w=400&q=80",
+  },
+];
+---
+
+<ShopLayout>
+  <!-- FIXIERTER HEADER (Logo + Flex-Wrap Kategorien) -->
+  <div
+    class="flex-none flex items-start gap-4 px-4 py-3 bg-zinc-50 z-10 shadow-sm border-b border-zinc-200 min-h-[64px]"
+  >
+    <!-- LOGO -->
+    <div
+      class="flex-none flex items-center justify-center bg-zinc-900 text-white w-9 h-9 rounded-lg shadow-md cursor-pointer hover:bg-zinc-800 transition-colors mt-0.5"
+    >
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+        ><path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg
+      >
+    </div>
+
+    <!-- KATEGORIEN -->
+    <nav class="flex-1 flex flex-wrap gap-2">
+      {
+        categories.map((cat, i) => (
+          <button
+            class={`category-btn px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200 active:scale-95 whitespace-nowrap ${
+              i === 0
+                ? "bg-zinc-900 text-white shadow-sm"
+                : "bg-white text-zinc-500 border border-zinc-200 hover:border-zinc-400 hover:text-zinc-900"
+            }`}
+            data-cat={cat}
+          >
+            {cat}
+          </button>
+        ))
+      }
+    </nav>
+  </div>
+
+  <!-- SCROLLBARER PRODUKT-BEREICH -->
+  <div class="flex-1 overflow-y-auto px-4 py-4 scroll-smooth">
+    <div
+      class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 pb-20"
+    >
+      <!-- 1. BUTTON: FREIER BETRAG (Erstes Item im Grid) -->
+      <button
+        id="btn-open-custom"
+        class="group flex flex-col h-full bg-zinc-50 rounded-xl border-2 border-dashed border-zinc-300 overflow-hidden active:scale-95 active:bg-zinc-100 active:border-zinc-400 text-left hover:border-zinc-400 transition-all min-h-[140px]"
+      >
+        <div
+          class="flex-1 flex flex-col items-center justify-center p-4 text-zinc-400 group-hover:text-zinc-600"
+        >
+          <div
+            class="w-10 h-10 rounded-full bg-zinc-200 flex items-center justify-center mb-2 group-hover:bg-zinc-300 transition-colors"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+          </div>
+          <span class="font-bold text-xs uppercase tracking-wide text-center"
+            >Freier<br />Betrag</span
+          >
+        </div>
+      </button>
+
+      <!-- 2. PRODUKTE -->
+      {products.map((product) => <ProductCard product={product} />)}
+    </div>
+  </div>
+
+  <!-- SIDEBAR & MODALS -->
+  <CartSidebar slot="sidebar" />
+  <CheckoutModal slot="modal" />
+  <CustomAmountModal slot="modal" />
+  <CustomerModal slot="modal" />
+</ShopLayout>
+
+<!-- LOGIC -->
+<script>
+  import { isCustomAmountOpen } from "../stores/cartStore";
+
+  // 1. Custom Amount Button Logic
+  document.getElementById("btn-open-custom")?.addEventListener("click", () => {
+    isCustomAmountOpen.set(true);
+  });
+
+  // 2. Filter Logic
+  const buttons = document.querySelectorAll(".category-btn");
+  const cards = document.querySelectorAll(".product-card");
+
+  buttons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      // Style Reset
+      buttons.forEach((b) => {
+        b.classList.remove("bg-zinc-900", "text-white", "shadow-sm");
+        b.classList.add(
+          "bg-white",
+          "text-zinc-500",
+          "border",
+          "border-zinc-200"
+        );
+      });
+      // Style Active
+      btn.classList.remove(
+        "bg-white",
+        "text-zinc-500",
+        "border",
+        "border-zinc-200"
+      );
+      btn.classList.add("bg-zinc-900", "text-white", "shadow-sm");
+
+      // Filter Apply
+      const selectedCat = (btn as HTMLElement).dataset.cat;
+      cards.forEach((card) => {
+        const cardCat = (card as HTMLElement).dataset.category;
+        if (selectedCat === "Alle" || cardCat === selectedCat) {
+          (card as HTMLElement).classList.remove("hidden");
+          (card as HTMLElement).classList.add("flex");
+        } else {
+          (card as HTMLElement).classList.remove("flex");
+          (card as HTMLElement).classList.add("hidden");
+        }
+      });
+    });
+  });
+</script>

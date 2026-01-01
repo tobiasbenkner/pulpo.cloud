@@ -1,0 +1,119 @@
+<div class="flex-1 flex flex-col h-full">
+  <!-- Header -->
+  <div class="p-6 border-b border-gray-100 bg-white">
+    <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+      🛒 Warenkorb
+      <span
+        id="cart-count"
+        class="text-sm bg-indigo-100 text-indigo-600 px-2 py-1 rounded-full"
+        >0</span
+      >
+    </h2>
+  </div>
+
+  <!-- Items List (Scrollable) -->
+  <div id="cart-list" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
+    <!-- Items werden hier per JS injiziert -->
+    <div class="text-center text-gray-400 mt-10">Warenkorb ist leer</div>
+  </div>
+
+  <!-- Footer (Totals & Pay) -->
+  <div
+    class="p-6 bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]"
+  >
+    <div class="space-y-2 mb-4 text-sm">
+      <div class="flex justify-between text-gray-500">
+        <span>Netto</span>
+        <span id="total-net">0.00 €</span>
+      </div>
+      <div class="flex justify-between text-gray-500">
+        <span>Steuer (IGIC/IVA)</span>
+        <span id="total-tax">0.00 €</span>
+      </div>
+      <div
+        class="flex justify-between text-xl font-bold text-gray-900 pt-2 border-t border-gray-100"
+      >
+        <span>Total</span>
+        <span id="total-gross">0.00 €</span>
+      </div>
+    </div>
+
+    <button
+      id="checkout-btn"
+      class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl text-lg shadow-lg shadow-indigo-200 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+      disabled
+    >
+      Bezahlen
+    </button>
+  </div>
+</div>
+
+<script>
+  import {
+    cartItems,
+    cartTotals,
+    removeFromCart,
+    isCheckoutOpen,
+  } from "../stores/cartStore.js";
+
+  const listEl = document.getElementById("cart-list");
+  const countEl = document.getElementById("cart-count");
+  const grossEl = document.getElementById("total-gross");
+  const netEl = document.getElementById("total-net");
+  const taxEl = document.getElementById("total-tax");
+  const btnEl = document.getElementById("checkout-btn");
+
+  // Subscription für Totals
+  cartTotals.subscribe((totals) => {
+    grossEl.innerText = `${totals.gross} €`;
+    netEl.innerText = `${totals.net} €`;
+    taxEl.innerText = `${totals.tax} €`;
+    countEl.innerText = totals.count;
+
+    if (totals.count > 0) {
+      btnEl.removeAttribute("disabled");
+    } else {
+      btnEl.setAttribute("disabled", "true");
+    }
+  });
+
+  // Subscription für Items (Render Logic)
+  cartItems.subscribe((items) => {
+    listEl.innerHTML = "";
+    const entries = Object.entries(items);
+
+    if (entries.length === 0) {
+      listEl.innerHTML =
+        '<div class="text-center text-gray-400 mt-10">Noch keine Artikel</div>';
+      return;
+    }
+
+    entries.forEach(([id, item]) => {
+      const el = document.createElement("div");
+      el.className =
+        "flex items-center justify-between bg-white p-3 rounded-lg shadow-sm border border-gray-100 animation-fade-in";
+      el.innerHTML = `
+                <div class="flex flex-col">
+                    <span class="font-medium text-gray-800">${item.name}</span>
+                    <span class="text-xs text-gray-400">${item.price.toFixed(2)} € x ${item.quantity}</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="font-bold text-indigo-600">${(item.price * item.quantity).toFixed(2)}€</span>
+                    <button class="text-red-400 hover:text-red-600 p-2 hover:bg-red-50 rounded-full transition-colors" data-id="${id}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                    </button>
+                </div>
+            `;
+      // Remove Event Listener
+      el.querySelector("button").addEventListener("click", () =>
+        removeFromCart(id)
+      );
+      listEl.appendChild(el);
+    });
+  });
+
+  // Checkout Button
+  btnEl.addEventListener("click", () => {
+    isCheckoutOpen.set(true);
+  });
+</script>
