@@ -8,6 +8,7 @@ import CustomAmountModal from "../components/CustomAmountModal.astro";
 import type { Product } from "../types/shop";
 import CustomerModal from "../components/CustomerModal.astro";
 import DiscountModal from "../components/DiscountModal.astro";
+import QuantityModal from "../components/QuantityModal.astro";
 
 // Kategorien
 const categories = [
@@ -187,6 +188,7 @@ const products: Product[] = [
   <CustomAmountModal slot="modal" />
   <CustomerModal slot="modal" />
   <DiscountModal slot="modal" />
+  <QuantityModal slot="modal" />
 </ShopLayout>
 
 <script>

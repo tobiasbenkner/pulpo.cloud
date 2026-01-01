@@ -228,6 +228,7 @@ import LastChangeWidget from "./LastChangeWidget.astro";
     restoreParkedCart,
     parkedCarts,
     deleteParkedCart,
+    isQuantityModalOpen,
   } from "../stores/cartStore";
 
   // --- TYPESCRIPT DEFINITIONEN ---
@@ -238,6 +239,7 @@ import LastChangeWidget from "./LastChangeWidget.astro";
         decrease: (id: string) => void;
         openDiscount: (id: string) => void;
         openGlobalDiscount: () => void;
+        openQuantity: (id: string) => void; // NEU
       };
       parkActions: {
         restore: (id: string) => void;
@@ -252,6 +254,9 @@ import LastChangeWidget from "./LastChangeWidget.astro";
     decrease: (id: string) => decreaseQuantity(id),
     openDiscount: (id: string) => isDiscountModalOpen.set({ itemId: id }),
     openGlobalDiscount: () => isDiscountModalOpen.set({ itemId: "GLOBAL" }),
+    openQuantity: (id: string) => {
+      isQuantityModalOpen.set({ itemId: id });
+    },
   };
 
   window.parkActions = {
@@ -477,7 +482,13 @@ import LastChangeWidget from "./LastChangeWidget.astro";
               </div>
               <div class="flex items-center bg-white rounded-lg border border-zinc-200 shadow-sm h-9">
                   <button class="w-10 h-full flex items-center justify-center rounded-l-lg transition-colors border-r border-zinc-100 active:bg-zinc-200 ${minusBtnClass}" onclick="window.cartActions.decrease('${id}')">${minusIcon}</button>
-                  <span class="w-8 text-center font-bold text-sm text-zinc-900 tabular-nums">${item.quantity}</span>
+                   <button 
+                      onclick="window.cartActions.openQuantity('${id}')"
+                      class="w-10 h-full text-center font-bold text-sm text-zinc-900 tabular-nums hover:bg-zinc-50 hover:text-blue-600 transition-colors"
+                      title="Menge ändern"
+                  >
+                      ${item.quantity}
+                  </button>
                   <button class="w-10 h-full flex items-center justify-center text-zinc-500 hover:bg-zinc-100 rounded-r-lg transition-colors border-l border-zinc-100 active:bg-zinc-200" onclick="window.cartActions.add('${itemJson}')"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" /></svg></button>
               </div>
           </div>
