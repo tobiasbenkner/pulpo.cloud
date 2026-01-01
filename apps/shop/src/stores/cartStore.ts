@@ -263,17 +263,17 @@ export const completeTransaction = (
 export const cartTotals = computed(
   [cartItems, globalDiscount],
   (items, globalDisc): CartTotals => {
-    let subtotalGross = 0; // Summe nach Artikel-Rabatten
+    let subtotalGross = 0; // Summe aller Artikel (NACH Artikel-Rabatten, aber VOR Global-Rabatt)
     let totalNet = 0;
 
-    // 1. Zwischensumme berechnen (Artikelrabatte anwenden)
+    // 1. Zwischensumme berechnen
     Object.values(items).forEach((item) => {
       let lineGross = item.priceGross * item.quantity;
       if (item.discount) {
         if (item.discount.type === "fixed") {
-          lineGross -= item.discount.value; // Festbetrag
+          lineGross -= item.discount.value;
         } else {
-          lineGross -= lineGross * (item.discount.value / 100); // Prozent
+          lineGross -= lineGross * (item.discount.value / 100);
         }
       }
       if (lineGross < 0) lineGross = 0;
@@ -282,23 +282,27 @@ export const cartTotals = computed(
 
     // 2. Globalen Rabatt berechnen
     let finalTotalGross = subtotalGross;
+    let discountAmount = 0;
+
     if (globalDisc) {
       if (globalDisc.type === "fixed") {
-        finalTotalGross -= globalDisc.value;
+        discountAmount = globalDisc.value;
+        finalTotalGross -= discountAmount;
       } else {
-        finalTotalGross -= finalTotalGross * (globalDisc.value / 100);
+        discountAmount = finalTotalGross * (globalDisc.value / 100);
+        finalTotalGross -= discountAmount;
       }
     }
+
     if (finalTotalGross < 0) finalTotalGross = 0;
+    // Korrektur, falls Discount größer als Summe war
+    if (discountAmount > subtotalGross) discountAmount = subtotalGross;
 
     // 3. Steuer rückrechnen
-    // Wir ermitteln das Verhältnis (Ratio) zwischen Endpreis und Zwischensumme,
-    // um den Global-Rabatt fair auf alle Steuersätze zu verteilen.
     const discountRatio =
       subtotalGross > 0 ? finalTotalGross / subtotalGross : 1;
 
     Object.values(items).forEach((item) => {
-      // a) Zeilenpreis nach Artikelrabatt
       let lineGross = item.priceGross * item.quantity;
       if (item.discount) {
         if (item.discount.type === "fixed") lineGross -= item.discount.value;
@@ -306,10 +310,7 @@ export const cartTotals = computed(
       }
       if (lineGross < 0) lineGross = 0;
 
-      // b) Globalen Rabatt-Faktor anwenden
       const lineGrossAfterGlobal = lineGross * discountRatio;
-
-      // c) Steuer herausrechnen
       const rate = TAX_RATES[item.taxClass] || 0;
       const lineNet = lineGrossAfterGlobal / (1 + rate);
 
@@ -317,6 +318,8 @@ export const cartTotals = computed(
     });
 
     return {
+      subtotal: subtotalGross.toFixed(2), // NEU
+      discountTotal: discountAmount.toFixed(2), // NEU
       gross: finalTotalGross.toFixed(2),
       net: totalNet.toFixed(2),
       tax: (finalTotalGross - totalNet).toFixed(2),
