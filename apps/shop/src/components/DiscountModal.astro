@@ -17,12 +17,10 @@
 
   <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
     <div class="flex min-h-full items-center justify-center p-4">
-      <!-- Modal Panel -->
       <div
         class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all w-full max-w-sm opacity-0 scale-95"
         id="disc-panel"
       >
-        <!-- Close Button -->
         <button
           id="disc-close-x"
           class="absolute right-4 top-4 p-2 bg-zinc-100 rounded-full text-zinc-400 hover:text-zinc-600 z-10"
@@ -45,23 +43,21 @@
             Rabatt anwenden
           </h3>
 
-          <!-- 1. TOGGLE (Prozent / Euro) -->
+          <!-- Tabs -->
           <div class="flex bg-zinc-100 p-1.5 rounded-xl mb-4">
             <button
               id="tab-percent"
               class="flex-1 py-2.5 rounded-lg font-bold text-sm bg-white shadow-sm text-zinc-900 transition-all"
+              >Prozent (%)</button
             >
-              Prozent (%)
-            </button>
             <button
               id="tab-fixed"
               class="flex-1 py-2.5 rounded-lg font-bold text-sm text-zinc-500 hover:text-zinc-700 transition-all"
+              >Euro (€)</button
             >
-              Euro (€)
-            </button>
           </div>
 
-          <!-- 2. DISPLAY -->
+          <!-- Display -->
           <div
             class="bg-zinc-900 rounded-2xl p-4 mb-4 text-right shadow-inner h-20 flex flex-col justify-center"
           >
@@ -81,7 +77,7 @@
             </div>
           </div>
 
-          <!-- 3. SCHNELLWAHL (Wird per JS angepasst) -->
+          <!-- Quick Buttons -->
           <div class="grid grid-cols-4 gap-2 mb-4">
             {
               [5, 10, 15, 20].map((val) => (
@@ -95,7 +91,7 @@
             }
           </div>
 
-          <!-- 4. NUMPAD -->
+          <!-- Numpad -->
           <div class="grid grid-cols-3 gap-3 mb-6 select-none">
             {
               [1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
@@ -122,20 +118,18 @@
             >
           </div>
 
-          <!-- 5. ACTIONS -->
+          <!-- Actions -->
           <div class="flex gap-3">
             <button
               id="btn-remove-discount"
               class="flex-1 py-3.5 text-red-500 font-bold text-sm border border-red-100 rounded-xl hover:bg-red-50 active:scale-95 transition-colors"
+              >Entfernen</button
             >
-              Entfernen
-            </button>
             <button
               id="btn-confirm-discount"
               class="flex-[2] py-3.5 bg-zinc-900 text-white font-bold text-lg rounded-xl shadow-lg hover:bg-black active:scale-95 transition-all"
+              >Speichern</button
             >
-              Speichern
-            </button>
           </div>
         </div>
       </div>
@@ -148,110 +142,116 @@
     isDiscountModalOpen,
     applyDiscount,
     removeDiscount,
-    cartItems, // WICHTIG: Importieren um existierenden Rabatt zu laden
+    cartItems,
+    globalDiscount,
   } from "../stores/cartStore";
 
-  // Elements
-  const modal = document.getElementById("discount-modal")!;
-  const backdrop = document.getElementById("disc-backdrop")!;
-  const panel = document.getElementById("disc-panel")!;
-  const closeBtn = document.getElementById("disc-close-x")!;
+  // SICHERE DOM-SELEKTION
+  const modal = document.getElementById("discount-modal");
+  const backdrop = document.getElementById("disc-backdrop");
+  const panel = document.getElementById("disc-panel");
+  const closeBtn = document.getElementById("disc-close-x");
+  const titleEl = document.querySelector("#discount-modal h3");
 
-  const tabPercent = document.getElementById("tab-percent")!;
-  const tabFixed = document.getElementById("tab-fixed")!;
-
-  const displayVal = document.getElementById("disc-val-display")!;
-  const displayUnit = document.getElementById("disc-unit-display")!;
+  const tabPercent = document.getElementById("tab-percent");
+  const tabFixed = document.getElementById("tab-fixed");
+  const displayVal = document.getElementById("disc-val-display");
+  const displayUnit = document.getElementById("disc-unit-display");
 
   const numBtns = document.querySelectorAll(".disc-num-btn");
   const quickBtns = document.querySelectorAll(".quick-disc-btn");
-  const clearBtn = document.getElementById("disc-clear")!;
+  const clearBtn = document.getElementById("disc-clear");
+  const confirmBtn = document.getElementById("btn-confirm-discount");
+  const removeBtn = document.getElementById("btn-remove-discount");
 
-  const confirmBtn = document.getElementById("btn-confirm-discount")!;
-  const removeBtn = document.getElementById("btn-remove-discount")!;
-
-  // State
   let currentType: "percent" | "fixed" = "percent";
   let inputBuffer = "0";
 
-  // --- LOGIC: UPDATE UI ---
+  // --- UI UPDATE ---
   function setTab(type: "percent" | "fixed") {
     currentType = type;
 
-    // Style Update
-    if (type === "percent") {
-      tabPercent.className =
-        "flex-1 py-2.5 rounded-lg font-bold text-sm bg-white shadow-sm text-zinc-900 transition-all";
-      tabFixed.className =
-        "flex-1 py-2.5 rounded-lg font-bold text-sm text-zinc-500 hover:text-zinc-700 transition-all";
-      displayUnit.innerText = "%";
-    } else {
-      tabFixed.className =
-        "flex-1 py-2.5 rounded-lg font-bold text-sm bg-white shadow-sm text-zinc-900 transition-all";
-      tabPercent.className =
-        "flex-1 py-2.5 rounded-lg font-bold text-sm text-zinc-500 hover:text-zinc-700 transition-all";
-      displayUnit.innerText = "€";
+    if (tabPercent && tabFixed && displayUnit) {
+      if (type === "percent") {
+        tabPercent.className =
+          "flex-1 py-2.5 rounded-lg font-bold text-sm bg-white shadow-sm text-zinc-900 transition-all";
+        tabFixed.className =
+          "flex-1 py-2.5 rounded-lg font-bold text-sm text-zinc-500 hover:text-zinc-700 transition-all";
+        displayUnit.innerText = "%";
+      } else {
+        tabFixed.className =
+          "flex-1 py-2.5 rounded-lg font-bold text-sm bg-white shadow-sm text-zinc-900 transition-all";
+        tabPercent.className =
+          "flex-1 py-2.5 rounded-lg font-bold text-sm text-zinc-500 hover:text-zinc-700 transition-all";
+        displayUnit.innerText = "€";
+      }
     }
 
-    // Quick Buttons Beschriftung anpassen
+    // Quick Buttons Text Update
     quickBtns.forEach((btn) => {
       const val = btn.getAttribute("data-val");
-      btn.textContent = type === "percent" ? `${val}%` : `${val}€`;
+      if (val) btn.textContent = type === "percent" ? `${val}%` : `${val}€`;
     });
-
     updateDisplay();
   }
 
   function updateDisplay() {
-    displayVal.innerText = inputBuffer;
+    if (displayVal) displayVal.innerText = inputBuffer;
   }
 
-  // --- LOGIC: VISIBILITY & LOADING ---
+  // --- OPEN/CLOSE LOGIC ---
   isDiscountModalOpen.subscribe((state) => {
     if (state.itemId) {
-      // 1. Existierenden Rabatt laden (falls vorhanden)
-      const currentItems = cartItems.get();
-      const item = currentItems[state.itemId];
-
-      if (item && item.discount) {
-        currentType = item.discount.type;
-        inputBuffer = item.discount.value.toString();
+      // 1. Unterscheidung Global/Item
+      if (state.itemId === "GLOBAL") {
+        if (titleEl) titleEl.textContent = "Rabatt auf Warenkorb";
+        const gDisc = globalDiscount.get();
+        if (gDisc) {
+          currentType = gDisc.type;
+          inputBuffer = gDisc.value.toString();
+        } else {
+          currentType = "percent";
+          inputBuffer = "0";
+        }
       } else {
-        // Standardwerte (wenn noch kein Rabatt)
-        currentType = "percent";
-        inputBuffer = "0";
+        if (titleEl) titleEl.textContent = "Artikel-Rabatt";
+        const currentItems = cartItems.get();
+        const item = currentItems[state.itemId];
+        if (item && item.discount) {
+          currentType = item.discount.type;
+          inputBuffer = item.discount.value.toString();
+        } else {
+          currentType = "percent";
+          inputBuffer = "0";
+        }
       }
 
-      // UI setzen
       setTab(currentType);
 
-      // Animation
-      modal.classList.remove("hidden");
+      modal?.classList.remove("hidden");
       setTimeout(() => {
-        backdrop.classList.remove("opacity-0");
-        panel.classList.remove("opacity-0", "scale-95");
+        backdrop?.classList.remove("opacity-0");
+        panel?.classList.remove("opacity-0", "scale-95");
       }, 10);
     } else {
-      backdrop.classList.add("opacity-0");
-      panel.classList.add("opacity-0", "scale-95");
-      setTimeout(() => modal.classList.add("hidden"), 300);
+      backdrop?.classList.add("opacity-0");
+      panel?.classList.add("opacity-0", "scale-95");
+      setTimeout(() => modal?.classList.add("hidden"), 300);
     }
   });
 
-  closeBtn.addEventListener("click", () =>
+  closeBtn?.addEventListener("click", () =>
     isDiscountModalOpen.set({ itemId: null })
   );
 
-  // --- LOGIC: EVENTS ---
+  // --- EVENTS ---
+  tabPercent?.addEventListener("click", () => setTab("percent"));
+  tabFixed?.addEventListener("click", () => setTab("fixed"));
 
-  // Tabs
-  tabPercent.addEventListener("click", () => setTab("percent"));
-  tabFixed.addEventListener("click", () => setTab("fixed"));
-
-  // Numpad
   numBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
-      const char = btn.getAttribute("data-num")!;
+      const char = btn.getAttribute("data-num");
+      if (!char) return;
 
       if (char === ".") {
         if (inputBuffer.includes(".")) return;
@@ -261,47 +261,45 @@
         else inputBuffer += char;
       }
 
-      // Limit decimals for Euro
+      // Limitierungen
       if (currentType === "fixed" && inputBuffer.includes(".")) {
         const parts = inputBuffer.split(".");
         if (parts[1].length > 2) return;
       }
-      // Limit Percentage
-      if (currentType === "percent" && parseFloat(inputBuffer) > 100) {
+      if (currentType === "percent" && parseFloat(inputBuffer) > 100)
         inputBuffer = "100";
-      }
 
       updateDisplay();
     });
   });
 
-  // Clear
-  clearBtn.addEventListener("click", () => {
+  clearBtn?.addEventListener("click", () => {
     inputBuffer = "0";
     updateDisplay();
   });
 
-  // Quick Buttons (BEHOBEN: Ändert nicht mehr den Modus!)
+  // === FIX: Add Event Listener war hier vorher falsch ===
   quickBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
-      inputBuffer = btn.getAttribute("data-val")!;
-      // KEIN setTab(...) Aufruf hier!
-      updateDisplay();
+      const val = btn.getAttribute("data-val");
+      if (val) {
+        inputBuffer = val;
+        updateDisplay();
+      }
     });
   });
+  // ======================================================
 
-  // Actions
-  confirmBtn.addEventListener("click", () => {
+  confirmBtn?.addEventListener("click", () => {
     const val = parseFloat(inputBuffer);
     const itemId = isDiscountModalOpen.get().itemId;
-
     if (itemId && !isNaN(val)) {
       applyDiscount(itemId, currentType, val);
       isDiscountModalOpen.set({ itemId: null });
     }
   });
 
-  removeBtn.addEventListener("click", () => {
+  removeBtn?.addEventListener("click", () => {
     const itemId = isDiscountModalOpen.get().itemId;
     if (itemId) {
       removeDiscount(itemId);
