@@ -54,6 +54,8 @@ export const pages = defineCollection({
     //   }
 
     return pages.map((page) => {
+      console.log(page.blocks);
+      
       return {
         ...page,
         id: page.id,

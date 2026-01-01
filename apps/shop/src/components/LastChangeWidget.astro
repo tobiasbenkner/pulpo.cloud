@@ -1,0 +1,155 @@
+<div
+  id="last-transaction"
+  class="hidden animate-in fade-in slide-in-from-top-2 duration-300 w-full select-none"
+>
+  <!-- Container: justify-between schiebt die Elemente an die Ränder -->
+  <div
+    id="lt-container"
+    class="flex items-center justify-between gap-2 px-2 py-2 bg-emerald-50 border border-emerald-200 rounded-lg shadow-sm w-full transition-colors duration-300"
+  >
+    <!-- 1. LINKS: KORREKTUR BUTTON -->
+    <button
+      id="btn-swap-method"
+      class="group relative flex-none p-2 bg-white text-zinc-400 rounded-md border border-zinc-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all active:scale-95 shadow-sm"
+      title="Zahlart korrigieren"
+    >
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+        ><path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg
+      >
+    </button>
+
+    <!-- 2. MITTE: INFORMATION (Icon + Text) -->
+    <!-- flex-1 sorgt dafür, dass dieser Block den Platz in der Mitte füllt -->
+    <!-- justify-center zentriert den Inhalt -->
+    <div
+      class="flex-1 flex items-center justify-center gap-2 overflow-hidden px-1"
+    >
+      <div id="lt-icon-wrapper" class="text-emerald-600 flex-none">
+        <!-- SVG Icon -->
+      </div>
+
+      <div class="flex flex-col leading-none">
+        <span
+          id="lt-label"
+          class="text-[10px] font-bold text-emerald-600 uppercase tracking-wide mb-0.5 text-center sm:text-left"
+          >Rückgeld:</span
+        >
+        <div
+          class="flex items-baseline gap-1.5 justify-center sm:justify-start"
+        >
+          <span
+            id="lt-main"
+            class="text-sm font-extrabold text-emerald-800 tabular-nums"
+            >0.00 €</span
+          >
+          <span
+            id="lt-sub"
+            class="text-[10px] text-emerald-500 font-medium truncate hidden sm:inline-block"
+          ></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. RECHTS: DRUCK BUTTON -->
+    <button
+      id="btn-reprint"
+      class="flex-none p-2 bg-emerald-100 text-emerald-700 rounded-md border border-emerald-200 hover:bg-emerald-200 hover:border-emerald-300 transition-all active:scale-95 shadow-sm"
+      title="Bon nachdrucken"
+    >
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+        ><path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
+        ></path></svg
+      >
+    </button>
+  </div>
+</div>
+
+<script>
+  import {
+    lastTransaction,
+    triggerPrint,
+    swapLastTransactionMethod,
+  } from "../stores/cartStore";
+
+  const container = document.getElementById("last-transaction")!;
+  const bgContainer = document.getElementById("lt-container")!;
+
+  const mainEl = document.getElementById("lt-main")!;
+  const subEl = document.getElementById("lt-sub")!;
+  const labelEl = document.getElementById("lt-label")!;
+  const iconWrapper = document.getElementById("lt-icon-wrapper")!;
+
+  const reprintBtn = document.getElementById("btn-reprint")!;
+  const swapBtn = document.getElementById("btn-swap-method")!;
+
+  // Icons
+  const iconCash = `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>`;
+  const iconCard = `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>`;
+
+  lastTransaction.subscribe((tx) => {
+    if (!tx) {
+      container.classList.add("hidden");
+      return;
+    }
+    container.classList.remove("hidden");
+
+    if (tx.method === "cash") {
+      // Ansicht BAR
+      iconWrapper.innerHTML = iconCash;
+      labelEl.innerText = "Barzahlung";
+
+      if (parseFloat(tx.change) > 0) {
+        mainEl.innerText = `RG: ${tx.change} €`;
+        subEl.innerText = `(Geg: ${tx.tendered})`;
+      } else {
+        mainEl.innerText = `${tx.total} €`;
+        subEl.innerText = `(Passend)`;
+      }
+    } else {
+      // Ansicht KARTE
+      iconWrapper.innerHTML = iconCard;
+      labelEl.innerText = "Kartenzahlung";
+      mainEl.innerText = "Erfolgreich";
+      subEl.innerText = `(${tx.total} €)`;
+    }
+  });
+
+  // --- BUTTON ACTIONS ---
+
+  // 1. KORREKTUR (Swap)
+  swapBtn.addEventListener("click", () => {
+    swapLastTransactionMethod();
+
+    // Visuelles Feedback
+    bgContainer.classList.remove("bg-emerald-50", "border-emerald-200");
+    bgContainer.classList.add("bg-blue-50", "border-blue-200");
+
+    setTimeout(() => {
+      bgContainer.classList.remove("bg-blue-50", "border-blue-200");
+      bgContainer.classList.add("bg-emerald-50", "border-emerald-200");
+    }, 400);
+  });
+
+  // 2. NACHDRUCKEN
+  reprintBtn.addEventListener("click", () => {
+    const tx = lastTransaction.get();
+    if (tx) {
+      triggerPrint(tx);
+
+      // Visuelles Feedback
+      reprintBtn.classList.add("bg-emerald-300", "scale-95");
+      setTimeout(
+        () => reprintBtn.classList.remove("bg-emerald-300", "scale-95"),
+        200
+      );
+    }
+  });
+</script>
