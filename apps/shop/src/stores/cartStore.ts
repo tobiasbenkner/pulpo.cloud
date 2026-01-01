@@ -73,8 +73,26 @@ export const isDiscountModalOpen = atom<{ itemId: string | null }>({
   itemId: null,
 });
 export const selectedCustomer = atom<Customer | null>(null);
+export const isQuantityModalOpen = atom<{ itemId: string | null }>({
+  itemId: null,
+});
 
 // --- ACTIONS: CART ---
+
+export const setItemQuantity = (id: string, quantity: number) => {
+  const current = cartItems.get();
+  const item = current[id];
+
+  if (!item) return;
+
+  if (quantity <= 0) {
+    // Wenn 0 oder weniger eingegeben wird, entfernen wir das Item
+    const { [id]: _, ...rest } = current;
+    cartItems.set(rest);
+  } else {
+    cartItems.setKey(id, { ...item, quantity });
+  }
+};
 
 export const addToCart = (product: Product) => {
   const current = cartItems.get();
