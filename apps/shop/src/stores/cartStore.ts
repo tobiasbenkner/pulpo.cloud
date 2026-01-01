@@ -12,6 +12,7 @@ import type {
 } from "../types/shop";
 
 // --- TYPEN ---
+
 export interface ParkedCart {
   id: string;
   items: Record<string, CartItem>;
@@ -19,6 +20,7 @@ export interface ParkedCart {
   timestamp: number;
   customerName: string;
   customer: Customer | null;
+  globalDiscount: { type: "percent" | "fixed"; value: number } | null; // NEU
 }
 
 // --- KONFIGURATION ---
@@ -54,7 +56,6 @@ export const parkedCarts = persistentMap<Record<string, ParkedCart>>(
   { encode: JSON.stringify, decode: JSON.parse }
 );
 
-// NEU: Globaler Rabatt (persistent)
 export const globalDiscount = persistentAtom<{
   type: "percent" | "fixed";
   value: number;
@@ -70,7 +71,7 @@ export const isCustomAmountOpen = atom<boolean>(false);
 export const isCustomerModalOpen = atom<boolean>(false);
 export const isDiscountModalOpen = atom<{ itemId: string | null }>({
   itemId: null,
-}); // 'GLOBAL' or ID
+});
 export const selectedCustomer = atom<Customer | null>(null);
 
 // --- ACTIONS: CART ---
@@ -118,14 +119,12 @@ export const setCustomer = (customer: Customer | null) => {
 
 // --- ACTIONS: DISCOUNT ---
 
-// Helper für Global
 const setGlobalDiscount = (type: "percent" | "fixed", value: number) => {
   let validated = value < 0 ? 0 : value;
   if (type === "percent" && validated > 100) validated = 100;
   globalDiscount.set({ type, value: validated });
 };
 
-// Haupt-Funktion (Router für Item oder Global)
 export const applyDiscount = (
   id: string,
   type: "percent" | "fixed",
@@ -170,8 +169,10 @@ export const parkCurrentCart = () => {
   if (keys.length === 0) return;
 
   const id = `park-${Date.now()}`;
-  const totals = cartTotals.get(); // Aktuelle Totals nutzen
+  const totals = cartTotals.get();
   const cust = selectedCustomer.get();
+  const gDisc = globalDiscount.get(); // UPDATE: Aktuellen Rabatt holen
+
   const label = cust
     ? cust.name
     : `Warenkorb ${new Date().toLocaleTimeString([], {
@@ -186,11 +187,14 @@ export const parkCurrentCart = () => {
     timestamp: Date.now(),
     customerName: label,
     customer: cust,
+    globalDiscount: gDisc, // UPDATE: Rabatt mitspeichern
   };
 
   parkedCarts.setKey(id, newParked);
+
+  // Reset Current Cart
   cartItems.set({});
-  globalDiscount.set(null); // Global Discount beim Parken auch resetten
+  globalDiscount.set(null);
   selectedCustomer.set(null);
 };
 
@@ -198,10 +202,14 @@ export const restoreParkedCart = (parkId: string) => {
   const parked = parkedCarts.get()[parkId];
   if (!parked) return;
 
+  // Restore Data
   cartItems.set(parked.items);
   selectedCustomer.set(parked.customer);
-  globalDiscount.set(null); // Sicherstellen, dass kein alter Global Discount aktiv ist
 
+  // UPDATE: Rabatt wiederherstellen (mit Fallback null, falls alte Daten existieren)
+  globalDiscount.set(parked.globalDiscount || null);
+
+  // Remove form Parked List
   const currentParked = { ...parkedCarts.get() };
   delete currentParked[parkId];
   parkedCarts.set(currentParked);
@@ -263,10 +271,10 @@ export const completeTransaction = (
 export const cartTotals = computed(
   [cartItems, globalDiscount],
   (items, globalDisc): CartTotals => {
-    let subtotalGross = 0; // Summe aller Artikel (NACH Artikel-Rabatten, aber VOR Global-Rabatt)
+    let subtotalGross = 0;
     let totalNet = 0;
 
-    // 1. Zwischensumme berechnen
+    // 1. Zwischensumme (nach Artikelrabatten)
     Object.values(items).forEach((item) => {
       let lineGross = item.priceGross * item.quantity;
       if (item.discount) {
@@ -280,7 +288,7 @@ export const cartTotals = computed(
       subtotalGross += lineGross;
     });
 
-    // 2. Globalen Rabatt berechnen
+    // 2. Global Discount
     let finalTotalGross = subtotalGross;
     let discountAmount = 0;
 
@@ -295,7 +303,6 @@ export const cartTotals = computed(
     }
 
     if (finalTotalGross < 0) finalTotalGross = 0;
-    // Korrektur, falls Discount größer als Summe war
     if (discountAmount > subtotalGross) discountAmount = subtotalGross;
 
     // 3. Steuer rückrechnen
@@ -318,8 +325,8 @@ export const cartTotals = computed(
     });
 
     return {
-      subtotal: subtotalGross.toFixed(2), // NEU
-      discountTotal: discountAmount.toFixed(2), // NEU
+      subtotal: subtotalGross.toFixed(2),
+      discountTotal: discountAmount.toFixed(2),
       gross: finalTotalGross.toFixed(2),
       net: totalNet.toFixed(2),
       tax: (finalTotalGross - totalNet).toFixed(2),
