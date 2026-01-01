@@ -1,4 +1,5 @@
 ---
+import ContactOptions from "../ContactOptions.astro";
 import Contact from "./blocks/Contact.astro";
 import FoodMenuBlock from "./blocks/FoodMenuBlock.astro";
 import Hero from "./blocks/Hero.astro";
@@ -15,9 +16,17 @@ const data = block.item;
   )
 }
 {
+  type === "block_contact" && (
+    <ContactOptions data={data} lang={lang} defaultLang={defaultLang} />
+  )
+}
+{
   type === "block_address" && (
     <Contact data={data} lang={lang} defaultLang={defaultLang} />
   )
 }
-
-{type === "block_food_menu" && <FoodMenuBlock />}
+{
+  type === "block_food_menu" && (
+    <FoodMenuBlock data={data} lang={lang} defaultLang={defaultLang} />
+  )
+}

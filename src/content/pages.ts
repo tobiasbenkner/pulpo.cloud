@@ -53,9 +53,7 @@ export const pages = defineCollection({
     //      localVideoPath = await downloadVideoToPublic(remoteUrl, prod.id, prod.video_file.filename_disk);
     //   }
 
-    return pages.map((page) => {
-      console.log(page.blocks);
-      
+    return pages.map((page) => {      
       return {
         ...page,
         id: page.id,
