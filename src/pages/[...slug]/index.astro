@@ -1,8 +1,5 @@
 ---
 import { getCollection } from "astro:content";
-import About from "../../components/blocks/blocks/About.astro";
-import Carousel from "../../components/blocks/blocks/Carousel.astro";
-import Schedule from "../../components/blocks/blocks/Schedule.astro";
 import Layout from "../../layouts/Layout.astro";
 import { t } from "../../utils/t";
 import BlockRenderer from "../../components/blocks/BlockRenderer.astro";
@@ -86,7 +83,4 @@ const og_image = t(page.seo.og_image, lang.code);
       );
     })
   }
-  <Carousel />
-  <Schedule />
-  <About />
 </Layout>
