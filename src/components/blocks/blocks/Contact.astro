@@ -1,7 +1,28 @@
 ---
+import { convertI18n } from "../../../content/utils";
+import { t } from "../../../utils/t";
 import Icon from "../../ui/Icon.astro";
 import SectionHeader from "../../ui/SectionHeader.astro";
-import { getEntry } from "astro:content";
+import { getEntry, type CollectionEntry } from "astro:content";
+
+type Props = {
+  lang: CollectionEntry<"languages">["data"];
+  defaultLang: CollectionEntry<"languages">["data"];
+  data: any;
+};
+
+const { data, lang, defaultLang } = Astro.props;
+
+const title = t(
+  convertI18n(data?.translations, "title", defaultLang?.code),
+  lang?.code
+);
+const subtitle = t(
+  convertI18n(data?.translations, "subtitle", defaultLang?.code),
+  lang?.code
+);
+
+const actions = data.links;
 
 const entry = await getEntry("tenant", "main");
 const tenant = entry?.data;
@@ -28,7 +49,7 @@ const openingHours = [
 <section class="bg-background py-24 px-6 relative overflow-hidden text-white">
   <div class="max-w-6xl mx-auto">
     <!-- Header -->
-    <SectionHeader subtitle="¿Hablamos?" title="Contacto" />
+    <SectionHeader subtitle={subtitle} title={title} />
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
       <!-- Linke Spalte: Info -->
