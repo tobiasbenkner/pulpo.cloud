@@ -1,9 +1,34 @@
 import { defineCollection, z } from "astro:content";
-import { getDefaultLanguage } from "./language";
 import { readItems } from "@directus/sdk";
+
+// Deine eigenen Imports (Pfade ggf. anpassen)
 import { directus } from "../lib/directus";
+import { getDefaultLanguage } from "./language";
 import { convertI18n } from "./utils";
 import { I18nSchema } from "../utils/t";
+import { downloadVideoToPublic } from "../utils/downloadVideo";
+
+async function manageVideo(video: any) {
+  let localVideoPath = null;
+
+  if (video && video.id) {
+    const directusUrl =
+      import.meta.env.DIRECTUS_URL || process.env.DIRECTUS_URL;
+
+    if (!directusUrl) {
+      console.warn("Warnung: DIRECTUS_URL ist nicht definiert.");
+      return null;
+    }
+
+    const remoteUrl = `${directusUrl}/assets/${video.id}`;
+    localVideoPath = await downloadVideoToPublic(
+      remoteUrl,
+      video.id,
+      video.filename_disk
+    );
+  }
+  return localVideoPath;
+}
 
 export const pages = defineCollection({
   loader: async () => {
@@ -15,7 +40,7 @@ export const pages = defineCollection({
 
     const defaultLanguage = await getDefaultLanguage(tenantId);
 
-    const pages = await directus.request(
+    const rawPages = await directus.request(
       readItems("pages", {
         sort: ["sort"],
         fields: [
@@ -46,17 +71,31 @@ export const pages = defineCollection({
       })
     );
 
-    // let localVideoPath = null;
-    //   if (prod.video_file) {
-    //      const remoteUrl = `${process.env.DIRECTUS_URL}/assets/${prod.video_file.id}`;
-    //      // Download starten und lokalen Pfad (/videos/xyz.mp4) erhalten
-    //      localVideoPath = await downloadVideoToPublic(remoteUrl, prod.id, prod.video_file.filename_disk);
-    //   }
+    const processedPages = [];
+    for (const page of rawPages) {
+      const processedBlocks = [];
+      if (page.blocks && Array.isArray(page.blocks)) {
+        for (const block of page.blocks) {
+          const item = block.item;
+          let processedVideoPath = null;
+          if (item && item.video) {
+            processedVideoPath = await manageVideo(item.video);
+          }
 
-    return pages.map((page) => {      
-      return {
+          processedBlocks.push({
+            ...block,
+            item: {
+              ...item,
+              video: processedVideoPath,
+            },
+          });
+        }
+      }
+
+      processedPages.push({
         ...page,
         id: page.id,
+        blocks: processedBlocks,
         slug: convertI18n(page.slugs, "slug", defaultLanguage.code),
         seo: {
           title: convertI18n(page.seo, "seo.title", defaultLanguage.code),
@@ -67,8 +106,10 @@ export const pages = defineCollection({
           ),
           og_image: convertI18n(page.seo, "seo.og_image", defaultLanguage.code),
         },
-      };
-    });
+      });
+    }
+
+    return processedPages;
   },
   schema: z.object({
     id: z.string(),

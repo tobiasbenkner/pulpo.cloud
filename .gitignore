@@ -1,4 +1,5 @@
 deploy.http
+public/videos
 
 # build output
 dist/
