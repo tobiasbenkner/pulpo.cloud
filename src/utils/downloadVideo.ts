@@ -9,7 +9,7 @@ export async function downloadVideoToPublic(
   filename: string
 ) {
   const publicDir = path.join(process.cwd(), "public", "videos");
-  const ext = path.extname(filename) || ".mp4";
+  const ext = filename ? path.extname(filename) : ".mp4";
   const targetName = `${id}${ext}`;
   const filePath = path.join(publicDir, targetName);
 
@@ -18,25 +18,37 @@ export async function downloadVideoToPublic(
   }
 
   if (fs.existsSync(filePath)) {
-    return `/videos/${targetName}`;
+    const stats = fs.statSync(filePath);
+    if (stats.size > 0) {
+      return `/videos/${targetName}`;
+    }
   }
 
   try {
-    const response = await fetch(url);
-    if (!response.ok)
-      throw new Error(`Video fetch failed: ${response.statusText}`);
+    const headers: HeadersInit = {};
+    if (import.meta.env.DIRECTUS_TOKEN) {
+      headers["Authorization"] = `Bearer ${import.meta.env.DIRECTUS_TOKEN}`;
+    }
+    const response = await fetch(url, { headers });
 
-    if (response.body) {
-      await pipeline(
-        // @ts-ignore
-        Readable.fromWeb(response.body),
-        fs.createWriteStream(filePath)
+    if (!response.ok) {
+      console.error(
+        `Video fetch failed for ${url}: ${response.status} ${response.statusText}`
       );
+      return null;
     }
 
+    if (!response.body) throw new Error("No body in response");
+    const fileStream = fs.createWriteStream(filePath);
+    // @ts-ignore: Readable.fromWeb ist in neueren Node Versionen verfügbar, TS kennt es manchmal nicht
+    await pipeline(Readable.fromWeb(response.body), fileStream);
+    console.log(`✅ Downloaded: ${targetName}`);
     return `/videos/${targetName}`;
   } catch (e) {
-    console.error(`Fehler beim Video Download ${id}:`, e);
+    console.error(`❌ Fehler beim Video Download ${id}:`, e);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
     return null;
   }
 }
