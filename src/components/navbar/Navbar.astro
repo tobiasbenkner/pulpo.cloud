@@ -1,6 +1,7 @@
 ---
 import { getCollection, type CollectionEntry } from "astro:content";
 import { t } from "../../utils/t";
+import { Image } from "astro:assets";
 
 interface Props {
   lang: CollectionEntry<"languages">["data"];
@@ -54,18 +55,24 @@ const getPathForLang = (targetLangCode: string) => {
   <nav class="max-w-7xl mx-auto px-6" aria-label="Top">
     <div class="flex justify-between items-center h-16">
       <!-- 1. Logo -->
-      <div class="flex-1 flex justify-start">
-        <a
-          href={isDefaultLanguage ? "/" : `/${lang.code}/`}
-          class="group transition-opacity hover:opacity-80"
-        >
-          <img
-            src="/logo.webp"
-            alt="Logo"
-            class="h-10 w-auto object-contain brightness-0 invert opacity-90 group-hover:opacity-100 transition-all"
-          />
-        </a>
-      </div>
+      {
+        headerNav?.image?.src && (
+          <div class="flex-1 flex justify-start">
+            <a
+              href={isDefaultLanguage ? "/" : `/${lang.code}/`}
+              class="group transition-opacity hover:opacity-80"
+            >
+              <Image
+                src={headerNav.image.src}
+                height={headerNav?.image?.height}
+                width={headerNav?.image?.width}
+                alt="Logo"
+                class="h-10 w-auto object-contain brightness-0 invert opacity-90 group-hover:opacity-100 transition-all"
+              />
+            </a>
+          </div>
+        )
+      }
 
       <!-- 2. Desktop Navigation -->
       <div class="hidden md:flex flex-1 justify-center space-x-12 items-center">
