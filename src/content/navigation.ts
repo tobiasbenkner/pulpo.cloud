@@ -3,7 +3,7 @@ import { directus } from "../lib/directus";
 import { getDefaultLanguage } from "./language";
 import { readItems } from "@directus/sdk";
 import { I18nSchema } from "../utils/t";
-import { convertI18n } from "./utils";
+import { convertI18n, getImage } from "./utils";
 
 export const navigations = defineCollection({
   loader: async () => {
@@ -17,8 +17,10 @@ export const navigations = defineCollection({
 
     const response = await directus.request(
       readItems("navigations", {
+        sort: ["sort"],
         fields: [
           "*",
+          "image.*",
           "navigation_items.*",
           "navigation_items.navigation_items_id.*",
           "navigation_items.navigation_items_id.translations.*",
@@ -39,6 +41,7 @@ export const navigations = defineCollection({
       return {
         ...it,
         id: it.id,
+        image: getImage(it.image),
         navigation_items: (it.navigation_items ?? []).map((it: any) => {
           const navItem = it.navigation_items_id;
           return {
@@ -66,6 +69,21 @@ export const navigations = defineCollection({
     z.object({
       id: z.string(),
       type: z.enum(["header", "footer"]),
+      image: z
+        .object({
+          src: image(),
+          title: z.string().nullable().optional(),
+          width: z.number().optional(),
+          height: z.number().optional(),
+          focalPoint: z
+            .object({
+              x: z.number().nullable().optional(),
+              y: z.number().nullable().optional(),
+            })
+            .optional(),
+        })
+        .nullable()
+        .optional(),
       navigation_items: z.array(
         z.object({
           id: z.number(),

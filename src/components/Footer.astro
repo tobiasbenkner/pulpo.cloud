@@ -1,16 +1,44 @@
 ---
-import { getEntry } from "astro:content";
+import { getCollection, getEntry, type CollectionEntry } from "astro:content";
 import Icon from "./ui/Icon.astro";
+import { t } from "../utils/t";
+
+interface Props {
+  lang: CollectionEntry<"languages">["data"];
+  languages: CollectionEntry<"languages">["data"][];
+}
 
 const currentYear = new Date().getFullYear();
 const entry = await getEntry("tenant", "main");
 const tenant = entry?.data;
 
-const links = [
-  { label: "Inicio", href: "/" },
-  { label: "Menú", href: "/menu" },
-  { label: "Contacto", href: "/contact" },
-];
+const { data: footerNav } =
+  (await getCollection("navigations"))
+    .filter((it) => it.data.type === "footer")
+    .at(0) ?? {};
+
+console.log(footerNav);
+
+const { lang, languages } = Astro.props;
+const defaultLang = languages.at(0);
+const isDefaultLanguage = defaultLang?.code === lang.code;
+
+const navLinks = (footerNav?.navigation_items ?? []).map((it) => {
+  const name = t(it.label, lang.code);
+  const slug = t(it.page?.slug, lang.code);
+
+  let href = "";
+  if (isDefaultLanguage) {
+    href = slug ? `/${slug}` : "/";
+  } else {
+    href = slug ? `/${lang.code}/${slug}` : `/${lang.code}`;
+  }
+
+  return {
+    name: name,
+    href: href,
+  };
+});
 
 const legal = [
   { label: "Aviso Legal", href: "/legal" },
@@ -75,14 +103,14 @@ const legal = [
         </h3>
         <ul class="space-y-4">
           {
-            links.map((link) => (
+            navLinks.map((link) => (
               <li>
                 <a
                   href={link.href}
                   class="text-sm tracking-[0.2em] uppercase text-gray-400 hover:text-white transition-colors duration-300 flex items-center gap-2 group"
                 >
                   <span class="w-0 h-px bg-amber-200 transition-all duration-300 group-hover:w-4" />
-                  {link.label}
+                  {link.name}
                 </a>
               </li>
             ))
@@ -107,42 +135,6 @@ const legal = [
                 {tenant?.city}
               </p>
             </div>
-            <div class="space-y-1">
-              <a
-                href="tel:+34928123456"
-                class="block text-white hover:text-amber-200 transition-colors tracking-widest text-sm"
-                >+34 928 123 456
-              </a>
-              <a
-                href="mailto:hola@elbuho.com"
-                class="block text-gray-500 hover:text-white transition-colors tracking-widest text-sm"
-                >hola@elbuho.com</a
-              >
-            </div>
-          </div>
-
-          <div>
-            <a
-              href="/contact"
-              class="group inline-flex items-center gap-3 px-8 py-3 border border-amber-200/30 text-amber-200 hover:bg-amber-200 hover:text-black transition-all duration-500"
-            >
-              <span class="text-[10px] uppercase tracking-[0.3em] font-bold"
-                >Reservar Mesa</span
-              >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="group-hover:translate-x-1 transition-transform"
-                ><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg
-              >
-            </a>
           </div>
         </div>
       </div>
