@@ -1,4 +1,4 @@
-import { createDirectus, rest, realtime, authentication } from "@directus/sdk";
+import { createDirectus, rest, realtime, authentication, type DirectusFile } from "@directus/sdk";
 
 export type Reservation = {
   id: string;
@@ -28,8 +28,8 @@ export type ReservationSetting = {
 
 export type User = {
   id: string;
-  first_name: string;
-  avatar: string;
+  first_name: string | null;
+  avatar: string | DirectusFile;
   tenant: string;
 };
 
