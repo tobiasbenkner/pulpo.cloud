@@ -1,15 +1,29 @@
 ---
+export const prerender = false;
+
+import { readItems } from "@directus/sdk";
 import Layout from "../layouts/Layout.astro";
+import { getDirectusClient } from "../lib/directus";
+import AgendaTable from "../components/AgendaTable.svelte";
+
+const token = Astro.locals.token;
+
+const client = getDirectusClient(token);
+const initialReservations = await client.request(
+  readItems("reservations", {
+    // filter: { date: { _eq: new Date().toISOString().split('T')[0] }},
+    sort: ["time"],
+  })
+);
+
+const tokenExpiry = Date.now() + 15 * 60 * 1000;
 ---
 
 <Layout title="Agenda">
-  <div class="card w-96 bg-base-100 shadow-xl">
-    <div class="card-body">
-      <h2 class="card-title">Setup erfolgreich!</h2>
-      <p>Tailwind und DaisyUI sind bereit.</p>
-      <div class="card-actions justify-end">
-        <button class="btn btn-primary">Los geht's</button>
-      </div>
-    </div>
-  </div>
+  <AgendaTable
+    client:load
+    token={token}
+    tokenExpiry={tokenExpiry}
+    initialData={initialReservations}
+  />
 </Layout>
