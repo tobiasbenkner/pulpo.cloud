@@ -6,13 +6,15 @@ import Layout from "../layouts/Layout.astro";
 import { getDirectusClient } from "../lib/directus";
 import AgendaTable from "../components/AgendaTable.svelte";
 import AgendaNavigation from "../components/AgendaNavigation.svelte";
-
 import { format } from "date-fns";
 
 const token = Astro.locals.token;
 
-const client = getDirectusClient(token);
-const initialReservations = await client.request(
+const dateParam = Astro.url.searchParams.get("date");
+const date = dateParam || format(new Date(), "yyyy-MM-dd");
+
+const directus = getDirectusClient(token);
+const initialReservations = await directus.request(
   readItems("reservations", {
     fields: [
       "*",
@@ -20,26 +22,23 @@ const initialReservations = await client.request(
         user: ["*"],
       },
     ],
-    // filter: { date: { _eq: new Date().toISOString().split('T')[0] }},
+    filter: { date: { _eq: date } },
     sort: ["time"],
   })
 );
 
-const settings = await client.request(
+const settings = await directus.request(
   readItems("reservations_settings", {
     limit: 1,
   })
 );
-
-const dateParam = Astro.url.searchParams.get("date");
-const dateStr = dateParam || format(new Date(), "yyyy-MM-dd");
 
 const turns = settings[0]?.turns || [];
 ---
 
 <Layout title="Agenda">
   <div class="container mx-auto mt-8">
-    <AgendaNavigation client:load currentDateString={dateStr} />
+    <AgendaNavigation client:load currentDateString={date} />
     <AgendaTable
       client:load
       token={token}
