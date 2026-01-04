@@ -1,5 +1,6 @@
 {
     "scripts": {
+        "dev": "docker compose up",
         "snapshop:create": "docker compose exec directus npx directus schema snapshot ./schema/snapshot.yaml",
         "snapshot:apply": "docker compose exec directus npx directus schema apply ./schema/snapshot.yaml",
         "migration:create": "docker compose exec directus npx directus migration:create create_reviews_table",
