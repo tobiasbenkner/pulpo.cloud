@@ -1,13 +1,10 @@
-deploy.http
-public/videos
-
-# build output
-dist/
-# generated types
-.astro/
+# Turbo
+.turbo
 
 # dependencies
-node_modules/
+node_modules
+.pnp
+.pnp.js
 
 # logs
 npm-debug.log*
@@ -18,10 +15,14 @@ pnpm-debug.log*
 
 # environment variables
 .env
-.env.production
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # macOS-specific files
 .DS_Store
+*.pem
 
 # jetbrains setting folder
 .idea/
