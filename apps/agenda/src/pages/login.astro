@@ -4,7 +4,6 @@ import { getDirectusClient } from "../lib/directus";
 
 export const prerender = false;
 
-// 1. Wenn der User schon eingeloggt ist -> Redirect zum Dashboard
 if (Astro.cookies.has("directus_session")) {
   return Astro.redirect("/");
 }
@@ -22,28 +21,35 @@ if (Astro.request.method === "POST") {
       throw new Error("Bitte E-Mail und Passwort eingeben.");
     }
 
-    // Directus Login Versuch
     const client = getDirectusClient();
-    const loginData = await client.login({ email, password });
+    const loginData = await client.login(
+      { email, password },
+      {
+        mode: "json",
+      }
+    );
 
-    // WICHTIG: Token sicher im Cookie speichern (HttpOnly)
-    // access_token hält per Default kurz, refresh_token lang.
-    // Für dieses Tutorial speichern wir den access_token.
-    // In Produktion: Refresh-Logik einbauen oder Token-Lifetime in Directus erhöhen.
-    if (loginData.access_token) {
-      Astro.cookies.set("directus_session", loginData.access_token, {
+    if (loginData.access_token && loginData.refresh_token) {
+      Astro.cookies.set("directus_access_token", loginData.access_token, {
         path: "/",
-        httpOnly: true, // JS kann nicht zugreifen
-        secure: import.meta.env.PROD, // HTTPS in Produktion
+        httpOnly: true,
+        secure: import.meta.env.PROD,
         sameSite: "lax",
-        maxAge: 60 * 60 * 24 * 7, // 7 Tage (in Sekunden)
+        expires: new Date(loginData.expires_at!),
+      });
+
+      Astro.cookies.set("directus_refresh_token", loginData.refresh_token, {
+        path: "/",
+        httpOnly: true,
+        secure: import.meta.env.PROD,
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 30, // 30 Tage
       });
 
       return Astro.redirect("/");
     }
   } catch (e: any) {
     console.error(e);
-    // Fehlermeldung hübsch machen
     if (e.errors?.[0]?.message === "Invalid user credentials.") {
       error = "E-Mail oder Passwort falsch.";
     } else {

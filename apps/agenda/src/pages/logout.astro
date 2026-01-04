@@ -1,9 +1,17 @@
 ---
+import { logout } from "@directus/sdk";
+import { getDirectusClient } from "../lib/directus";
+
 export const prerender = false;
 
-// Cookie zerstören
-Astro.cookies.delete("directus_session", { path: "/" });
+const refreshToken = Astro.cookies.get("directus_refresh_token")?.value;
+if (refreshToken) {
+  const client = getDirectusClient();
+  await client.request(logout({ refresh_token: refreshToken, mode: "json" }));
+}
 
-// Zurück zum Login
+Astro.cookies.delete("directus_access_token", { path: "/" });
+Astro.cookies.delete("directus_refresh_token", { path: "/" });
+
 return Astro.redirect("/login");
 ---

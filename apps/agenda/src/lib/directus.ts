@@ -40,10 +40,10 @@ export type Schema = {
 };
 
 export function getDirectusClient(token?: string) {
-  const client = createDirectus<Schema>(import.meta.env.DIRECTUS_URL)
+  const client = createDirectus<Schema>(import.meta.env.PUBLIC_DIRECTUS_URL)
     .with(rest())
     .with(realtime())
-    .with(authentication("cookie"));
+    .with(authentication("json"));
 
   if (token) {
     client.setToken(token);
