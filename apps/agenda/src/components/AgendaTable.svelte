@@ -1,114 +1,81 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
-  import { getDirectusClient, type Reservation } from "../lib/directus";
+  import {
+    getDirectusClient,
+    type Reservation,
+    type ReservationSettingTurn,
+  } from "../lib/directus";
   import { updateItem, deleteItem } from "@directus/sdk";
+  import { jwtDecode } from "jwt-decode";
 
   export let token: string;
-  export let tokenExpiry: number; // Unix timestamp in milliseconds
   export let initialData: Reservation[] = [];
+  export let turns: ReservationSettingTurn[] = [];
 
   let reservations = initialData;
+  const directusUrl = import.meta.env.PUBLIC_DIRECTUS_URL;
   let client = getDirectusClient(token);
+
+  const decodedToken: { exp: number } = jwtDecode(token);
+  const tokenExpiry = decodedToken.exp * 1000;
+
   let unsubscribe: (() => void) | null = null;
-  let reloadTimer: ReturnType<typeof setTimeout> | null = null; // Universal
+  let reloadTimer: ReturnType<typeof setTimeout> | null = null;
 
   function sortReservations(items: Reservation[]) {
     return items.sort((a, b) => a.time.localeCompare(b.time));
   }
 
-  async function connectWebSocket() {
-    try {
-      if (unsubscribe) {
-        unsubscribe();
-        unsubscribe = null;
-      }
-
-      const { subscription, unsubscribe: unsub } = await client.subscribe(
-        "reservations",
-        {
-          query: {
-            fields: ["*"],
-          },
-        }
-      );
-
-      unsubscribe = unsub;
-      console.log("🔌 WebSocket verbunden");
-
-      (async () => {
-        try {
-          for await (const message of subscription) {
-            console.log("📨 WebSocket Event:", message);
-
-            if (message.event === "init") {
-              console.log("WebSocket initialisiert");
-            } else if (message.event === "create") {
-              const newRes = message.data[0] as Reservation;
-              reservations = sortReservations([...reservations, newRes]);
-            } else if (message.event === "update") {
-              const updatedRes = message.data[0] as Reservation;
-              reservations = reservations.map((r) =>
-                r.id === updatedRes.id ? { ...r, ...updatedRes } : r
-              );
-              if (updatedRes.time) {
-                reservations = sortReservations(reservations);
-              }
-            } else if (message.event === "delete") {
-              const deletedIds = message.data as string[];
-              reservations = reservations.filter(
-                (r) => !deletedIds.includes(r.id)
-              );
-            }
-          }
-        } catch (error) {
-          console.error("❌ WebSocket-Verbindung unterbrochen:", error);
-          setTimeout(connectWebSocket, 5000);
-        }
-      })();
-    } catch (error) {
-      console.error("❌ Fehler beim WebSocket-Aufbau:", error);
-      setTimeout(connectWebSocket, 5000);
-    }
+  function getTurnColor(time: string): string {
+    if (!turns || turns.length === 0) return "#10b981";
+    const turn = [...turns].reverse().find((t) => t.start <= time);
+    return turn ? turn.color : turns[0]?.color || "#ffffff";
   }
 
-  function scheduleReload() {
-    const now = Date.now();
-    const timeUntilExpiry = tokenExpiry - now;
+  function getAvatarUrl(user: any) {
+    if (!user || !user.avatar) return null;
+    return `${directusUrl}/assets/${user.avatar}?key=system-small-cover&access_token=${token}`;
+  }
 
-    // Reload 1 Minute vor Ablauf
-    const reloadIn = timeUntilExpiry - 60 * 1000;
+  async function connectWebSocket() {
+    if (unsubscribe) {
+      unsubscribe();
+      unsubscribe = null;
+    }
 
-    if (reloadIn > 0) {
-      console.log(
-        `⏰ Token läuft ab in ${Math.round(timeUntilExpiry / 1000 / 60)} Minuten`
-      );
-      console.log(
-        `🔄 Reload geplant in ${Math.round(reloadIn / 1000 / 60)} Minuten`
-      );
+    const { subscription, unsubscribe: unsub } = await client.subscribe(
+      "reservations",
+      {
+        query: { fields: ["*", { user: ["*"] }] }, // WICHTIG: user expanden für Avatar
+      }
+    );
+    unsubscribe = unsub;
 
-      reloadTimer = setTimeout(() => {
-        console.log("🔄 Token läuft bald ab - Seite wird neu geladen...");
-        window.location.reload();
-      }, reloadIn);
-    } else {
-      // Token ist bereits abgelaufen oder läuft in <1 Minute ab - sofort reloaden
-      console.log("⚠️ Token bereits abgelaufen - sofortiger Reload");
-      window.location.reload();
+    for await (const message of subscription) {
+      if (message.event === "create" || message.event === "update") {
+        const item = message.data[0] as Reservation;
+
+        if (message.event === "create") {
+          reservations = sortReservations([...reservations, item]);
+        } else {
+          reservations = reservations.map((r) =>
+            r.id === item.id ? { ...r, ...item } : r
+          );
+          if (item.time) reservations = sortReservations(reservations);
+        }
+      } else if (message.event === "delete") {
+        const deletedIds = message.data as string[];
+        reservations = reservations.filter((r) => !deletedIds.includes(r.id));
+      }
     }
   }
 
   onMount(async () => {
     await connectWebSocket();
-    scheduleReload();
   });
 
   onDestroy(() => {
-    if (unsubscribe) {
-      unsubscribe();
-    }
-    if (reloadTimer) {
-      clearTimeout(reloadTimer);
-    }
+    if (unsubscribe) unsubscribe();
   });
 
   async function togglePresence(res: Reservation) {
@@ -119,9 +86,7 @@
 
     try {
       await client.request(
-        updateItem("reservations", res.id, {
-          was_there: !previousState,
-        })
+        updateItem("reservations", res.id, { was_there: !previousState })
       );
     } catch (e) {
       console.error("Fehler beim Speichern:", e);
@@ -133,116 +98,171 @@
 
   async function deleteReservation(id: string) {
     if (!confirm("Möchtest du diese Reservierung wirklich löschen?")) return;
-
     try {
       await client.request(deleteItem("reservations", id));
     } catch (e) {
-      console.error("Fehler beim Löschen:", e);
-      alert("Fehler beim Löschen.");
+      alert("Fehler");
     }
+  }
+
+  function navigateToEdit(id: string) {
+    window.location.href = `/edit/${id}`;
   }
 </script>
 
-<div class="card bg-base-100 shadow-xl border border-base-200">
+<div
+  class="card bg-[#1e2330] shadow-xl border border-gray-700/50 text-gray-200"
+>
   <div class="card-body p-0">
     {#if reservations.length === 0}
-      <div class="text-center p-10 text-base-content/50">
-        <p>Keine Reservierungen für heute.</p>
+      <div class="text-center p-10 text-gray-500">
+        <p>Keine Reservierungen vorhanden.</p>
       </div>
     {:else}
       <div class="overflow-x-auto">
         <table class="table w-full">
-          <thead class="bg-base-200/50">
+          <!-- Kopfzeile -->
+          <thead
+            class="bg-[#1e2330] border-b border-gray-700 text-gray-400 uppercase text-xs"
+          >
             <tr>
-              <th class="w-20">Zeit</th>
-              <th class="w-16 text-center">Pax</th>
-              <th>Gast & Notizen</th>
-              <th class="w-24 text-center">Status</th>
-              <th class="w-16"></th>
+              <th class="w-4"></th>
+              <!-- Punkt -->
+              <th class="font-normal pl-0">Hora</th>
+              <th class="font-normal">Nombre</th>
+              <th class="font-normal text-center w-10"
+                ><svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  ><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"
+                  ></path><circle cx="9" cy="7" r="4"></circle><path
+                    d="M23 21v-2a4 4 0 0 0-3-3.87"
+                  ></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg
+                ></th
+              >
+              <th class="font-normal">Contacto</th>
+              <th class="font-normal">Observación</th>
+              <th class="text-right"></th>
+              <!-- Actions -->
             </tr>
           </thead>
 
           <tbody>
             {#each reservations as res (res.id)}
+              <!-- Doppelklick auf die Reihe toggelt Status -->
               <tr
-                class="hover group transition-colors {res.was_there
-                  ? 'opacity-50 bg-base-200/30'
-                  : ''}"
+                class="border-b border-gray-700/50 cursor-pointer select-none transition-colors
+                       {res.was_there
+                  ? 'bg-green-900/10 hover:bg-green-900/20 text-gray-500'
+                  : 'hover:bg-white/5'}"
+                on:dblclick={() => togglePresence(res)}
               >
-                <td class="font-mono font-bold text-lg align-top pt-4">
+                <!-- 1. Bunter Punkt (Status/Turn Indikator) -->
+                <td class="pr-0">
+                  <div
+                    class="w-3 h-3 rounded-full shadow-sm"
+                    style="background-color: {getTurnColor(res.time)}"
+                  ></div>
+                </td>
+
+                <!-- 2. Uhrzeit -->
+                <td
+                  class="pl-2 font-mono text-base {res.was_there
+                    ? 'line-through decoration-gray-600'
+                    : ''}"
+                >
                   {res.time.substring(0, 5)}
                 </td>
 
-                <td class="align-top pt-4 text-center">
-                  <div class="badge badge-ghost font-bold">
-                    {res.person_count}
-                  </div>
+                <!-- 3. Name -->
+                <td
+                  class="font-medium text-base {res.was_there
+                    ? 'line-through decoration-gray-600'
+                    : 'text-gray-100'}"
+                >
+                  {res.name}
                 </td>
 
-                <td class="align-top pt-3">
-                  <div class="font-bold text-base">{res.name}</div>
+                <!-- 4. Pax (Personen) -->
+                <td class="text-center font-medium">
+                  {res.person_count}
+                </td>
 
-                  <div class="flex flex-col gap-1 mt-1">
-                    {#if res.contact}
-                      <div class="text-xs flex items-center gap-1 opacity-70">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="12"
-                          height="12"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          ><path
-                            d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
-                          ></path></svg
-                        >
-                        {res.contact}
+                <!-- 5. Kontakt -->
+                <td class="text-sm opacity-80 font-mono">
+                  {res.contact || ""}
+                </td>
+
+                <!-- 6. Notizen (Observación) -->
+                <td class="text-sm max-w-xs truncate">
+                  {res.notes || ""}
+                </td>
+
+                <!-- 7. Aktionen (Avatar, Edit, Delete) -->
+                <td class="text-right">
+                  <div class="flex items-center justify-end gap-3">
+                    <!-- User Avatar -->
+                    {#if res.user && res.user.avatar}
+                      <div class="avatar">
+                        <div class="w-8 h-8 rounded-full ring-1 ring-gray-600">
+                          <img src={getAvatarUrl(res.user)} alt="User" />
+                        </div>
                       </div>
                     {/if}
-                    {#if res.notes}
-                      <div
-                        class="text-xs italic opacity-70 text-warning-content bg-warning/10 p-1 rounded w-fit max-w-xs break-words"
-                      >
-                        {res.notes}
-                      </div>
-                    {/if}
-                  </div>
-                </td>
 
-                <td class="text-center align-top pt-3">
-                  <input
-                    type="checkbox"
-                    class="toggle toggle-success toggle-sm"
-                    checked={res.was_there}
-                    on:change={() => togglePresence(res)}
-                  />
-                </td>
-
-                <td class="text-right align-top pt-2">
-                  <button
-                    class="btn btn-ghost btn-sm btn-square text-error opacity-0 group-hover:opacity-100 transition-opacity"
-                    on:click={() => deleteReservation(res.id)}
-                    title="Löschen"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="18"
-                      height="18"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      ><path d="M3 6h18"></path><path
-                        d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"
-                      ></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"
-                      ></path></svg
+                    <!-- Edit Button -->
+                    <button
+                      class="btn btn-ghost btn-xs btn-square text-gray-400 hover:text-white"
+                      on:click|stopPropagation={() => navigateToEdit(res.id)}
+                      title="Bearbeiten"
                     >
-                  </button>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        ><path
+                          d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"
+                        ></path></svg
+                      >
+                    </button>
+
+                    <!-- Delete Button -->
+                    <button
+                      class="btn btn-ghost btn-xs btn-square text-gray-500 hover:text-red-400"
+                      on:click|stopPropagation={() => deleteReservation(res.id)}
+                      title="Löschen"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        ><polyline points="3 6 5 6 21 6"></polyline><path
+                          d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                        ></path><line x1="10" y1="11" x2="10" y2="17"
+                        ></line><line x1="14" y1="11" x2="14" y2="17"
+                        ></line></svg
+                      >
+                    </button>
+                  </div>
                 </td>
               </tr>
             {/each}

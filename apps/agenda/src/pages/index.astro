@@ -5,25 +5,46 @@ import { readItems } from "@directus/sdk";
 import Layout from "../layouts/Layout.astro";
 import { getDirectusClient } from "../lib/directus";
 import AgendaTable from "../components/AgendaTable.svelte";
+import AgendaNavigation from "../components/AgendaNavigation.svelte";
+
+import { format } from "date-fns";
 
 const token = Astro.locals.token;
 
 const client = getDirectusClient(token);
 const initialReservations = await client.request(
   readItems("reservations", {
+    fields: [
+      "*",
+      {
+        user: ["*"],
+      },
+    ],
     // filter: { date: { _eq: new Date().toISOString().split('T')[0] }},
     sort: ["time"],
   })
 );
 
-const tokenExpiry = Date.now() + 15 * 60 * 1000;
+const settings = await client.request(
+  readItems("reservations_settings", {
+    limit: 1,
+  })
+);
+
+const dateParam = Astro.url.searchParams.get("date");
+const dateStr = dateParam || format(new Date(), "yyyy-MM-dd");
+
+const turns = settings[0]?.turns || [];
 ---
 
 <Layout title="Agenda">
-  <AgendaTable
-    client:load
-    token={token}
-    tokenExpiry={tokenExpiry}
-    initialData={initialReservations}
-  />
+  <div class="container mx-auto mt-8">
+    <AgendaNavigation client:load currentDateString={dateStr} />
+    <AgendaTable
+      client:load
+      token={token}
+      initialData={initialReservations}
+      turns={turns}
+    />
+  </div>
 </Layout>
