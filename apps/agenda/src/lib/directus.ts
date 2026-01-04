@@ -43,7 +43,7 @@ export function getDirectusClient(token?: string) {
   const client = createDirectus<Schema>(import.meta.env.PUBLIC_DIRECTUS_URL)
     .with(rest())
     .with(realtime())
-    .with(authentication("json"));
+    .with(authentication());
 
   if (token) {
     client.setToken(token);
