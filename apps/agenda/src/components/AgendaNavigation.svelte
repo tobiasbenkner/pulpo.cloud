@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { format, addDays, subDays, parseISO } from "date-fns";
+  import { format, addDays, parseISO } from "date-fns";
 
   export let currentDateString: string;
 
@@ -29,6 +29,7 @@
     <button
       class="btn btn-square bg-gray-700/50 hover:bg-gray-600/50 border-0"
       on:click={() => changeDate(-1)}
+      title="previous date"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -64,6 +65,7 @@
     <button
       class="btn btn-square bg-gray-700/50 hover:bg-gray-600/50 border-0"
       on:click={goToAddPage}
+      title="add reservation"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -88,6 +90,7 @@
     <button
       class="btn btn-square bg-gray-700/50 hover:bg-gray-600/50 border-0"
       on:click={() => changeDate(1)}
+      title="next date"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
