@@ -1,0 +1,26 @@
+{
+  "name": "@pulpo/agenda",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/node": "^9.5.1",
+    "@astrojs/svelte": "^7.2.4",
+    "@directus/sdk": "^20.3.0",
+    "@lucide/astro": "^0.562.0",
+    "@tailwindcss/vite": "^4.1.18",
+    "astro": "^5.16.6",
+    "date-fns": "^4.1.0",
+    "svelte": "^5.46.1",
+    "tailwindcss": "^4.1.18",
+    "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "daisyui": "^5.5.14"
+  }
+}

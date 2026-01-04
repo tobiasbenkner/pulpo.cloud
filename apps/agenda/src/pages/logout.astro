@@ -1,0 +1,9 @@
+---
+export const prerender = false;
+
+// Cookie zerstören
+Astro.cookies.delete("directus_session", { path: "/" });
+
+// Zurück zum Login
+return Astro.redirect("/login");
+---
