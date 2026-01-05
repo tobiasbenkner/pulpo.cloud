@@ -9,7 +9,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.25.0",
   "dependencies": {
     "@directus/sdk": "^20.3.0",
     "axios": "^1.13.2",
