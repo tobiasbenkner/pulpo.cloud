@@ -1,5 +1,14 @@
 ---
+import type { CollectionEntry } from "astro:content";
 import SectionHeader from "../../ui/SectionHeader.astro";
+import { t } from "../../../utils/t";
+import { convertI18n } from "../../../content/utils";
+
+type Props = {
+  lang: CollectionEntry<"languages">["data"];
+  defaultLang: CollectionEntry<"languages">["data"];
+  data: any;
+};
 
 const awards = [
   {
@@ -80,15 +89,30 @@ const awards = [
   },
 ];
 
-const title = "Premios";
-const description =
-  "Con pasión, fuego y los mejores ingredientes, llevamos la auténtica experiencia del asado argentino a tu mesa. Nuestra dedicación ha sido premiada en múltiples ocasiones: somos orgullosos ganadores de varios reconocidos premios.";
+const { data, lang, defaultLang } = Astro.props;
+
+const title = t(
+  convertI18n(data?.translations, "title", defaultLang.code),
+  lang?.code
+);
+const subtitle = t(
+  convertI18n(data?.translations, "subtitle", defaultLang.code),
+  lang?.code
+);
+const text = t(
+  convertI18n(data?.translations, "text", defaultLang.code),
+  lang?.code
+);
+const author = t(
+  convertI18n(data?.translations, "author", defaultLang.code),
+  lang?.code
+);
 ---
 
 <section class="relative bg-background py-16 md:py-24 px-6 overflow-hidden">
   <div class="max-w-6xl mx-auto">
     <!-- Header -->
-    <SectionHeader subtitle="Nuestra Excelencia" title="Premios" />
+    <SectionHeader subtitle={subtitle} title={title} />
 
     <!-- Main Content Grid -->
     <div
@@ -132,7 +156,7 @@ const description =
           <p
             class="text-lg md:text-2xl font-serif italic text-gray-300 leading-relaxed tracking-wide relative z-10"
           >
-            {description}
+            {text}
           </p>
         </div>
 
@@ -140,7 +164,7 @@ const description =
         <div class="hidden lg:flex mt-10 items-center gap-4">
           <div class="h-px w-12 bg-white/20"></div>
           <span class="text-xs tracking-[0.4em] text-white/40 uppercase"
-            >Excelencia & Tradición</span
+            >{author}</span
           >
         </div>
       </div>
@@ -151,7 +175,7 @@ const description =
         <div class="flex items-center justify-center gap-4 mb-8">
           <div class="h-px w-8 bg-white/10"></div>
           <span class="text-[10px] tracking-[0.4em] text-white/40 uppercase"
-            >Excelencia & Tradición</span
+            >{author}</span
           >
           <div class="h-px w-8 bg-white/10"></div>
         </div>
