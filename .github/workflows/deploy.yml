@@ -33,6 +33,14 @@ jobs:
           DIRECTUS_URL: ${{ secrets.DIRECTUS_URL }}
         run: |
           echo "Tenant ID is: $TENANT_ID"
+
+          cat <<EOF > apps/website/.env
+          TENANT_ID=$TENANT_ID
+          SITE_URL=$SITE_URL
+          DIRECTUS_TOKEN=$DIRECTUS_TOKEN
+          DIRECTUS_URL=$DIRECTUS_URL
+          EOF
+
           pnpm run build:website
 
       - name: Archive Production Artifact
