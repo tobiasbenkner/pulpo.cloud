@@ -18,8 +18,6 @@ const { data: footerNav } =
     .filter((it) => it.data.type === "footer")
     .at(0) ?? {};
 
-console.log(footerNav);
-
 const { lang, languages } = Astro.props;
 const defaultLang = languages.at(0);
 const isDefaultLanguage = defaultLang?.code === lang.code;

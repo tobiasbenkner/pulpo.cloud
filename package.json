@@ -5,6 +5,7 @@
     "build": "turbo run build",
     "build:website": "turbo run build --filter=@pulpo/website",
     "dev": "turbo run dev",
+    "dev:website": "turbo run dev --filter=@pulpo/website",
     "dev:agenda": "turbo run dev --filter=agenda",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
