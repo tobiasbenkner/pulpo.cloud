@@ -7,16 +7,16 @@ type Product = CollectionEntry<"categories">["data"]["products"][0];
 
 interface Props {
   product: Product;
+  lang: CollectionEntry<"languages">["data"];
 }
-const { product } = Astro.props;
-const { lang = "" } = Astro.params;
+const { product, lang } = Astro.props;
 
-const name = t(product.name, lang);
-const description = t(product.description, lang);
-const note = t(product.note, lang);
+const name = t(product.name, lang.code);
+const description = t(product.description, lang.code);
+const note = t(product.note, lang.code);
 
 function formatPrice(price: number) {
-  return new Intl.NumberFormat("de-DE", {
+  return new Intl.NumberFormat(lang.code, {
     style: "currency",
     currency: "EUR",
   }).format(price);
@@ -67,7 +67,7 @@ function formatPrice(price: number) {
         product.image && (
           <Image
             src={product.image.src}
-            alt={t(product.name, lang)}
+            alt={t(product.name, lang.code)}
             width={192}
             height={192}
             decoding="async"

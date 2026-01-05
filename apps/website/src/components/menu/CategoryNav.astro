@@ -5,10 +5,10 @@ import { t } from "../../utils/t";
 type Category = CollectionEntry<"categories">["data"];
 interface Props {
   categories: Category[];
-}
+  lang: CollectionEntry<"languages">["data"];
+};
 
-const { lang = "" } = Astro.params;
-const { categories } = Astro.props;
+const { categories, lang } = Astro.props;
 ---
 
 <nav
@@ -30,7 +30,7 @@ const { categories } = Astro.props;
                 ${index === 0 ? "active" : ""}`}
                 data-target={category.id}
               >
-                {t(category.name, lang)}
+                {t(category.name, lang.code)}
               </a>
             </li>
           ))

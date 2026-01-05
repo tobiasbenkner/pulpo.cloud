@@ -8,9 +8,10 @@ type Category = CollectionEntry<"categories">["data"];
 
 type Props = {
   category: Category;
+  lang: CollectionEntry<"languages">["data"];
 };
-const { lang = "" } = Astro.params;
-const { category } = Astro.props;
+
+const { category, lang } = Astro.props;
 
 const categoryId = "6725faf2-68ba-4b11-aa84-73005896bd7b";
 ---
@@ -23,7 +24,7 @@ const categoryId = "6725faf2-68ba-4b11-aa84-73005896bd7b";
           src={category.image.src}
           width={category.image.width}
           height={category.image.height}
-          alt={category.image.title || t(category.name, lang)}
+          alt={category.image.title || t(category.name, lang.code)}
           class="absolute inset-0 w-full h-full object-cover"
         />
       ) : (
@@ -36,13 +37,13 @@ const categoryId = "6725faf2-68ba-4b11-aa84-73005896bd7b";
         class="text-4xl md:text-6xl font-extrabold tracking-wider uppercase"
         style={{ textShadow: "2px 2px 8px rgba(0,0,0,0.7)" }}
       >
-        {t(category.name, lang)}
+        {t(category.name, lang.code)}
       </h2>
     </div>
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
-    {category.products.map((product) => <ProductCard product={product} />)}
+    {category.products.map((product) => <ProductCard product={product} lang={lang} />)}
   </div>
 
   {
