@@ -6,6 +6,7 @@ import ReservationForm from "../components/ReservationForm.svelte";
 import { getDirectusClient } from "../lib/directus";
 import { readItems, readUsers } from "@directus/sdk";
 import { format } from "date-fns";
+import TimePicker from "../components/ui/TimePicker.astro";
 
 // 1. Auth & Token
 const token = Astro.locals.token;
@@ -65,6 +66,8 @@ const users = usersResponse;
   </div>
 
   <main class="container mx-auto px-4 pb-12">
+    <TimePicker id="booking-time" label="Wunschuhrzeit" />
+
     <ReservationForm
       client:load
       token={token}

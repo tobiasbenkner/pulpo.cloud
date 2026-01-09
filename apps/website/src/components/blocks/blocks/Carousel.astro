@@ -3,6 +3,8 @@ import type { CollectionEntry } from "astro:content";
 import SectionHeader from "../../ui/SectionHeader.astro";
 import { t } from "../../../utils/t";
 import { convertI18n } from "../../../content/utils";
+import { Image } from "astro:assets";
+import type { DirectusFile } from "@directus/sdk";
 
 type Props = {
   lang: CollectionEntry<"languages">["data"];
@@ -10,86 +12,25 @@ type Props = {
   data: any;
 };
 
-const awards = [
-  {
-    src: "https://www.pulpo.cloud/api/files/oejuxb8pu427psz/kn3uedrg4n3skfq/choice_2020_9e8b6ec821_rekErS1OxS.gif",
-    alt: "",
-  },
-  {
-    src: "https://www.pulpo.cloud/api/files/oejuxb8pu427psz/kn3uedrg4n3skfq/choice_2021_b16625e077_b0iqet9B6y.gif",
-    alt: "",
-  },
-  {
-    src: "https://www.pulpo.cloud/api/files/oejuxb8pu427psz/kn3uedrg4n3skfq/animation_tc_2022_f54f595fba_QDiCBuIxXu.gif",
-    alt: "",
-  },
-  {
-    src: "https://www.pulpo.cloud/api/files/oejuxb8pu427psz/kn3uedrg4n3skfq/tc_sticker_2023_white_87f43b9fc7_BGyQZyZU5c.gif",
-    alt: "",
-  },
-  {
-    src: "https://www.pulpo.cloud/api/files/oejuxb8pu427psz/kn3uedrg4n3skfq/tc_white_winner_gif_l_2024_SXPGedwI07.gif",
-    alt: "",
-  },
-  {
-    src: "https://www.pulpo.cloud/api/files/oejuxb8pu427psz/kn3uedrg4n3skfq/medium_2016_7c3c27cbe3_SPm4msp3YS.jpg",
-    alt: "",
-  },
-  {
-    src: "https://www.pulpo.cloud/api/files/oejuxb8pu427psz/kn3uedrg4n3skfq/medium_2017_d637ff0845_460YZxMUck.jpg",
-    alt: "",
-  },
-  {
-    src: "https://www.pulpo.cloud/api/files/oejuxb8pu427psz/kn3uedrg4n3skfq/medium_2018_307a421634_6RedQZrglL.jpg",
-    alt: "",
-  },
-  {
-    src: "https://www.pulpo.cloud/api/files/oejuxb8pu427psz/kn3uedrg4n3skfq/medium_2019_1f182509af_x24rESLBGu.jpg",
-    alt: "",
-  },
-  {
-    src: "https://www.pulpo.cloud/api/files/oejuxb8pu427psz/kn3uedrg4n3skfq/medium_guru_2020_39766c9c6d_9YR0f5xlZ3.jpg",
-    alt: "",
-  },
-  {
-    src: "https://www.pulpo.cloud/api/files/oejuxb8pu427psz/kn3uedrg4n3skfq/medium_guru_2021_f37572caa8_D9beOjvRxf.jpeg",
-    alt: "",
-  },
-  {
-    src: "https://www.pulpo.cloud/api/files/oejuxb8pu427psz/kn3uedrg4n3skfq/7c5d2cca_67f0_49ea_a729_81cacfe678d6_Qv2LLaK6k8.JPG",
-    alt: "",
-  },
-  {
-    src: "https://www.pulpo.cloud/api/files/oejuxb8pu427psz/kn3uedrg4n3skfq/4f680b01_7911_498b_bc28_9f480ec3d9af_GyH5RiIuPG.JPG",
-    alt: "",
-  },
-  {
-    src: "https://www.pulpo.cloud/api/files/oejuxb8pu427psz/kn3uedrg4n3skfq/7f946931_96a4_480f_85c0_32e4d6b7c412_BUTO0omcas.JPG",
-    alt: "",
-  },
-  {
-    src: "https://www.pulpo.cloud/api/files/oejuxb8pu427psz/kn3uedrg4n3skfq/1ce0590b_897c_4de3_afa9_ec573ab966d8_beux869OV6.JPG",
-    alt: "",
-  },
-  {
-    src: "https://www.pulpo.cloud/api/files/oejuxb8pu427psz/kn3uedrg4n3skfq/medium_whats_app_image_2023_05_16_at_10_28_21_80bc106aab_JoloAt8mCe.jpeg",
-    alt: "",
-  },
-  {
-    src: "https://www.pulpo.cloud/api/files/oejuxb8pu427psz/kn3uedrg4n3skfq/8191ecb2_6f39_4cc0_ab3d_5a852438c171_WSviRxa7aZ.JPG",
-    alt: "",
-  },
-  {
-    src: "https://www.pulpo.cloud/api/files/oejuxb8pu427psz/kn3uedrg4n3skfq/imagen_de_whats_app_2025_10_16_a_las_11_07_PEEq8yjgcu.47_acf6d49e.jpg",
-    alt: "",
-  },
-  {
-    src: "https://www.pulpo.cloud/api/files/oejuxb8pu427psz/kn3uedrg4n3skfq/2025_removebg_preview_bNgjSkZk6Z.png",
-    alt: "",
-  },
-];
-
 const { data, lang, defaultLang } = Astro.props;
+
+const awards: { src: string; alt: string; height: number; width: number }[] = (
+  data.images ?? []
+).map(({ directus_files_id }: any) => {
+  const image: DirectusFile = directus_files_id;
+  const src = `${import.meta.env.DIRECTUS_URL}/assets/${
+    image.id
+  }?access_token=${
+    import.meta.env.DIRECTUS_TOKEN
+  }&width=1500&withoutEnlargement=true`;
+
+  return {
+    src: src,
+    alt: image.filename_disk,
+    height: image.height,
+    width: image.width,
+  };
+});
 
 const title = t(
   convertI18n(data?.translations, "title", defaultLang.code),
@@ -135,9 +76,11 @@ const author = t(
           {
             awards.slice(0, 16).map((award) => (
               <div class="aspect-square flex items-center justify-center p-6 bg-white/3 border border-white/10 rounded-2xl transition-all duration-700">
-                <img
+                <Image
                   src={award.src}
                   alt={award.alt}
+                  width={award.width}
+                  height={award.height}
                   class="max-w-[80%] h-auto object-contain"
                 />
               </div>
