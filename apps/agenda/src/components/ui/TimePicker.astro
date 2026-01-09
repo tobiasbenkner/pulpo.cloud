@@ -1,0 +1,171 @@
+---
+// src/components/TimePicker.astro
+
+// Wir generieren die Stunden (00-23)
+const hours = Array.from({ length: 24 }, (_, i) =>
+  i.toString().padStart(2, "0")
+);
+
+// Wir generieren die Minuten in 5er Schritten (wie im Bild)
+const minutes = [
+  "00",
+  "05",
+  "10",
+  "15",
+  "20",
+  "25",
+  "30",
+  "35",
+  "40",
+  "45",
+  "50",
+  "55",
+];
+
+interface Props {
+  id: string; // Damit wir später darauf zugreifen können
+  label?: string;
+}
+
+const { id, label = "Zeit auswählen" } = Astro.props;
+---
+
+<div class="max-w-xs relative group" id={`wrapper-${id}`}>
+  <label class="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+
+  <!-- Das Input Feld (readonly, öffnet den Picker bei Klick) -->
+  <input
+    type="text"
+    id={id}
+    readonly
+    placeholder="--:--"
+    class="cursor-pointer w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+  />
+
+  <!-- Der eigentliche Picker (Pop-Up) -->
+  <!-- hidden standardmäßig, wird per JS getoggled -->
+  <div
+    id={`picker-${id}`}
+    class="hidden absolute z-50 mt-1 w-[320px] bg-gray-950 border border-gray-800 rounded-xl shadow-2xl p-4 text-white"
+  >
+    <!-- Stunden Sektion -->
+    <div class="mb-4">
+      <span class="text-sm font-semibold text-gray-300 block mb-2">Stunden</span
+      >
+      <div class="grid grid-cols-6 gap-2">
+        {
+          hours.map((h) => (
+            <button
+              type="button"
+              data-val={h}
+              class="time-btn hour-btn w-full aspect-square flex items-center justify-center text-sm rounded border border-gray-700 hover:bg-gray-800 focus:bg-white focus:text-black transition-colors"
+            >
+              {h}
+            </button>
+          ))
+        }
+      </div>
+    </div>
+
+    <!-- Minuten Sektion -->
+    <div class="mb-6">
+      <span class="text-sm font-semibold text-gray-300 block mb-2">Minuten</span
+      >
+      <div class="grid grid-cols-6 gap-2">
+        {
+          minutes.map((m) => (
+            <button
+              type="button"
+              data-val={m}
+              class="time-btn minute-btn w-full aspect-square flex items-center justify-center text-sm rounded border border-gray-700 hover:bg-gray-800 focus:bg-white focus:text-black transition-colors"
+            >
+              {m}
+            </button>
+          ))
+        }
+      </div>
+    </div>
+
+    <!-- OK Button -->
+    <button
+      id={`ok-${id}`}
+      type="button"
+      class="w-full bg-white text-black font-bold py-2 rounded-lg hover:bg-gray-200 transition-colors"
+    >
+      Ok
+    </button>
+  </div>
+</div>
+
+<script define:vars={{ id }}>
+  // Logik kapseln, damit es auch funktioniert, wenn die Komponente mehrfach auf der Seite ist
+  document.addEventListener("DOMContentLoaded", () => {
+    const wrapper = document.getElementById(`wrapper-${id}`);
+    const input = document.getElementById(id);
+    const picker = document.getElementById(`picker-${id}`);
+    const okBtn = document.getElementById(`ok-${id}`);
+
+    let selectedHour = null;
+    let selectedMinute = null;
+
+    // Toggle Picker Sichtbarkeit
+    input.addEventListener("click", (e) => {
+      e.stopPropagation(); // Verhindert sofortiges Schließen durch document click
+      // Alle anderen offenen Picker schließen (optional)
+      document
+        .querySelectorAll('[id^="picker-"]')
+        .forEach((el) => el.classList.add("hidden"));
+      picker.classList.toggle("hidden");
+    });
+
+    // Stunden Logik
+    const hourBtns = picker.querySelectorAll(".hour-btn");
+    hourBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        // Reset Style aller Buttons
+        hourBtns.forEach((b) => {
+          b.classList.remove("bg-white", "text-black");
+          b.classList.add("border-gray-700", "text-white");
+        });
+        // Setze Active Style
+        btn.classList.remove("border-gray-700", "text-white");
+        btn.classList.add("bg-white", "text-black");
+
+        selectedHour = btn.getAttribute("data-val");
+      });
+    });
+
+    // Minuten Logik
+    const minBtns = picker.querySelectorAll(".minute-btn");
+    minBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        minBtns.forEach((b) => {
+          b.classList.remove("bg-white", "text-black");
+          b.classList.add("border-gray-700", "text-white");
+        });
+        btn.classList.remove("border-gray-700", "text-white");
+        btn.classList.add("bg-white", "text-black");
+
+        selectedMinute = btn.getAttribute("data-val");
+      });
+    });
+
+    // OK Button
+    okBtn.addEventListener("click", () => {
+      if (selectedHour && selectedMinute) {
+        input.value = `${selectedHour}:${selectedMinute}`;
+        picker.classList.add("hidden");
+      } else {
+        // Optional: Error Feedback (z.B. Wackeln)
+        alert("Bitte wählen Sie Stunde und Minute aus.");
+      }
+    });
+
+    // Klick außerhalb schließt den Picker
+    document.addEventListener("click", (e) => {
+      if (!wrapper.contains(e.target)) {
+        picker.classList.add("hidden");
+      }
+    });
+  });
+</script>

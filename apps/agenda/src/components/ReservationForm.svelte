@@ -6,6 +6,7 @@
   } from "../lib/directus";
   import { createItem, readMe } from "@directus/sdk";
   import { onMount } from "svelte";
+  import TimePicker from "./ui/TimePicker.svelte";
 
   export let token: string;
   export let dateParam: string;
@@ -84,6 +85,7 @@
             class="input input-bordered bg-gray-800 border-gray-600 text-white"
           />
         </div>
+        <TimePicker />
         <div class="form-control">
           <label class="label"
             ><span class="label-text text-gray-400">Uhrzeit</span></label

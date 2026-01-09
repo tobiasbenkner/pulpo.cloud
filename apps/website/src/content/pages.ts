@@ -48,6 +48,8 @@ export const pages = defineCollection({
           "blocks.*",
           "blocks.item.*",
           "blocks.item.image.*",
+          "blocks.item.images.*",
+          "blocks.item.images.directus_files_id.*",
           "blocks.item.video.*",
           "blocks.item.translations.*",
           "blocks.item.translations.languages_id.*",
