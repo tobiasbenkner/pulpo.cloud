@@ -21,7 +21,6 @@ const phoneLink = `tel:${siteConfig.contact.phone.replace(/\s+/g, "")}`;
   />
 
   <section class="py-20 max-w-5xl mx-auto px-4">
-    <!-- Intro Text -->
     <div class="text-center mb-16 max-w-3xl mx-auto">
       <div
         class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-pulpo-surface-warm text-pulpo-primary text-sm font-bold mb-6"
@@ -47,14 +46,13 @@ const phoneLink = `tel:${siteConfig.contact.phone.replace(/\s+/g, "")}`;
 
     <!-- Die 3 Action Buttons -->
     <div class="grid md:grid-cols-3 gap-8">
-      <!-- 1. WhatsApp -->
       <a
         href={whatsappLink}
         target="_blank"
-        class="group relative bg-white p-8 rounded-2xl border-2 border-green-100 hover:border-green-500 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col items-center text-center"
+        class="group relative bg-white p-8 rounded-2xl border-2 border-pulpo-success-light hover:border-pulpo-success shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col items-center text-center"
       >
         <div
-          class="w-16 h-16 bg-green-50 text-green-600 rounded-full flex items-center justify-center mb-6 group-hover:bg-green-500 group-hover:text-white transition-colors"
+          class="w-16 h-16 bg-pulpo-success-light text-pulpo-success rounded-full flex items-center justify-center mb-6 group-hover:bg-pulpo-success group-hover:text-white transition-colors"
         >
           <Icon name="heroicons:chat-bubble-left-right" class="w-8 h-8" />
         </div>
@@ -63,7 +61,7 @@ const phoneLink = `tel:${siteConfig.contact.phone.replace(/\s+/g, "")}`;
           Lo más rápido. Escríbenos y te contestamos al momento.
         </p>
         <span
-          class="mt-auto inline-block text-green-600 font-bold group-hover:underline"
+          class="mt-auto inline-block text-pulpo-success font-bold group-hover:underline"
           >Iniciar Chat &rarr;</span
         >
       </a>

@@ -7,14 +7,18 @@
 @theme {
     --font-sans: "Inter", system-ui, sans-serif;
 
-    /* HAUPTFARBE: Das Pink/Rot des Oktopus */
+    /* PRIMARY: Oktopus Pink/Koralle */
     --color-pulpo-primary: #f23f5d;
     --color-pulpo-primary-hover: #d92e4a;
 
-    /* SEKUNDÄRFARBE: Dunkles Navy für Texte und Struktur */
+    /* SECONDARY: Dunkles Navy */
     --color-pulpo-dark: #0f172a;
 
-    /* SUBTILE FARBEN: Ersetzt das alte Hellblau durch neutrale Töne */
+    /* SUCCESS: Emerald (Kühleres Grün, passt besser zu Pink & Navy) */
+    --color-pulpo-success: #10b981;
+    --color-pulpo-success-light: #ecfdf5; /* Sehr helles Emerald für Hintergründe */
+
+    /* SURFACE: Neutrale Hintergründe */
     --color-pulpo-surface: #f9fafb;
     --color-pulpo-surface-warm: #fff1f2;
 }
@@ -26,7 +30,6 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
-/* Scrollbar Anpassung passend zum Theme */
 ::-webkit-scrollbar {
     width: 8px;
 }
