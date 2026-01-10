@@ -11,15 +11,15 @@ const { title, desc, iconName } = Astro.props;
 ---
 
 <div
-  class="group h-full p-8 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+  class="group h-full p-8 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 hover:border-pulpo-primary/20"
 >
   <div
-    class="w-14 h-14 bg-gray-50 text-gray-600 rounded-xl flex items-center justify-center mb-6 transition-colors duration-300 group-hover:bg-pulpo-accent group-hover:text-white"
+    class="w-14 h-14 bg-pulpo-surface-warm text-pulpo-primary rounded-xl flex items-center justify-center mb-6 transition-colors duration-300 group-hover:bg-pulpo-primary group-hover:text-white"
   >
     <Icon name={iconName} class="w-7 h-7" />
   </div>
   <h3
-    class="text-xl font-bold text-pulpo-dark mb-3 group-hover:text-pulpo-accent transition-colors"
+    class="text-xl font-bold text-pulpo-dark mb-3 group-hover:text-pulpo-primary transition-colors"
   >
     {title}
   </h3>

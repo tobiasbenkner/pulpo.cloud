@@ -35,16 +35,15 @@ import logoImage from "../assets/logo.png";
       >
         {
           siteConfig.navigation.map((link) => (
-            <a href={link.href} class="hover:text-pulpo-accent transition">
+            <a href={link.href} class="hover:text-pulpo-primary transition">
               {link.name}
             </a>
           ))
         }
 
-        <!-- NEUER CTA BUTTON -->
         <a
           href="/precios"
-          class="bg-pulpo-accent text-white px-6 py-2.5 rounded-full text-sm font-bold hover:bg-red-600 transition shadow-lg shadow-gray-200 flex items-center gap-2 transform hover:-translate-y-0.5"
+          class="bg-pulpo-primary text-white px-6 py-2.5 rounded-full text-sm font-bold hover:bg-pulpo-primary-hover transition shadow-lg shadow-gray-200 flex items-center gap-2 transform hover:-translate-y-0.5"
         >
           <Icon name="heroicons:rocket-launch" class="w-4 h-4" />
           Empezar ahora
@@ -56,7 +55,7 @@ import logoImage from "../assets/logo.png";
         <button
           id="mobile-menu-btn"
           aria-label="Abrir menú"
-          class="text-gray-600 hover:text-pulpo-accent p-2 transition"
+          class="text-gray-600 hover:text-pulpo-primary p-2 transition"
         >
           <Icon name="heroicons:bars-3" class="w-7 h-7" />
         </button>
@@ -74,16 +73,15 @@ import logoImage from "../assets/logo.png";
         siteConfig.navigation.map((link) => (
           <a
             href={link.href}
-            class="block text-lg font-bold text-gray-800 hover:text-pulpo-accent border-b border-gray-50 pb-2"
+            class="block text-lg font-bold text-gray-800 hover:text-pulpo-primary border-b border-gray-50 pb-2"
           >
             {link.name}
           </a>
         ))
       }
-      <!-- NEUER MOBILE CTA -->
       <a
         href="/precios"
-        class="mt-8 w-full py-4 flex items-center justify-center gap-2 rounded-xl text-lg font-bold bg-pulpo-accent text-white shadow-lg"
+        class="mt-8 w-full py-4 flex items-center justify-center gap-2 rounded-xl text-lg font-bold bg-pulpo-primary text-white shadow-lg"
       >
         <Icon name="heroicons:rocket-launch" class="w-5 h-5" />
         Empezar ahora

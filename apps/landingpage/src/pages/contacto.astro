@@ -21,10 +21,10 @@ const phoneLink = `tel:${siteConfig.contact.phone.replace(/\s+/g, "")}`;
   />
 
   <section class="py-20 max-w-5xl mx-auto px-4">
-    <!-- Intro Text: Hybrid-Modell Erklärung -->
+    <!-- Intro Text -->
     <div class="text-center mb-16 max-w-3xl mx-auto">
       <div
-        class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 text-pulpo-blue text-sm font-bold mb-6"
+        class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-pulpo-surface-warm text-pulpo-primary text-sm font-bold mb-6"
       >
         <Icon name="heroicons:map-pin" class="w-4 h-4" />
         Base en Gran Canaria
@@ -71,10 +71,10 @@ const phoneLink = `tel:${siteConfig.contact.phone.replace(/\s+/g, "")}`;
       <!-- 2. Telefon -->
       <a
         href={phoneLink}
-        class="group relative bg-white p-8 rounded-2xl border-2 border-blue-100 hover:border-blue-500 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col items-center text-center"
+        class="group relative bg-white p-8 rounded-2xl border-2 border-gray-100 hover:border-pulpo-dark shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col items-center text-center"
       >
         <div
-          class="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-6 group-hover:bg-blue-500 group-hover:text-white transition-colors"
+          class="w-16 h-16 bg-gray-100 text-pulpo-dark rounded-full flex items-center justify-center mb-6 group-hover:bg-pulpo-dark group-hover:text-white transition-colors"
         >
           <Icon name="heroicons:phone" class="w-8 h-8" />
         </div>
@@ -83,7 +83,7 @@ const phoneLink = `tel:${siteConfig.contact.phone.replace(/\s+/g, "")}`;
           ¿Prefieres hablar? Llámanos de Lunes a Viernes.
         </p>
         <span
-          class="mt-auto inline-block text-blue-600 font-bold group-hover:underline"
+          class="mt-auto inline-block text-pulpo-dark font-bold group-hover:underline"
           >{siteConfig.contact.phone}</span
         >
       </a>
@@ -91,10 +91,10 @@ const phoneLink = `tel:${siteConfig.contact.phone.replace(/\s+/g, "")}`;
       <!-- 3. Email -->
       <a
         href={emailLink}
-        class="group relative bg-white p-8 rounded-2xl border-2 border-gray-100 hover:border-gray-400 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col items-center text-center"
+        class="group relative bg-white p-8 rounded-2xl border-2 border-gray-100 hover:border-pulpo-primary shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col items-center text-center"
       >
         <div
-          class="w-16 h-16 bg-gray-50 text-gray-600 rounded-full flex items-center justify-center mb-6 group-hover:bg-gray-600 group-hover:text-white transition-colors"
+          class="w-16 h-16 bg-pulpo-surface-warm text-pulpo-primary rounded-full flex items-center justify-center mb-6 group-hover:bg-pulpo-primary group-hover:text-white transition-colors"
         >
           <Icon name="heroicons:envelope" class="w-8 h-8" />
         </div>
@@ -103,7 +103,7 @@ const phoneLink = `tel:${siteConfig.contact.phone.replace(/\s+/g, "")}`;
           Solicita una visita en Gran Canaria o una demo online.
         </p>
         <span
-          class="mt-auto inline-block text-gray-600 font-bold group-hover:underline"
+          class="mt-auto inline-block text-pulpo-primary font-bold group-hover:underline"
           >Solicitar Cita &rarr;</span
         >
       </a>
@@ -111,11 +111,13 @@ const phoneLink = `tel:${siteConfig.contact.phone.replace(/\s+/g, "")}`;
 
     <!-- Zusatz: Service Areas -->
     <div class="mt-20 grid md:grid-cols-2 gap-8">
-      <div class="bg-blue-50 p-8 rounded-2xl border border-blue-100">
+      <div
+        class="bg-pulpo-surface-warm p-8 rounded-2xl border border-pulpo-primary/20"
+      >
         <h3
           class="font-bold text-lg mb-2 flex items-center gap-2 text-pulpo-dark"
         >
-          <Icon name="heroicons:map" class="w-5 h-5 text-pulpo-blue" />
+          <Icon name="heroicons:map" class="w-5 h-5 text-pulpo-primary" />
           Gran Canaria (Presencial)
         </h3>
         <p class="text-gray-600 text-sm">
