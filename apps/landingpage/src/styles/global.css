@@ -7,11 +7,16 @@
 @theme {
     --font-sans: "Inter", system-ui, sans-serif;
 
-    --color-pulpo-dark: #0f172a;
-    --color-pulpo-blue: #3b82f6;
+    /* HAUPTFARBE: Das Pink/Rot des Oktopus */
+    --color-pulpo-primary: #f23f5d;
+    --color-pulpo-primary-hover: #d92e4a;
 
-    --color-pulpo-accent: #f23f5d;
-    --color-pulpo-light: #f8fafc;
+    /* SEKUNDÄRFARBE: Dunkles Navy für Texte und Struktur */
+    --color-pulpo-dark: #0f172a;
+
+    /* SUBTILE FARBEN: Ersetzt das alte Hellblau durch neutrale Töne */
+    --color-pulpo-surface: #f9fafb;
+    --color-pulpo-surface-warm: #fff1f2;
 }
 
 body {
@@ -19,4 +24,19 @@ body {
     color: var(--color-pulpo-dark);
     background-color: white;
     -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbar Anpassung passend zum Theme */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-pulpo-primary);
 }
