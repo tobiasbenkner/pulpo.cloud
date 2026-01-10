@@ -1,63 +1,107 @@
 ---
 import siteConfig from "../data/siteConfig.json";
+import { Icon } from "astro-icon/components";
+import { Image } from "astro:assets";
+import logoImage from "../assets/logo.png";
 ---
 
-<!-- Footer -->
-<footer class="bg-gray-900 text-white border-t border-gray-800 mt-auto">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <div class="grid md:grid-cols-4 gap-8 mb-8">
+<footer class="bg-gray-50 border-t border-gray-200 pt-16 pb-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid md:grid-cols-4 gap-12 mb-12">
+      <!-- Brand Column -->
       <div class="col-span-1 md:col-span-2">
-        <span class="text-2xl font-bold block mb-4">{siteConfig.siteName}</span>
-        <p class="text-gray-400 text-sm max-w-xs">
-          Soluciones digitales Open Source para el comercio local en Canarias.
-          TPV, Web y Gestión.
+        <a href="/" class="flex items-center gap-2 mb-6">
+          <Image
+            src={logoImage}
+            alt="Pulpo"
+            width={40}
+            height={40}
+            class="w-8 h-8"
+          />
+          <span class="text-xl font-extrabold text-pulpo-dark">Pulpo</span>
+        </a>
+        <p class="text-gray-500 text-sm max-w-sm leading-relaxed mb-6">
+          La plataforma todo en uno para digitalizar el comercio local en
+          Canarias. TPV, Web y Gestión simplificada.
         </p>
-      </div>
-      <div>
-        <h4
-          class="font-bold mb-4 text-sm uppercase tracking-wider text-gray-500"
+        <div
+          class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2"
         >
-          Legal
-        </h4>
-        <ul class="space-y-2 text-sm text-gray-400">
+          Hecho en
+        </div>
+        <div class="flex items-center gap-2 text-gray-600 font-medium">
+          <Icon name="heroicons:map-pin" class="w-4 h-4 text-pulpo-accent" />
+          Islas Canarias, España
+        </div>
+      </div>
+
+      <!-- Legal Column -->
+      <div>
+        <h4 class="font-bold text-gray-900 mb-6">Legal</h4>
+        <ul class="space-y-3 text-sm text-gray-600">
           <li>
-            <a href="/legal/aviso-legal" class="hover:text-white transition"
-              >Aviso Legal</a
+            <a
+              href="/legal/aviso-legal"
+              class="hover:text-pulpo-accent transition">Aviso Legal</a
             >
           </li>
           <li>
             <a
               href="/legal/politica-privacidad"
-              class="hover:text-white transition">Política de Privacidad</a
+              class="hover:text-pulpo-accent transition"
+              >Política de Privacidad</a
             >
           </li>
           <li>
-            <a href="/legal/terminos" class="hover:text-white transition"
-              >Términos y Condiciones</a
+            <a href="/legal/terminos" class="hover:text-pulpo-accent transition"
+              >Términos de Uso</a
+            >
+          </li>
+          <li>
+            <a href="/legal/cookies" class="hover:text-pulpo-accent transition"
+              >Política de Cookies</a
             >
           </li>
         </ul>
       </div>
+
       <div>
-        <h4
-          class="font-bold mb-4 text-sm uppercase tracking-wider text-gray-500"
-        >
-          Contacto
-        </h4>
-        <ul class="space-y-2 text-sm text-gray-400">
-          <li>{siteConfig.contact.email}</li>
-          <li>{siteConfig.contact.phone}</li>
-          <li class="pt-2 text-xs text-gray-600">
-            {siteConfig.contact.address}
+        <h4 class="font-bold text-gray-900 mb-6">Comunidad</h4>
+        <ul class="space-y-3 text-sm text-gray-600">
+          <li>
+            <a
+              href={siteConfig.links.github}
+              target="_blank"
+              class="flex items-center gap-2 hover:text-pulpo-accent transition group"
+            >
+              Código Fuente (GitHub)
+            </a>
+          </li>
+          <li>
+            <a href="/contacto" class="hover:text-pulpo-accent transition"
+              >Soporte Técnico</a
+            >
+          </li>
+          <li class="pt-4">
+            <a
+              href={`mailto:${siteConfig.contact.email}`}
+              class="text-gray-400 hover:text-pulpo-accent text-xs"
+            >
+              Reportar un bug
+            </a>
           </li>
         </ul>
       </div>
     </div>
+
+    <!-- Bottom Bar -->
     <div
-      class="border-t border-gray-800 pt-8 text-center text-xs text-gray-500"
+      class="border-t border-gray-200 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-400"
     >
-      &copy; {new Date().getFullYear()}
-      {siteConfig.siteName}. Hecho con ❤️ en Canarias.
+      <div>
+        &copy; {new Date().getFullYear()}
+        {siteConfig.siteName}. Todos los derechos reservados.
+      </div>
     </div>
   </div>
 </footer>
