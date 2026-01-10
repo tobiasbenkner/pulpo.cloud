@@ -1,0 +1,57 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import siteConfig from "../../data/siteConfig.json";
+---
+
+<Layout title="Aviso Legal - Pulpo">
+  <div class="max-w-3xl mx-auto px-4 py-16">
+    <h1 class="text-3xl font-bold text-pulpo-dark mb-8">Aviso Legal</h1>
+
+    <div class="prose prose-slate max-w-none text-gray-600">
+      <p>
+        En cumplimiento con el deber de información recogido en artículo 10 de
+        la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la
+        Información y del Comercio Electrónico (LSSICE), a continuación se
+        reflejan los siguientes datos:
+      </p>
+
+      <h3 class="text-xl font-bold text-gray-900 mt-6 mb-2">
+        1. Datos Identificativos
+      </h3>
+      <p>
+        La empresa titular de dominio web es <strong
+          >{siteConfig.siteName}</strong
+        > (en adelante el Responsable), con domicilio a estos efectos en {
+          siteConfig.contact.address
+        } número de C.I.F.: {siteConfig.contact.cif}. Correo electrónico de
+        contacto: {siteConfig.contact.email}.
+      </p>
+
+      <h3 class="text-xl font-bold text-gray-900 mt-6 mb-2">2. Usuarios</h3>
+      <p>
+        El acceso y/o uso de este portal atribuye la condición de USUARIO, que
+        acepta, desde dicho acceso y/o uso, las Condiciones Generales de Uso
+        aquí reflejadas.
+      </p>
+
+      <h3 class="text-xl font-bold text-gray-900 mt-6 mb-2">
+        3. Uso del Portal
+      </h3>
+      <p>
+        La plataforma proporciona el acceso a multitud de informaciones,
+        servicios, programas o datos (en adelante, "los contenidos") en Internet
+        pertenecientes a <strong>{siteConfig.siteName}</strong>. El USUARIO
+        asume la responsabilidad del uso del portal.
+      </p>
+
+      <h3 class="text-xl font-bold text-gray-900 mt-6 mb-2">
+        4. Propiedad Intelectual e Industrial
+      </h3>
+      <p>
+        El software "Pulpo" se distribuye bajo licencia Open Source. Sin
+        embargo, la marca, logotipo y diseño de este sitio web son propiedad del
+        Responsable.
+      </p>
+    </div>
+  </div>
+</Layout>

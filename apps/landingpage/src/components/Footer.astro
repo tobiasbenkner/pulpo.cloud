@@ -1,0 +1,63 @@
+---
+import siteConfig from "../data/siteConfig.json";
+---
+
+<!-- Footer -->
+<footer class="bg-gray-900 text-white border-t border-gray-800 mt-auto">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="grid md:grid-cols-4 gap-8 mb-8">
+      <div class="col-span-1 md:col-span-2">
+        <span class="text-2xl font-bold block mb-4">{siteConfig.siteName}</span>
+        <p class="text-gray-400 text-sm max-w-xs">
+          Soluciones digitales Open Source para el comercio local en Canarias.
+          TPV, Web y Gestión.
+        </p>
+      </div>
+      <div>
+        <h4
+          class="font-bold mb-4 text-sm uppercase tracking-wider text-gray-500"
+        >
+          Legal
+        </h4>
+        <ul class="space-y-2 text-sm text-gray-400">
+          <li>
+            <a href="/legal/aviso-legal" class="hover:text-white transition"
+              >Aviso Legal</a
+            >
+          </li>
+          <li>
+            <a
+              href="/legal/politica-privacidad"
+              class="hover:text-white transition">Política de Privacidad</a
+            >
+          </li>
+          <li>
+            <a href="/legal/terminos" class="hover:text-white transition"
+              >Términos y Condiciones</a
+            >
+          </li>
+        </ul>
+      </div>
+      <div>
+        <h4
+          class="font-bold mb-4 text-sm uppercase tracking-wider text-gray-500"
+        >
+          Contacto
+        </h4>
+        <ul class="space-y-2 text-sm text-gray-400">
+          <li>{siteConfig.contact.email}</li>
+          <li>{siteConfig.contact.phone}</li>
+          <li class="pt-2 text-xs text-gray-600">
+            {siteConfig.contact.address}
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div
+      class="border-t border-gray-800 pt-8 text-center text-xs text-gray-500"
+    >
+      &copy; {new Date().getFullYear()}
+      {siteConfig.siteName}. Hecho con ❤️ en Canarias.
+    </div>
+  </div>
+</footer>

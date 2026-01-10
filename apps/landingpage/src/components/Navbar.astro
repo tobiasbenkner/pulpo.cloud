@@ -1,0 +1,106 @@
+---
+import siteConfig from "../data/siteConfig.json";
+import { Icon } from "astro-icon/components";
+import { Image } from "astro:assets"; // Astro Image Komponente
+import logoImage from "../assets/logo.png"; // Pfad zu deinem Logo
+---
+
+<nav
+  class="border-b border-gray-100 bg-white/95 backdrop-blur-md sticky top-0 z-50"
+>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between h-20 items-center">
+      <!-- Höhe leicht erhöht auf h-20 für das Logo -->
+
+      <!-- Logo Bereich -->
+      <a href="/" class="flex items-center gap-3 group">
+        <!-- Das Bild -->
+        <div
+          class="relative transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3"
+        >
+          <Image
+            src={logoImage}
+            alt="Logo Pulpo"
+            width={80}
+            height={80}
+            class="w-12 h-12 object-contain"
+            loading="eager"
+          />
+        </div>
+
+        <!-- Text -->
+        <span class="text-2xl font-extrabold text-pulpo-dark tracking-tight">
+          {siteConfig.siteName}
+        </span>
+      </a>
+
+      <!-- Desktop Links -->
+      <div
+        class="hidden md:flex gap-8 text-sm font-medium text-gray-600 items-center"
+      >
+        {
+          siteConfig.navigation.map((link) => (
+            <a href={link.href} class="hover:text-pulpo-accent transition">
+              {link.name}
+            </a>
+          ))
+        }
+        <a
+          href={siteConfig.links.github}
+          target="_blank"
+          class="bg-pulpo-dark text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-gray-800 transition shadow-lg shadow-gray-200 flex items-center gap-2"
+        >
+          <Icon name="heroicons:arrow-down-tray" class="w-4 h-4" />
+          Descargar
+        </a>
+      </div>
+
+      <!-- Mobile Button -->
+      <div class="flex items-center md:hidden">
+        <button
+          id="mobile-menu-btn"
+          aria-label="Abrir menú"
+          class="text-gray-600 hover:text-pulpo-accent p-2 transition"
+        >
+          <Icon name="heroicons:bars-3" class="w-7 h-7" />
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div
+    id="mobile-menu"
+    class="hidden md:hidden bg-white border-t border-gray-100 absolute w-full left-0 shadow-xl h-screen"
+  >
+    <div class="px-6 pt-8 pb-6 space-y-4">
+      {
+        siteConfig.navigation.map((link) => (
+          <a
+            href={link.href}
+            class="block text-lg font-bold text-gray-800 hover:text-pulpo-accent border-b border-gray-50 pb-2"
+          >
+            {link.name}
+          </a>
+        ))
+      }
+      <a
+        href={siteConfig.links.github}
+        class="mt-8 w-full py-4 flex items-center justify-center gap-2 rounded-xl text-lg font-bold bg-pulpo-dark text-white shadow-lg"
+      >
+        <Icon name="heroicons:arrow-down-tray" class="w-5 h-5" />
+        Descargar Gratis
+      </a>
+    </div>
+  </div>
+</nav>
+
+<script>
+  const btn = document.getElementById("mobile-menu-btn");
+  const menu = document.getElementById("mobile-menu");
+  if (btn && menu) {
+    btn.addEventListener("click", () => {
+      menu.classList.toggle("hidden");
+    });
+  }
+</script>

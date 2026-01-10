@@ -1,0 +1,32 @@
+{
+    "siteName": "Pulpo",
+    "siteDescription": "Software TPV y Web para pymes en Canarias.",
+    "contact": {
+        "email": "info@pulpo.cloud",
+        "phone": "+34 624 156 091",
+        "whatsapp": "34624156091",
+        "address": "Calle Doctor Alfonso Chiscano Diaz 10, 35010 Las Palmas de Gran Canaria, España",
+        "cif": "Y8763074L"
+    },
+    "links": {
+        "github": "https://github.com/tobiasbenkner/pulpo.cloud"
+    },
+    "navigation": [
+        {
+            "name": "Inicio",
+            "href": "/"
+        },
+        {
+            "name": "Ventajas",
+            "href": "/ventajas"
+        },
+        {
+            "name": "Precios",
+            "href": "/precios"
+        },
+        {
+            "name": "Contacto",
+            "href": "/contacto"
+        }
+    ]
+}
