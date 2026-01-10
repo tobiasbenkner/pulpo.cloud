@@ -171,7 +171,7 @@ const comparisonCategories = [
                   <li class="flex items-start gap-3 text-gray-700">
                     <Icon
                       name="heroicons:check-circle"
-                      class={`w-6 h-6 shrink-0 ${plan.highlight ? "text-pulpo-primary" : "text-green-500"}`}
+                      class={`w-6 h-6 shrink-0 ${plan.highlight ? "text-pulpo-primary" : "text-pulpo-success"}`}
                     />
                     <span class="text-sm font-medium">{f}</span>
                   </li>
@@ -221,12 +221,12 @@ const comparisonCategories = [
           oneTimeServices.map((service) => (
             <div class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition">
               <div class="flex justify-between items-start mb-6">
-                <!-- Icon Farbe angepasst -->
                 <div class="bg-pulpo-surface-warm text-pulpo-primary p-3 rounded-lg">
                   <Icon name={service.icon} class="w-8 h-8" />
                 </div>
+                <!-- Badge Farbe angepasst: Wenn "Gratis", dann Success -->
                 <div
-                  class={`px-3 py-1 rounded-full text-sm font-bold ${service.price === "Gratis" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"}`}
+                  class={`px-3 py-1 rounded-full text-sm font-bold ${service.price === "Gratis" ? "bg-pulpo-success-light text-pulpo-success" : "bg-gray-100 text-gray-700"}`}
                 >
                   {service.price}
                 </div>
@@ -260,21 +260,16 @@ const comparisonCategories = [
 
       <!-- MOBILE VIEW -->
      <div class="md:hidden mt-6">
-        <!-- STICKY HEADER -->
         <div class="sticky top-16 z-40 grid grid-cols-2 text-xs uppercase tracking-wider bg-white border border-gray-200 rounded-t-xl shadow-md">
-            
             <div class="py-3 text-center border-r border-gray-100 flex flex-col justify-center relative bg-white rounded-tl-xl">
                 <span class="font-extrabold text-gray-900">Pulpo</span>
-                <!-- Akzentlinie in Primary -->
                 <div class="absolute bottom-0 left-0 w-full h-[2px] bg-pulpo-primary"></div>
             </div>
-            
             <div class="py-3 text-center flex flex-col justify-center bg-gray-50/50 rounded-tr-xl">
                 <span class="font-semibold text-gray-400">Otros</span>
             </div>
         </div>
 
-        <!-- INHALT -->
         <div class="border-x border-b border-gray-200 rounded-b-xl bg-white border-t-0">
             {comparisonCategories.map((cat, index) => (
                 <div>
@@ -291,7 +286,7 @@ const comparisonCategories = [
                                 <div class="grid grid-cols-2 text-sm pb-2">
                                     <div class="text-center py-1 px-1 border-r border-gray-100 flex items-center justify-center min-h-[30px]">
                                         {row.pulpo === true ? 
-                                            <Icon name="heroicons:check-circle" class="w-6 h-6 text-green-500" />
+                                            <Icon name="heroicons:check-circle" class="w-6 h-6 text-pulpo-success" />
                                             : 
                                             <span class="font-bold text-gray-900 text-xs">{row.pulpo}</span>
                                         }
@@ -331,7 +326,6 @@ const comparisonCategories = [
                 class="p-6 border-b border-gray-200 text-gray-500 font-medium w-1/2"
                 >Características</th
               >
-              <!-- Spaltenhintergrund angepasst -->
               <th
                 class="p-6 border-b border-gray-200 text-pulpo-dark font-extrabold text-center text-xl w-1/4 bg-pulpo-surface-warm"
                 >Pulpo</th
@@ -360,12 +354,11 @@ const comparisonCategories = [
                     <td class="p-4 px-6 border-b border-gray-100 font-medium text-gray-700 group-hover:text-pulpo-dark">
                       {row.name}
                     </td>
-                    <!-- Zellenhintergrund angepasst -->
                     <td class="p-4 px-6 border-b border-gray-100 text-center bg-pulpo-surface-warm/30 font-semibold text-pulpo-dark">
                       {row.pulpo === true ? (
                         <Icon
                           name="heroicons:check-circle"
-                          class="w-6 h-6 text-green-500 mx-auto"
+                          class="w-6 h-6 text-pulpo-success mx-auto"
                         />
                       ) : (
                         row.pulpo
