@@ -24,6 +24,38 @@ const subtitle = t(
 
 const actions = data.links;
 
+const contactInfos = (actions ?? []).map((it: any) => {
+  const action = it.actions_id;
+
+  const label = t(
+    convertI18n(action?.translations, "label", defaultLang?.code),
+    lang?.code
+  );
+
+  const title = t(
+    convertI18n(action?.translations, "title", defaultLang?.code),
+    lang?.code
+  );
+
+  const subtitle = t(
+    convertI18n(action?.translations, "subtitle", defaultLang?.code),
+    lang?.code
+  );
+
+  const actionLabel = t(
+    convertI18n(action?.translations, "action", defaultLang?.code),
+    lang?.code
+  );
+
+  return {
+    ...action,
+    title: title,
+    subtitle: subtitle,
+    action: actionLabel,
+    label: label,
+  };
+});
+
 const entry = await getEntry("tenant", "main");
 const tenant = entry?.data;
 
@@ -72,37 +104,18 @@ const openingHours = [
         <!-- Telefone & Email -->
         <div class="space-y-8">
           <div class="flex flex-col gap-6">
-            <h3
-              class="text-[10px] tracking-[0.3em] text-white/30 uppercase mb-2"
-            >
-              Teléfonos
-            </h3>
             {
-              contactInfo.phones.map((phone) => (
-                <a href={`tel:${phone.href}`} class="group block w-fit">
-                  <span class="block text-[9px] text-white/20 uppercase tracking-[0.2em] mb-1 group-hover:text-white/50 transition-colors">
-                    {phone.label}
-                  </span>
-                  <span class="text-xl font-light border-b border-white/10 pb-1 group-hover:border-white transition-all duration-500">
-                    {phone.number}
-                  </span>
-                </a>
-              ))
+              contactInfos.map((it: any) => {
+                return (
+                  <a href={it.url} class="group block w-fit">
+                    <span class="block text-[9px] text-white/20 uppercase tracking-[0.2em] mb-1 group-hover:text-white/50 transition-colors">
+                      {it.title}
+                    </span>
+                    <span class="text-xl font-light ">{it.label}</span>
+                  </a>
+                );
+              })
             }
-          </div>
-
-          <div>
-            <h3
-              class="text-[10px] tracking-[0.3em] text-white/30 uppercase mb-3"
-            >
-              Email
-            </h3>
-            <a
-              href={`mailto:${contactInfo.email}`}
-              class="text-lg md:text-xl font-light text-gray-400 hover:text-white transition-colors"
-            >
-              {contactInfo.email}
-            </a>
           </div>
         </div>
 
