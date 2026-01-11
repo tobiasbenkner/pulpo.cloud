@@ -15,6 +15,10 @@ const name = t(product.name, lang.code);
 const description = t(product.description, lang.code);
 const note = t(product.note, lang.code);
 
+const dialogId = product.image
+  ? `dialog-${product.id.replace(/\s+/g, "-").toLowerCase()}-${Math.random().toString(36).substring(2, 9)}`
+  : undefined;
+
 function formatPrice(price: number) {
   return new Intl.NumberFormat(lang.code, {
     style: "currency",
@@ -64,16 +68,69 @@ function formatPrice(price: number) {
 
     <div class="shrink-0 w-32 text-center">
       {
-        product.image && (
-          <Image
-            src={product.image.src}
-            alt={t(product.name, lang.code)}
-            width={192}
-            height={192}
-            decoding="async"
-            loading="lazy"
-            class="w-24 h-24 rounded-full object-cover mx-auto will-change-transform bg-gray-100"
-          />
+        product.image && dialogId && (
+          <>
+            <button
+              type="button"
+              class="group cursor-pointer relative mx-auto block w-24 h-24 rounded-full overflow-hidden focus:outline-none"
+              onclick={`document.getElementById('${dialogId}').showModal()`}
+              aria-label={`Bild von ${name} vergrößern`}
+            >
+              <Image
+                src={product.image.src}
+                alt={name}
+                width={192}
+                height={192}
+                decoding="async"
+                loading="lazy"
+                class="w-full h-full object-cover transition-transform duration-300 bg-gray-100"
+              />
+            </button>
+
+            <dialog
+              id={dialogId}
+              class="group/modal p-0 bg-transparent backdrop:bg-black/80 backdrop:backdrop-blur-sm m-auto w-full max-w-4xl max-h-screen overflow-hidden open:animate-in open:fade-in open:zoom-in-95 backdrop:open:animate-in backdrop:open:fade-in outline-none"
+            >
+              <div
+                class="relative flex items-center justify-center w-full h-full p-4 md:p-8"
+                onclick="event.target.closest('dialog').close()"
+              >
+                <button
+                  type="button"
+                  class="absolute top-4 right-4 z-50 p-2 text-white bg-black/50 hover:bg-black/70 rounded-full transition-colors cursor-pointer"
+                  onclick="this.closest('dialog').close()"
+                  aria-label="Schließen"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <>
+                      <path d="M18 6 6 18" />
+                      <path d="m6 6 12 12" />
+                    </>
+                  </svg>
+                </button>
+
+                {/* Großes Bild */}
+                <Image
+                  src={product.image.src}
+                  alt={name}
+                  width={Math.min(product.image.width ?? 1000, 1000)}
+                  inferSize={true}
+                  quality="high"
+                  class="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl cursor-pointer"
+                />
+              </div>
+            </dialog>
+          </>
         )
       }
       <p class="mt-4 font-semibold text-foreground">
