@@ -1,14 +1,21 @@
-export function convertI18n(trans: any[], fieldName: string, defaultLanguage: string) {
+export function convertI18n(
+  trans: any[],
+  fieldName: string,
+  defaultLanguage: string
+) {
   const getNestedValue = (obj: any, path: string) => {
     return path.split(".").reduce((acc, part) => acc?.[part], obj);
   };
 
-  const translations = (trans ?? []).reduce((acc: any, trans: any) => {
-    const value = getNestedValue(trans, fieldName);
+  const translations = (trans ?? []).reduce(
+    (acc: any, trans: any) => {
+      const value = getNestedValue(trans, fieldName);
 
-    acc[trans.languages_id.code] = value ?? "";
-    return acc;
-  }, {} as Record<string, string>);
+      acc[trans.languages_id.code] = value ?? "";
+      return acc;
+    },
+    {} as Record<string, string>
+  );
 
   return {
     value: translations[defaultLanguage],
@@ -26,7 +33,7 @@ export function getImage(image: any) {
         image.id
       }/${filename}?access_token=${
         import.meta.env.DIRECTUS_TOKEN
-      }&width=1500&withoutEnlargement=true`,
+      }&width=1000&withoutEnlargement=true`,
       title: image.title,
       width: image.width,
       height: image.height,
