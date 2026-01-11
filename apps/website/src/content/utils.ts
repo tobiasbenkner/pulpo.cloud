@@ -31,9 +31,7 @@ export function getImage(image: any) {
     photoData = {
       src: `${import.meta.env.DIRECTUS_URL}/assets/${
         image.id
-      }/${filename}?access_token=${
-        import.meta.env.DIRECTUS_TOKEN
-      }&width=1000&withoutEnlargement=true`,
+      }/${filename}?access_token=${import.meta.env.DIRECTUS_TOKEN}`,
       title: image.title,
       width: image.width,
       height: image.height,
