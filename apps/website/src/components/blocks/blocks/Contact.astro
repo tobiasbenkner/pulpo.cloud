@@ -59,18 +59,6 @@ const contactInfos = (actions ?? []).map((it: any) => {
 const entry = await getEntry("tenant", "main");
 const tenant = entry?.data;
 
-const contactInfo = {
-  email: "hola@chiquitarestaurante.com",
-  phones: [
-    { label: "Reservas", number: "+34 928 123 456", href: "+34928123456" },
-    {
-      label: "Eventos & Grupos",
-      number: "+34 600 000 000",
-      href: "+34600000000",
-    },
-  ],
-};
-
 const openingHours = [
   { days: "Lunes - Jueves", hours: "13:00 - 16:00 | 20:00 - 23:30" },
   { days: "Viernes - Sábado", hours: "13:00 - 24:00" },
