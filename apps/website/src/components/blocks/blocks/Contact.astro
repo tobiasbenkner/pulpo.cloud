@@ -1,6 +1,7 @@
 ---
 import { convertI18n } from "../../../content/utils";
 import { t } from "../../../utils/t";
+import PrivacyMap from "../../PrivacyMap.astro";
 import Icon from "../../ui/Icon.astro";
 import SectionHeader from "../../ui/SectionHeader.astro";
 import { getEntry, type CollectionEntry } from "astro:content";
@@ -162,6 +163,7 @@ const openingHours = (tenant?.opening_hours ?? []).map((it) => {
             class="absolute inset-0 bg-black/20 pointer-events-none group-hover:bg-transparent transition-all duration-700 z-10"
           >
           </div>
+          <PrivacyMap url={tenant?.maps ?? ""} />
           <iframe
             src={tenant?.maps}
             class="w-full h-full"

@@ -24,7 +24,7 @@ const {
   siteName = "sitename",
   lang,
   languages,
-  alternateLinks,
+  alternateLinks = {},
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);

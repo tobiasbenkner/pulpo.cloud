@@ -1,0 +1,116 @@
+---
+import { Icon } from "astro-icon/components";
+import { Image } from "astro:assets";
+import previewImage from "../assets/map-preview.png";
+
+interface Props {
+  url: string;
+  height?: string;
+}
+
+const { url, height = "h-full" } = Astro.props;
+---
+
+<div
+  class={`w-full relative bg-gray-200 group overflow-hidden privacy-map-wrapper ${height}`}
+>
+  <div
+    class="privacy-map-placeholder absolute inset-0 transition-opacity duration-500 z-10 overflow-hidden flex items-center justify-center"
+  >
+    <div class="absolute inset-0 overflow-hidden">
+      <Image
+        src={previewImage}
+        alt="Karten-Vorschau"
+        class="w-full h-full object-cover blur-[2px] scale-105 transition-transform duration-[2s]"
+        loading="eager"
+        quality={80}
+        widths={[400, 800, 1200]}
+        sizes="100vw"
+      />
+    </div>
+
+    <!-- Leichter dunkler Schleier -->
+    <div class="absolute inset-0 bg-black/10"></div>
+
+    <!-- Inhalt -->
+    <div
+      class="relative z-10 bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-xl text-center max-w-xs mx-4 border border-white/20"
+    >
+      <div
+        class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 text-primary"
+      >
+        <Icon name="heroicons:map-pin" size={24} />
+      </div>
+      <h3 class="text-xl font-serif text-primary mb-2">Cargar mapa</h3>
+      <p class="text-gray-500 text-xs mb-6 leading-relaxed">
+        Al hacer clic, usted acepta la transferencia de datos a Google.
+        Guardamos esta configuración para su visita.
+      </p>
+      <button
+        class="privacy-map-btn bg-primary text-white font-bold py-3 px-8 rounded-full hover:bg-primary/90 transition shadow-lg w-full text-sm"
+      >
+        Mostrar mapa
+      </button>
+    </div>
+  </div>
+
+  <!-- 2. Der Iframe -->
+  <iframe
+    data-src={url}
+    width="100%"
+    height="100%"
+    style="border:0;"
+    allowfullscreen=""
+    loading="lazy"
+    class="privacy-map-iframe absolute inset-0 w-full h-full opacity-0 transition-opacity duration-1000"
+  ></iframe>
+</div>
+
+<script>
+  const STORAGE_KEY = "maps-consent";
+
+  const activateMap = (wrapper: Element) => {
+    const iframe = wrapper.querySelector(".privacy-map-iframe");
+    const placeholder = wrapper.querySelector(".privacy-map-placeholder");
+
+    if (iframe && placeholder) {
+      const currentSrc = iframe.getAttribute("src");
+      const dataSrc = iframe.getAttribute("data-src");
+
+      if (!currentSrc && dataSrc) {
+        iframe.setAttribute("src", dataSrc);
+
+        (placeholder as HTMLElement).style.opacity = "0";
+        (placeholder as HTMLElement).style.pointerEvents = "none";
+        iframe.classList.remove("opacity-0");
+
+        setTimeout(() => {
+          (placeholder as HTMLElement).style.display = "none";
+        }, 500);
+      }
+    }
+  };
+
+  const initMaps = () => {
+    const allMaps = document.querySelectorAll(".privacy-map-wrapper");
+    const hasConsent = localStorage.getItem(STORAGE_KEY) === "true";
+
+    if (hasConsent) {
+      allMaps.forEach((map) => activateMap(map));
+    }
+
+    allMaps.forEach((map) => {
+      const btn = map.querySelector(".privacy-map-btn");
+      if (btn) {
+        btn.addEventListener("click", () => {
+          localStorage.setItem(STORAGE_KEY, "true");
+          const mapsNow = document.querySelectorAll(".privacy-map-wrapper");
+          mapsNow.forEach((m) => activateMap(m));
+        });
+      }
+    });
+  };
+
+  initMaps();
+  document.addEventListener("astro:page-load", initMaps);
+</script>
