@@ -39,6 +39,8 @@ jobs:
           SITE_URL=$SITE_URL
           DIRECTUS_TOKEN=$DIRECTUS_TOKEN
           DIRECTUS_URL=$DIRECTUS_URL
+          TURBO_TELEMETRY_DISABLED=1
+          DO_NOT_TRACK=1
           EOF
 
           pnpm run build:website
