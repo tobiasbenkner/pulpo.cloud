@@ -10,7 +10,9 @@ type Props = {
 };
 
 const {lang} = Astro.props;
-const sittings = (translations as any)[lang.code];
+const title = (translations as any)[lang.code].title;
+const subtitle = (translations as any)[lang.code].subtitle;
+const sittings = (translations as any)[lang.code].sittings;
 ---
 
 <section class="bg-background py-24 px-6 relative overflow-hidden text-white">
@@ -18,8 +20,8 @@ const sittings = (translations as any)[lang.code];
     
     <!-- Header -->
      <SectionHeader 
-      subtitle="Horarios" 
-      title="Nuestra rutina de sabores" 
+      title={title}
+      subtitle={subtitle}
     />
 
     <!-- Grid Layout -->
