@@ -1,22 +1,66 @@
 ---
+import type { CollectionEntry } from "astro:content";
 import SectionHeader from "../../ui/SectionHeader.astro";
 
-
-const story = {
-  chapter: "Nuestra Esencia",
-  title: "El Nacimiento",
-  image: "/team.webp",
-  content: `
-    <span class="first-phrase">En muchas culturas</span>, y especialmente en Argentina, el búho es símbolo de conocimiento y sabiduría. Su mirada imponente, con ojos fijos hacia adelante y una visión de 270°, lo convierte en un observador nato, siempre atento, siempre estratégico.
-    <br><br>
-    Cuando decidimos abrir nuestro restaurante de parrilla a la brasa, sabíamos que necesitábamos un nombre que fuera memorable, auténtico y con una historia que reflejara nuestra esencia. Así nació El Búho Tuerto.
-    <br><br>
-    El búho es un guerrero de la naturaleza, un sobreviviente. La imagen de un búho tuerto representa la lucha constante, la capacidad de adaptarse y seguir adelante a pesar de las adversidades. Es un símbolo de resiliencia, igual que quienes dejan su tierra en busca de nuevas oportunidades, llevando consigo sus raíces y su pasión.
-    <br><br>
-    En El Búho Tuerto, honramos esa lucha con cada plato, con cada brasa encendida y con cada cliente que se sienta a nuestra mesa. Porque, al igual que el búho, vemos más allá de los desafíos y creemos en la fuerza de seguir adelante, siempre con la mejor visión del futuro.
-  `,
-  footer: "Bienvenidos a nuestra historia.",
+type Props = {
+  lang: CollectionEntry<"languages">["data"];
+  defaultLang: CollectionEntry<"languages">["data"];
+  data: any;
 };
+
+const translations = {
+  "es-ar": {
+    chapter: "Nuestra Esencia",
+    title: "El Nacimiento",
+    subtitle: "Capítulo I",
+    image_caption: "La Familia",
+    content: `
+      <span class="first-phrase">En muchas culturas</span>, y especialmente en Argentina, el búho es símbolo de conocimiento y sabiduría. Su mirada imponente, con ojos fijos hacia adelante y una visión de 270°, lo convierte en un observador nato, siempre atento, siempre estratégico.
+      <br><br>
+      Cuando decidimos abrir nuestro restaurante de parrilla a la brasa, sabíamos que necesitábamos un nombre que fuera memorable, auténtico y con una historia que reflejara nuestra esencia. Así nació El Búho Tuerto.
+      <br><br>
+      El búho es un guerrero de la naturaleza, un sobreviviente. La imagen de un búho tuerto representa la lucha constante, la capacidad de adaptarse y seguir adelante a pesar de las adversidades. Es un símbolo de resiliencia, igual que quienes dejan su tierra en busca de nuevas oportunidades, llevando consigo sus raíces y su pasión.
+      <br><br>
+      En El Búho Tuerto, honramos esa lucha con cada plato, con cada brasa encendida y con cada cliente que se sienta a nuestra mesa. Porque, al igual que el búho, vemos más allá de los desafíos y creemos en la fuerza de seguir adelante, siempre con la mejor visión del futuro.
+    `,
+    footer: "Bienvenidos a nuestra historia.",
+  },
+  de: {
+    chapter: "Unsere Essenz",
+    title: "Der Ursprung",
+    subtitle: "Kapitel I",
+    image_caption: "Die Familie",
+    content: `
+      <span class="first-phrase">In vielen Kulturen</span>, und besonders in Argentinien, ist die Eule ein Symbol für Wissen und Weisheit. Ihr imposanter Blick, starr nach vorne gerichtet und mit einem Sichtfeld von 270°, macht sie zu einem geborenen Beobachter – stets aufmerksam, stets strategisch.
+      <br><br>
+      Als wir beschlossen, unser Grillrestaurant zu eröffnen, wussten wir, dass wir einen Namen brauchten, der einprägsam und authentisch ist und eine Geschichte erzählt, die unser Wesen widerspiegelt. So wurde El Búho Tuerto geboren.
+      <br><br>
+      Die Eule ist ein Krieger der Natur, ein Überlebenskünstler. Das Bild einer einäugigen Eule steht für den ständigen Kampf, die Fähigkeit, sich anzupassen und trotz Widrigkeiten weiterzumachen. Es ist ein Symbol der Resilienz, genau wie jene, die ihre Heimat auf der Suche nach neuen Möglichkeiten verlassen und dabei ihre Wurzeln und ihre Leidenschaft mit sich tragen.
+      <br><br>
+      Im El Búho Tuerto ehren wir diesen Kampf mit jedem Gericht, mit jeder glühenden Kohle und mit jedem Gast, der an unserem Tisch Platz nimmt. Denn wie die Eule sehen wir über die Herausforderungen hinweg und glauben an die Kraft, weiterzumachen – immer mit dem besten Blick in die Zukunft.
+    `,
+    footer: "Willkommen in unserer Geschichte.",
+  },
+  en: {
+    chapter: "Our Essence",
+    title: "The Origin",
+    subtitle: "Chapter I",
+    image_caption: "The Family",
+    content: `
+      <span class="first-phrase">In many cultures</span>, and especially in Argentina, the owl is a symbol of knowledge and wisdom. Its imposing gaze, with eyes fixed forward and 270° vision, makes it a born observer, always attentive, always strategic.
+      <br><br>
+      When we decided to open our grill restaurant, we knew we needed a name that was memorable, authentic, and with a story that reflected our essence. Thus, El Búho Tuerto was born.
+      <br><br>
+      The owl is a warrior of nature, a survivor. The image of a one-eyed owl represents constant struggle, the ability to adapt and move forward despite adversities. It is a symbol of resilience, just like those who leave their land in search of new opportunities, carrying their roots and passion with them.
+      <br><br>
+      At El Búho Tuerto, we honor that struggle with every dish, with every glowing ember, and with every customer who sits at our table. Because, like the owl, we see beyond challenges and believe in the strength to keep going, always with the best vision of the future.
+    `,
+    footer: "Welcome to our story.",
+  },
+};
+
+const { lang } = Astro.props;
+const story = (translations as any)[lang.code] || translations["es-ar"];
 ---
 
 <section class="bg-background py-24 px-6 relative overflow-hidden">
@@ -25,7 +69,7 @@ const story = {
     <div class="mb-16 text-center">
       <span
         class="text-[10px] tracking-[0.4em] text-white/40 uppercase mb-2 block"
-        >Capítulo I</span
+        >{story.subtitle}</span
       >
       <SectionHeader title={story.title} align="center" />
     </div>
@@ -47,7 +91,7 @@ const story = {
 
         <div class="w-full h-full overflow-hidden relative">
           <img
-            src={story.image}
+            src={"/team.webp"}
             alt="Team El Búho Tuerto"
             class="w-full h-full object-cover opacity-90"
           />
@@ -59,7 +103,7 @@ const story = {
 
         <div class="absolute -bottom-8 left-0 right-0 text-center">
           <span class="text-[9px] tracking-[0.3em] uppercase text-amber-200/40"
-            >La Familia</span
+            >{story.image_caption}</span
           >
         </div>
       </div>
