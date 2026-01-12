@@ -14,10 +14,27 @@ type Props = {
 const { category, lang } = Astro.props;
 
 const categoryId = "ac77db14-3c15-4138-9ba6-e7e089524ac8";
+
+let objectPosition = "center";
+
+if (
+  category.image &&
+  category.image.focalPoint &&
+  category.image.focalPoint.x &&
+  category.image.focalPoint.y
+) {
+  const { x, y } = category.image.focalPoint;
+  const { width, height } = category.image;
+
+  const xPos = (x / width!) * 100;
+  const yPos = (y / height!) * 100;
+
+  objectPosition = `${xPos.toFixed(2)}% ${yPos.toFixed(2)}%`;
+}
 ---
 
 <section id={category.id} class="mb-24" style="scroll-margin-top: 64px;">
-  <div class="relative h-64 md:h-80 w-full overflow-hidden rounded-lg mb-12">
+  <div class="relative h-64 md:h-96 w-full overflow-hidden rounded-lg mb-12">
     {
       category.image ? (
         <Image
@@ -26,6 +43,7 @@ const categoryId = "ac77db14-3c15-4138-9ba6-e7e089524ac8";
           height={category.image.height}
           alt={category.image.title || t(category.name, lang.code)}
           class="absolute inset-0 w-full h-full object-cover"
+          style={{ objectPosition: objectPosition }}
         />
       ) : (
         <div class="absolute inset-0 bg-card" />
@@ -43,17 +61,24 @@ const categoryId = "ac77db14-3c15-4138-9ba6-e7e089524ac8";
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
-    {category.products.map((product) => <ProductCard product={product} lang={lang} />)}
+    {
+      category.products.map((product) => (
+        <ProductCard product={product} lang={lang} />
+      ))
+    }
   </div>
 
   {
     category.id === categoryId && (
-      <div class="text-center py-4 text-sm">
-        * Todas las carnes van acompañadas de guarnición de papas fritas o papas panaderas
-      </div>
-      <div class="mt-8 w-full flex justify-center">
-        <img class="w-full max-w-3xl" src="/punto.webp" />
-      </div>
+      <>
+        <div class="text-center py-4 text-sm">
+          * Todas las carnes van acompañadas de guarnición de papas fritas o
+          papas panaderas
+        </div>
+        <div class="mt-8 w-full flex justify-center">
+          <img class="w-full max-w-3xl" src="/punto.webp" />
+        </div>
+      </>
     )
   }
 </section>
