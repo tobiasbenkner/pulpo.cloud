@@ -142,6 +142,15 @@ importers:
       '@directus/sdk':
         specifier: ^20.3.0
         version: 20.3.0
+      '@fontsource-variable/lora':
+        specifier: ^5.2.8
+        version: 5.2.8
+      '@fontsource-variable/merriweather':
+        specifier: ^5.2.6
+        version: 5.2.6
+      '@fontsource-variable/montserrat':
+        specifier: ^5.2.8
+        version: 5.2.8
       '@iconify-json/heroicons':
         specifier: ^1.2.3
         version: 1.2.3
@@ -565,6 +574,15 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@fontsource-variable/lora@5.2.8':
+    resolution: {integrity: sha512-cxjTJ9BbOWIzusewR4UMBLVePvTSWV6dtNaNsCkF/oKoyA68fJGWfaYCILOOP1BObE4dmjfZ3xo6m9hdHhtYhg==}
+
+  '@fontsource-variable/merriweather@5.2.6':
+    resolution: {integrity: sha512-bHCDt99f/M48eUcFA86uh/oSPyn8r/ZxXR9l578wqLvjTwDzXx8A/XOAI05WfJ3LnH1rDufQX5RJwiZtbXUCkw==}
+
+  '@fontsource-variable/montserrat@5.2.8':
+    resolution: {integrity: sha512-d8wykq7GCKhEOlLwEuQIOK3w3qsXNxwDlH0meru4AZZzQ4/+rZyvHWKL6BBtHdmbovSHEEQDkwkD8qYUKlcFtQ==}
 
   '@fontsource/inter@5.2.8':
     resolution: {integrity: sha512-P6r5WnJoKiNVV+zvW2xM13gNdFhAEpQ9dQJHt3naLvfg+LkF2ldgSLiF4T41lf1SQCM9QmkqPTn4TH568IRagg==}
@@ -2840,6 +2858,12 @@ snapshots:
 
   '@esbuild/win32-x64@0.27.2':
     optional: true
+
+  '@fontsource-variable/lora@5.2.8': {}
+
+  '@fontsource-variable/merriweather@5.2.6': {}
+
+  '@fontsource-variable/montserrat@5.2.8': {}
 
   '@fontsource/inter@5.2.8': {}
 

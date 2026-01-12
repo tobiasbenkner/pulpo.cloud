@@ -13,7 +13,7 @@ type Props = {
 
 const { category, lang } = Astro.props;
 
-const categoryId = "6725faf2-68ba-4b11-aa84-73005896bd7b";
+const categoryId = "ac77db14-3c15-4138-9ba6-e7e089524ac8";
 ---
 
 <section id={category.id} class="mb-24" style="scroll-margin-top: 64px;">
@@ -48,6 +48,9 @@ const categoryId = "6725faf2-68ba-4b11-aa84-73005896bd7b";
 
   {
     category.id === categoryId && (
+      <div class="text-center py-4 text-sm">
+        * Todas las carnes van acompañadas de guarnición de papas fritas o papas panaderas
+      </div>
       <div class="mt-8 w-full flex justify-center">
         <img class="w-full max-w-3xl" src="/punto.webp" />
       </div>
