@@ -5,6 +5,7 @@ import PrivacyMap from "../../PrivacyMap.astro";
 import Icon from "../../ui/Icon.astro";
 import SectionHeader from "../../ui/SectionHeader.astro";
 import { getEntry, type CollectionEntry } from "astro:content";
+import { translations } from "./Contact.i18n";
 
 type Props = {
   lang: CollectionEntry<"languages">["data"];
@@ -68,6 +69,15 @@ const openingHours = (tenant?.opening_hours ?? []).map((it) => {
     hours_text: t(it.hours_text, lang.code),
   };
 });
+
+function translate(lang: string, key: string) {
+  const l = (translations as any)[lang] ?? translations.en;
+  return l[key] ?? key;
+}
+
+const location = translate(lang.code, "location");
+const follow = translate(lang.code, "follow");
+const schedule = translate(lang.code, "schedule");
 ---
 
 <section class="bg-background py-24 px-6 relative overflow-hidden text-white">
@@ -81,7 +91,7 @@ const openingHours = (tenant?.opening_hours ?? []).map((it) => {
         <!-- Anschrift -->
         <div>
           <h3 class="text-[10px] tracking-[0.3em] text-white/30 uppercase mb-4">
-            Ubicación
+            {location}
           </h3>
           <p
             class="text-xl md:text-2xl font-serif italic text-gray-200 leading-relaxed max-w-sm"
@@ -114,7 +124,7 @@ const openingHours = (tenant?.opening_hours ?? []).map((it) => {
         <!-- Social Media Icons -->
         <div>
           <h3 class="text-[10px] tracking-[0.3em] text-white/30 uppercase mb-6">
-            Síguenos
+            {follow}
           </h3>
           <div class="flex flex-wrap gap-6">
             {
@@ -135,7 +145,7 @@ const openingHours = (tenant?.opening_hours ?? []).map((it) => {
         <!-- Horario -->
         <div class="pt-4">
           <h3 class="text-[10px] tracking-[0.3em] text-white/30 uppercase mb-6">
-            Horario
+            {schedule}
           </h3>
           <ul class="space-y-4">
             {

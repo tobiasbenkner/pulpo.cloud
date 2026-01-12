@@ -22,7 +22,7 @@ const awards: { src: string; alt: string; height: number; width: number }[] = (
     image.id
   }?access_token=${
     import.meta.env.DIRECTUS_TOKEN
-  }&width=1500&withoutEnlargement=true`;
+  }&width=800&withoutEnlargement=true`;
 
   return {
     src: src,
@@ -57,31 +57,25 @@ const author = t(
 
     <!-- Main Content Grid -->
     <div
-      class="flex flex-col lg:grid lg:grid-cols-2 gap-12 lg:gap-24 items-center"
+      class="flex flex-col lg:grid lg:grid-cols-2 gap-16 lg:gap-32 items-center mt-12"
     >
       <!-- Desktop: Vertical Marquee -->
-      <div class="hidden lg:block relative h-125 w-full overflow-hidden group">
+      <div
+        class="hidden lg:block relative h-150 w-full overflow-hidden mask-gradient-vertical"
+      >
+        <!-- Grid Container -->
         <div
-          class="absolute inset-x-0 top-0 h-20 bg-linear-to-b from-background to-transparent z-10"
-        >
-        </div>
-        <div
-          class="absolute inset-x-0 bottom-0 h-20 bg-linear-to-t from-background to-transparent z-10"
-        >
-        </div>
-
-        <div
-          class="grid grid-cols-2 gap-4 animate-marquee-vertical group-hover:[animation-play-state:paused]"
+          class="grid grid-cols-2 gap-x-16 gap-y-16 animate-marquee-vertical hover:[animation-play-state:paused]"
         >
           {
-            awards.slice(0, 16).map((award) => (
-              <div class="aspect-square flex items-center justify-center p-6 bg-white/3 border border-white/10 rounded-2xl transition-all duration-700">
+            awards.map((award) => (
+              <div class="flex items-center justify-center aspect-4/3 group/item">
                 <Image
                   src={award.src}
                   alt={award.alt}
                   width={award.width}
                   height={award.height}
-                  class="max-w-[80%] h-auto object-contain"
+                  class="max-w-[80%] max-h-[80%] object-contain transition-transform duration-300 group-hover/item:scale-110"
                 />
               </div>
             ))
@@ -90,54 +84,39 @@ const author = t(
       </div>
 
       <!-- Text Content -->
-      <div class="flex flex-col justify-center order-first lg:order-0">
+      <div
+        class="flex flex-col justify-center order-first lg:order-0 relative z-10"
+      >
         <div class="relative">
           <span
-            class="text-5xl md:text-7xl text-white/10 font-serif absolute -top-6 -left-4 md:-top-10 md:-left-8 select-none"
+            class="text-6xl md:text-8xl text-amber-200/60 font-serif absolute -top-8 md:-top-12 md:-left-10 select-none"
             >“</span
           >
           <p
-            class="text-lg md:text-2xl font-serif italic text-gray-300 leading-relaxed tracking-wide relative z-10"
+            class="text-lg md:text-2xl font-serif text-gray-300 leading-relaxed tracking-wide relative z-10 font-light"
           >
             {text}
           </p>
         </div>
 
-        <!-- Desktop Label -->
-        <div class="hidden lg:flex mt-10 items-center gap-4">
-          <div class="h-px w-12 bg-white/20"></div>
-          <span class="text-xs tracking-[0.4em] text-white/40 uppercase"
+        <div class="mt-12 flex items-center gap-4">
+          <div class="h-px w-16 bg-amber-200/60"></div>
+          <span
+            class="text-xs md:text-sm tracking-[0.3em] text-amber-200/60 uppercase font-medium"
             >{author}</span
           >
         </div>
       </div>
 
       <!-- Mobile: Horizontal Marquee -->
-      <div class="lg:hidden w-full overflow-hidden py-4">
-        <!-- Mobile Label (Über den Awards wie im Screenshot) -->
-        <div class="flex items-center justify-center gap-4 mb-8">
-          <div class="h-px w-8 bg-white/10"></div>
-          <span class="text-[10px] tracking-[0.4em] text-white/40 uppercase"
-            >{author}</span
-          >
-          <div class="h-px w-8 bg-white/10"></div>
-        </div>
-
-        <div class="relative">
-          <!-- Maskierung für weiche Kanten ohne Striche -->
+      <div class="lg:hidden w-full overflow-hidden pt-8">
+        <div class="relative mask-gradient-horizontal">
           <div
-            class="absolute inset-y-0 left-0 w-12 bg-linear-to-r from-background to-transparent z-10"
+            class="flex animate-marquee-horizontal w-max hover:[animation-play-state:paused]"
           >
-          </div>
-          <div
-            class="absolute inset-y-0 right-0 w-12 bg-linear-to-l from-background to-transparent z-10"
-          >
-          </div>
-
-          <div class="flex animate-marquee-horizontal">
             {
               awards.map((award) => (
-                <div class="flex-none w-32 mx-3 aspect-square flex items-center justify-center p-4 bg-white/4 rounded-xl">
+                <div class="flex-none w-36 mx-6 flex items-center justify-center">
                   <img
                     src={award.src}
                     alt={award.alt}
@@ -154,7 +133,40 @@ const author = t(
 </section>
 
 <style>
-  /* Desktop Animation */
+  .mask-gradient-vertical {
+    mask-image: linear-gradient(
+      to bottom,
+      transparent,
+      black 10%,
+      black 90%,
+      transparent
+    );
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      transparent,
+      black 10%,
+      black 90%,
+      transparent
+    );
+  }
+
+  .mask-gradient-horizontal {
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 5%,
+      black 95%,
+      transparent
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 5%,
+      black 95%,
+      transparent
+    );
+  }
+
   @keyframes marquee-vertical {
     0% {
       transform: translateY(0);
@@ -164,31 +176,26 @@ const author = t(
     }
   }
 
-  /* Mobile Animation */
-  @keyframes marquee-horizontal-fast {
+  @keyframes marquee-horizontal {
     0% {
       transform: translateX(0);
     }
     100% {
-      transform: translateX(-33.333%);
+      transform: translateX(-50%);
     }
   }
 
   .animate-marquee-vertical {
-    animation: marquee-vertical 25s linear infinite;
+    animation: marquee-vertical 20s linear infinite;
   }
 
   .animate-marquee-horizontal {
-    animation: marquee-horizontal-fast 25s linear infinite;
-    display: flex;
-    width: max-content;
+    animation: marquee-horizontal 20s linear infinite;
   }
 
   img,
   div {
-    -webkit-backface-visibility: hidden;
+    will-change: transform;
     backface-visibility: hidden;
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
   }
 </style>
