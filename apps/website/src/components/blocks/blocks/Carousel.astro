@@ -14,6 +14,7 @@ type Props = {
 
 const { data, lang, defaultLang } = Astro.props;
 
+// 1. Bilder aus Daten mappen
 const awards: {
   src: string;
   alt: string;
@@ -35,7 +36,7 @@ const awards: {
   };
 });
 
-// WICHTIG: Den Inhalt verdoppeln, um einen nahtlosen Loop zu erzeugen
+// 2. WICHTIG: Inhalt verdoppeln für den nahtlosen Loop
 const doubledAwards = [...awards, ...awards];
 
 const title = t(
@@ -69,24 +70,26 @@ const author = t(
       <div
         class="hidden lg:block relative h-150 w-full overflow-hidden mask-gradient-vertical"
       >
-        <!-- 
-             Grid Container bewegt sich. 
-             Wichtig: Der Inhalt muss verdoppelt sein (doubledAwards), 
-             damit die Animation bis -50% laufen kann und nahtlos resettet.
-        -->
+        <!-- Grid Container -->
         <div
           class="grid grid-cols-2 gap-x-16 gap-y-16 animate-marquee-vertical hover:[animation-play-state:paused]"
         >
           {
             doubledAwards.map((award, index) => (
-              /* Key index ist hier okay, da statisch, aber besser wäre unique ID wenn möglich */
               <div class="flex items-center justify-center aspect-4/3 group/item">
                 <Image
                   src={award.src}
                   alt={award.alt}
                   width={award.width}
                   height={award.height}
-                  class="max-w-[80%] max-h-[80%] object-contain transition-transform duration-300 group-hover/item:scale-110"
+                  class:list={[
+                    "max-w-[80%] max-h-[80%] object-contain",
+                    "transition-all duration-500 ease-in-out",
+                    // HIER: Schwarz-Weiß, kein Opacity-Verlust, mehr Kontrast/Helligkeit
+                    "grayscale brightness-110 contrast-125",
+                    // HOVER: Reset zu Originalfarben
+                    "group-hover/item:grayscale-0 group-hover/item:brightness-100 group-hover/item:contrast-100 group-hover/item:scale-110",
+                  ]}
                 />
               </div>
             ))
@@ -122,7 +125,6 @@ const author = t(
       <!-- Mobile: Horizontal Marquee -->
       <div class="lg:hidden w-full overflow-hidden pt-8">
         <div class="relative mask-gradient-horizontal">
-          <!-- Auch hier doubledAwards verwenden -->
           <div
             class="flex animate-marquee-horizontal w-max hover:[animation-play-state:paused]"
           >
@@ -132,7 +134,7 @@ const author = t(
                   <img
                     src={award.src}
                     alt={award.alt}
-                    class="max-w-full h-auto object-contain"
+                    class="max-w-full h-auto object-contain grayscale brightness-110 contrast-125"
                   />
                 </div>
               ))
@@ -145,7 +147,6 @@ const author = t(
 </section>
 
 <style>
-  /* Masken für weiches Ein-/Ausblenden */
   .mask-gradient-vertical {
     mask-image: linear-gradient(
       to bottom,
@@ -180,13 +181,7 @@ const author = t(
     );
   }
 
-  /* 
-     Animationen:
-     Wir bewegen uns von 0% bis -50%.
-     Da der Inhalt verdoppelt ist, ist die Position bei -50% (Start der 2. Hälfte)
-     visuell identisch mit 0% (Start der 1. Hälfte).
-     Dadurch entsteht der perfekte Loop ohne Ruckeln.
-  */
+  /* Animation läuft bis -50%, was dem Start der zweiten Liste entspricht = perfekter Loop */
   @keyframes marquee-vertical {
     0% {
       transform: translateY(0);
@@ -206,7 +201,7 @@ const author = t(
   }
 
   .animate-marquee-vertical {
-    /* calc: Je mehr Items, desto länger sollte die Animation dauern, damit es nicht zu schnell wird */
+    /* Dauer evtl. anpassen (30s ist meist angenehm) */
     animation: marquee-vertical 30s linear infinite;
   }
 
@@ -216,7 +211,6 @@ const author = t(
 
   img,
   div {
-    /* Performance Optimierung */
     will-change: transform;
     backface-visibility: hidden;
   }
