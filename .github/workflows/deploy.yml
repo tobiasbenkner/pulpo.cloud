@@ -65,7 +65,7 @@ jobs:
           http:
             routers:
               router-$TENANT_ID:
-                rule: "Host(\`$DOMAIN\`)"
+                rule: "Host(\`$DOMAIN\`) || Host(\`www.$DOMAIN\`)"
                 service: "web-deploy@docker"
                 tls:
                   certResolver: le
