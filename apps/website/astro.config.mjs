@@ -5,6 +5,9 @@ import 'dotenv/config';
 import icon from "astro-icon";
 
 
+import sitemap from '@astrojs/sitemap';
+
+
 export default defineConfig({
   site: process.env.SITE_URL || 'http://localhost:4321',
 
@@ -14,7 +17,5 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()]
   },
-  integrations: [
-    icon()
-  ]
+  integrations: [icon(), sitemap()]
 });
