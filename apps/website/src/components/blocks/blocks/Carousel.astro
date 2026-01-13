@@ -14,9 +14,12 @@ type Props = {
 
 const { data, lang, defaultLang } = Astro.props;
 
-const awards: { src: string; alt: string; height: number; width: number }[] = (
-  data.images ?? []
-).map(({ directus_files_id }: any) => {
+const awards: {
+  src: string;
+  alt: string;
+  height: number;
+  width: number;
+}[] = (data.images ?? []).map(({ directus_files_id }: any) => {
   const image: DirectusFile = directus_files_id;
   const src = `${import.meta.env.DIRECTUS_URL}/assets/${
     image.id
@@ -31,6 +34,9 @@ const awards: { src: string; alt: string; height: number; width: number }[] = (
     width: image.width,
   };
 });
+
+// WICHTIG: Den Inhalt verdoppeln, um einen nahtlosen Loop zu erzeugen
+const doubledAwards = [...awards, ...awards];
 
 const title = t(
   convertI18n(data?.translations, "title", defaultLang.code),
@@ -63,12 +69,17 @@ const author = t(
       <div
         class="hidden lg:block relative h-150 w-full overflow-hidden mask-gradient-vertical"
       >
-        <!-- Grid Container -->
+        <!-- 
+             Grid Container bewegt sich. 
+             Wichtig: Der Inhalt muss verdoppelt sein (doubledAwards), 
+             damit die Animation bis -50% laufen kann und nahtlos resettet.
+        -->
         <div
           class="grid grid-cols-2 gap-x-16 gap-y-16 animate-marquee-vertical hover:[animation-play-state:paused]"
         >
           {
-            awards.map((award) => (
+            doubledAwards.map((award, index) => (
+              /* Key index ist hier okay, da statisch, aber besser wäre unique ID wenn möglich */
               <div class="flex items-center justify-center aspect-4/3 group/item">
                 <Image
                   src={award.src}
@@ -111,11 +122,12 @@ const author = t(
       <!-- Mobile: Horizontal Marquee -->
       <div class="lg:hidden w-full overflow-hidden pt-8">
         <div class="relative mask-gradient-horizontal">
+          <!-- Auch hier doubledAwards verwenden -->
           <div
             class="flex animate-marquee-horizontal w-max hover:[animation-play-state:paused]"
           >
             {
-              awards.map((award) => (
+              doubledAwards.map((award, index) => (
                 <div class="flex-none w-36 mx-6 flex items-center justify-center">
                   <img
                     src={award.src}
@@ -133,6 +145,7 @@ const author = t(
 </section>
 
 <style>
+  /* Masken für weiches Ein-/Ausblenden */
   .mask-gradient-vertical {
     mask-image: linear-gradient(
       to bottom,
@@ -167,6 +180,13 @@ const author = t(
     );
   }
 
+  /* 
+     Animationen:
+     Wir bewegen uns von 0% bis -50%.
+     Da der Inhalt verdoppelt ist, ist die Position bei -50% (Start der 2. Hälfte)
+     visuell identisch mit 0% (Start der 1. Hälfte).
+     Dadurch entsteht der perfekte Loop ohne Ruckeln.
+  */
   @keyframes marquee-vertical {
     0% {
       transform: translateY(0);
@@ -186,15 +206,17 @@ const author = t(
   }
 
   .animate-marquee-vertical {
-    animation: marquee-vertical 20s linear infinite;
+    /* calc: Je mehr Items, desto länger sollte die Animation dauern, damit es nicht zu schnell wird */
+    animation: marquee-vertical 30s linear infinite;
   }
 
   .animate-marquee-horizontal {
-    animation: marquee-horizontal 20s linear infinite;
+    animation: marquee-horizontal 30s linear infinite;
   }
 
   img,
   div {
+    /* Performance Optimierung */
     will-change: transform;
     backface-visibility: hidden;
   }

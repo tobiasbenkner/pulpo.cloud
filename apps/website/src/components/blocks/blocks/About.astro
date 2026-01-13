@@ -12,8 +12,6 @@ const translations = {
   "es-ar": {
     chapter: "Nuestra Esencia",
     title: "El Nacimiento",
-    subtitle: "Capítulo I",
-    image_caption: "La Familia",
     content: `
       <span class="first-phrase">En muchas culturas</span>, y especialmente en Argentina, el búho es símbolo de conocimiento y sabiduría. Su mirada imponente, con ojos fijos hacia adelante y una visión de 270°, lo convierte en un observador nato, siempre atento, siempre estratégico.
       <br><br>
@@ -28,8 +26,6 @@ const translations = {
   de: {
     chapter: "Unsere Essenz",
     title: "Der Ursprung",
-    subtitle: "Kapitel I",
-    image_caption: "Die Familie",
     content: `
       <span class="first-phrase">In vielen Kulturen</span>, und besonders in Argentinien, ist die Eule ein Symbol für Wissen und Weisheit. Ihr imposanter Blick, starr nach vorne gerichtet und mit einem Sichtfeld von 270°, macht sie zu einem geborenen Beobachter – stets aufmerksam, stets strategisch.
       <br><br>
@@ -44,8 +40,6 @@ const translations = {
   en: {
     chapter: "Our Essence",
     title: "The Origin",
-    subtitle: "Chapter I",
-    image_caption: "The Family",
     content: `
       <span class="first-phrase">In many cultures</span>, and especially in Argentina, the owl is a symbol of knowledge and wisdom. Its imposing gaze, with eyes fixed forward and 270° vision, makes it a born observer, always attentive, always strategic.
       <br><br>
@@ -67,10 +61,6 @@ const story = (translations as any)[lang.code] || translations["es-ar"];
   <div class="max-w-7xl mx-auto">
     <!-- Header -->
     <div class="mb-16 text-center">
-      <span
-        class="text-[10px] tracking-[0.4em] text-white/40 uppercase mb-2 block"
-        >{story.subtitle}</span
-      >
       <SectionHeader title={story.title} align="center" />
     </div>
 
@@ -99,12 +89,6 @@ const story = (translations as any)[lang.code] || translations["es-ar"];
             class="absolute inset-0 bg-[radial-gradient(circle,transparent_40%,rgba(10,10,10,0.8)_100%)] z-10"
           >
           </div>
-        </div>
-
-        <div class="absolute -bottom-8 left-0 right-0 text-center">
-          <span class="text-[9px] tracking-[0.3em] uppercase text-amber-200/40"
-            >{story.image_caption}</span
-          >
         </div>
       </div>
 
