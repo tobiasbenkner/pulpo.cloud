@@ -1,49 +1,30 @@
 ---
-export const prerender = false;
+import Layout from '../layouts/Layout.astro';
+import AuthGuard from '../components/AuthGuard.svelte';
+import AgendaView from '../components/AgendaView.svelte';
+// import { Image } from 'astro:assets';
 
-import { readItems } from "@directus/sdk";
-import Layout from "../layouts/Layout.astro";
-import { getDirectusClient } from "../lib/directus";
-import AgendaTable from "../components/AgendaTable.svelte";
-import AgendaNavigation from "../components/AgendaNavigation.svelte";
-import { format } from "date-fns";
-
-const token = Astro.locals.token;
-
-const dateParam = Astro.url.searchParams.get("date");
-const date = dateParam || format(new Date(), "yyyy-MM-dd");
-
-const directus = getDirectusClient(token);
-const initialReservations = await directus.request(
-  readItems("reservations", {
-    fields: [
-      "*",
-      {
-        user: ["*"],
-      },
-    ],
-    filter: { date: { _eq: date } },
-    sort: ["time"],
-  })
-);
-
-const settings = await directus.request(
-  readItems("reservations_settings", {
-    limit: 1,
-  })
-);
-
-const turns = settings[0]?.turns || [];
+// Hinweis: SSR Logik wird hier minimiert, da alles client-seitig über Svelte & Directus SDK läuft,
+// um die Realtime-Fähigkeiten und Filterung konsistent zu halten.
 ---
 
-<Layout title="Agenda">
-  <div class="container mx-auto mt-8">
-    <AgendaNavigation client:load currentDateString={date} />
-    <AgendaTable
-      client:load
-      token={token}
-      initialData={initialReservations}
-      turns={turns}
-    />
-  </div>
+<Layout title="Agenda | Pulpo">
+  <!-- AuthGuard sorgt dafür, dass wir eingeloggt sind und der Directus Client bereit ist -->
+  <AuthGuard client:only="svelte" protect={true}>
+    
+    <main class="max-w-7xl mx-auto px-4 md:px-8 py-12">
+      <!-- Page Title / Branding Area -->
+      <div class="mb-12">
+        <h1 class="text-4xl md:text-5xl text-primary mb-2 font-serif">
+          Reservas
+        </h1>
+        <p class="text-gray-500 text-lg font-light max-w-2xl">
+          Gestión de mesas y llegadas en tiempo real.
+        </p>
+      </div>
+
+      <AgendaView client:only="svelte" />      
+    </main>
+
+  </AuthGuard>
 </Layout>

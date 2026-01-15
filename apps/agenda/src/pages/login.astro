@@ -1,132 +1,37 @@
 ---
-import Layout from "../layouts/Layout.astro";
-import { getDirectusClient } from "../lib/directus";
+import Layout from '../layouts/Layout.astro';
+import LoginForm from '../components/LoginForm.svelte';
+import AuthGuard from '../components/AuthGuard.svelte';
 
-export const prerender = false;
-
-if (Astro.cookies.has("directus_session")) {
-  return Astro.redirect("/");
-}
-
-let error = "";
-
-// 2. Formular-Verarbeitung (POST Request)
-if (Astro.request.method === "POST") {
-  try {
-    const data = await Astro.request.formData();
-    const email = data.get("email")?.toString();
-    const password = data.get("password")?.toString();
-
-    if (!email || !password) {
-      throw new Error("Bitte E-Mail und Passwort eingeben.");
-    }
-
-    const client = getDirectusClient();
-    const loginData = await client.login(
-      { email, password },
-      {
-        mode: "json",
-      }
-    );
-
-    if (loginData.access_token && loginData.refresh_token) {
-      Astro.cookies.set("directus_access_token", loginData.access_token, {
-        path: "/",
-        httpOnly: true,
-        secure: import.meta.env.PROD,
-        sameSite: "lax",
-        expires: new Date(loginData.expires_at!),
-      });
-
-      Astro.cookies.set("directus_refresh_token", loginData.refresh_token, {
-        path: "/",
-        httpOnly: true,
-        secure: import.meta.env.PROD,
-        sameSite: "lax",
-        maxAge: 60 * 60 * 24 * 30, // 30 Tage
-      });
-
-      return Astro.redirect("/");
-    }
-  } catch (e: any) {
-    console.error(e);
-    if (e.errors?.[0]?.message === "Invalid user credentials.") {
-      error = "E-Mail oder Passwort falsch.";
-    } else {
-      error = e.message || "Ein unbekannter Fehler ist aufgetreten.";
-    }
-  }
-}
+// Wir nutzen den AuthGuard hier mit protect={false}, nur um zu prüfen, 
+// ob der User vielleicht schon eingeloggt ist (optionales Redirect Feature),
+// oder wir lassen es einfach plain rendern.
 ---
 
-<Layout title="Login">
-  <div class="card w-full max-w-sm bg-base-100 shadow-xl">
-    <div class="card-body">
-      <h2 class="card-title text-2xl font-bold justify-center mb-4">
-        Anmelden
-      </h2>
+<Layout title="Login | Pulpo Agenda">
+  <div class="min-h-screen flex flex-col justify-center items-center relative bg-surface overflow-hidden">
+    
+    <!-- Dekorativer Hintergrund (Subtil) -->
+    <div class="absolute top-0 left-0 w-full h-64 bg-gradient-to-b from-gray-100 to-transparent opacity-50 pointer-events-none"></div>
 
-      {
-        error && (
-          <div
-            role="alert"
-            class="alert alert-error text-sm py-2 rounded-md mb-2"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="stroke-current shrink-0 h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <span>{error}</span>
-          </div>
-        )
-      }
-
-      <!-- Standard HTML Formular -> sendet POST an diese Seite -->
-      <form method="POST" class="space-y-4">
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text">E-Mail</span>
-          </label>
-          <input
-            type="email"
-            name="email"
-            placeholder="email@beispiel.de"
-            class="input input-bordered"
-            required
-          />
-        </div>
-
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text">Passwort</span>
-          </label>
-          <input
-            type="password"
-            name="password"
-            placeholder="••••••••"
-            class="input input-bordered"
-            required
-          />
-          <label class="label">
-            <a href="#" class="label-text-alt link link-hover"
-              >Passwort vergessen?</a
-            >
-          </label>
-        </div>
-
-        <div class="form-control mt-6">
-          <button class="btn btn-primary">Login</button>
-        </div>
-      </form>
+    <!-- Logo Area -->
+    <div class="mb-8 z-10">
+       <!-- Hier dein Logo SVG oder Image -->
+       <div class="w-12 h-12 bg-primary text-white flex items-center justify-center font-serif text-2xl rounded-sm shadow-lg">
+         P
+       </div>
     </div>
+
+    <!-- Login Komponente -->
+    <div class="w-full flex justify-center z-10 px-4">
+      <!-- client:only ist notwendig für Browser-APIs (Cookies/Window) -->
+      <LoginForm client:only="svelte" />
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-12 text-center text-xs text-gray-400">
+      <p>&copy; {new Date().getFullYear()} Pulpo Cloud. Todos los derechos reservados.</p>
+    </footer>
+
   </div>
 </Layout>
