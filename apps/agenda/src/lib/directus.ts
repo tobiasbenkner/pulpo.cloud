@@ -1,4 +1,10 @@
-import { createDirectus, rest, realtime, authentication, type DirectusFile } from "@directus/sdk";
+import {
+  createDirectus,
+  rest,
+  realtime,
+  authentication,
+  type DirectusFile,
+} from "@directus/sdk";
 
 export type Reservation = {
   id: string;
@@ -41,9 +47,13 @@ export type Schema = {
 
 export function getDirectusClient(token?: string) {
   const client = createDirectus<Schema>(import.meta.env.PUBLIC_DIRECTUS_URL)
+    .with(
+      authentication("cookie", {
+        autoRefresh: true,
+      })
+    )
     .with(rest())
-    .with(realtime())
-    .with(authentication());
+    .with(realtime());
 
   if (token) {
     client.setToken(token);
