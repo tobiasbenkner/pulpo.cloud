@@ -17,5 +17,18 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()]
   },
-  integrations: [icon(), sitemap()]
+  integrations: [
+    icon(),
+    sitemap({
+      i18n: {
+        defaultLocale: 'es',
+        locales: {
+          es: 'es',
+          "es-ar": 'es-ar',
+          en: 'en',
+          de: 'de',
+        },
+      },
+    })
+  ]
 });
