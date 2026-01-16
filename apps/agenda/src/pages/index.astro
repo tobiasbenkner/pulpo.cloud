@@ -1,30 +1,13 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import AuthGuard from '../components/AuthGuard.svelte';
-import AgendaView from '../components/AgendaView.svelte';
-// import { Image } from 'astro:assets';
-
-// Hinweis: SSR Logik wird hier minimiert, da alles client-seitig über Svelte & Directus SDK läuft,
-// um die Realtime-Fähigkeiten und Filterung konsistent zu halten.
+import Layout from "../layouts/Layout.astro";
+import AuthGuard from "../components/AuthGuard.svelte";
+import AgendaView from "../views/AgendaView.svelte";
 ---
 
 <Layout title="Agenda | Pulpo">
-  <!-- AuthGuard sorgt dafür, dass wir eingeloggt sind und der Directus Client bereit ist -->
   <AuthGuard client:only="svelte" protect={true}>
-    
     <main class="max-w-7xl mx-auto px-4 md:px-8 py-12">
-      <!-- Page Title / Branding Area -->
-      <div class="mb-12">
-        <h1 class="text-4xl md:text-5xl text-primary mb-2 font-serif">
-          Reservas
-        </h1>
-        <p class="text-gray-500 text-lg font-light max-w-2xl">
-          Gestión de mesas y llegadas en tiempo real.
-        </p>
-      </div>
-
-      <AgendaView client:only="svelte" />      
+      <AgendaView client:only="svelte" />
     </main>
-
   </AuthGuard>
 </Layout>
