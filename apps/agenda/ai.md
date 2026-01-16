@@ -119,10 +119,10 @@ Generiere bitte folgende Dateien:
     - **Features Grid:** Zeigt 3 Services mit Icons (`<Icon />`). Solide Cards, `border-gray-200`, leichter `shadow-sm`.
     - Alles responsive optimiert.
 
-Agiere als Senior Fullstack Developer und Experte für Astro, Svelte und das Directus SDK.
+Agiere als Senior Fullstack Developer und Experte für Astro, Svelte v5 und das Directus SDK.
 
 Ich entwickle eine Webplattform namens **"Pulpo"**, die aus mehreren Anwendungen besteht (Agenda, Shop, Sites).
-Die Architektur basiert auf **Astro** (als Framework) mit **Svelte** Komponenten für die Interaktivität.
+Die Architektur basiert auf **Astro** (als Framework) mit **Svelte v5** Komponenten für die Interaktivität.
 Das Backend ist Directus (`admin.pulpo.cloud`).
 Die Apps laufen auf Subdomains (z.B. `agenda.pulpo.cloud`), daher nutzen wir **SSO über HttpOnly Cookies** (Domain `.pulpo.cloud`).
 
@@ -130,7 +130,7 @@ Bitte erstelle mir den vollständigen Authentifizierungs-Code für das Frontend.
 
 **Tech Stack:**
 - **Main Framework:** Astro
-- **Component Framework:** Svelte
+- **Component Framework:** Svelte v5
 - **State Management:** Nano Stores (Standard für Astro/Svelte Kommunikation)
 - **Styling:** Tailwind CSS
 - **Library:** `@directus/sdk`
