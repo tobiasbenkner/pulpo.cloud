@@ -18,13 +18,14 @@
 
   // Callback Prop statt dispatch
   export let onToggleFilter: () => void = () => {};
+  export let onDateChange: (newDate: string) => void = () => {};
 
   $: displayDate = format(parseISO(dateStr), "EEEE, d. MMMM yyyy", {
     locale: es,
   });
 
   function changeDate(newDate: string) {
-    window.location.assign(`/?date=${newDate}`);
+    onDateChange(newDate);
   }
 
   function goPrev() {
