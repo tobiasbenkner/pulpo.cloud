@@ -21,13 +21,17 @@
     toggleArrived,
     cleanup,
     isOnline,
+    setDate,
   } = useAgenda(initialDate);
 
+  let unsubDateListener: () => void;
+
   onMount(() => {
-    init();
+    unsubDateListener = init();
   });
 
   onDestroy(() => {
+    if (unsubDateListener) unsubDateListener();
     cleanup();
   });
 </script>
@@ -35,6 +39,7 @@
 <div class="space-y-8 animate-fade-in pb-20">
   <AgendaHeader
     dateStr={$date}
+    onDateChange={(newDate) => setDate(newDate)}
     showArrived={$showArrived}
     isRefetching={$isRefetching}
     onToggleFilter={() => ($showArrived = !$showArrived)}
