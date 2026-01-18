@@ -1,5 +1,7 @@
 <script lang="ts">
+  import { deleteItem, updateItem } from "@directus/sdk";
   import { useDirectusRealtime } from "../../hooks/useDirectusRealtime";
+  import { directus } from "../../lib/directus";
   import type { Reservation } from "../../lib/types";
 
   let reservations: Reservation[] = [];
@@ -103,26 +105,31 @@
 
   // Hilfsfunktion zum Markieren als angekommen
   async function toggleArrived(reservation: Reservation) {
-    console.log("send update", reservation);
-
     try {
-      await send("update", {
-        id: reservation.id,
-        arrived: !reservation.arrived,
-      });
+      console.log("Sende Update via REST API für:", reservation.id);
+
+      const updatedReservation = await directus.request(
+        updateItem("reservations", reservation.id, {
+          arrived: !reservation.arrived,
+        })
+      );
+
+      console.log("✅ REST API Update erfolgreich:", updatedReservation);
+
+      // Die Änderung wird automatisch über WebSocket gepusht
+      // und durch onMessage empfangen
     } catch (error) {
-      console.error("Fehler beim Aktualisieren:", error);
+      console.error("❌ Fehler beim REST API Update:", error);
     }
   }
 
-  // Hilfsfunktion zum Löschen einer Reservierung
   async function deleteReservation(id: string) {
-    if (!confirm("Möchten Sie diese Reservierung wirklich löschen?")) return;
-
     try {
-      await send("delete", { id });
+      console.log("Lösche via REST API:", id);
+      await directus.request(deleteItem("reservations", id));
+      console.log("✅ REST API Delete erfolgreich");
     } catch (error) {
-      console.error("Fehler beim Löschen:", error);
+      console.error("❌ Fehler beim REST API Delete:", error);
     }
   }
 </script>

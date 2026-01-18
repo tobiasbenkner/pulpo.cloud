@@ -402,18 +402,33 @@ export function useDirectusRealtime<T = any>(
     connect,
     disconnect,
     send: async (action: "create" | "update" | "delete", data: any) => {
-      if (!get(state).connected) {
+      const currentState = get(state);
+
+      if (!currentState.connected) {
         throw new Error("WebSocket nicht verbunden");
       }
 
-      console.log("send", action, data, collection);
-      directus.sendMessage({
+      if (!currentState.authenticated) {
+        throw new Error("WebSocket nicht authentifiziert");
+      }
+
+      const message = {
         type: "items",
         collection: collection,
         action: action,
         data: data,
         uid: uid ? `${uid}-${action}` : undefined,
-      });
+      };
+
+      console.log("📤 Sende Message:", message);
+
+      try {
+        directus.sendMessage(message);
+        console.log("✅ Message erfolgreich gesendet");
+      } catch (error) {
+        console.error("❌ Fehler beim Senden der Message:", error);
+        throw error;
+      }
     },
   };
 
