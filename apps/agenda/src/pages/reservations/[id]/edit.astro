@@ -1,0 +1,20 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import AuthGuard from "../../../components/AuthGuard.svelte";
+import ReservationEditForm from "./ReservationEditForm.svelte";
+
+// Die ID kommt aus dem Dateinamen [id]
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect("/");
+}
+---
+
+<Layout title="Reservierung bearbeiten | Pulpo">
+  <AuthGuard client:only="svelte" protect={true}>
+    <main class="min-h-screen bg-surface py-12 px-4 md:px-8">
+      <ReservationEditForm client:only="svelte" id={id} />
+    </main>
+  </AuthGuard>
+</Layout>

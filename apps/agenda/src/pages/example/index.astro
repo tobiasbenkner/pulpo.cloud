@@ -1,0 +1,13 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import AuthGuard from "../../components/AuthGuard.svelte";
+import Example from "./index.svelte";
+---
+
+<Layout title="Agenda | Pulpo">
+  <AuthGuard client:only="svelte" protect={true}>
+    <main class="max-w-7xl mx-auto px-4 md:px-8 py-12">
+      <Example client:only="svelte" />
+    </main>
+  </AuthGuard>
+</Layout>

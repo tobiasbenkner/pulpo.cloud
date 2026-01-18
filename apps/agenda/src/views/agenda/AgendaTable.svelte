@@ -80,16 +80,17 @@
                   {#if res.arrived}
                     <CircleCheck size={18} class="text-green-700" />
                   {/if}
-                  <span
+                  <a
+                    href={`/reservations/${res.id}/edit`}
                     class={clsx(
-                      "font-medium transition-colors",
+                      "font-medium transition-colors hover:underline decoration-primary/30 underline-offset-4",
                       res.arrived
                         ? "text-green-900 line-through decoration-green-900/30"
                         : "text-gray-900"
                     )}
                   >
                     {res.name}
-                  </span>
+                  </a>
                 </div>
               </td>
               <td class="px-6 py-4 text-gray-500">{res.contact}</td>
