@@ -1,8 +1,7 @@
 <script lang="ts">
-  import { deleteItem, updateItem } from "@directus/sdk";
   import { useDirectusRealtime } from "../../hooks/useDirectusRealtime";
-  import { directus } from "../../lib/directus";
   import type { Reservation } from "../../lib/types";
+  import { deleteReservation, toggleArrived } from "../../lib/api";
 
   let reservations: Reservation[] = [];
 
@@ -101,36 +100,6 @@
     return (
       `${user.first_name || ""} ${user.last_name || ""}`.trim() || "Unbekannt"
     );
-  }
-
-  // Hilfsfunktion zum Markieren als angekommen
-  async function toggleArrived(reservation: Reservation) {
-    try {
-      console.log("Sende Update via REST API für:", reservation.id);
-
-      const updatedReservation = await directus.request(
-        updateItem("reservations", reservation.id, {
-          arrived: !reservation.arrived,
-        })
-      );
-
-      console.log("✅ REST API Update erfolgreich:", updatedReservation);
-
-      // Die Änderung wird automatisch über WebSocket gepusht
-      // und durch onMessage empfangen
-    } catch (error) {
-      console.error("❌ Fehler beim REST API Update:", error);
-    }
-  }
-
-  async function deleteReservation(id: string) {
-    try {
-      console.log("Lösche via REST API:", id);
-      await directus.request(deleteItem("reservations", id));
-      console.log("✅ REST API Delete erfolgreich");
-    } catch (error) {
-      console.error("❌ Fehler beim REST API Delete:", error);
-    }
   }
 </script>
 
