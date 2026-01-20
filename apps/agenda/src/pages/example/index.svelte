@@ -77,7 +77,7 @@
       console.error("🔴 Realtime Fehler:", error);
     },
   });
-  const { state, send } = realtime;
+  const { state } = realtime;
 
   // Hilfsfunktion zum Formatieren von Datum und Zeit
   function formatDateTime(date: string, time: string): string {
