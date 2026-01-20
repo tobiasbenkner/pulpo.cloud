@@ -1,0 +1,25 @@
+---
+import { languages } from '@/lib/types';
+import { getTranslatedPath } from '@/lib/registry';
+import type { Language } from '@/lib/types';
+
+interface Props {
+  lang: Language;
+  routeKey: string;
+}
+const { lang, routeKey } = Astro.props;
+---
+<div class="flex items-center gap-2 text-sm font-semibold">
+  {languages.map(l => (
+    <a 
+      href={getTranslatedPath(routeKey, l)} 
+      hreflang={l} 
+      class:list={[
+        "p-1 uppercase transition-colors",
+        l === lang ? 'text-primary' : 'text-text-muted hover:text-primary'
+      ]}
+    >
+      {l}
+    </a>
+  ))}
+</div>

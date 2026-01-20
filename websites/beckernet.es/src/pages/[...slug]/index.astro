@@ -1,0 +1,57 @@
+---
+import { languages, defaultLang } from '@/lib/types';
+import { routeSlugs, viewConfig } from '@/lib/registry';
+import Layout from '@/layouts/Layout.astro';
+
+export function getStaticPaths() {
+  const paths: any[] = [];
+  const allRouteKeys = Object.keys(viewConfig);
+
+  allRouteKeys.forEach(routeKey => {
+    languages.forEach(lang => {
+      let slugParam: string | undefined;
+      const isDefaultLang = lang === defaultLang;
+
+      if (routeKey === 'home') {
+        slugParam = isDefaultLang ? undefined : lang;
+      } else {
+        const slugs = routeSlugs[routeKey];
+        if (!slugs) return;
+        
+        const pageSlug = slugs[lang];
+        if (pageSlug) {
+          // Page Default: 'contacto' → matcht /contacto
+          // Page Andere: 'de/kontakt' → matcht /de/kontakt
+          slugParam = isDefaultLang ? pageSlug : `${lang}/${pageSlug}`;
+        }
+      }
+
+      paths.push({
+        params: { slug: slugParam },
+        props: { lang, routeKey }
+      });
+    });
+  });
+
+  return paths;
+}
+
+const { lang, routeKey } = Astro.props;
+const config = viewConfig[routeKey];
+
+if (!config) {
+  return Astro.redirect('/404');
+}
+
+const { Component, translations } = config;
+const t = translations?.[lang] || translations?.[defaultLang] || {};
+---
+
+<Layout 
+  title={t.seo?.title || 'Beckernet.es'} 
+  description={t.seo?.description || ''} 
+  lang={lang} 
+  routeKey={routeKey}
+>
+  <Component lang={lang} t={t} />
+</Layout>

@@ -1,0 +1,71 @@
+---
+import { siteData } from '@/data/siteData';
+import { Icon } from 'astro-icon/components';
+
+interface Props {
+  t: {
+    loadMap: string;
+    address: string;
+  };
+}
+const { t } = Astro.props;
+---
+<div id="map-wrapper" class="relative aspect-video w-full rounded-lg border bg-gray-100 dark:bg-surface/50 overflow-hidden">
+  
+  <div id="map-placeholder" class="absolute inset-0 z-10 flex flex-col items-center justify-center p-4 text-center">
+    <Icon name="lucide:map-pin" class="h-12 w-12 text-primary mb-4" />
+    <p class="font-semibold text-text">{siteData.contact.address}</p>
+    <p class="text-sm text-text-muted mb-6">{t.address}</p>
+    <button id="load-map-btn" class="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-opacity-90">
+      <Icon name="lucide:check-circle" class="h-4 w-4" />
+      {t.loadMap}
+    </button>
+  </div>
+
+  <!-- Container, in den die Karte geladen wird -->
+  <div id="map-container" class="h-full w-full"></div>
+</div>
+
+<script define:vars={{ mapUrl: siteData.contact.googleMapsEmbed }}>
+  const wrapper = document.getElementById('map-wrapper');
+  const placeholder = document.getElementById('map-placeholder');
+  const container = document.getElementById('map-container');
+  const button = document.getElementById('load-map-btn');
+  const consentKey = 'maps_consent';
+
+  function loadMap() {
+    if (!container || !placeholder) return;
+    
+    placeholder.style.display = 'none';
+    
+    const iframe = document.createElement('iframe');
+    iframe.setAttribute('src', mapUrl);
+    iframe.setAttribute('width', '100%');
+    iframe.setAttribute('height', '100%');
+    iframe.setAttribute('style', 'border:0;');
+    iframe.setAttribute('allowfullscreen', '');
+    iframe.setAttribute('loading', 'lazy');
+    iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
+    
+    container.appendChild(iframe);
+  }
+
+  function handleConsent() {
+    localStorage.setItem(consentKey, 'true');
+    loadMap();
+  }
+  
+  // Prüfen beim Laden der Seite
+  if (localStorage.getItem(consentKey) === 'true') {
+    loadMap();
+  } else {
+    button.addEventListener('click', handleConsent);
+  }
+
+  // Funktion zum globalen Zurücksetzen des Consents (für die Datenschutzseite)
+  window.revokeMapsConsent = function() {
+    localStorage.removeItem(consentKey);
+    alert('Ihre Zustimmung zum Laden von Karten wurde widerrufen.');
+    location.reload(); // Seite neu laden, um den Platzhalter wieder anzuzeigen
+  }
+</script>

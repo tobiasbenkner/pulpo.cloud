@@ -1,0 +1,12 @@
+---
+import { type AboutTranslations } from "./contact.i18n";
+
+interface Props {
+  lang: string;
+  t: AboutTranslations;
+}
+
+const { t } = Astro.props;
+---
+
+{t.title}

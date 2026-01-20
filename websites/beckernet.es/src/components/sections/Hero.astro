@@ -1,0 +1,43 @@
+---
+import { Image } from 'astro:assets';
+import Container from '@/components/ui/Container.astro';
+import heroImage from '@/assets/hero.webp';
+
+interface Props {
+  t: {
+    headline: string;
+    subheadline: string;
+    ctaPrimary: string;
+    ctaSecondary: string;
+  };
+}
+const { t } = Astro.props;
+---
+<section class="py-24 sm:py-32">
+  <Container>
+    <div class="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-16">
+      <div class="flex flex-col justify-center">
+        <h1 class="text-primary">{t.headline}</h1>
+        <p class="mt-6 text-lg md:text-xl">{t.subheadline}</p>
+        <div class="mt-10 flex flex-wrap gap-4">
+          <!-- Hier könnten wiederverwendbare Button-Komponenten sein -->
+          <a href="#services" class="inline-block rounded-md bg-primary px-6 py-3 text-center font-semibold text-white shadow-sm hover:bg-opacity-90 transition-colors">
+            {t.ctaPrimary}
+          </a>
+          <a href="#contact" class="inline-block rounded-md bg-surface px-6 py-3 text-center font-semibold text-primary ring-1 ring-inset ring-border hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+            {t.ctaSecondary}
+          </a>
+        </div>
+      </div>
+      <div class="relative h-80 lg:h-full">
+        <Image 
+          src={heroImage} 
+          alt="Modern office interior representing Becker & Associates"
+          class="absolute inset-0 h-full w-full rounded-lg object-cover"
+          widths={[400, 800, 1200]}
+          sizes="(max-width: 1024px) 100vw, 50vw"
+        />
+      </div>
+    </div>
+  </Container>
+</section>
