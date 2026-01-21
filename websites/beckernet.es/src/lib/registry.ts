@@ -34,7 +34,7 @@ for (const path in pageModules) {
   const translationPath = `../views/${viewName}/${viewName}.i18n.ts`;
   const rawTranslations =
     translationModules[translationPath]?.translations || {};
-  const component = pageModules[path]?.default;
+  const component = (pageModules[path] as any)?.default;
 
   if (component) {
     viewConfig[viewName] = {

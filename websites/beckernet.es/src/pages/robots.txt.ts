@@ -1,13 +1,16 @@
-import type { APIRoute } from 'astro';
+import type { APIRoute } from "astro";
 
 export const GET: APIRoute = ({ site }) => {
-  const sitemapUrl = new URL('sitemap.xml', site).toString();
-
-  const content = `User-agent: *
+  const baseUrl = site ? site.toString() : "http://localhost:4321/";
+  const sitemapUrl = new URL("sitemap.xml", baseUrl).toString();
+  const content = `
+User-agent: *
 Allow: /
 
 Sitemap: ${sitemapUrl}
-`;
+`.trim();
 
-  return new Response(content, { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+  return new Response(content, {
+    headers: { "Content-Type": "text/plain; charset=utf-8" },
+  });
 };

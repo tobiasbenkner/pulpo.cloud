@@ -1,14 +1,10 @@
 ---
 import { languages, defaultLang } from "@/lib/i18n";
-import { routeSlugs, getView } from "@/lib/registry"; // Import getView
+import { routeSlugs, getView } from "@/lib/registry";
 import Layout from "@/layouts/Layout.astro";
 
 export function getStaticPaths() {
   const paths: any[] = [];
-  // Wir brauchen hier Zugriff auf die Keys.
-  // Da viewConfig in registry jetzt privat ist, exportieren wir routeSlugs,
-  // das reicht meistens, oder wir exportieren keys separat.
-  // Fürs einfache Beispiel nutzen wir routeSlugs als Quelle der Wahrheit für existierende Seiten:
   const allRouteKeys = Object.keys(routeSlugs).concat("home");
 
   allRouteKeys.forEach((routeKey) => {
@@ -40,15 +36,12 @@ export function getStaticPaths() {
 
 const { lang, routeKey } = Astro.props;
 
-// --- HIER IST DIE ÄNDERUNG ---
 const view = getView(routeKey, lang);
-
 if (!view) {
   return Astro.redirect("/404");
 }
 
 const { Component, t } = view;
-// -----------------------------
 ---
 
 <Layout
