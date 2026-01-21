@@ -39,3 +39,5 @@ export const translations = {
     },
   },
 };
+
+export type PrivacyTranslations = typeof translations.es;

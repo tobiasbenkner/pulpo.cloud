@@ -1,4 +1,12 @@
 ---
+import { type HomeTranslations } from "./home.i18n";
+
+interface Props {
+  lang: string;
+  t: HomeTranslations;
+}
+
 const { t } = Astro.props;
 ---
+
 Home

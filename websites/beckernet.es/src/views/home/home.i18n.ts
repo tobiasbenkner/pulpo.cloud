@@ -78,3 +78,5 @@ export const translations = {
     },
   },
 };
+
+export type HomeTranslations = typeof translations.es;

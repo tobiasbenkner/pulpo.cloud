@@ -25,4 +25,4 @@ export const translations = {
   },
 };
 
-export type AboutTranslations = typeof translations.es;
+export type ContactTranslations = typeof translations.es;
