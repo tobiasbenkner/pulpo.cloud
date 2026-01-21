@@ -25,7 +25,6 @@ const { title, description, lang, routeKey, ogImage, noindex } = Astro.props;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
-
     <SeoHead
       title={title}
       description={description}
@@ -35,9 +34,9 @@ const { title, description, lang, routeKey, ogImage, noindex } = Astro.props;
       noindex={noindex}
     />
   </head>
-  <body class="bg-surface text-text font-sans">
+  <body class="min-h-screen flex flex-col bg-background text-text">
     <Header lang={lang} routeKey={routeKey} />
-    <main>
+    <main class="flex-1">
       <slot />
     </main>
     <Footer />

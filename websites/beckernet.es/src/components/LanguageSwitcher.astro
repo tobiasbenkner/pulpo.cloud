@@ -1,7 +1,7 @@
 ---
-import { languages } from '@/lib/i18n';
-import { getTranslatedPath } from '@/lib/registry';
-import type { Language } from '@/lib/i18n';
+import { languages } from "@/lib/i18n";
+import { getTranslatedPath } from "@/lib/registry";
+import type { Language } from "@/lib/i18n";
 
 interface Props {
   lang: Language;
@@ -9,17 +9,20 @@ interface Props {
 }
 const { lang, routeKey } = Astro.props;
 ---
-<div class="flex items-center gap-2 text-sm font-semibold">
-  {languages.map(l => (
-    <a 
-      href={getTranslatedPath(routeKey, l)} 
-      hreflang={l} 
-      class:list={[
-        "p-1 uppercase transition-colors",
-        l === lang ? 'text-primary' : 'text-text-muted hover:text-primary'
-      ]}
-    >
-      {l}
-    </a>
-  ))}
+
+<div class="flex items-center gap-3 text-xs font-bold tracking-widest">
+  {
+    languages.map((l) => (
+      <a
+        href={getTranslatedPath(routeKey, l)}
+        hreflang={l}
+        class:list={[
+          "p-1 uppercase transition-colors duration-200",
+          l === lang ? "text-secondary" : "text-text-muted hover:text-white",
+        ]}
+      >
+        {l}
+      </a>
+    ))
+  }
 </div>
