@@ -1,26 +1,24 @@
-import { defaultLang, type Language, type RouteDefinition } from "@/lib/types";
+import { defaultLang, type Language } from "@/lib/i18n";
+import { resolveTranslations } from "./i18n";
+import type { RouteDefinition } from "./types";
 
-// Routes laden
 const routeModules = import.meta.glob<{ route: RouteDefinition }>(
   "../views/**/*.route.ts",
   { eager: true },
 );
 
-// Translations laden
 const translationModules = import.meta.glob<{ translations: any }>(
   "../views/**/*.i18n.ts",
   { eager: true },
 );
 
-// Pages laden
 const pageModules = import.meta.glob("../views/**/*.page.astro", {
   eager: true,
 });
 
 export const routeSlugs: Record<string, Record<Language, string>> = {};
-export const viewConfig: Record<string, any> = {};
+const viewConfig: Record<string, any> = {};
 
-// Routes verarbeiten
 for (const path in routeModules) {
   const mod = routeModules[path];
   if (mod?.route) {
@@ -28,24 +26,20 @@ for (const path in routeModules) {
   }
 }
 
-// ViewConfig automatisch aufbauen
 for (const path in pageModules) {
-  // z.B. ../views/home/home.page.astro -> home
   const match = path.match(/\.\.\/views\/([^\/]+)\/\1\.page\.astro$/);
   if (!match) continue;
 
   const viewName = match[1];
-
-  // Pfade sind jetzt vorhersehbar
   const translationPath = `../views/${viewName}/${viewName}.i18n.ts`;
-  const translations = translationModules[translationPath]?.translations;
-
+  const rawTranslations =
+    translationModules[translationPath]?.translations || {};
   const component = pageModules[path]?.default;
 
   if (component) {
     viewConfig[viewName] = {
       Component: component,
-      translations: translations || {},
+      rawTranslations: rawTranslations,
     };
   }
 }
@@ -53,25 +47,28 @@ for (const path in pageModules) {
 export function getTranslatedPath(routeKey: string, lang: Language): string {
   const isDefaultLang = lang === defaultLang;
 
-  // Home-Spezialfall
   if (routeKey === "home") {
     return isDefaultLang ? "/" : `/${lang}`;
   }
 
-  // Andere Routen
   const slugs = routeSlugs[routeKey];
-  if (!slugs) {
-    console.warn(`No slugs found for route key: ${routeKey}`);
-    return "/404";
-  }
+  if (!slugs) return "/404";
 
   const slug = slugs[lang];
-  if (!slug) {
-    console.warn(`No slug found for route key: ${routeKey}, lang: ${lang}`);
-    return "/404";
+  if (!slug) return "/404";
+
+  return isDefaultLang ? `/${slug}` : `/${lang}/${slug}`;
+}
+
+export function getView(routeKey: string, lang: Language) {
+  const config = viewConfig[routeKey];
+
+  if (!config) {
+    return null;
   }
 
-  // Default-Sprache: nur der Slug
-  // Andere Sprachen: /{lang}/{slug}
-  return isDefaultLang ? `/${slug}` : `/${lang}/${slug}`;
+  return {
+    Component: config.Component,
+    t: resolveTranslations(config.rawTranslations, lang),
+  };
 }

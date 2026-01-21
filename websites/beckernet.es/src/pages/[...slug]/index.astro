@@ -1,34 +1,36 @@
 ---
-import { languages, defaultLang } from '@/lib/types';
-import { routeSlugs, viewConfig } from '@/lib/registry';
-import Layout from '@/layouts/Layout.astro';
+import { languages, defaultLang } from "@/lib/i18n";
+import { routeSlugs, getView } from "@/lib/registry"; // Import getView
+import Layout from "@/layouts/Layout.astro";
 
 export function getStaticPaths() {
   const paths: any[] = [];
-  const allRouteKeys = Object.keys(viewConfig);
+  // Wir brauchen hier Zugriff auf die Keys.
+  // Da viewConfig in registry jetzt privat ist, exportieren wir routeSlugs,
+  // das reicht meistens, oder wir exportieren keys separat.
+  // Fürs einfache Beispiel nutzen wir routeSlugs als Quelle der Wahrheit für existierende Seiten:
+  const allRouteKeys = Object.keys(routeSlugs).concat("home");
 
-  allRouteKeys.forEach(routeKey => {
-    languages.forEach(lang => {
+  allRouteKeys.forEach((routeKey) => {
+    languages.forEach((lang) => {
       let slugParam: string | undefined;
       const isDefaultLang = lang === defaultLang;
 
-      if (routeKey === 'home') {
+      if (routeKey === "home") {
         slugParam = isDefaultLang ? undefined : lang;
       } else {
         const slugs = routeSlugs[routeKey];
         if (!slugs) return;
-        
+
         const pageSlug = slugs[lang];
         if (pageSlug) {
-          // Page Default: 'contacto' → matcht /contacto
-          // Page Andere: 'de/kontakt' → matcht /de/kontakt
           slugParam = isDefaultLang ? pageSlug : `${lang}/${pageSlug}`;
         }
       }
 
       paths.push({
         params: { slug: slugParam },
-        props: { lang, routeKey }
+        props: { lang, routeKey },
       });
     });
   });
@@ -37,20 +39,22 @@ export function getStaticPaths() {
 }
 
 const { lang, routeKey } = Astro.props;
-const config = viewConfig[routeKey];
 
-if (!config) {
-  return Astro.redirect('/404');
+// --- HIER IST DIE ÄNDERUNG ---
+const view = getView(routeKey, lang);
+
+if (!view) {
+  return Astro.redirect("/404");
 }
 
-const { Component, translations } = config;
-const t = translations?.[lang] || translations?.[defaultLang] || {};
+const { Component, t } = view;
+// -----------------------------
 ---
 
-<Layout 
-  title={t.seo?.title || 'Beckernet.es'} 
-  description={t.seo?.description || ''} 
-  lang={lang} 
+<Layout
+  title={t.seo?.title || "Beckernet.es"}
+  description={t.seo?.description || ""}
+  lang={lang}
   routeKey={routeKey}
 >
   <Component lang={lang} t={t} />

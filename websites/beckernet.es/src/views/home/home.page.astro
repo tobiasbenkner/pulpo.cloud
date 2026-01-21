@@ -1,5 +1,8 @@
 ---
 import { type HomeTranslations } from "./home.i18n";
+import Hero from "@/components/sections/Hero.astro";
+import Contact from "@/components/sections/Contact.astro";
+import PrivacyMap from "@/components/ui/PrivacyMap.astro";
 
 interface Props {
   lang: string;
@@ -9,4 +12,14 @@ interface Props {
 const { t } = Astro.props;
 ---
 
-Home
+<Hero t={t.hero} />
+
+<section id="services" class="py-20 text-center">
+    <h2 class="text-3xl font-serif text-primary">{t.seo.title}</h2>
+</section>
+
+<Contact t={t.contact} />
+
+<section class="py-12 px-4 max-w-4xl mx-auto">
+    <PrivacyMap t={t.map} />
+</section>

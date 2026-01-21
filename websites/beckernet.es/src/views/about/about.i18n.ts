@@ -1,28 +1,23 @@
+import type { FlattenTranslation } from "@/lib/i18n";
+
 export const translations = {
-  es: {
-    seo: {
-      title: "Becker & Associates | Finanzas, Inmobiliaria, Seguros",
-      description:
-        "Su socio de confianza para servicios financieros, inmobiliarios y de seguros desde 1999. Experiencia y transparencia para clientes noreuropeos e locales.",
+  seo: {
+    title: {
+      es: "Becker & Associates | Finanzas, Inmobiliaria, Seguros",
+      de: "Becker & Associates | Finanzen, Immobilien, Versicherungen",
+      en: "Becker & Associates | Finance, Real Estate, Insurance",
     },
-    title: "Hola",
+    description: {
+      es: "Su socio de confianza para servicios financieros, inmobiliarios y de seguros desde 1999.",
+      de: "Ihr vertrauenswürdiger Partner für Finanzdienstleistungen, Immobilien und Versicherungen seit 1999.",
+      en: "Your trusted partner for financial, real estate, and insurance services since 1999.",
+    },
   },
-  de: {
-    seo: {
-      title: "Becker & Associates | Finanzen, Immobilien, Versicherungen",
-      description:
-        "Ihr vertrauenswürdiger Partner für Finanzdienstleistungen, Immobilien und Versicherungen seit 1999. Erfahrung und Transparenz für nordeuropäische und lokale Kunden.",
-    },
-    title: "Hallo",
-  },
-  en: {
-    seo: {
-      title: "Becker & Associates | Finance, Real Estate, Insurance",
-      description:
-        "Your trusted partner for financial, real estate, and insurance services since 1999. Experience and transparency for Northern European and local clients.",
-    },
-    title: "Hello",
+  title: {
+    es: "Nuestra Historia", // Habe ich etwas aussagekräftiger gemacht als "Hola"
+    de: "Über uns",
+    en: "Our Story",
   },
 };
 
-export type AboutTranslations = typeof translations.es;
+export type AboutTranslations = FlattenTranslation<typeof translations>;

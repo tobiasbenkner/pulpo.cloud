@@ -1,82 +1,59 @@
+import type { FlattenTranslation } from "@/lib/i18n"; 
+
 export const translations = {
-  es: {
-    seo: {
-      title: "Becker & Associates | Finanzas, Inmobiliaria, Seguros",
-      description:
-        "Su socio de confianza para servicios financieros, inmobiliarios y de seguros desde 1999. Experiencia y transparencia para clientes noreuropeos e locales.",
+  seo: {
+    title: {
+      es: "Becker & Associates | Finanzas, Inmobiliaria, Seguros",
+      de: "Becker & Associates | Finanzen, Immobilien, Versicherungen",
+      en: "Becker & Associates | Finance, Real Estate, Insurance",
     },
-    hero: {
-      headline: "Confianza y Experiencia desde 1999.",
-      subheadline:
-        "Somos su socio para servicios financieros, inmobiliarios y de seguros, combinando la tradición de una empresa familiar con soluciones innovadoras.",
-      ctaPrimary: "Nuestros Servicios",
-      ctaSecondary: "Contáctenos",
-    },
-    contact: {
-      headline: "Hablemos",
-      subheadline:
-        "Estamos listos para ayudarle. Elija su método de contacto preferido a continuación.",
-      email: "Correo Electrónico",
-      phone: "Teléfono",
-      whatsapp: "WhatsApp",
-    },
-    map: {
-      loadMap: "Cargar Mapa",
-      address: "Al hacer clic, acepta la carga de datos de Google Maps.",
+    description: {
+      es: "Su socio de confianza para servicios financieros, inmobiliarios y de seguros desde 1999.",
+      de: "Ihr vertrauenswürdiger Partner für Finanzdienstleistungen, Immobilien und Versicherungen seit 1999.",
+      en: "Your trusted partner for financial, real estate, and insurance services since 1999.",
     },
   },
-  de: {
-    seo: {
-      title: "Becker & Associates | Finanzen, Immobilien, Versicherungen",
-      description:
-        "Ihr vertrauenswürdiger Partner für Finanzdienstleistungen, Immobilien und Versicherungen seit 1999. Erfahrung und Transparenz für nordeuropäische und lokale Kunden.",
+  hero: {
+    headline: {
+      es: "Confianza y Experiencia desde 1999.",
+      de: "Vertrauen und Erfahrung seit 1999.",
+      en: "Trust and Experience since 1999.",
     },
-    hero: {
-      headline: "Vertrauen und Erfahrung seit 1999.",
-      subheadline:
-        "Wir sind Ihr Partner für Finanzen, Immobilien und Versicherungen und verbinden die Tradition eines Familienunternehmens mit innovativen Lösungen.",
-      ctaPrimary: "Unsere Dienstleistungen",
-      ctaSecondary: "Kontakt aufnehmen",
+    subheadline: {
+      es: "Somos su socio para servicios financieros.",
+      de: "Wir sind Ihr Partner für Finanzen.",
+      // EN fehlt hier absichtlich zum Testen des Fallbacks auf ES (Default)
     },
-    contact: {
-      headline: "Sprechen wir miteinander",
-      subheadline:
-        "Wir sind bereit, Ihnen zu helfen. Wählen Sie unten Ihre bevorzugte Kontaktmethode.",
-      email: "E-Mail",
-      phone: "Telefon",
-      whatsapp: "WhatsApp",
+    ctaPrimary: {
+      es: "Nuestros Servicios",
+      de: "Unsere Dienstleistungen",
+      en: "Our Services",
     },
-    map: {
-      loadMap: "Karte laden",
-      address: "Mit Klick akzeptieren Sie das Laden von Daten von Google Maps.",
+    ctaSecondary: {
+      es: "Contáctenos",
+      de: "Kontakt aufnehmen",
+      en: "Contact Us",
     },
   },
-  en: {
-    seo: {
-      title: "Becker & Associates | Finance, Real Estate, Insurance",
-      description:
-        "Your trusted partner for financial, real estate, and insurance services since 1999. Experience and transparency for Northern European and local clients.",
+  contact: {
+    headline: { es: "Hablemos", de: "Sprechen wir miteinander", en: "Let's Talk" },
+    subheadline: {
+      es: "Estamos listos para ayudarle.",
+      de: "Wir sind bereit, Ihnen zu helfen.",
+      en: "We are ready to assist you.",
     },
-    hero: {
-      headline: "Trust and Experience since 1999.",
-      subheadline:
-        "We are your partner for financial, real estate, and insurance services, combining the tradition of a family business with innovative solutions.",
-      ctaPrimary: "Our Services",
-      ctaSecondary: "Contact Us",
-    },
-    contact: {
-      headline: "Let's Talk",
-      subheadline:
-        "We are ready to assist you. Choose your preferred method of contact below.",
-      email: "Email",
-      phone: "Phone",
-      whatsapp: "WhatsApp",
-    },
-    map: {
-      loadMap: "Load Map",
-      address: "By clicking, you agree to load data from Google Maps.",
+    email: { es: "Correo Electrónico", de: "E-Mail", en: "Email" },
+    phone: { es: "Teléfono", de: "Telefon", en: "Phone" },
+    whatsapp: { es: "WhatsApp", de: "WhatsApp", en: "WhatsApp" },
+  },
+  map: {
+    loadMap: { es: "Cargar Mapa", de: "Karte laden", en: "Load Map" },
+    address: {
+      es: "Al hacer clic, acepta la carga de datos de Google Maps.",
+      de: "Mit Klick akzeptieren Sie das Laden von Daten von Google Maps.",
+      en: "By clicking, you agree to load data from Google Maps.",
     },
   },
 };
 
-export type HomeTranslations = typeof translations.es;
+export type HomeTranslations = FlattenTranslation<typeof translations>;

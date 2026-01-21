@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { languages } from '@/lib/types';
+import { languages } from '@/lib/i18n';
 import { routeSlugs, getTranslatedPath } from '@/lib/registry';
 
 export const GET: APIRoute = ({ site }) => {
