@@ -3,120 +3,157 @@ import { Image } from "astro:assets";
 import Container from "@/components/ui/Container.astro";
 import { Icon } from "astro-icon/components";
 import type { AboutTranslations } from "./about.i18n";
-import aboutImage from "@/assets/hero.webp";
+import aboutImage from "@/assets/team.jpg";
+import { getTranslatedPath } from "@/lib/registry";
+import type { Language } from "@/lib/i18n";
 
 interface Props {
-  lang: string;
+  lang: Language;
   t: AboutTranslations;
 }
 
-const { t } = Astro.props;
+const { t, lang } = Astro.props;
 ---
 
-<!-- Hero Section -->
-<section class="pt-16 pb-12 sm:pt-24 sm:pb-20">
+<section class="pt-24 pb-16 sm:pt-32">
   <Container>
-    <div class="max-w-3xl">
-      <span
-        class="text-secondary font-bold tracking-wider uppercase text-sm mb-4 block"
-      >
-        {t.hero.label}
-      </span>
-      <h1 class="text-primary mb-8">
-        {t.hero.headline}
-      </h1>
-      <p class="text-xl md:text-2xl text-text-muted leading-relaxed font-serif">
-        {t.hero.intro}
-      </p>
-    </div>
-  </Container>
-</section>
+    <!-- NEUES TITEL DESIGN: Asymmetrisches Grid -->
+    <div
+      class="grid grid-cols-1 lg:grid-cols-12 gap-8 border-b border-border pb-16 mb-16"
+    >
+      <!-- Linke Spalte: Meta-Info & Großes Datum -->
+      <div class="lg:col-span-4 flex flex-col justify-between">
+        <span
+          class="text-secondary font-bold tracking-widest uppercase text-xs mb-4 flex items-center gap-2"
+        >
+          <span class="w-8 h-px bg-secondary"></span>
+          {t.hero.label}
+        </span>
+        <div
+          class="font-serif text-6xl md:text-8xl text-primary opacity-20 select-none"
+        >
+          1999
+        </div>
+      </div>
 
-<!-- History Section -->
-<section class="py-16 sm:py-24 border-t border-border">
-  <Container>
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-      <div class="relative order-2 lg:order-1">
-        <div class="aspect-[4/3] w-full overflow-hidden rounded-sm bg-surface">
+      <!-- Rechte Spalte: Die Headline als Statement -->
+      <div class="lg:col-span-8 flex items-end">
+        <h1 class="text-3xl md:text-5xl font-serif text-white leading-tight">
+          {t.hero.headline}
+        </h1>
+      </div>
+    </div>
+
+    <!-- Content Bereich -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+      <!-- Linke Spalte: Bild (Scrollt mit) -->
+      <div class="lg:col-span-5">
+        <div
+          class="aspect-[4/5] w-full overflow-hidden rounded-sm bg-surface mb-8 relative group"
+        >
           <Image
             src={aboutImage}
-            alt="Becker & Associates Office"
-            class="h-full w-full object-cover grayscale opacity-80 hover:opacity-100 transition-opacity duration-500"
+            alt="Becker Team"
+            class="h-full w-full object-cover"
           />
+          <!-- Subtiler Rahmen ums Bild -->
+          <div
+            class="absolute inset-0 border border-white/10 pointer-events-none"
+          >
+          </div>
+        </div>
+
+        <!-- Highlight Box -->
+        <div class="pl-6 border-l-2 border-secondary">
+          <p class="text-lg text-text-muted font-serif italic leading-relaxed">
+            "{t.story.p6}"
+          </p>
         </div>
       </div>
 
-      <div class="order-1 lg:order-2">
-        <h2 class="text-primary mb-6">{t.history.title}</h2>
-        <div class="prose prose-lg text-text-muted">
-          <p class="mb-4">{t.history.p1}</p>
-          <p>{t.history.p2}</p>
+      <!-- Rechte Spalte: Text Narrative -->
+      <div
+        class="lg:col-span-7 prose prose-lg prose-invert prose-p:text-text-muted prose-headings:text-primary"
+      >
+        <h2
+          class="text-2xl font-serif text-primary mb-8 mt-0 flex items-center gap-4"
+        >
+          {t.story.title}
+        </h2>
+
+        <p
+          class="mb-6 first-letter:text-5xl first-letter:font-serif first-letter:text-secondary first-letter:mr-3 first-letter:float-left"
+        >
+          {t.story.p1}
+        </p>
+        <p class="mb-6">{t.story.p2}</p>
+        <p class="mb-12">{t.story.p3}</p>
+
+        <!-- Kleiner visueller Break -->
+        <div class="flex items-center gap-4 my-12 opacity-30">
+          <div class="h-px bg-white flex-1"></div>
+          <Icon name="lucide:diamond" class="w-4 h-4 text-white" />
+          <div class="h-px bg-white flex-1"></div>
         </div>
 
-        <div class="mt-8 flex items-center gap-4">
-          <div class="h-px w-12 bg-secondary"></div>
-          <span class="font-serif italic text-secondary">Est. 1999</span>
-        </div>
+        <h3 class="text-2xl font-serif text-primary mb-6">
+          {t.story.subtitle_innovation}
+        </h3>
+        <p class="mb-6">{t.story.p4}</p>
+        <p class="mb-6">{t.story.p5}</p>
       </div>
     </div>
   </Container>
 </section>
 
-<section
-  class="py-16 sm:py-24 bg-surface/50 relative overflow-hidden border-y border-border"
->
-  <div class="absolute top-0 right-0 p-12 opacity-[0.03] pointer-events-none">
-    <Icon name="lucide:shield" class="w-64 h-64 text-white" />
-  </div>
-
+<!-- Values Section (Minimalistisch) -->
+<section class="py-20 border-t border-border bg-surface/20">
   <Container>
-    <div class="max-w-2xl mb-16">
-      <h2 class="text-white mb-4">{t.values.title}</h2>
-      <div class="h-1 w-20 bg-secondary"></div>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-left">
       <!-- Value 1 -->
       <div class="group">
-        <div
-          class="mb-4 inline-flex p-3 rounded-lg bg-white/5 text-secondary border border-white/10"
+        <Icon
+          name="lucide:search"
+          class="w-8 h-8 text-secondary mb-4 group-hover:text-white transition-colors"
+        />
+        <h3
+          class="text-lg font-bold mb-2 text-primary uppercase tracking-wider"
         >
-          <Icon name="lucide:lock" class="w-6 h-6" />
-        </div>
-        <h3 class="text-xl font-bold mb-3 text-white">
           {t.values.list.trust.title}
         </h3>
-        <p class="text-text-muted leading-relaxed">
+        <p class="text-sm text-text-muted leading-relaxed">
           {t.values.list.trust.desc}
         </p>
       </div>
 
       <!-- Value 2 -->
       <div class="group">
-        <div
-          class="mb-4 inline-flex p-3 rounded-lg bg-white/5 text-secondary border border-white/10"
+        <Icon
+          name="lucide:scale"
+          class="w-8 h-8 text-secondary mb-4 group-hover:text-white transition-colors"
+        />
+        <h3
+          class="text-lg font-bold mb-2 text-primary uppercase tracking-wider"
         >
-          <Icon name="lucide:scale" class="w-6 h-6" />
-        </div>
-        <h3 class="text-xl font-bold mb-3 text-white">
           {t.values.list.integrity.title}
         </h3>
-        <p class="text-text-muted leading-relaxed">
+        <p class="text-sm text-text-muted leading-relaxed">
           {t.values.list.integrity.desc}
         </p>
       </div>
 
       <!-- Value 3 -->
       <div class="group">
-        <div
-          class="mb-4 inline-flex p-3 rounded-lg bg-white/5 text-secondary border border-white/10"
+        <Icon
+          name="lucide:cpu"
+          class="w-8 h-8 text-secondary mb-4 group-hover:text-white transition-colors"
+        />
+        <h3
+          class="text-lg font-bold mb-2 text-primary uppercase tracking-wider"
         >
-          <Icon name="lucide:award" class="w-6 h-6" />
-        </div>
-        <h3 class="text-xl font-bold mb-3 text-white">
           {t.values.list.excellence.title}
         </h3>
-        <p class="text-text-muted leading-relaxed">
+        <p class="text-sm text-text-muted leading-relaxed">
           {t.values.list.excellence.desc}
         </p>
       </div>
@@ -124,13 +161,13 @@ const { t } = Astro.props;
   </Container>
 </section>
 
-<!-- CTA -->
-<section class="py-24">
+<!-- Simple CTA -->
+<section class="py-32 border-t border-border">
   <Container class="text-center">
-    <h2 class="mb-8">{t.cta.text}</h2>
+    <h2 class="mb-10 font-serif text-4xl md:text-5xl">{t.cta.text}</h2>
     <a
-      href="#contact"
-      class="inline-flex items-center justify-center px-8 py-3 text-base font-bold text-background bg-secondary hover:bg-white rounded-sm transition-colors duration-200"
+      href={getTranslatedPath("contact", lang)}
+      class="inline-block border border-secondary text-secondary px-10 py-4 text-sm font-bold tracking-widest uppercase hover:bg-secondary hover:text-background transition-all duration-300"
     >
       {t.cta.button}
     </a>

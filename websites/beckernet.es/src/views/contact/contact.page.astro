@@ -1,5 +1,9 @@
 ---
-import { type ContactTranslations } from "./contact.i18n";
+import Container from "@/components/ui/Container.astro";
+import PrivacyMap from "@/components/ui/PrivacyMap.astro";
+import { Icon } from "astro-icon/components";
+import { siteData } from "@/data/siteData";
+import type { ContactTranslations } from "./contact.i18n";
 
 interface Props {
   lang: string;
@@ -7,6 +11,94 @@ interface Props {
 }
 
 const { t } = Astro.props;
+const { contact } = siteData;
 ---
 
-{t.title}
+<section class="pt-24 pb-16 sm:pt-32 border-b border-border">
+  <Container>
+    <div class="max-w-3xl">
+      <h1 class="text-4xl md:text-6xl font-serif text-white mb-6">
+        {t.header.title}
+      </h1>
+      <p class="text-xl text-text-muted font-light">{t.header.subtitle}</p>
+    </div>
+  </Container>
+</section>
+
+<section class="py-16 sm:py-24">
+  <Container>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
+      <!-- Left Column: Contact Details -->
+      <div class="space-y-12">
+        <!-- Email -->
+        <div class="group">
+          <div class="flex items-center gap-3 mb-2 text-secondary">
+            <Icon name="lucide:mail" class="w-5 h-5" />
+            <span class="text-xs font-bold uppercase tracking-widest"
+              >{t.info.email}</span
+            >
+          </div>
+          <a
+            href={`mailto:${contact.email}`}
+            class="text-2xl md:text-3xl font-serif text-white hover:text-secondary transition-colors"
+          >
+            {contact.email}
+          </a>
+        </div>
+
+        <!-- Phone -->
+        <div class="group">
+          <div class="flex items-center gap-3 mb-2 text-secondary">
+            <Icon name="lucide:phone" class="w-5 h-5" />
+            <span class="text-xs font-bold uppercase tracking-widest"
+              >{t.info.phone}</span
+            >
+          </div>
+          <a
+            href={`tel:${contact.phone}`}
+            class="text-2xl md:text-3xl font-serif text-white hover:text-secondary transition-colors"
+          >
+            {contact.phone}
+          </a>
+        </div>
+
+        <!-- Address -->
+        <div class="group">
+          <div class="flex items-center gap-3 mb-2 text-secondary">
+            <Icon name="lucide:map-pin" class="w-5 h-5" />
+            <span class="text-xs font-bold uppercase tracking-widest"
+              >{t.info.address}</span
+            >
+          </div>
+          <p
+            class="text-xl md:text-2xl font-serif text-text-muted leading-relaxed"
+          >
+            {contact.address}
+          </p>
+        </div>
+
+        <!-- Hours -->
+        <div class="group">
+          <div class="flex items-center gap-3 mb-2 text-secondary">
+            <Icon name="lucide:clock" class="w-5 h-5" />
+            <span class="text-xs font-bold uppercase tracking-widest"
+              >{t.info.hours}</span
+            >
+          </div>
+          <p class="text-xl font-serif text-text-muted">
+            {t.info.hoursValue}
+          </p>
+        </div>
+      </div>
+
+      <!-- Right Column: Map -->
+      <div class="lg:pt-2">
+        <div
+          class="w-full h-full min-h-[400px] rounded-sm overflow-hidden border border-border bg-surface"
+        >
+          <PrivacyMap t={t.map} />
+        </div>
+      </div>
+    </div>
+  </Container>
+</section>

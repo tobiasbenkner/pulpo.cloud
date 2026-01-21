@@ -1,25 +1,254 @@
 ---
-import { type HomeTranslations } from "./home.i18n";
-import Hero from "@/components/sections/Hero.astro";
-import Contact from "@/components/sections/Contact.astro";
-import PrivacyMap from "@/components/ui/PrivacyMap.astro";
+import { Image } from "astro:assets";
+import Container from "@/components/ui/Container.astro";
+import { Icon } from "astro-icon/components";
+import type { HomeTranslations } from "./home.i18n";
+import { getTranslatedPath } from "@/lib/registry";
+
+// Bild Import
+import heroImage from "@/assets/hero.webp";
+import type { Language } from "@/lib/i18n";
 
 interface Props {
-  lang: string;
+  lang: Language;
   t: HomeTranslations;
 }
 
-const { t } = Astro.props;
+const { lang, t } = Astro.props;
+const aboutPath = getTranslatedPath("about", lang as any);
 ---
 
-<Hero t={t.hero} />
+<!-- HERO SECTION -->
+<section
+  class="relative min-h-[85vh] flex flex-col justify-center border-b border-border pt-20"
+>
+  <div class="absolute inset-0 z-0 overflow-hidden">
+    <Image
+      src={heroImage}
+      alt="Becker & Associates Office"
+      class="w-full h-full object-cover grayscale opacity-30"
+    />
+    <div
+      class="absolute inset-0 bg-gradient-to-b from-background via-background/90 to-background"
+    >
+    </div>
+  </div>
 
-<section id="services" class="py-20 text-center">
-    <h2 class="text-3xl font-serif text-primary">{t.seo.title}</h2>
+  <Container class="relative z-10 text-center">
+    <div class="inline-flex items-center gap-2 mb-8 opacity-60">
+      <div class="w-8 h-px bg-secondary"></div>
+      <span class="text-xs font-bold uppercase tracking-[0.2em] text-white"
+        >Est. 1999</span
+      >
+      <div class="w-8 h-px bg-secondary"></div>
+    </div>
+
+    <h1
+      class="text-5xl md:text-7xl lg:text-8xl font-serif text-white mb-6 tracking-tight leading-[1.1]"
+    >
+      <span class="block md:inline">{t.hero.headline.split(".")[0]}.</span>
+      <span class="block md:inline text-text-muted md:text-white"
+        >{t.hero.headline.split(".")[1]}.</span
+      >
+      <span class="block md:inline text-secondary"
+        >{t.hero.headline.split(".")[2]}.</span
+      >
+    </h1>
+
+    <p class="text-xl text-text-muted max-w-2xl mx-auto font-light mt-8">
+      {t.hero.subheadline}
+    </p>
+
+    <div class="mt-16">
+      <a
+        href="#services"
+        class="inline-flex flex-col items-center gap-2 text-text-muted hover:text-white transition-colors"
+      >
+        <span class="text-xs uppercase tracking-widest">{t.hero.cta}</span>
+        <Icon name="lucide:arrow-down" class="w-5 h-5 animate-bounce" />
+      </a>
+    </div>
+  </Container>
 </section>
 
-<Contact t={t.contact} />
+<!-- SERVICES GRID -->
+<section id="services" class="border-b border-border bg-surface/10">
+  <div
+    class="grid grid-cols-1 lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-border border-b border-border max-w-[1920px] mx-auto"
+  >
+    <!-- Pillar 1: Finance -->
+    <div
+      class="group relative bg-background p-12 lg:py-24 lg:px-16 hover:bg-surface transition-colors duration-500"
+    >
+      <div
+        class="mb-8 inline-flex p-3 rounded-sm bg-surface border border-border group-hover:border-secondary/30 transition-colors"
+      >
+        <Icon name="lucide:landmark" class="w-8 h-8 text-white" />
+      </div>
+      <span
+        class="block text-xs font-bold uppercase tracking-widest text-secondary mb-2"
+        >{t.services.finance.subtitle}</span
+      >
+      <h2 class="text-3xl font-serif text-white mb-6">
+        {t.services.finance.title}
+      </h2>
+      <p class="text-text-muted leading-relaxed text-lg mb-8">
+        {t.services.finance.desc}
+      </p>
+      <div
+        class="h-0.5 w-12 bg-border group-hover:w-full group-hover:bg-secondary transition-all duration-700 ease-out"
+      >
+      </div>
+    </div>
 
-<section class="py-12 px-4 max-w-4xl mx-auto">
-    <PrivacyMap t={t.map} />
+    <!-- Pillar 2: Real Estate -->
+    <div
+      class="group relative bg-background p-12 lg:py-24 lg:px-16 hover:bg-surface transition-colors duration-500"
+    >
+      <div
+        class="mb-8 inline-flex p-3 rounded-sm bg-surface border border-border group-hover:border-secondary/30 transition-colors"
+      >
+        <Icon name="lucide:key" class="w-8 h-8 text-white" />
+      </div>
+      <span
+        class="block text-xs font-bold uppercase tracking-widest text-secondary mb-2"
+        >{t.services.realestate.subtitle}</span
+      >
+      <h2 class="text-3xl font-serif text-white mb-6">
+        {t.services.realestate.title}
+      </h2>
+      <p class="text-text-muted leading-relaxed text-lg mb-8">
+        {t.services.realestate.desc}
+      </p>
+      <div
+        class="h-0.5 w-12 bg-border group-hover:w-full group-hover:bg-secondary transition-all duration-700 ease-out"
+      >
+      </div>
+    </div>
+
+    <!-- Pillar 3: Insurance -->
+    <div
+      class="group relative bg-background p-12 lg:py-24 lg:px-16 hover:bg-surface transition-colors duration-500"
+    >
+      <div
+        class="mb-8 inline-flex p-3 rounded-sm bg-surface border border-border group-hover:border-secondary/30 transition-colors"
+      >
+        <Icon name="lucide:shield-check" class="w-8 h-8 text-white" />
+      </div>
+      <span
+        class="block text-xs font-bold uppercase tracking-widest text-secondary mb-2"
+        >{t.services.insurance.subtitle}</span
+      >
+      <h2 class="text-3xl font-serif text-white mb-6">
+        {t.services.insurance.title}
+      </h2>
+      <p class="text-text-muted leading-relaxed text-lg mb-8">
+        {t.services.insurance.desc}
+      </p>
+      <div
+        class="h-0.5 w-12 bg-border group-hover:w-full group-hover:bg-secondary transition-all duration-700 ease-out"
+      >
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SYNERGY / VALUE SECTION -->
+<section class="py-24 border-b border-border">
+  <Container>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <div>
+        <h2
+          class="text-4xl md:text-5xl font-serif text-white mb-6 leading-tight"
+        >
+          {t.synergy.title}
+        </h2>
+        <div class="w-20 h-1 bg-secondary mb-8"></div>
+        <p class="text-xl text-text-muted leading-relaxed mb-8">
+          {t.synergy.desc}
+        </p>
+        <a
+          href={aboutPath}
+          class="inline-flex items-center gap-2 text-white font-bold border-b border-secondary pb-1 hover:text-secondary transition-colors"
+        >
+          {t.intro.link}
+        </a>
+      </div>
+
+      <div class="bg-surface/30 p-8 md:p-12 border border-border rounded-sm">
+        <ul class="space-y-6">
+          <li class="flex items-start gap-4">
+            <Icon
+              name="lucide:check-circle"
+              class="w-6 h-6 text-secondary shrink-0 mt-1"
+            />
+            <span class="text-lg text-text-muted">{t.synergy.list.p1}</span>
+          </li>
+          <li class="flex items-start gap-4">
+            <Icon
+              name="lucide:check-circle"
+              class="w-6 h-6 text-secondary shrink-0 mt-1"
+            />
+            <span class="text-lg text-text-muted">{t.synergy.list.p2}</span>
+          </li>
+          <li class="flex items-start gap-4">
+            <Icon
+              name="lucide:check-circle"
+              class="w-6 h-6 text-secondary shrink-0 mt-1"
+            />
+            <span class="text-lg text-text-muted">{t.synergy.list.p3}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </Container>
+</section>
+
+<!-- STATS / FACTS -->
+<section class="py-16 bg-surface/10 border-b border-border">
+  <Container>
+    <div
+      class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-border/50"
+    >
+      <div class="px-4 py-4">
+        <span class="block text-4xl md:text-5xl font-serif text-white mb-2"
+          >25+</span
+        >
+        <span class="text-xs uppercase tracking-widest text-text-muted"
+          >{t.features.y1}</span
+        >
+      </div>
+      <div class="px-4 py-4">
+        <span class="block text-4xl md:text-5xl font-serif text-white mb-2"
+          >3</span
+        >
+        <span class="text-xs uppercase tracking-widest text-text-muted"
+          >{t.features.y2}</span
+        >
+      </div>
+      <div class="px-4 py-4">
+        <span class="block text-4xl md:text-5xl font-serif text-white mb-2"
+          >100%</span
+        >
+        <span class="text-xs uppercase tracking-widest text-text-muted"
+          >{t.features.y3}</span
+        >
+      </div>
+    </div>
+  </Container>
+</section>
+
+<!-- FINAL CTA -->
+<section class="py-24 md:py-32 bg-background text-center">
+  <Container>
+    <h2 class="text-3xl md:text-5xl font-serif text-white mb-10">
+      {t.cta.text}
+    </h2>
+    <a
+      href={getTranslatedPath("contact", lang)}
+      class="inline-block px-10 py-4 bg-white text-background font-bold uppercase tracking-widest hover:bg-secondary hover:text-white transition-all duration-300"
+    >
+      {t.cta.btn}
+    </a>
+  </Container>
 </section>
