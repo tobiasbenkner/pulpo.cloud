@@ -1,0 +1,51 @@
+---
+import { getBlogPosts } from "@pulpo/cms";
+import { cms, imageUrl } from "@/lib/cms";
+
+import Container from "@/components/ui/Container.astro";
+
+interface Props {
+  lang: string;
+}
+const { lang } = Astro.props;
+const posts = await getBlogPosts(cms, lang);
+---
+
+<section class="py-24">
+  <Container>
+    <h1 class="text-4xl font-serif text-white mb-12">Blog</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {
+        posts.map((post) => {
+          // Directus gibt Arrays zurück, wir nehmen die erste (und einzige) Translation
+          const t = post.translations[0];
+          if (!t) return null; // Fallback falls Übersetzung fehlt
+
+          return (
+            <article class="group bg-surface border border-border overflow-hidden">
+              {post.image && (
+                <div class="aspect-video overflow-hidden">
+                  <img
+                    src={imageUrl(post.image)}
+                    alt={t.title}
+                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                </div>
+              )}
+              <div class="p-6">
+                <span class="text-xs text-secondary font-bold uppercase tracking-widest">
+                  {new Date(post.date_created).toLocaleDateString(lang)}
+                </span>
+                <h2 class="text-xl font-serif text-white mt-2 mb-3 group-hover:text-secondary transition-colors">
+                  {t.title}
+                </h2>
+                <p class="text-text-muted line-clamp-3">{t.excerpt}</p>
+              </div>
+            </article>
+          );
+        })
+      }
+    </div>
+  </Container>
+</section>

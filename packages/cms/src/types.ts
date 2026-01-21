@@ -1,4 +1,21 @@
-import { createDirectus, rest, realtime, authentication, type DirectusFile } from "@directus/sdk";
+import { DirectusFile } from "@directus/sdk";
+
+export interface BlogPost {
+  id: number;
+  status: "published" | "draft" | "archived";
+  date_created: string;
+  slug: string;
+  image: string | null;
+  translations: BlogPostTranslation[];
+}
+
+export interface BlogPostTranslation {
+  id: number;
+  languages_code: string;
+  title: string;
+  content: string;
+  excerpt: string;
+}
 
 export type Reservation = {
   id: string;
@@ -33,21 +50,10 @@ export type User = {
   tenant: string;
 };
 
-export type Schema = {
+export interface Schema {
+  posts: BlogPost[];
+  posts_translations: BlogPostTranslation[];
   reservations: Reservation[];
   reservations_settings: ReservationSetting[];
   directus_users: User[];
-};
-
-export function getDirectusClient(token?: string) {
-  const client = createDirectus<Schema>(import.meta.env.PUBLIC_DIRECTUS_URL)
-    .with(rest())
-    .with(realtime())
-    .with(authentication());
-
-  if (token) {
-    client.setToken(token);
-  }
-
-  return client;
 }
