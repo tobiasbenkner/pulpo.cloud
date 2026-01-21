@@ -1,7 +1,12 @@
 export const languages = ['es', 'de', 'en'] as const;
 export const defaultLang = 'es' as const;
-
 export type Language = typeof languages[number];
+
+export const openGraphLocales: Record<Language, string> = {
+  es: "es_ES",
+  de: "de_DE",
+  en: "en_GB",
+};
 
 /**
  * TypeScript Helper:
