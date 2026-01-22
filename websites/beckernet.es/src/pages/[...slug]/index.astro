@@ -10,7 +10,7 @@ export async function getStaticPaths() {
   // 1. Statische Seiten generieren
   allRouteKeys.forEach((routeKey) => {
     // wird in anderer loop erzeugt
-    if (routeKey === "blog_detail") return;
+    if (routeKey.startsWith('blog_')) return; 
 
     languages.forEach((lang) => {
       let slugParam: string | undefined;
