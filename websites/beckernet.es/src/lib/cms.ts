@@ -3,10 +3,13 @@ import {
   getAssetUrl,
   getBlogPosts as _getBlogPosts,
   getBlogPostBySlug as _getBlogPostBySlug,
+  getBlogCategories as _getBlogCategories,
+  getLanguages as _getLanguages,
 } from "@pulpo/cms";
 
 const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL;
 const DIRECTUS_TOKEN = import.meta.env.DIRECTUS_TOKEN;
+const TENANT = import.meta.env.TENANT;
 
 if (!DIRECTUS_URL) {
   throw new Error("PUBLIC_DIRECTUS_URL ist not defined in .env");
@@ -21,10 +24,18 @@ const client = createClient(DIRECTUS_URL, DIRECTUS_TOKEN);
 export const imageUrl = (id: string, width = 800) =>
   getAssetUrl(id, DIRECTUS_URL, { width });
 
-export const getPosts = async (lang: string, category?: string) => {
-  return await _getBlogPosts(client, lang, category);
+export const getBlogCategories = async () => {
+  return await _getBlogCategories(client);
+};
+
+export const getPosts = async (category?: string) => {
+  return await _getBlogPosts(client, category);
 };
 
 export const getPost = async (slug: string, lang: string) => {
   return await _getBlogPostBySlug(client, slug, lang);
+};
+
+export const getLanguages = async () => {
+  return await _getLanguages(client, TENANT);
 };

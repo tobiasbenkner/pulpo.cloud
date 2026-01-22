@@ -1,0 +1,62 @@
+---
+import { getBlogCategories, getLanguages, getPosts } from "@/lib/cms";
+import { defaultLang, languages } from "@/lib/i18n";
+
+export async function getStaticPaths() {
+  const paths: {
+    params: { blog: string };
+  }[] = [];
+
+  const languagesss = await getLanguages();
+  console.log(languagesss);
+
+  const categories = await getBlogCategories();
+  for (const category of categories) {
+    for (const lang of languages) {
+      const isDefaultLang = lang === defaultLang;
+      if (isDefaultLang) {
+        paths.push({
+          params: {
+            blog: `/blog/${category.title}`,
+          },
+        });
+      } else {
+        paths.push({
+          params: {
+            blog: `/${lang}/blog/${category.title}`,
+          },
+        });
+      }
+    }
+  }
+  console.log(paths);
+  //   const posts = await getPosts();
+
+  //   for (const post of posts) {
+  //     const prefix = "blog";
+  //     console.log(post);
+  //     // const isDefaultLang = lang === defaultLang;
+  //     const isDefaultLang = true;
+  //     const lang = "en";
+
+  //     const slugParam = isDefaultLang
+  //       ? `${prefix}/${post.id}`
+  //       : `${lang}/${prefix}/${post.slug}`;
+
+  //     console.log(slugParam);
+
+  //     paths.push({
+  //       params: { blog: slugParam },
+  //       props: {
+  //         lang,
+  //         routeKey: "blog_detail",
+  //         post: post,
+  //       },
+  //     });
+  //   }
+
+  return paths;
+}
+---
+
+das wäre ja toll

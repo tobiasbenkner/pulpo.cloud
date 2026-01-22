@@ -2,9 +2,19 @@ import { readItems } from "@directus/sdk";
 import type { RestClient, DirectusClient } from "@directus/sdk";
 import type { Schema } from "./types";
 
+export async function getBlogCategories(
+  client: DirectusClient<Schema> & RestClient<Schema>,
+  category?: string,
+) {
+  return await client.request(
+    readItems("posts_categories", {
+      fields: ["*", "translations.*"],
+    }),
+  );
+}
+
 export async function getBlogPosts(
   client: DirectusClient<Schema> & RestClient<Schema>,
-  lang: string,
   category?: string,
 ) {
   const filter: any = { status: { _eq: "published" } };
@@ -37,6 +47,22 @@ export async function getBlogPostBySlug(
       },
       fields: ["*"],
       limit: 1,
+    }),
+  );
+
+  return result[0] || null;
+}
+
+export async function getLanguages(
+  client: DirectusClient<Schema> & RestClient<Schema>,
+  tenant: string,
+) {
+  const result = await client.request(
+    readItems("languages", {
+      filter: {
+        _and: [{ tenant: { _eq: tenant } }],
+      },
+      fields: ["*"],
     }),
   );
 

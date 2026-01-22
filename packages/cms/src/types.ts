@@ -1,4 +1,18 @@
 import { DirectusFile } from "@directus/sdk";
+import { Language } from "./types/language";
+
+export interface BlogPostCategory {
+  id: string;
+  title: string;
+  translations: BlogPostCategoryTranslation[];
+}
+
+export interface BlogPostCategoryTranslation {
+  id: number;
+  posts_categories_id: string;
+  languages_id: string | Language;
+  slug: string;
+}
 
 export interface BlogPost {
   id: number;
@@ -54,7 +68,9 @@ export type User = {
 export interface Schema {
   posts: BlogPost[];
   posts_translations: BlogPostTranslation[];
+  posts_categories: BlogPostCategory[];
   reservations: Reservation[];
   reservations_settings: ReservationSetting[];
   directus_users: User[];
+  languages: Language[];
 }

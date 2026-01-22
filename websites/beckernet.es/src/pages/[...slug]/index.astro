@@ -2,7 +2,6 @@
 import { languages, defaultLang } from "@/lib/i18n";
 import { routeSlugs, getView } from "@/lib/registry";
 import Layout from "@/layouts/Layout.astro";
-import { getPosts, getPost } from "@/lib/cms";
 
 export async function getStaticPaths() {
   const paths: any[] = [];
@@ -34,28 +33,6 @@ export async function getStaticPaths() {
       });
     });
   });
-
-  // 2. Dynamische Blog Posts generieren
-  for (const lang of languages) {
-    const posts = await getPosts(lang);
-    const isDefaultLang = lang === defaultLang;
-
-    for (const post of posts) {
-      const prefix = "blog";
-      const slugParam = isDefaultLang
-        ? `${prefix}/${post.slug}`
-        : `${lang}/${prefix}/${post.slug}`;
-
-      paths.push({
-        params: { slug: slugParam },
-        props: {
-          lang,
-          routeKey: "blog_detail",
-          post: post,
-        },
-      });
-    }
-  }
 
   return paths;
 }
