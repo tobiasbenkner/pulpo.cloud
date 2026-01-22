@@ -1,15 +1,12 @@
 import { getBlogCategories } from "@/lib/cms";
 import { resolveTranslations, defaultLang, type Language } from "@/lib/i18n";
 import { getTranslatedPath, getRouteLabel } from "@/lib/registry";
-import type { BlogPostCategory } from "@pulpo/cms";
 
 export type NavbarItem = {
   label: string;
   href: string;
   isActive: boolean;
 };
-
-let cachedCategories: BlogPostCategory[] | null = null;
 
 export async function getNavbarItems(
   lang: Language,
@@ -34,11 +31,8 @@ export async function getNavbarItems(
   const rightRoutes = ["contact"];
   const rightItems = rightRoutes.map(createItem);
 
-  if (!cachedCategories) {
-    cachedCategories = await getBlogCategories();
-  }
-
-  const dynamicItems: NavbarItem[] = cachedCategories!.map((cat) => {
+  const categories = await getBlogCategories();
+  const dynamicItems: NavbarItem[] = categories.map((cat) => {
     const nav_label = resolveTranslations(cat.nav_label, lang) || {};
     const label = nav_label || "please set nav label";
 

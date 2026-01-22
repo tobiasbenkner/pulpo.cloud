@@ -5,12 +5,15 @@ import { reduceTranslations } from "../i18n";
 
 export async function getBlogCategories(
   client: DirectusClient<Schema> & RestClient<Schema>,
-  categoryId?: string,
+  query?: { tenant: string; categoryId?: string },
 ) {
   const filter: any = {};
+  if (query?.tenant) {
+    filter.tenant = { _eq: query.tenant };
+  }
 
-  if (categoryId) {
-    filter.category = { _eq: categoryId };
+  if (query?.categoryId) {
+    filter.category = { _eq: query.categoryId };
   }
 
   const categories = await client.request(
@@ -31,12 +34,16 @@ export async function getBlogCategories(
 
 export async function getBlogPosts(
   client: DirectusClient<Schema> & RestClient<Schema>,
-  categoryId?: string,
+  query?: { tenant: string; categoryId?: string },
 ) {
   const filter: any = { status: { _eq: "published" } };
 
-  if (categoryId) {
-    filter.category = { _eq: categoryId };
+  if (query?.tenant) {
+    filter.tenant = { _eq: query.tenant };
+  }
+
+  if (query?.categoryId) {
+    filter.category = { _eq: query.categoryId };
   }
 
   const posts = await client.request(

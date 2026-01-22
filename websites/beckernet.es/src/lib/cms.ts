@@ -1,36 +1,34 @@
 import {
-  createClient,
   getAssetUrl,
-  getBlogPosts as _getBlogPosts,
-  getBlogCategories as _getBlogCategories,
-  getLanguages as _getLanguages,
+  type BlogPostCategory,
+  type Language,
+  type BlogPost,
 } from "@pulpo/cms";
+import { getCollection } from "astro:content";
 
 const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL;
-const DIRECTUS_TOKEN = import.meta.env.DIRECTUS_TOKEN;
-const TENANT = import.meta.env.TENANT;
-
-if (!DIRECTUS_URL) {
-  throw new Error("PUBLIC_DIRECTUS_URL ist not defined in .env");
-}
-
-if (!DIRECTUS_TOKEN) {
-  throw new Error("DIRECTUS_TOKEN ist not defined in .env");
-}
-
-const client = createClient(DIRECTUS_URL, DIRECTUS_TOKEN);
 
 export const imageUrl = (id: string, width = 800) =>
   getAssetUrl(id, DIRECTUS_URL, { width });
 
-export const getBlogCategories = async () => {
-  return await _getBlogCategories(client);
+export const getBlogCategories = async (): Promise<BlogPostCategory[]> => {
+  const categories = await getCollection("categories");
+  return categories.map((it) => it.data);
 };
 
-export const getPosts = async (categoryId?: string) => {
-  return await _getBlogPosts(client, categoryId);
+export const getPosts = async (): Promise<BlogPost[]> => {
+  const posts = await getCollection("posts");
+  return posts.map((it) => it.data);
 };
 
-export const getLanguages = async () => {
-  return await _getLanguages(client, TENANT);
+export const getPostsByCategory = async (
+  categoryId: string,
+): Promise<BlogPost[]> => {
+  const posts = await getCollection("posts");
+  return posts.map((it) => it.data).filter((it) => it.category === categoryId);
+};
+
+export const getLanguages = async (): Promise<Language[]> => {
+  const languages = await getCollection("languages");
+  return languages.map((it) => it.data);
 };

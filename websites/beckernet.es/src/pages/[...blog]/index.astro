@@ -1,6 +1,6 @@
 ---
 import Layout from "@/layouts/Layout.astro";
-import { getBlogCategories, getLanguages, getPosts } from "@/lib/cms";
+import { getBlogCategories, getPostsByCategory } from "@/lib/cms";
 import {
   defaultLang,
   languages,
@@ -31,7 +31,7 @@ export async function getStaticPaths() {
 
   // Categories
   for (const category of categories) {
-    const posts = await getPosts(category.id);
+    const posts = await getPostsByCategory(category.id);
     allPostsMap[category.id] = posts;
     category.posts = posts;
 

@@ -1,5 +1,4 @@
 import { DirectusFile } from "@directus/sdk";
-import { Language } from "./language";
 
 export type ReducedTranslations = Record<string, string>;
 
@@ -12,7 +11,7 @@ export interface BlogPostCategory {
 }
 
 export interface BlogPost {
-  id: number;
+  id: string;
   status: "published" | "draft" | "archived";
   date: string;
   image: DirectusFile | null;
