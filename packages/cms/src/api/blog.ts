@@ -24,6 +24,7 @@ export async function getBlogCategories(
     return {
       ...category,
       slug: reduceTranslations(category.translations, "slug"),
+      nav_label: reduceTranslations(category.translations, "nav_label"),
     } as BlogPostCategory;
   });
 }

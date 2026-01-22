@@ -7,6 +7,7 @@ export interface BlogPostCategory {
   id: string;
   title: string;
   slug: ReducedTranslations;
+  nav_label: ReducedTranslations;
   posts: BlogPost[];
 }
 

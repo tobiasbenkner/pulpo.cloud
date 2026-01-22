@@ -1,6 +1,11 @@
 import type { FlattenTranslation } from "@/lib/i18n";
 
 export const translations = {
+  navigationLabel: {
+    es: "Contacto",
+    de: "Kontakt",
+    en: "Contact",
+  },
   seo: {
     title: {
       es: "Contacto | Becker & Associates",

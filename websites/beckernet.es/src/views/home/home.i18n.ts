@@ -1,6 +1,11 @@
 import type { FlattenTranslation } from "@/lib/i18n";
 
 export const translations = {
+  navigationLabel: {
+    es: "Inicio",
+    de: "Start",
+    en: "Home",
+  },
   seo: {
     title: {
       es: "Becker & Associates | Finanzas, Inmobiliaria, Seguros",

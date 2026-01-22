@@ -77,3 +77,14 @@ export function getView(routeKey: string, lang: Language) {
     t: resolveTranslations(config.rawTranslations, lang),
   };
 }
+
+export function getRouteLabel(routeKey: string, lang: Language): string {
+  const config = viewConfig[routeKey];
+
+  if (!config || !config.rawTranslations?.navigationLabel) {
+    return routeKey.charAt(0).toUpperCase() + routeKey.slice(1);
+  }
+
+  const labelObj = config.rawTranslations.navigationLabel;
+  return labelObj[lang] || labelObj[defaultLang] || routeKey;
+}

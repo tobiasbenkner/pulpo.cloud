@@ -1,7 +1,7 @@
 ---
 import Container from "@/components/ui/Container.astro";
 import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
-import { siteData } from "@/data/siteData";
+import { getNavbarItems } from "@/lib/navbar";
 import { getTranslatedPath } from "@/lib/registry";
 import type { Language } from "@/lib/i18n";
 
@@ -10,6 +10,9 @@ interface Props {
   routeKey: string;
 }
 const { lang, routeKey } = Astro.props;
+
+const navItems = await getNavbarItems(lang, Astro.url.pathname);
+const homeHref = getTranslatedPath("home", lang);
 ---
 
 <header
@@ -17,24 +20,30 @@ const { lang, routeKey } = Astro.props;
 >
   <Container>
     <div class="flex h-20 items-center justify-between">
-      <a
-        href={getTranslatedPath("home", lang)}
-        class="text-xl font-bold font-serif text-primary"
-      >
+      <a href={homeHref} class="text-xl font-bold font-serif text-primary">
         Becker
       </a>
+
       <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
         {
-          siteData.navigation.map((item) => (
-            <a
-              href={getTranslatedPath(item.routeKey, lang)}
-              class="text-text-muted transition-colors hover:text-primary"
-            >
-              {item.key.charAt(0).toUpperCase() + item.key.slice(1)}
-            </a>
-          ))
+          navItems.map((item) => {
+            return (
+              <a
+                href={item.href}
+                class:list={[
+                  "transition-colors duration-200",
+                  item.isActive
+                    ? "text-secondary font-bold"
+                    : "text-text-muted hover:text-primary",
+                ]}
+              >
+                {item.label}
+              </a>
+            );
+          })
         }
       </nav>
+
       <div class="flex items-center gap-4">
         <LanguageSwitcher lang={lang} routeKey={routeKey} />
       </div>
