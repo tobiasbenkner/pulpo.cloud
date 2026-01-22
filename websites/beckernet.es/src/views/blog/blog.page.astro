@@ -26,7 +26,7 @@ const posts = await getPosts(lang);
               {post.image && (
                 <div class="aspect-video overflow-hidden">
                   <img
-                    src={imageUrl(post.image)}
+                    src={imageUrl(post.image.id)}
                     alt={t.title}
                     class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
@@ -34,7 +34,7 @@ const posts = await getPosts(lang);
               )}
               <div class="p-6">
                 <span class="text-xs text-secondary font-bold uppercase tracking-widest">
-                  {new Date(post.date_created).toLocaleDateString(lang)}
+                  {new Date(post.date).toLocaleDateString(lang)}
                 </span>
                 <h2 class="text-xl font-serif text-white mt-2 mb-3 group-hover:text-secondary transition-colors">
                   {t.title}

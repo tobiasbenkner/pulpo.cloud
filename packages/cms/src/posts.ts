@@ -5,29 +5,19 @@ import type { Schema } from "./types";
 export async function getBlogPosts(
   client: DirectusClient<Schema> & RestClient<Schema>,
   lang: string,
+  category?: string,
 ) {
+  const filter: any = { status: { _eq: "published" } };
+
+  if (category) {
+    filter.category = { _eq: category };
+  }
+
   return await client.request(
     readItems("posts", {
-      filter: {
-        status: { _eq: "published" },
-      },
-      sort: ["-date_created"],
-      fields: [
-        "id",
-        "slug",
-        "date_created",
-        "image",
-        {
-          translations: ["title", "excerpt", "languages_code"],
-        },
-      ],
-      deep: {
-        translations: {
-          _filter: {
-            languages_code: { _eq: lang },
-          },
-        },
-      },
+      filter: filter,
+      sort: ["-date"],
+      fields: ["*", "category.*", "image.*"] as any,
     }),
   );
 }
@@ -45,22 +35,7 @@ export async function getBlogPostBySlug(
       filter: {
         _and: [{ status: { _eq: "published" } }, { slug: { _eq: slug } }],
       },
-      fields: [
-        "id",
-        "slug",
-        "date_created",
-        "image",
-        {
-          translations: ["title", "content", "excerpt", "languages_code"],
-        },
-      ],
-      deep: {
-        translations: {
-          _filter: {
-            languages_code: { _eq: lang },
-          },
-        },
-      },
+      fields: ["*"],
       limit: 1,
     }),
   );

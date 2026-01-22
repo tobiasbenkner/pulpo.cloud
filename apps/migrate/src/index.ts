@@ -26,6 +26,7 @@ interface PbPost extends RecordModel {
   title: I18N;
   description: I18N;
   article: I18N;
+  created: string;
 }
 
 interface TranslationItem {
@@ -48,6 +49,7 @@ interface DirectusPosts {
   category: string;
   title: string;
   status: "published";
+  date: string;
 }
 
 interface MyDirectusSchema {
@@ -198,6 +200,7 @@ async function runMigration() {
             category: "2441ed0b-b857-408c-b01d-a837a016fac4",
             title: translations[0]?.title ?? "",
             status: "published",
+            date: new Date(post.created).toISOString().substring(0, 10),
           }),
         );
       } catch (err: any) {

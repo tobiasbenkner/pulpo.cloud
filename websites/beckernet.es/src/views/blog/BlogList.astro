@@ -1,0 +1,57 @@
+---
+import { getPosts, imageUrl } from "@/lib/cms";
+import Container from "@/components/ui/Container.astro";
+
+interface Props {
+  lang: string;
+  category: "Realestate" | "Insurance";
+  title: string;
+}
+const { lang, category, title } = Astro.props;
+
+const posts = await getPosts(lang, category);
+---
+
+<section class="py-24 sm:py-32">
+  <Container>
+    <h1 class="text-4xl md:text-5xl font-serif text-white mb-16">{title}</h1>
+
+    <div
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12"
+    >
+      {
+        posts.map((post) => {
+          const t = post.translations[0];
+          if (!t) return null;
+
+          // Link zur Detailseite bauen (statisch 'blog/' + slug)
+          // Wir müssen sicherstellen, dass wir eine Route für Details haben (siehe Schritt 3)
+          const href = `/${lang === "es" ? "" : lang + "/"}blog/${post.slug}`;
+
+          return (
+            <a href={href} class="group block">
+              <div class="aspect-16/10 overflow-hidden bg-surface mb-6 border border-border group-hover:border-secondary transition-colors">
+                {post.image && (
+                  <img
+                    src={imageUrl(post.image.id)}
+                    alt={t.title}
+                    class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 group-hover:scale-105"
+                  />
+                )}
+              </div>
+              <div class="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-secondary mb-3">
+                {new Date(post.date).toLocaleDateString(lang)}
+              </div>
+              <h2 class="text-2xl font-serif text-white mb-3 group-hover:text-secondary transition-colors">
+                {t.title}
+              </h2>
+              <p class="text-text-muted line-clamp-3 leading-relaxed">
+                {t.excerpt}
+              </p>
+            </a>
+          );
+        })
+      }
+    </div>
+  </Container>
+</section>

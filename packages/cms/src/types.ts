@@ -3,10 +3,11 @@ import { DirectusFile } from "@directus/sdk";
 export interface BlogPost {
   id: number;
   status: "published" | "draft" | "archived";
-  date_created: string;
-  slug: string;
-  image: string | null;
-  translations: BlogPostTranslation[];
+  date: string;
+  // slug: string;
+  image: DirectusFile | null;
+  category: string;
+  // translations: BlogPostTranslation[];
 }
 
 export interface BlogPostTranslation {
