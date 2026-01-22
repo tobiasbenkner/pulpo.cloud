@@ -9,7 +9,7 @@ interface Props {
   title: string;
 }
 const { lang, category, title } = Astro.props;
-const posts = category.posts;
+const posts = category.posts || [];
 ---
 
 <section class="py-24 sm:py-32">

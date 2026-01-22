@@ -2,7 +2,6 @@ import {
   createClient,
   getAssetUrl,
   getBlogPosts as _getBlogPosts,
-  getBlogPostBySlug as _getBlogPostBySlug,
   getBlogCategories as _getBlogCategories,
   getLanguages as _getLanguages,
 } from "@pulpo/cms";
@@ -32,11 +31,6 @@ export const getPosts = async (categoryId?: string) => {
   return await _getBlogPosts(client, categoryId);
 };
 
-export const getPost = async (slug: string, lang: string) => {
-  return await _getBlogPostBySlug(client, slug, lang);
-};
-
 export const getLanguages = async () => {
   return await _getLanguages(client, TENANT);
 };
-

@@ -5,11 +5,10 @@ import type { Language } from "@/lib/i18n";
 import type { BlogPost, BlogPostCategory } from "@pulpo/cms";
 
 type Props = {
-    lang: Language;
-    post: BlogPost;
-    category: BlogPostCategory;
-
-}
+  lang: Language;
+  post: BlogPost;
+  category: BlogPostCategory;
+};
 const { post, lang } = Astro.props;
 const t = post.translations[0];
 ---
@@ -21,7 +20,7 @@ const t = post.translations[0];
       <span
         class="text-secondary font-bold tracking-widest uppercase text-sm mb-6 block"
       >
-        {new Date(post.date_created).toLocaleDateString(lang)}
+        {new Date(post.date).toLocaleDateString(lang)}
       </span>
       <h1
         class="text-4xl md:text-6xl font-serif text-white mb-8 leading-tight text-balance"
@@ -35,7 +34,7 @@ const t = post.translations[0];
       post.image && (
         <div class="aspect-video w-full overflow-hidden mb-16 border border-border">
           <img
-            src={imageUrl(post.image, 1200)}
+            src={imageUrl(post.image.id, 1200)}
             alt={t.title}
             class="w-full h-full object-cover"
           />

@@ -1,7 +1,12 @@
 ---
 import Layout from "@/layouts/Layout.astro";
-import { getBlogCategories, getLanguages } from "@/lib/cms";
-import { defaultLang, languages, type Language } from "@/lib/i18n";
+import { getBlogCategories, getLanguages, getPosts } from "@/lib/cms";
+import {
+  defaultLang,
+  languages,
+  resolveTranslations,
+  type Language,
+} from "@/lib/i18n";
 import BlogDetail from "@/views/blog/BlogDetail.astro";
 import BlogList from "@/views/blog/BlogList.astro";
 import type { BlogPost, BlogPostCategory } from "@pulpo/cms";
@@ -23,18 +28,24 @@ export async function getStaticPaths() {
 
   const languagesss = await getLanguages();
 
-  console.log(languagesss);
-
   const categories = await getBlogCategories();
   for (const category of categories) {
+    const posts = await getPosts(category.id);
+
     for (const lang of languages) {
       const isDefaultLang = lang === defaultLang;
-      const urlPrefix = isDefaultLang ? `/blog/slug` : `/${lang}/blog/slug`;
+      const categorySlug = resolveTranslations(category.slug, lang) as string;
 
-      for (const post of category.posts) {
+      const urlPrefix = isDefaultLang
+        ? `/blog/${categorySlug}`
+        : `/${lang}/blog/${categorySlug}`;
+
+      for (const post of posts) {
+        const postSlug = resolveTranslations(post.slug, lang) as string;
+
         paths.push({
           params: {
-            blog: `${urlPrefix}/${category.title}`,
+            blog: `${urlPrefix}/${postSlug}`,
           },
           props: {
             type: "post",
@@ -49,12 +60,11 @@ export async function getStaticPaths() {
     for (const lang of languages) {
       const isDefaultLang = lang === defaultLang;
       const urlPrefix = isDefaultLang ? "/blog" : `/${lang}/blog`;
-
-      const i18nCategory = {};
+      const categorySlug = resolveTranslations(category.slug, lang) as string;
 
       paths.push({
         params: {
-          blog: `${urlPrefix}/${category.title}`,
+          blog: `${urlPrefix}/${categorySlug}`,
         },
         props: {
           type: "category",
@@ -64,7 +74,6 @@ export async function getStaticPaths() {
       });
     }
   }
-  console.log(paths);
 
   return paths;
 }
@@ -80,7 +89,7 @@ if (type === "post" && post) {
   const t = post.translations[0];
   title = t ? t.title : "Blog";
   description = t ? t.excerpt : "";
-  ogImage = post.image?.id;
+  // ogImage = post.image?.id;
 } else {
   title = `News: ${category.title}`;
   description = `Aktuelle Nachrichten aus dem Bereich ${category.title}`;
