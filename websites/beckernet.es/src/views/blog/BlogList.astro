@@ -1,6 +1,7 @@
 ---
 import { imageUrl } from "@/lib/cms";
 import Container from "@/components/ui/Container.astro";
+import { resolveTranslations, defaultLang } from "@/lib/i18n";
 import type { BlogPostCategory } from "@pulpo/cms";
 
 interface Props {
@@ -10,6 +11,8 @@ interface Props {
 }
 const { lang, category, title } = Astro.props;
 const posts = category.posts || [];
+
+const currentCategorySlug = resolveTranslations(category.slug, lang);
 ---
 
 <section class="py-24 sm:py-32">
@@ -21,12 +24,22 @@ const posts = category.posts || [];
     >
       {
         posts.map((post) => {
-          const t = post.translations[0];
-          if (!t) return null;
+          // Wir suchen die Übersetzung passend zur aktuellen Sprache
+          // Falls dein CMS Objektstruktur { title: {es: '...', en: '...'} } hat:
+          // const postTitle = resolveTranslations(post.title, lang);
 
-          // Link zur Detailseite bauen (statisch 'blog/' + slug)
-          // Wir müssen sicherstellen, dass wir eine Route für Details haben (siehe Schritt 3)
-          const href = `/${lang === "es" ? "" : lang + "/"}blog/${post.slug}`;
+          // Falls dein CMS Array-Struktur hat (Directus Standard für Relational):
+
+          // URL bauen:
+          // 1. Post Slug holen
+          const postSlug = resolveTranslations(post.slug, lang);
+
+          // 2. Prefix bauen
+          const isDefault = lang === defaultLang;
+          const urlPrefix = isDefault ? "" : `/${lang}`;
+
+          // 3. Zusammenfügen: /es/blog/kategorie-slug/post-slug
+          const href = `${urlPrefix}/blog/${currentCategorySlug}/${postSlug}`;
 
           return (
             <a href={href} class="group block">
@@ -34,7 +47,7 @@ const posts = category.posts || [];
                 {post.image && (
                   <img
                     src={imageUrl(post.image.id)}
-                    alt={t.title}
+                    alt={post.title[lang]}
                     class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 group-hover:scale-105"
                   />
                 )}
@@ -43,10 +56,10 @@ const posts = category.posts || [];
                 {new Date(post.date).toLocaleDateString(lang)}
               </div>
               <h2 class="text-2xl font-serif text-white mb-3 group-hover:text-secondary transition-colors">
-                {t.title}
+                {post.title[lang]}
               </h2>
               <p class="text-text-muted line-clamp-3 leading-relaxed">
-                {t.excerpt}
+                {post.excerpt[lang]}
               </p>
             </a>
           );

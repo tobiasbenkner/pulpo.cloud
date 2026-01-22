@@ -7,6 +7,7 @@ import {
   resolveTranslations,
   type Language,
 } from "@/lib/i18n";
+import { addRoute } from "@/lib/registry";
 import BlogDetail from "@/views/blog/BlogDetail.astro";
 import BlogList from "@/views/blog/BlogList.astro";
 import type { BlogPost, BlogPostCategory } from "@pulpo/cms";
@@ -16,84 +17,109 @@ type PathProps = {
   lang: string;
   category: BlogPostCategory;
   post?: BlogPost;
+  routeKey: string;
 };
 
 export async function getStaticPaths() {
-  // TODO: Erweiterung routeSlugs für routing
-
   const paths: {
     params: { blog: string };
     props: PathProps;
   }[] = [];
 
-  const languagesss = await getLanguages();
-
   const categories = await getBlogCategories();
+  const allPostsMap: Record<string, BlogPost[]> = {};
+
+  // Categories
   for (const category of categories) {
     const posts = await getPosts(category.id);
+    allPostsMap[category.id] = posts;
+    category.posts = posts;
 
+    // Register Routes
+    const routeKey = `blog_category_${category.id}`;
+    const categorySlugs: Record<string, string> = {};
+    languages.forEach((lang) => {
+      const slug = resolveTranslations(category.slug, lang);
+      categorySlugs[lang] = `blog/${slug}`;
+    });
+    addRoute(routeKey, categorySlugs as Record<Language, string>);
+
+    // Register Paths
     for (const lang of languages) {
       const isDefaultLang = lang === defaultLang;
-      const categorySlug = resolveTranslations(category.slug, lang) as string;
+      const slugParam = isDefaultLang
+        ? categorySlugs[lang]
+        : `${lang}/${categorySlugs[lang]}`;
 
-      const urlPrefix = isDefaultLang
-        ? `/blog/${categorySlug}`
-        : `/${lang}/blog/${categorySlug}`;
+      paths.push({
+        params: { blog: slugParam },
+        props: {
+          type: "category",
+          lang,
+          category,
+          routeKey,
+        },
+      });
+    }
+  }
 
-      for (const post of posts) {
-        const postSlug = resolveTranslations(post.slug, lang) as string;
+  // Posts
+  for (const category of categories) {
+    const posts = allPostsMap[category.id] || [];
+
+    for (const post of posts) {
+      const routeKey = `blog_post_${post.id}`;
+      const postSlugs: Record<string, string> = {};
+
+      // Register Routes
+      languages.forEach((lang) => {
+        const catSlug = resolveTranslations(category.slug, lang);
+        const pSlug = resolveTranslations(post.slug, lang);
+        postSlugs[lang] = `blog/${catSlug}/${pSlug}`;
+      });
+      addRoute(routeKey, postSlugs as Record<Language, string>);
+
+      // Register Paths
+      for (const lang of languages) {
+        const isDefaultLang = lang === defaultLang;
+        const slugParam = isDefaultLang
+          ? postSlugs[lang]
+          : `${lang}/${postSlugs[lang]}`;
 
         paths.push({
-          params: {
-            blog: `${urlPrefix}/${postSlug}`,
-          },
+          params: { blog: slugParam },
           props: {
             type: "post",
-            lang: lang,
-            post: post,
-            category: category,
+            lang,
+            post,
+            category,
+            routeKey,
           },
         });
       }
-    }
-
-    for (const lang of languages) {
-      const isDefaultLang = lang === defaultLang;
-      const urlPrefix = isDefaultLang ? "/blog" : `/${lang}/blog`;
-      const categorySlug = resolveTranslations(category.slug, lang) as string;
-
-      paths.push({
-        params: {
-          blog: `${urlPrefix}/${categorySlug}`,
-        },
-        props: {
-          type: "category",
-          lang: lang,
-          category: category,
-        },
-      });
     }
   }
 
   return paths;
 }
 
-const { lang, type, category, post } = Astro.props;
+const { lang, type, category, post, routeKey } = Astro.props;
 
-// SEO
+// SEO Logic
 let title = "";
 let description = "";
 let ogImage = undefined;
 
 if (type === "post" && post) {
-  const t = post.translations[0];
-  title = t ? t.title : "Blog";
-  description = t ? t.excerpt : "";
-  // ogImage = post.image?.id;
+  title = "Blog";
+  description = "";
+  // if (post.image) ogImage = post.image.id;
 } else {
-  title = `News: ${category.title}`;
-  description = `Aktuelle Nachrichten aus dem Bereich ${category.title}`;
-  // TODO: Photo von Post Category
+  // Category
+  const catSlug = resolveTranslations(category.slug, lang); // Nur als Fallback
+  // Titel auch übersetzt holen falls möglich
+  title = `News | Becker`;
+  description = `Nachrichten und Updates.`;
 }
 ---
 
@@ -101,7 +127,7 @@ if (type === "post" && post) {
   title={title}
   description={description}
   lang={lang as Language}
-  routeKey={""}
+  routeKey={routeKey}
   ogImage={ogImage}
 >
   {

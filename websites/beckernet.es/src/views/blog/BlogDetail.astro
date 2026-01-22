@@ -2,19 +2,35 @@
 import Container from "@/components/ui/Container.astro";
 import { imageUrl } from "@/lib/cms";
 import type { Language } from "@/lib/i18n";
+import { getTranslatedPath } from "@/lib/registry";
 import type { BlogPost, BlogPostCategory } from "@pulpo/cms";
+import { Icon } from "astro-icon/components";
 
 type Props = {
   lang: Language;
   post: BlogPost;
   category: BlogPostCategory;
 };
-const { post, lang } = Astro.props;
+
+const { post, lang, category } = Astro.props;
 const t = post.translations[0];
+
+// LINK ZUR KATEGORIE
+const categoryRouteKey = `blog_category_${category.id}`;
+const categoryHref = getTranslatedPath(categoryRouteKey, lang);
 ---
 
 <article class="py-24 sm:py-32">
   <Container class="max-w-4xl">
+    <!-- Zurück Link -->
+    <a
+      href={categoryHref}
+      class="inline-flex items-center gap-2 text-text-muted hover:text-white mb-12 text-sm uppercase tracking-widest transition-colors"
+    >
+      <Icon name="lucide:arrow-left" class="w-4 h-4" />
+      {category.title}
+    </a>
+
     <!-- Header -->
     <header class="mb-12 text-center">
       <span

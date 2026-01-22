@@ -17,6 +17,11 @@ const pageModules = import.meta.glob("../views/**/*.page.astro", {
 });
 
 export const routeSlugs: Record<string, Record<Language, string>> = {};
+
+export function addRoute(key: string, slugs: Record<Language, string>) {
+  routeSlugs[key] = slugs;
+}
+
 const viewConfig: Record<string, any> = {};
 
 for (const path in routeModules) {
