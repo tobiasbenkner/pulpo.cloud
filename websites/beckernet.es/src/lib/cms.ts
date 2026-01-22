@@ -1,3 +1,4 @@
+import { DIRECTUS_TOKEN } from "@/config";
 import {
   getAssetUrl,
   type BlogPostCategory,
@@ -9,7 +10,7 @@ import { getCollection } from "astro:content";
 const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL;
 
 export const imageUrl = (id: string, width = 800) =>
-  getAssetUrl(id, DIRECTUS_URL, { width });
+  getAssetUrl(id, DIRECTUS_URL, DIRECTUS_TOKEN, { width });
 
 export const getBlogCategories = async (): Promise<BlogPostCategory[]> => {
   const categories = await getCollection("categories");

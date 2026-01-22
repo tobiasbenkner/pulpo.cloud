@@ -44,11 +44,11 @@ const currentCategorySlug = resolveTranslations(category.slug, lang);
           return (
             <a href={href} class="group block">
               <div class="aspect-16/10 overflow-hidden bg-surface mb-6 border border-border group-hover:border-secondary transition-colors">
-                {post.image && (
+                {post.image?.id && (
                   <img
                     src={imageUrl(post.image.id)}
                     alt={post.title[lang]}
-                    class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 group-hover:scale-105"
+                    class="w-full h-full object-cover"
                   />
                 )}
               </div>
