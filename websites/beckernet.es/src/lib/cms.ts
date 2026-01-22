@@ -28,8 +28,8 @@ export const getBlogCategories = async () => {
   return await _getBlogCategories(client);
 };
 
-export const getPosts = async (category?: string) => {
-  return await _getBlogPosts(client, category);
+export const getPosts = async (categoryId?: string) => {
+  return await _getBlogPosts(client, categoryId);
 };
 
 export const getPost = async (slug: string, lang: string) => {
@@ -39,3 +39,4 @@ export const getPost = async (slug: string, lang: string) => {
 export const getLanguages = async () => {
   return await _getLanguages(client, TENANT);
 };
+

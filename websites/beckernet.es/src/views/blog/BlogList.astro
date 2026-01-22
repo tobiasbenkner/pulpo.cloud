@@ -1,15 +1,15 @@
 ---
-import { getPosts, imageUrl } from "@/lib/cms";
+import { imageUrl } from "@/lib/cms";
 import Container from "@/components/ui/Container.astro";
+import type { BlogPostCategory } from "@pulpo/cms";
 
 interface Props {
   lang: string;
-  category: "Realestate" | "Insurance";
+  category: BlogPostCategory;
   title: string;
 }
 const { lang, category, title } = Astro.props;
-
-const posts = await getPosts(lang, category);
+const posts = category.posts;
 ---
 
 <section class="py-24 sm:py-32">

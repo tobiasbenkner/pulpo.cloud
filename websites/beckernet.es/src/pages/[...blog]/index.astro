@@ -1,62 +1,109 @@
 ---
-import { getBlogCategories, getLanguages, getPosts } from "@/lib/cms";
-import { defaultLang, languages } from "@/lib/i18n";
+import Layout from "@/layouts/Layout.astro";
+import { getBlogCategories, getLanguages } from "@/lib/cms";
+import { defaultLang, languages, type Language } from "@/lib/i18n";
+import BlogDetail from "@/views/blog/BlogDetail.astro";
+import BlogList from "@/views/blog/BlogList.astro";
+import type { BlogPost, BlogPostCategory } from "@pulpo/cms";
+
+type PathProps = {
+  type: "category" | "post";
+  lang: string;
+  category: BlogPostCategory;
+  post?: BlogPost;
+};
 
 export async function getStaticPaths() {
+  // TODO: Erweiterung routeSlugs für routing
+
   const paths: {
     params: { blog: string };
+    props: PathProps;
   }[] = [];
 
   const languagesss = await getLanguages();
+
   console.log(languagesss);
 
   const categories = await getBlogCategories();
   for (const category of categories) {
     for (const lang of languages) {
       const isDefaultLang = lang === defaultLang;
-      if (isDefaultLang) {
+      const urlPrefix = isDefaultLang ? `/blog/slug` : `/${lang}/blog/slug`;
+
+      for (const post of category.posts) {
         paths.push({
           params: {
-            blog: `/blog/${category.title}`,
+            blog: `${urlPrefix}/${category.title}`,
           },
-        });
-      } else {
-        paths.push({
-          params: {
-            blog: `/${lang}/blog/${category.title}`,
+          props: {
+            type: "post",
+            lang: lang,
+            post: post,
+            category: category,
           },
         });
       }
     }
+
+    for (const lang of languages) {
+      const isDefaultLang = lang === defaultLang;
+      const urlPrefix = isDefaultLang ? "/blog" : `/${lang}/blog`;
+
+      const i18nCategory = {};
+
+      paths.push({
+        params: {
+          blog: `${urlPrefix}/${category.title}`,
+        },
+        props: {
+          type: "category",
+          lang: lang,
+          category: category,
+        },
+      });
+    }
   }
   console.log(paths);
-  //   const posts = await getPosts();
-
-  //   for (const post of posts) {
-  //     const prefix = "blog";
-  //     console.log(post);
-  //     // const isDefaultLang = lang === defaultLang;
-  //     const isDefaultLang = true;
-  //     const lang = "en";
-
-  //     const slugParam = isDefaultLang
-  //       ? `${prefix}/${post.id}`
-  //       : `${lang}/${prefix}/${post.slug}`;
-
-  //     console.log(slugParam);
-
-  //     paths.push({
-  //       params: { blog: slugParam },
-  //       props: {
-  //         lang,
-  //         routeKey: "blog_detail",
-  //         post: post,
-  //       },
-  //     });
-  //   }
 
   return paths;
 }
+
+const { lang, type, category, post } = Astro.props;
+
+// SEO
+let title = "";
+let description = "";
+let ogImage = undefined;
+
+if (type === "post" && post) {
+  const t = post.translations[0];
+  title = t ? t.title : "Blog";
+  description = t ? t.excerpt : "";
+  ogImage = post.image?.id;
+} else {
+  title = `News: ${category.title}`;
+  description = `Aktuelle Nachrichten aus dem Bereich ${category.title}`;
+  // TODO: Photo von Post Category
+}
 ---
 
-das wäre ja toll
+<Layout
+  title={title}
+  description={description}
+  lang={lang as Language}
+  routeKey={""}
+  ogImage={ogImage}
+>
+  {
+    type === "post" && !!post && (
+      <BlogDetail lang={lang as Language} post={post} category={category} />
+    )
+  }
+
+  {
+    type === "category" && (
+      <BlogList lang={lang} category={category} title={title} />
+    )
+  }
+</Layout>
