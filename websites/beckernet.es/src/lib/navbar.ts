@@ -33,12 +33,11 @@ export async function getNavbarItems(
 
   const categories = await getBlogCategories();
   const dynamicItems: NavbarItem[] = categories.map((cat) => {
-    const nav_label = resolveTranslations(cat.nav_label, lang) || {};
-    const label = nav_label || "please set nav label";
+    const t = resolveTranslations(cat, lang);
+    const label = String(t.nav_label) || "please set nav label";
 
-    const slug = resolveTranslations(cat.slug, lang);
+    const slug = String(t.slug);
     const href = isDefaultLang ? `/blog/${slug}` : `/${lang}/blog/${slug}`;
-
     return {
       label,
       href,
