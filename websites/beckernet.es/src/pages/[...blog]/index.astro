@@ -111,15 +111,15 @@ let description = "";
 let ogImage = undefined;
 
 if (type === "post" && post) {
-  title = "Blog";
-  description = "";
+  const t = resolveTranslations(post, lang);
+  title = String(t.title);
+  description = String(t.seo_description);
   // if (post.image) ogImage = post.image.id;
 } else {
   // Category
-  const catSlug = resolveTranslations(category.slug, lang); // Nur als Fallback
-  // Titel auch übersetzt holen falls möglich
-  title = `News | Becker`;
-  description = `Nachrichten und Updates.`;
+  const t = resolveTranslations(category, lang);
+  title = String(t.title);
+  description = String("");
 }
 ---
 

@@ -1,74 +1,140 @@
 @import "tailwindcss";
+@plugin '@tailwindcss/typography';
 
 @theme {
-  /* Wir mappen die Tailwind-Klassen direkt auf CSS-Variablen */
   --color-background: var(--background);
   --color-surface: var(--surface);
-  
+
   --color-primary: var(--primary);
   --color-secondary: var(--secondary);
+  --color-secondary-hover: var(--secondary-hover);
 
   --color-text: var(--text);
   --color-text-muted: var(--text-muted);
   --color-border: var(--border);
 
-  --font-sans: "Inter Variable", system-ui, sans-serif;
-  --font-serif: "Libre Baskerville", Georgia, serif;
+  /* Fonts */
+  --font-sans: "Lato", system-ui, sans-serif;
+  --font-serif: "Playfair Display", Georgia, serif;
+
+  --font-display: var(--font-serif);
+  --font-body: var(--font-sans);
 }
 
+/* --- VARIABLES --- */
 :root {
-  /* --- DARK MODE PALETTE (HARDCODED) --- */
-  
-  /* Background: Sehr dunkles Blau (#0f172a = Slate 900) */
   --background: #0f172a;
-  
-  /* Surface: Etwas heller (#1e293b = Slate 800) */
   --surface: #1e293b;
-
-  /* Primary: Reinweiß für Überschriften (#ffffff) */
   --primary: #ffffff;
-
-  /* Secondary: Gold (#d4b57e) */
-  --secondary: #d4b57e;
-
-  /* Text: Fast Weiß (#f1f5f9 = Slate 100) */
-  --text: #f1f5f9;
-  
-  /* Text Muted: Helles Grau (#94a3b8 = Slate 400) */
+  --text: #e2e8f0;
   --text-muted: #94a3b8;
-
-  /* Border: Dunkelgrau (#334155 = Slate 700) */
+  --secondary: #d4b57e;
+  --secondary-hover: #e5c68d;
   --border: #334155;
 }
 
+/* --- BASE STYLES --- */
 @layer base {
   html {
     background-color: var(--background);
     color: var(--text);
-  }
-
-  body {
-    /* Explizites Setzen der Farben auf den Body */
-    background-color: var(--background);
-    color: var(--text);
-    font-family: var(--font-sans);
+    scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-serif);
-    color: var(--primary); /* Überschriften erzwingen Weiß */
-    font-weight: 700;
-    letter-spacing: -0.025em;
+  body {
+    font-family: var(--font-sans);
+    line-height: 1.6;
   }
 
-  p {
-    color: var(--text-muted);
-    line-height: 1.75;
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-serif);
+    color: var(--primary);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
   }
-  
-  /* Links & Buttons */
+
   a {
-    transition: color 0.2s;
+    transition: all 0.2s ease-in-out;
+  }
+
+  ::selection {
+    background-color: var(--secondary);
+    color: var(--background);
+  }
+}
+
+/* --- PROSE CONFIGURATION (MARKDOWN) --- */
+.prose {
+  /* 1. Farben mappen */
+  --tw-prose-body: var(--text-muted);
+  --tw-prose-headings: var(--primary); /* Überschriften Weiß */
+  --tw-prose-lead: var(--text);
+  --tw-prose-links: var(--secondary); /* Links Gold */
+  --tw-prose-bold: var(--primary); /* Fetter Text Weiß */
+  --tw-prose-counters: var(--secondary); /* Listen-Nummern Gold */
+  --tw-prose-bullets: var(--secondary); /* Bullet Points Gold */
+  --tw-prose-hr: var(--border);
+  --tw-prose-quotes: var(--primary);
+  --tw-prose-quote-borders: var(--secondary); /* Zitat-Balken Gold */
+  --tw-prose-captions: var(--text-muted);
+  --tw-prose-code: var(--primary);
+  --tw-prose-pre-code: var(--text);
+  --tw-prose-pre-bg: var(--surface);
+  --tw-prose-th-borders: var(--border);
+  --tw-prose-td-borders: var(--border);
+
+  /* 2. Schriftarten erzwingen (falls Plugin zickt) */
+  font-family: var(--font-sans);
+}
+
+/* Überschriften im Blog spezifisch anpassen */
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4 {
+  font-family: var(--font-serif);
+  font-weight: 700;
+}
+
+/* Links im Text: Underline nur beim Hovern, Farbe Gold */
+.prose a {
+  color: var(--secondary);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+.prose a:hover {
+  color: var(--secondary-hover);
+  border-bottom-color: var(--secondary-hover);
+}
+
+/* Utilities für Scrollbars */
+@layer utilities {
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--background);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 5px;
+    border: 2px solid var(--background);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+  }
+
+  .text-gradient-gold {
+    background: linear-gradient(135deg, #fbf2d5 0%, #d4b57e 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 }

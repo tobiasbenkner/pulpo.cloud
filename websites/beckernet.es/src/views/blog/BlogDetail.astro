@@ -61,10 +61,6 @@ const contentHtml = t.content ? await marked.parse(String(t.content)) : "";
     }
 
     <!-- Content -->
-    <div
-      class="prose prose-lg prose-invert prose-headings:font-serif prose-headings:text-white prose-p:text-text-muted prose-a:text-secondary mx-auto"
-    >
-      <div set:html={contentHtml} />
-    </div>
+    <div class="prose prose-lg max-w-none mx-auto" set:html={contentHtml} />
   </Container>
 </article>
