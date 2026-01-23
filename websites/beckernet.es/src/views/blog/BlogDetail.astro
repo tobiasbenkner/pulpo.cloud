@@ -15,52 +15,105 @@ type Props = {
 
 const { post, lang, category } = Astro.props;
 
+// Routing
 const categoryRouteKey = `blog_category_${category.id}`;
 const categoryHref = getTranslatedPath(categoryRouteKey, lang);
 
+// Übersetzungen
+const categoryT = resolveTranslations(category, lang);
 const t = resolveTranslations(post, lang);
 const contentHtml = t.content ? await marked.parse(String(t.content)) : "";
+
+const dateStr = new Date(post.date).toLocaleDateString(lang, {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
 ---
 
-<article class="py-24 sm:py-32">
-  <Container class="max-w-4xl">
-    <!-- Zurück Link -->
-    <a
-      href={categoryHref}
-      class="inline-flex items-center gap-2 text-text-muted hover:text-white mb-12 text-sm uppercase tracking-widest transition-colors"
-    >
-      <Icon name="lucide:arrow-left" class="w-4 h-4" />
-      {category.title}
-    </a>
-
-    <!-- Header -->
-    <header class="mb-12 text-center">
-      <span
-        class="text-secondary font-bold tracking-widest uppercase text-sm mb-6 block"
+<article class="pt-4 md:pt-8 pb-24 min-h-screen bg-background">
+  <Container>
+    <!-- 1. TOP NAV -->
+    <div class="max-w-3xl mx-auto mb-8">
+      <a
+        href={categoryHref}
+        class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-text-muted hover:text-secondary transition-colors"
       >
-        {new Date(post.date).toLocaleDateString(lang)}
-      </span>
+        <Icon name="lucide:arrow-left" class="w-4 h-4" />
+        <span>{categoryT.title}</span>
+      </a>
+    </div>
+
+    <!-- 2. HEADER -->
+    <header class="max-w-4xl mx-auto text-center mb-10">
+      <div
+        class="flex items-center justify-center gap-4 text-sm text-secondary font-bold tracking-widest uppercase mb-4"
+      >
+        <span>{dateStr}</span>
+      </div>
+
       <h1
-        class="text-4xl md:text-6xl font-serif text-white mb-8 leading-tight text-balance"
+        class="text-3xl md:text-5xl lg:text-6xl font-serif text-white leading-tight text-balance"
       >
         {t.title}
       </h1>
     </header>
 
-    <!-- Main Image -->
+    <!-- 
+      3. BILD
+      ÄNDERUNG: 'max-w-5xl' -> 'max-w-3xl'
+      Jetzt ist es exakt so breit wie der Textblock darunter.
+    -->
     {
       post.image && (
-        <div class="aspect-video w-full overflow-hidden mb-16 border border-border">
-          <img
-            src={imageUrl(post.image.id, 1200)}
-            alt={t.title + ""}
-            class="w-full h-full object-cover"
-          />
+        <div class="max-w-3xl mx-auto mb-12">
+          <div class="w-full overflow-hidden rounded-sm bg-surface border border-border/20 shadow-2xl">
+            <img
+              src={imageUrl(post.image.id, 1200)}
+              alt={String(t.title)}
+              class="w-full h-auto block"
+            />
+          </div>
         </div>
       )
     }
 
-    <!-- Content -->
-    <div class="prose prose-lg max-w-none mx-auto" set:html={contentHtml} />
+    <!-- 4. CONTENT -->
+    <div class="max-w-3xl mx-auto">
+      <div
+        class="prose prose-lg prose-invert max-w-none
+        prose-headings:font-serif prose-headings:text-white
+        prose-p:text-text-muted prose-p:leading-relaxed
+        prose-a:text-secondary prose-a:no-underline hover:prose-a:text-white
+        prose-li:text-text-muted
+        prose-strong:text-white
+        prose-blockquote:border-l-secondary prose-blockquote:text-white prose-blockquote:italic
+        [&>img]:rounded-sm [&>img]:border [&>img]:border-border/20"
+        set:html={contentHtml}
+      />
+
+      <!-- 5. BOTTOM NAV -->
+      <div class="mt-16 pt-12 border-t border-border/40">
+        <a href={categoryHref} class="inline-flex items-center gap-3 group">
+          <div
+            class="p-3 rounded-full border border-border bg-surface group-hover:border-secondary group-hover:bg-secondary transition-colors"
+          >
+            <Icon
+              name="lucide:arrow-left"
+              class="w-4 h-4 text-white group-hover:text-background"
+            />
+          </div>
+          <div class="flex flex-col">
+            <span class="text-[10px] uppercase tracking-widest text-text-muted"
+              >Zurück zu</span
+            >
+            <span
+              class="text-lg font-serif text-white group-hover:text-secondary transition-colors"
+              >{categoryT.title}</span
+            >
+          </div>
+        </a>
+      </div>
+    </div>
   </Container>
 </article>

@@ -1,0 +1,58 @@
+---
+import Container from "@/components/ui/Container.astro";
+
+interface Props {
+  label?: string;
+  title: string;
+  description?: string;
+  class?: string;
+}
+
+const { label, title, description, class: className } = Astro.props;
+---
+
+<section
+  class:list={[
+    "border-b border-border/40 pt-12 pb-16 md:pt-20 md:pb-24",
+    className,
+  ]}
+>
+  <Container>
+    <div
+      class="flex flex-col lg:flex-row lg:items-end justify-between gap-10 lg:gap-20"
+    >
+      <!-- Linke Seite -->
+      <div class="max-w-3xl">
+        {
+          label && (
+            <span class="text-secondary font-bold tracking-widest uppercase text-xs mb-6 flex items-center gap-2">
+              <span class="w-6 h-px bg-secondary" />
+              {label}
+            </span>
+          )
+        }
+
+        <h1
+          class="text-4xl md:text-5xl lg:text-6xl font-serif text-white leading-tight text-balance"
+        >
+          {title}
+        </h1>
+
+        <div class="empty:hidden mt-6">
+          <slot name="meta" />
+        </div>
+      </div>
+
+      <!-- Rechte Seite -->
+      {
+        description && (
+          <div class="max-w-xl lg:pb-2">
+            <p class="text-base md:text-lg text-text-muted leading-relaxed border-l border-border pl-6 text-pretty">
+              {description}
+            </p>
+          </div>
+        )
+      }
+    </div>
+  </Container>
+</section>

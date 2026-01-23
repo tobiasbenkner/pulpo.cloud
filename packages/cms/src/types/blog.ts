@@ -4,7 +4,8 @@ export type ReducedTranslations = Record<string, string>;
 
 export interface BlogPostCategory {
   id: string;
-  title: string;
+  title: ReducedTranslations;
+  description: ReducedTranslations;
   slug: ReducedTranslations;
   nav_label: ReducedTranslations;
   seo_title: ReducedTranslations;

@@ -3,6 +3,8 @@ import { imageUrl } from "@/lib/cms";
 import Container from "@/components/ui/Container.astro";
 import { resolveTranslations, defaultLang } from "@/lib/i18n";
 import type { BlogPostCategory } from "@pulpo/cms";
+import { Icon } from "astro-icon/components";
+import PageHeader from "@/components/ui/PageHeader.astro";
 
 interface Props {
   lang: string;
@@ -15,39 +17,57 @@ const posts = category.posts || [];
 const t = resolveTranslations(category, lang);
 ---
 
-<section class="py-24 sm:py-32">
-  <Container>
+<PageHeader
+  label="Blog"
+  title={String(t.title)}
+  description={String(t.description)}
+/>
 
-    <div
-      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12"
-    >
+<!-- CONTENT SECTION -->
+<section class="py-16 md:py-24 bg-background">
+  <Container>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
       {
         posts.map((post) => {
           const slug = resolveTranslations(post.slug, lang);
           const isDefault = lang === defaultLang;
           const urlPrefix = isDefault ? "" : `/${lang}`;
           const href = `${urlPrefix}/blog/${t.slug}/${slug}`;
+          
+          const postT = resolveTranslations(post, lang);
 
           return (
-            <a href={href} class="group block">
-              <div class="aspect-16/10 overflow-hidden bg-surface mb-6 border border-border group-hover:border-secondary transition-colors">
-                {post.image?.id && (
+            <a href={href} class="group flex flex-col h-full">
+              <!-- Bild -->
+              <div class="aspect-4/3 w-full overflow-hidden bg-surface mb-6 border border-border group-hover:border-secondary transition-all duration-500 relative">
+                 {post.image?.id && (
                   <img
-                    src={imageUrl(post.image.id)}
-                    alt={post.title[lang]}
-                    class="w-full h-full object-cover"
+                    src={imageUrl(post.image.id, 600)}
+                    alt={String(postT.title)}
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
                 )}
+                <!-- Datum Badge über dem Bild -->
+                <div class="absolute top-4 left-4 bg-background/90 backdrop-blur-sm px-3 py-1 text-xs font-bold uppercase tracking-widest text-white border border-white/10">
+                   {new Date(post.date).toLocaleDateString(lang)}
+                </div>
               </div>
-              <div class="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-secondary mb-3">
-                {new Date(post.date).toLocaleDateString(lang)}
+
+              <!-- Text -->
+              <div class="flex-1 flex flex-col">
+                <h2 class="text-2xl font-serif text-white mb-3 leading-tight group-hover:text-secondary transition-colors">
+                  {postT.title}
+                </h2>
+                
+                <p class="text-text-muted text-base line-clamp-3 mb-6 flex-1">
+                  {postT.excerpt}
+                </p>
+
+                <div class="flex items-center gap-2 text-sm font-bold text-secondary uppercase tracking-widest group-hover:translate-x-2 transition-transform duration-300">
+                   <span>Lesen</span>
+                   <Icon name="lucide:arrow-right" class="w-4 h-4" />
+                </div>
               </div>
-              <h2 class="text-2xl font-serif text-white mb-3 group-hover:text-secondary transition-colors">
-                {post.title[lang]}
-              </h2>
-              <p class="text-text-muted line-clamp-3 leading-relaxed">
-                {post.excerpt[lang]}
-              </p>
             </a>
           );
         })

@@ -4,6 +4,7 @@ import PrivacyMap from "@/components/ui/PrivacyMap.astro";
 import { Icon } from "astro-icon/components";
 import { siteData } from "@/data/siteData";
 import type { ContactTranslations } from "./contact.i18n";
+import PageHeader from "@/components/ui/PageHeader.astro";
 
 interface Props {
   lang: string;
@@ -14,130 +15,141 @@ const { t } = Astro.props;
 const { contact } = siteData;
 ---
 
-
-<section class="pt-24 pb-12 sm:pt-32 border-b border-border bg-background">
-  <Container>
-    <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-10 lg:gap-20">
-      
-      <!-- Left: Title -->
-      <div class="max-w-2xl">
-        <span class="text-secondary font-bold tracking-widest uppercase text-xs mb-6 flex items-center gap-2">
-          <span class="w-6 h-px bg-secondary"></span>
-          {t.hero.label}
-        </span>
-        <h1 class="text-4xl md:text-5xl font-serif text-white leading-tight text-balance">
-          {t.hero.headline}
-        </h1>
-      </div>
-
-      <!-- Right: Intro Text (Aligned to bottom of title) -->
-      <div class="max-w-xl">
-        <p class="text-text-muted leading-relaxed text-base md:text-lg border-l border-border pl-6">
-            {t.intro.text}
-        </p>
-      </div>
-
-    </div>
-  </Container>
-</section>
+<PageHeader
+  label={t.hero.label}
+  title={t.hero.headline}
+  description={t.intro.text}
+/>
 
 <!-- DIRECT ACTIONS (CTAs) -->
 <section class="py-12 border-b border-border bg-surface/5">
-    <Container>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-            
-            <!-- Call CTA -->
-            <a href={`tel:${contact.phone}`} class="group relative overflow-hidden bg-surface p-8 md:p-10 border border-border hover:border-secondary transition-all duration-300">
-                <div class="flex items-start justify-between mb-6">
-                    <div class="p-3 bg-background border border-border rounded-sm group-hover:bg-secondary group-hover:text-background transition-colors">
-                        <Icon name="lucide:phone" class="w-6 h-6" />
-                    </div>
-                    <Icon name="lucide:arrow-up-right" class="w-6 h-6 text-border group-hover:text-secondary transition-colors" />
-                </div>
-                <h3 class="text-xl md:text-2xl font-serif text-white mb-2">{t.actions.call.title}</h3>
-                <p class="text-sm md:text-base text-text-muted mb-6">{t.actions.call.desc}</p>
-                <span class="inline-block text-secondary font-bold uppercase tracking-widest text-xs md:text-sm border-b border-secondary pb-1 group-hover:text-white group-hover:border-white transition-colors">
-                    {t.actions.call.btn}
-                </span>
-            </a>
-
-            <!-- Email CTA -->
-            <a href={`mailto:${contact.email}`} class="group relative overflow-hidden bg-surface p-8 md:p-10 border border-border hover:border-secondary transition-all duration-300">
-                <div class="flex items-start justify-between mb-6">
-                    <div class="p-3 bg-background border border-border rounded-sm group-hover:bg-secondary group-hover:text-background transition-colors">
-                        <Icon name="lucide:mail" class="w-6 h-6" />
-                    </div>
-                    <Icon name="lucide:arrow-up-right" class="w-6 h-6 text-border group-hover:text-secondary transition-colors" />
-                </div>
-                <h3 class="text-xl md:text-2xl font-serif text-white mb-2">{t.actions.email.title}</h3>
-                <p class="text-sm md:text-base text-text-muted mb-6">{t.actions.email.desc}</p>
-                <span class="inline-block text-secondary font-bold uppercase tracking-widest text-xs md:text-sm border-b border-secondary pb-1 group-hover:text-white group-hover:border-white transition-colors">
-                    {t.actions.email.btn}
-                </span>
-            </a>
-
+  <Container>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+      <!-- Call CTA -->
+      <a
+        href={`tel:${contact.phone}`}
+        class="group relative overflow-hidden bg-surface p-8 md:p-10 border border-border hover:border-secondary transition-all duration-300"
+      >
+        <div class="flex items-start justify-between mb-6">
+          <div
+            class="p-3 bg-background border border-border rounded-sm group-hover:bg-secondary group-hover:text-background transition-colors"
+          >
+            <Icon name="lucide:phone" class="w-6 h-6" />
+          </div>
+          <Icon
+            name="lucide:arrow-up-right"
+            class="w-6 h-6 text-border group-hover:text-secondary transition-colors"
+          />
         </div>
-    </Container>
+        <h3 class="text-xl md:text-2xl font-serif text-white mb-2">
+          {t.actions.call.title}
+        </h3>
+        <p class="text-sm md:text-base text-text-muted mb-6">
+          {t.actions.call.desc}
+        </p>
+        <span
+          class="inline-block text-secondary font-bold uppercase tracking-widest text-xs md:text-sm border-b border-secondary pb-1 group-hover:text-white group-hover:border-white transition-colors"
+        >
+          {t.actions.call.btn}
+        </span>
+      </a>
+
+      <!-- Email CTA -->
+      <a
+        href={`mailto:${contact.email}`}
+        class="group relative overflow-hidden bg-surface p-8 md:p-10 border border-border hover:border-secondary transition-all duration-300"
+      >
+        <div class="flex items-start justify-between mb-6">
+          <div
+            class="p-3 bg-background border border-border rounded-sm group-hover:bg-secondary group-hover:text-background transition-colors"
+          >
+            <Icon name="lucide:mail" class="w-6 h-6" />
+          </div>
+          <Icon
+            name="lucide:arrow-up-right"
+            class="w-6 h-6 text-border group-hover:text-secondary transition-colors"
+          />
+        </div>
+        <h3 class="text-xl md:text-2xl font-serif text-white mb-2">
+          {t.actions.email.title}
+        </h3>
+        <p class="text-sm md:text-base text-text-muted mb-6">
+          {t.actions.email.desc}
+        </p>
+        <span
+          class="inline-block text-secondary font-bold uppercase tracking-widest text-xs md:text-sm border-b border-secondary pb-1 group-hover:text-white group-hover:border-white transition-colors"
+        >
+          {t.actions.email.btn}
+        </span>
+      </a>
+    </div>
+  </Container>
 </section>
 
 <!-- LOCATION & DETAILS -->
 <section class="py-16 sm:py-24">
   <Container>
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
-      
       <!-- Text Info -->
       <div class="lg:col-span-5 space-y-12">
         <div>
-            <h2 class="text-2xl font-serif text-white mb-4">{t.info.visit.title}</h2>
-            <p class="text-text-muted leading-relaxed mb-8">
-                {t.info.visit.desc}
-            </p>
-            
-            <div class="space-y-8 border-t border-border pt-8">
-                <!-- Address -->
-                <div>
-                    <span class="text-xs font-bold uppercase tracking-widest text-secondary block mb-3 flex items-center gap-2">
-                        <Icon name="lucide:map-pin" class="w-4 h-4" />
-                        {t.info.address}
-                    </span>
-                    <a 
-                        href={siteData.contact.googleMapsEmbed} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        class="text-lg text-white font-serif pl-6 border-l border-border block hover:text-secondary transition-colors"
-                    >
-                        {contact.address}
-                    </a>
-                </div>
-                
-                <!-- Hours -->
-                <div>
-                    <span class="text-xs font-bold uppercase tracking-widest text-secondary block mb-3 flex items-center gap-2">
-                         <Icon name="lucide:clock" class="w-4 h-4" />
-                        {t.info.hoursLabel}
-                    </span>
-                    <div class="pl-6 border-l border-border space-y-2">
-                        <p class="text-sm text-secondary font-medium italic mb-2">
-                            {t.info.appointmentNote}
-                        </p>
-                        <p class="text-lg text-white font-serif">{t.info.days}</p>
-                        <div class="text-text-muted font-mono text-sm space-y-1 pt-1">
-                            <p>09:00 – 14:00</p>
-                            <p>16:30 – 19:30</p>
-                        </div>
-                    </div>
-                </div>
+          <h2 class="text-2xl font-serif text-white mb-4">
+            {t.info.visit.title}
+          </h2>
+          <p class="text-text-muted leading-relaxed mb-8">
+            {t.info.visit.desc}
+          </p>
+
+          <div class="space-y-8 border-t border-border pt-8">
+            <!-- Address -->
+            <div>
+              <span
+                class="text-xs font-bold uppercase tracking-widest text-secondary block mb-3 flex items-center gap-2"
+              >
+                <Icon name="lucide:map-pin" class="w-4 h-4" />
+                {t.info.address}
+              </span>
+              <a
+                href={siteData.contact.googleMapsEmbed}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-lg text-white font-serif pl-6 border-l border-border block hover:text-secondary transition-colors"
+              >
+                {contact.address}
+              </a>
             </div>
+
+            <!-- Hours -->
+            <div>
+              <span
+                class="text-xs font-bold uppercase tracking-widest text-secondary block mb-3 flex items-center gap-2"
+              >
+                <Icon name="lucide:clock" class="w-4 h-4" />
+                {t.info.hoursLabel}
+              </span>
+              <div class="pl-6 border-l border-border space-y-2">
+                <p class="text-sm text-secondary font-medium italic mb-2">
+                  {t.info.appointmentNote}
+                </p>
+                <p class="text-lg text-white font-serif">{t.info.days}</p>
+                <div class="text-text-muted font-mono text-sm space-y-1 pt-1">
+                  <p>09:00 – 14:00</p>
+                  <p>16:30 – 19:30</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       <!-- Map -->
       <div class="lg:col-span-7">
-        <div class="w-full aspect-video lg:h-full lg:aspect-auto min-h-[400px] rounded-sm overflow-hidden border border-border bg-surface grayscale invert-[.05]">
-            <PrivacyMap t={t.map} />
+        <div
+          class="w-full aspect-video lg:h-full lg:aspect-auto min-h-[400px] rounded-sm overflow-hidden border border-border bg-surface grayscale invert-[.05]"
+        >
+          <PrivacyMap t={t.map} />
         </div>
       </div>
-
     </div>
   </Container>
 </section>

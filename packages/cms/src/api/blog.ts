@@ -28,6 +28,8 @@ export async function getBlogCategories(
       ...category,
       slug: reduceTranslations(category.translations, "slug"),
       nav_label: reduceTranslations(category.translations, "nav_label"),
+      title: reduceTranslations(category.translations, "title"),
+      description: reduceTranslations(category.translations, "description"),
       seo_title: reduceTranslations(category.translations, "seo.title"),
       seo_description: reduceTranslations(
         category.translations,
