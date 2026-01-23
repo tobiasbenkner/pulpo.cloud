@@ -96,7 +96,7 @@ const { contact } = siteData;
           <h2 class="text-2xl font-serif text-white mb-4">
             {t.info.visit.title}
           </h2>
-          <p class="text-text-muted leading-relaxed mb-8">
+          <p class="text-text-muted leading-relaxed mb-8 text-balance">
             {t.info.visit.desc}
           </p>
 
@@ -110,10 +110,10 @@ const { contact } = siteData;
                 {t.info.address}
               </span>
               <a
-                href={siteData.contact.googleMapsEmbed}
+                href={siteData.contact.googleMaps}
                 target="_blank"
                 rel="noopener noreferrer"
-                class="text-lg text-white font-serif pl-6 border-l border-border block hover:text-secondary transition-colors"
+                class="text-lg text-white font-serif pl-6 border-l border-border block hover:text-secondary transition-colors whitespace-pre-line"
               >
                 {contact.address}
               </a>
