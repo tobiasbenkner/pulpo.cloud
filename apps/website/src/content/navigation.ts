@@ -4,10 +4,11 @@ import { getDefaultLanguage } from "./language";
 import { readItems } from "@directus/sdk";
 import { I18nSchema } from "../utils/t";
 import { convertI18n, getImage } from "./utils";
+import { TENANT_ID } from "../config";
 
 export const navigations = defineCollection({
   loader: async () => {
-    const tenantId = import.meta.env.TENANT_ID;
+    const tenantId = TENANT_ID;
 
     if (!tenantId) {
       throw new Error("TENANT_ID environment variable is missing!");

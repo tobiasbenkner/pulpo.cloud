@@ -1,12 +1,11 @@
 import { defineCollection, z } from "astro:content";
 import { readItems } from "@directus/sdk";
-
-// Deine eigenen Imports (Pfade ggf. anpassen)
 import { directus } from "../lib/directus";
 import { getDefaultLanguage } from "./language";
 import { convertI18n } from "./utils";
 import { I18nSchema } from "../utils/t";
 import { downloadVideoToPublic } from "../utils/downloadVideo";
+import { TENANT_ID } from "../config";
 
 async function manageVideo(video: any) {
   let localVideoPath = null;
@@ -24,7 +23,7 @@ async function manageVideo(video: any) {
     localVideoPath = await downloadVideoToPublic(
       remoteUrl,
       video.id,
-      video.filename_disk
+      video.filename_disk,
     );
   }
   return localVideoPath;
@@ -32,7 +31,7 @@ async function manageVideo(video: any) {
 
 export const pages = defineCollection({
   loader: async () => {
-    const tenantId = import.meta.env.TENANT_ID;
+    const tenantId = TENANT_ID;
 
     if (!tenantId) {
       throw new Error("TENANT_ID environment variable is missing!");
@@ -70,7 +69,7 @@ export const pages = defineCollection({
             _eq: tenantId,
           },
         },
-      })
+      }),
     );
 
     const processedPages = [];
@@ -104,7 +103,7 @@ export const pages = defineCollection({
           description: convertI18n(
             page.seo,
             "seo.meta_description",
-            defaultLanguage.code
+            defaultLanguage.code,
           ),
           og_image: convertI18n(page.seo, "seo.og_image", defaultLanguage.code),
         },

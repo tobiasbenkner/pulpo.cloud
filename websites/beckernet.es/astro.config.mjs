@@ -5,6 +5,9 @@ import icon from 'astro-icon';
 
 export default defineConfig({
   site: 'https://www.beckernet.es',
+  image: {
+    domains: ['admin.pulpo.cloud'],
+  },
   vite: {
     plugins: [tailwindcss()],
     envPrefix: ['VITE_', 'DIRECTUS_', 'TENANT'],

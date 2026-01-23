@@ -5,6 +5,7 @@ import { readItem } from "@directus/sdk";
 import { I18nSchema } from "../utils/t";
 import { convertI18n } from "./utils";
 import { getDefaultLanguage } from "./language";
+import { TENANT_ID } from "../config";
 
 const SOCIAL_KEYS = [
   "facebook",
@@ -19,7 +20,7 @@ const SOCIAL_KEYS = [
 
 export const tenant = defineCollection({
   loader: async () => {
-    const tenantId = import.meta.env.TENANT_ID;
+    const tenantId = TENANT_ID;
 
     if (!tenantId) {
       throw new Error("TENANT_ID environment variable is missing!");
@@ -35,7 +36,7 @@ export const tenant = defineCollection({
           "opening_hours.translations.*",
           "opening_hours.translations.languages_id.*",
         ],
-      })
+      }),
     );
     return [
       {
@@ -45,17 +46,17 @@ export const tenant = defineCollection({
             days_label: convertI18n(
               it?.translations,
               "days_label",
-              defaultLanguage.code
+              defaultLanguage.code,
             ),
             hours_text: convertI18n(
               it?.translations,
               "hours_text",
-              defaultLanguage.code
+              defaultLanguage.code,
             ),
             additional_info: convertI18n(
               it?.translations,
               "additional_info",
-              defaultLanguage.code
+              defaultLanguage.code,
             ),
           };
         }),
@@ -85,7 +86,7 @@ export const tenant = defineCollection({
           days_label: I18nSchema,
           hours_text: I18nSchema,
           additional_info: I18nSchema,
-        })
+        }),
       ),
     })
     .transform((data) => {
@@ -93,7 +94,7 @@ export const tenant = defineCollection({
         (key) => ({
           name: key,
           url: data[key] as string,
-        })
+        }),
       );
 
       return {

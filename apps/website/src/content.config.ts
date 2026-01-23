@@ -7,10 +7,11 @@ import { getDefaultLanguage } from "./content/language";
 import { navigations } from "./content/navigation";
 import { convertI18n, getImage } from "./content/utils";
 import { pages } from "./content/pages";
+import { TENANT_ID } from "./config";
 
 const categories = defineCollection({
   loader: async () => {
-    const tenantId = import.meta.env.TENANT_ID;
+    const tenantId = TENANT_ID;
 
     if (!tenantId) {
       throw new Error("TENANT_ID environment variable is missing!");
@@ -125,7 +126,7 @@ const categories = defineCollection({
 
 const languages = defineCollection({
   loader: async () => {
-    const tenantId = import.meta.env.TENANT_ID;
+    const tenantId = TENANT_ID;
 
     if (!tenantId) {
       throw new Error("TENANT_ID environment variable is missing!");
