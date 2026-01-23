@@ -4,7 +4,8 @@ import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
 import { getNavbarItems } from "@/lib/navbar";
 import { getTranslatedPath } from "@/lib/registry";
 import type { Language } from "@/lib/i18n";
-import { Icon } from "astro-icon/components";
+import { Image } from "astro:assets";
+import logo from "../assets/logo.png";
 
 interface Props {
   lang: Language;
@@ -24,9 +25,10 @@ const homeHref = getTranslatedPath("home", lang);
       <!-- Logo -->
       <a
         href={homeHref}
-        class="relative z-50 text-xl font-bold font-serif text-primary"
+        class="relative z-50 flex items-center gap-3 text-xl font-bold font-serif text-primary"
       >
-        Becker
+        <Image src={logo} alt="Logo" class="w-8 h-8" />
+        <span>Becker</span>
       </a>
 
       <!-- Desktop Nav -->
