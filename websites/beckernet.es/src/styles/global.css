@@ -40,11 +40,20 @@
     color: var(--text);
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
+
+    /* Verhindert horizontales Scrollen */
+    overflow-x: hidden;
+    width: 100%;
   }
 
   body {
     font-family: var(--font-sans);
     line-height: 1.6;
+
+    /* Doppelt: Verhindert horizontales Scrollen */
+    overflow-x: hidden;
+    width: 100%;
+    position: relative;
   }
 
   h1,

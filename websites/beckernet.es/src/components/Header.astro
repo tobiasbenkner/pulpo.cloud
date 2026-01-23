@@ -4,6 +4,7 @@ import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
 import { getNavbarItems } from "@/lib/navbar";
 import { getTranslatedPath } from "@/lib/registry";
 import type { Language } from "@/lib/i18n";
+import { Icon } from "astro-icon/components";
 
 interface Props {
   lang: Language;
@@ -16,14 +17,19 @@ const homeHref = getTranslatedPath("home", lang);
 ---
 
 <header
-  class="sticky top-0 z-50 w-full border-b border-border/50 bg-surface/80 backdrop-blur-md"
+  class="sticky top-0 z-50 w-full border-b border-border/50 bg-[#0f172a]/90 backdrop-blur-md"
 >
   <Container>
     <div class="flex h-20 items-center justify-between">
-      <a href={homeHref} class="text-xl font-bold font-serif text-primary">
+      <!-- Logo -->
+      <a
+        href={homeHref}
+        class="relative z-50 text-xl font-bold font-serif text-primary"
+      >
         Becker
       </a>
 
+      <!-- Desktop Nav -->
       <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
         {
           navItems.map((item) => {
@@ -44,9 +50,113 @@ const homeHref = getTranslatedPath("home", lang);
         }
       </nav>
 
-      <div class="flex items-center gap-4">
+      <!-- Desktop Language Switcher -->
+      <div class="hidden md:flex items-center gap-4">
         <LanguageSwitcher lang={lang} routeKey={routeKey} />
       </div>
+
+      <!-- Mobile Menu Toggle Button -->
+      <button
+        id="menu-toggle"
+        aria-label="Toggle Menu"
+        class="relative z-50 flex flex-col justify-center gap-1.5 p-2 md:hidden group"
+      >
+        <span
+          class="h-0.5 w-6 bg-white transition-all duration-300 group-data-[open]:rotate-45 group-data-[open]:translate-y-2"
+        ></span>
+        <span
+          class="h-0.5 w-6 bg-secondary transition-all duration-300 group-data-[open]:opacity-0"
+        ></span>
+        <span
+          class="h-0.5 w-6 bg-white transition-all duration-300 group-data-[open]:-rotate-45 group-data-[open]:-translate-y-2"
+        ></span>
+      </button>
     </div>
   </Container>
+
+  <!-- Mobile Menu Overlay -->
+  <div
+    id="mobile-menu"
+    class="fixed inset-0 z-40 flex flex-col items-center justify-start h-screen w-screen bg-[#0f172a] transition-all duration-300 translate-x-full opacity-0 invisible md:hidden pt-28"
+  >
+    <nav
+      class="flex flex-col items-center gap-6 text-center w-full px-6 overflow-y-auto max-h-[70vh]"
+    >
+      {
+        navItems.map((item) => (
+          <a
+            href={item.href}
+            class:list={[
+              "text-2xl font-serif transition-colors duration-300 mobile-link w-full py-3 border-b border-white/5",
+              item.isActive
+                ? "text-secondary"
+                : "text-text-muted hover:text-white",
+            ]}
+          >
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="mt-8 scale-125 p-4 rounded-full bg-surface/50">
+      <LanguageSwitcher lang={lang} routeKey={routeKey} />
+    </div>
+
+    <div
+      class="absolute bottom-10 left-0 right-0 flex justify-center opacity-10 pointer-events-none"
+    >
+      <Icon name="lucide:anchor" class="w-32 h-32 text-secondary" />
+    </div>
+  </div>
 </header>
+
+<script>
+  const menuToggle = document.getElementById("menu-toggle");
+  const mobileMenu = document.getElementById("mobile-menu");
+  const mobileLinks = document.querySelectorAll(".mobile-link");
+  const body = document.body;
+  let isOpen = false;
+
+  function toggleMenu() {
+    isOpen = !isOpen;
+
+    if (isOpen) {
+      menuToggle?.setAttribute("data-open", "");
+      mobileMenu?.classList.remove("invisible");
+
+      requestAnimationFrame(() => {
+        mobileMenu?.classList.remove("translate-x-full", "opacity-0");
+        mobileMenu?.classList.add("translate-x-0", "opacity-100");
+      });
+
+      body.style.overflow = "hidden";
+    } else {
+      menuToggle?.removeAttribute("data-open");
+
+      mobileMenu?.classList.add("translate-x-full", "opacity-0");
+      mobileMenu?.classList.remove("translate-x-0", "opacity-100");
+      body.style.overflow = "";
+    }
+  }
+
+  mobileMenu?.addEventListener("transitionend", () => {
+    if (!isOpen) {
+      mobileMenu.classList.add("invisible");
+    }
+  });
+
+  menuToggle?.addEventListener("click", toggleMenu);
+
+  mobileLinks.forEach((link) => {
+    link.addEventListener("click", () => {
+      if (isOpen) toggleMenu();
+    });
+  });
+
+  window.addEventListener("resize", () => {
+    if (window.innerWidth >= 768 && isOpen) {
+      toggleMenu();
+    }
+  });
+</script>
