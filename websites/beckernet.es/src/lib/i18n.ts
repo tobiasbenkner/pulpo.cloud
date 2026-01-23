@@ -1,6 +1,6 @@
-export const languages = ['es', 'de', 'en'] as const;
-export const defaultLang = 'es' as const;
-export type Language = typeof languages[number];
+export const languages = ["es", "de", "en"] as const;
+export const defaultLang = "es" as const;
+export type Language = (typeof languages)[number];
 
 export const openGraphLocales: Record<Language, string> = {
   es: "es_ES",
@@ -11,7 +11,7 @@ export const openGraphLocales: Record<Language, string> = {
 /**
  * TypeScript Helper:
  * Wandelt die verschachtelte Definitionsstruktur in das flache Objekt für die Komponente um.
- * 
+ *
  * Beispiel:
  * Input:  { seo: { title: { es: string, de: string } } }
  * Output: { seo: { title: string } }
@@ -30,23 +30,27 @@ export type FlattenTranslation<T> = {
 /**
  * Löst das Übersetzungsobjekt rekursiv zur Laufzeit auf.
  */
-export function resolveTranslations(obj: any, lang: Language | string): any {
-  if (typeof obj !== "object" || obj === null) return obj;
+export function resolveTranslations<T>(
+  obj: T,
+  lang: Language | string,
+): FlattenTranslation<T> {
+  if (typeof obj !== "object" || obj === null) return obj as any;
 
   const keys = Object.keys(obj);
   const hasLangKey = keys.some((k) => languages.includes(k as any));
 
   if (hasLangKey) {
-    if (obj[lang]) return obj[lang];
+    const typedObj = obj as Record<string, any>;
+    if (typedObj[lang]) return typedObj[lang];
     const baseLang = lang.split("-")[0];
-    if (obj[baseLang]) return obj[baseLang];
-    if (obj[defaultLang]) return obj[defaultLang];
-    return Object.values(obj)[0] || "";
+    if (typedObj[baseLang]) return typedObj[baseLang];
+    if (typedObj[defaultLang]) return typedObj[defaultLang];
+    return Object.values(typedObj)[0] || "";
   }
 
   const result: any = {};
   for (const key of keys) {
-    result[key] = resolveTranslations(obj[key], lang);
+    result[key] = resolveTranslations((obj as any)[key], lang);
   }
-  return result;
+  return result as FlattenTranslation<T>;
 }

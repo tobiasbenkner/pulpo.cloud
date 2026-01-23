@@ -15,14 +15,11 @@ type Props = {
 
 const { post, lang, category } = Astro.props;
 
-// LINK ZUR KATEGORIE
 const categoryRouteKey = `blog_category_${category.id}`;
 const categoryHref = getTranslatedPath(categoryRouteKey, lang);
 
-const title = resolveTranslations(post.title, lang);
-
-const content = resolveTranslations(post.content, lang);
-const contentHtml = content ? await marked.parse(content) : "";
+const t = resolveTranslations(post, lang);
+const contentHtml = t.content ? await marked.parse(String(t.content)) : "";
 ---
 
 <article class="py-24 sm:py-32">
@@ -46,7 +43,7 @@ const contentHtml = content ? await marked.parse(content) : "";
       <h1
         class="text-4xl md:text-6xl font-serif text-white mb-8 leading-tight text-balance"
       >
-        {title}
+        {t.title}
       </h1>
     </header>
 
@@ -56,7 +53,7 @@ const contentHtml = content ? await marked.parse(content) : "";
         <div class="aspect-video w-full overflow-hidden mb-16 border border-border">
           <img
             src={imageUrl(post.image.id, 1200)}
-            alt={title}
+            alt={t.title + ""}
             class="w-full h-full object-cover"
           />
         </div>

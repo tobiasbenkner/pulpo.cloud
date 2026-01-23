@@ -12,7 +12,7 @@ interface Props {
 const { lang, category, title } = Astro.props;
 const posts = category.posts || [];
 
-const currentCategorySlug = resolveTranslations(category.slug, lang);
+const t = resolveTranslations(category, lang);
 ---
 
 <section class="py-24 sm:py-32">
@@ -24,22 +24,10 @@ const currentCategorySlug = resolveTranslations(category.slug, lang);
     >
       {
         posts.map((post) => {
-          // Wir suchen die Übersetzung passend zur aktuellen Sprache
-          // Falls dein CMS Objektstruktur { title: {es: '...', en: '...'} } hat:
-          // const postTitle = resolveTranslations(post.title, lang);
-
-          // Falls dein CMS Array-Struktur hat (Directus Standard für Relational):
-
-          // URL bauen:
-          // 1. Post Slug holen
-          const postSlug = resolveTranslations(post.slug, lang);
-
-          // 2. Prefix bauen
+          const slug = resolveTranslations(post.slug, lang);
           const isDefault = lang === defaultLang;
           const urlPrefix = isDefault ? "" : `/${lang}`;
-
-          // 3. Zusammenfügen: /es/blog/kategorie-slug/post-slug
-          const href = `${urlPrefix}/blog/${currentCategorySlug}/${postSlug}`;
+          const href = `${urlPrefix}/blog/${t.slug}/${slug}`;
 
           return (
             <a href={href} class="group block">
