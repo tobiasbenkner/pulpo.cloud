@@ -17,7 +17,7 @@ const homeHref = getTranslatedPath("home", lang);
 ---
 
 <header
-  class="sticky top-0 z-50 w-full border-b border-border/50 bg-[#0f172a]/90 backdrop-blur-md"
+  class="fixed top-0 left-0 z-50 w-full border-b border-border/50 bg-[#0f172a]/90 backdrop-blur-md"
 >
   <Container>
     <div class="flex h-20 items-center justify-between">
@@ -74,11 +74,14 @@ const homeHref = getTranslatedPath("home", lang);
     </div>
   </Container>
 
-  <!-- Mobile Menu Overlay -->
+  <!-- 
+    Mobile Menu Overlay 
+  -->
   <div
     id="mobile-menu"
-    class="fixed inset-0 z-40 flex flex-col items-center justify-start h-screen w-screen bg-[#0f172a] transition-all duration-300 translate-x-full opacity-0 invisible md:hidden pt-28"
+    class="fixed inset-0 z-40 flex flex-col items-center justify-start w-screen h-[100dvh] bg-[#0f172a] transition-all duration-300 translate-x-full opacity-0 invisible md:hidden pt-28 overscroll-contain"
   >
+    <!-- Nav Container: Erlaubt Scrollen im Menü, falls das Handy sehr klein ist -->
     <nav
       class="flex flex-col items-center gap-6 text-center w-full px-6 overflow-y-auto max-h-[70vh]"
     >
@@ -87,7 +90,7 @@ const homeHref = getTranslatedPath("home", lang);
           <a
             href={item.href}
             class:list={[
-              "text-2xl font-serif transition-colors duration-300 mobile-link w-full py-3 border-b border-white/5",
+              "text-3xl font-serif transition-colors duration-300 mobile-link w-full py-4 border-b border-white/5",
               item.isActive
                 ? "text-secondary"
                 : "text-text-muted hover:text-white",
@@ -99,10 +102,12 @@ const homeHref = getTranslatedPath("home", lang);
       }
     </nav>
 
+    <!-- Language Switcher Mobile -->
     <div class="mt-8 scale-125 p-4 rounded-full bg-surface/50">
       <LanguageSwitcher lang={lang} routeKey={routeKey} />
     </div>
 
+    <!-- Deko Element -->
     <div
       class="absolute bottom-10 left-0 right-0 flex justify-center opacity-10 pointer-events-none"
     >
@@ -116,12 +121,15 @@ const homeHref = getTranslatedPath("home", lang);
   const mobileMenu = document.getElementById("mobile-menu");
   const mobileLinks = document.querySelectorAll(".mobile-link");
   const body = document.body;
+  const html = document.documentElement;
+
   let isOpen = false;
 
   function toggleMenu() {
     isOpen = !isOpen;
 
     if (isOpen) {
+      // --- ÖFFNEN ---
       menuToggle?.setAttribute("data-open", "");
       mobileMenu?.classList.remove("invisible");
 
@@ -130,16 +138,23 @@ const homeHref = getTranslatedPath("home", lang);
         mobileMenu?.classList.add("translate-x-0", "opacity-100");
       });
 
+      // Hardcore Scroll Lock (Body & HTML)
       body.style.overflow = "hidden";
+      html.style.overflow = "hidden";
     } else {
+      // --- SCHLIEßEN ---
       menuToggle?.removeAttribute("data-open");
 
       mobileMenu?.classList.add("translate-x-full", "opacity-0");
       mobileMenu?.classList.remove("translate-x-0", "opacity-100");
+
+      // Scroll Lock aufheben
       body.style.overflow = "";
+      html.style.overflow = "";
     }
   }
 
+  // Warten bis Animation fertig ist, dann invisible setzen
   mobileMenu?.addEventListener("transitionend", () => {
     if (!isOpen) {
       mobileMenu.classList.add("invisible");
