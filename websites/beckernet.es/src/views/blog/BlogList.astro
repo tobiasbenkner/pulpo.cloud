@@ -3,7 +3,6 @@ import { imageUrl } from "@/lib/cms";
 import Container from "@/components/ui/Container.astro";
 import { resolveTranslations, defaultLang } from "@/lib/i18n";
 import type { BlogPostCategory } from "@pulpo/cms";
-import { Icon } from "astro-icon/components";
 import PageHeader from "@/components/ui/PageHeader.astro";
 import { Image } from "astro:assets";
 
@@ -65,11 +64,6 @@ const t = resolveTranslations(category, lang);
                 <p class="text-text-muted text-base line-clamp-3 mb-6 flex-1">
                   {postT.excerpt}
                 </p>
-
-                <div class="flex items-center gap-2 text-sm font-bold text-secondary uppercase tracking-widest group-hover:translate-x-2 transition-transform duration-300">
-                   <span>Lesen</span>
-                   <Icon name="lucide:arrow-right" class="w-4 h-4" />
-                </div>
               </div>
             </a>
           );
