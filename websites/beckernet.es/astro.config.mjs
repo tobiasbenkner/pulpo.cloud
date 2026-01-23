@@ -10,9 +10,6 @@ export default defineConfig({
   },
   vite: {
     plugins: [tailwindcss()],
-    envPrefix: ['VITE_', 'DIRECTUS_', 'TENANT'],
-
   },
   integrations: [icon()],
-
 });
