@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 import icon from 'astro-icon';
 
 export default defineConfig({
-  site: 'https://beckernet.pulpo.cloud',
+  site: 'https://becker.pulpo.cloud',
   image: {
     domains: ['admin.pulpo.cloud'],
   },
