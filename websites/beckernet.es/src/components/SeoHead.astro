@@ -1,6 +1,6 @@
 ---
 import { getImage } from "astro:assets";
-import defaultOgImageSource from "../assets/hero.webp";
+import defaultOgImageSource from "../assets/og-default.webp";
 
 import {
   languages,
@@ -10,6 +10,7 @@ import {
 } from "@/lib/i18n";
 import { getTranslatedPath } from "@/lib/registry";
 import { siteData } from "@/data/siteData";
+import { imageUrl } from "@/lib/cms";
 
 interface Props {
   title: string;
@@ -33,7 +34,6 @@ const siteUrl =
   Astro.site?.toString().replace(/\/$/, "") || "http://localhost:4321";
 
 const imageToOptimize = ogImage || defaultOgImageSource;
-
 const socialImage = await getImage({
   src: imageToOptimize,
   format: "jpg",
@@ -41,7 +41,6 @@ const socialImage = await getImage({
   height: 630,
   quality: 90,
 });
-const ogImageUrl = new URL(socialImage.src, siteUrl).toString();
 
 const canonicalURL = new URL(
   getTranslatedPath(routeKey, lang),
@@ -85,7 +84,7 @@ const robotsContent = noindex ? "noindex, nofollow" : "index, follow";
 <meta property="og:url" content={canonicalURL} />
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
-<meta property="og:image" content={ogImageUrl} />
+<meta property="og:image" content={socialImage.src} />
 <meta property="og:site_name" content={siteData.meta.name} />
 
 <!-- Open Graph Locales -->
@@ -103,5 +102,5 @@ const robotsContent = noindex ? "noindex, nofollow" : "index, follow";
 <meta property="twitter:url" content={canonicalURL} />
 <meta property="twitter:title" content={title} />
 <meta property="twitter:description" content={description} />
-<meta property="twitter:image" content={ogImageUrl} />
+<meta property="twitter:image" content={socialImage.src} />
 <meta name="twitter:site" content={siteData.meta.twitterHandle} />

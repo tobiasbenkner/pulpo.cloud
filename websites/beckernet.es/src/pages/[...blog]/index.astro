@@ -114,7 +114,7 @@ if (type === "post" && post) {
   const t = resolveTranslations(post, lang);
   title = String(t.seo_title);
   description = String(t.seo_description);
-  if (post.image) ogImage =imageUrl(post.image.id);
+  if (post.image) ogImage = imageUrl(post.image.id);
 } else {
   // Category
   const t = resolveTranslations(category, lang);
