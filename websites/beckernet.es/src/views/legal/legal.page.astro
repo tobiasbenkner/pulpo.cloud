@@ -1,10 +1,10 @@
 ---
 import Container from "@/components/ui/Container.astro";
 import { siteData } from "@/data/siteData";
-import type { PrivacyTranslations } from "./privacy.i18n";
+import type { LegalTranslations } from "./legal.i18n";
 
 interface Props {
-  t: PrivacyTranslations;
+  t: LegalTranslations;
 }
 
 const { t } = Astro.props;
@@ -14,7 +14,9 @@ const { t } = Astro.props;
   <Container>
     <!-- Simple Header -->
     <div class="max-w-3xl mx-auto mb-12">
-      <span class="text-secondary text-xs font-bold uppercase tracking-widest block mb-2">
+      <span
+        class="text-secondary text-xs font-bold uppercase tracking-widest block mb-2"
+      >
         {t.header.subtitle}
       </span>
       <h1 class="text-3xl md:text-5xl font-serif text-white">
@@ -28,23 +30,22 @@ const { t } = Astro.props;
 
       <h3>{t.content.h1}</h3>
       <p>
-        <strong>{siteData.meta.name}</strong><br/>
-        {siteData.contact.address.replace(/\n/g, ", ")}<br/>
-        Email: {siteData.contact.email}
+        {t.content.p1}
+        <strong>{siteData.meta.name}</strong><br />
+        {siteData.contact.address.replace(/\n/g, ", ")}<br />
+        Email: <a href={`mailto:${siteData.contact.email}`}
+          >{siteData.contact.email}</a
+        >
       </p>
 
       <h3>{t.content.h2}</h3>
-      <p>{t.content.p2_intro}</p>
-      <ul>
-        <li>{t.content.p2_list.l1}</li>
-        <li>{t.content.p2_list.l2}</li>
-      </ul>
+      <p>{t.content.p2}</p>
 
       <h3>{t.content.h3}</h3>
       <p>{t.content.p3}</p>
-      <p>
-        Contact: <a href={`mailto:${siteData.contact.email}`}>{siteData.contact.email}</a>
-      </p>
+
+      <h3>{t.content.h4}</h3>
+      <p>{t.content.p4}</p>
     </div>
   </Container>
 </section>
