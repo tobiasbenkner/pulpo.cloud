@@ -5,6 +5,7 @@ import { resolveTranslations, type Language } from "@/lib/i18n";
 import { getTranslatedPath } from "@/lib/registry";
 import type { BlogPost, BlogPostCategory } from "@pulpo/cms";
 import { Icon } from "astro-icon/components";
+import { Image } from "astro:assets";
 import { marked } from "marked";
 
 type Props = {
@@ -63,8 +64,10 @@ const dateStr = new Date(post.date).toLocaleDateString(lang, {
       post.image && (
         <div class="max-w-3xl mx-auto mb-12">
           <div class="w-full overflow-hidden rounded-sm bg-surface border border-border/20 shadow-2xl">
-            <img
-              src={imageUrl(post.image.id, 1200)}
+            <Image
+              src={imageUrl(post.image.id, 1000)}
+              width={1000}
+              height={1000}
               alt={String(t.title)}
               class="w-full h-auto block"
             />

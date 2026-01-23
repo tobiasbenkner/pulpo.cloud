@@ -1,71 +1,124 @@
 ---
-import { siteData } from '@/data/siteData';
-import { Icon } from 'astro-icon/components';
+import { Icon } from "astro-icon/components";
+import { Image } from "astro:assets";
+import previewImage from "../../assets/map-preview.png";
 
 interface Props {
-  t: {
-    loadMap: string;
-    address: string;
-  };
+  url: string;
+  height?: string;
+  loadMap?: string;
+  accept?: string;
+  showMap?: string;
 }
-const { t } = Astro.props;
+
+const {
+  url,
+  height = "h-full",
+  loadMap = "Cargar mapa",
+  accept = "Al hacer clic, usted acepta la transferencia de datos a Google. Guardamos esta configuración para su visita.",
+  showMap = "Mostrar mapa",
+} = Astro.props;
 ---
-<div id="map-wrapper" class="relative aspect-video w-full rounded-lg border bg-gray-100 dark:bg-surface/50 overflow-hidden">
-  
-  <div id="map-placeholder" class="absolute inset-0 z-10 flex flex-col items-center justify-center p-4 text-center">
-    <Icon name="lucide:map-pin" class="h-12 w-12 text-primary mb-4" />
-    <p class="font-semibold text-text">{siteData.contact.address}</p>
-    <p class="text-sm text-text-muted mb-6">{t.address}</p>
-    <button id="load-map-btn" class="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-opacity-90">
-      <Icon name="lucide:check-circle" class="h-4 w-4" />
-      {t.loadMap}
-    </button>
+
+<div
+  class={`w-full relative bg-surface group overflow-hidden privacy-map-wrapper ${height}`}
+>
+  <div
+    class="privacy-map-placeholder absolute inset-0 transition-opacity duration-500 z-10 overflow-hidden flex items-center justify-center"
+  >
+    <div class="absolute inset-0 overflow-hidden">
+      <Image
+        src={previewImage}
+        alt="Karten-Vorschau"
+        class="w-full h-full object-cover blur-[2px] scale-105 transition-transform duration-[2s]"
+        loading="eager"
+        quality={80}
+        widths={[400, 800, 1200]}
+        sizes="100vw"
+      />
+    </div>
+
+    <!-- Leichter dunkler Schleier -->
+    <div class="absolute inset-0 bg-black/10"></div>
+
+    <!-- Inhalt -->
+    <div
+      class="relative z-10 bg-surface backdrop-blur-sm p-6 rounded-2xl shadow-xl text-center max-w-xs mx-4 border border-b"
+    >
+      <div
+        class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 text-primary"
+      >
+        <Icon name="lucide:map-pin" size={24} />
+      </div>
+      <h3 class="text-xl font-serif text-primary mb-2">{loadMap}</h3>
+      <p class="text-text-muted text-xs mb-6 leading-relaxed">
+        {accept}
+      </p>
+      <button
+        class="privacy-map-btn bg-primary text-secondary font-bold py-3 px-8 rounded-full hover:bg-primary/90 transition shadow-lg w-full text-sm"
+      >
+        {showMap}
+      </button>
+    </div>
   </div>
 
-  <!-- Container, in den die Karte geladen wird -->
-  <div id="map-container" class="h-full w-full"></div>
+  <!-- 2. Der Iframe -->
+  <iframe
+    data-src={url}
+    width="100%"
+    height="100%"
+    style="border:0;"
+    allowfullscreen=""
+    loading="lazy"
+    class="privacy-map-iframe absolute inset-0 w-full h-full opacity-0 transition-opacity duration-1000"
+  ></iframe>
 </div>
 
-<script define:vars={{ mapUrl: siteData.contact.googleMapsEmbed }}>
-  const wrapper = document.getElementById('map-wrapper');
-  const placeholder = document.getElementById('map-placeholder');
-  const container = document.getElementById('map-container');
-  const button = document.getElementById('load-map-btn');
-  const consentKey = 'maps_consent';
+<script>
+  const STORAGE_KEY = "maps-consent";
 
-  function loadMap() {
-    if (!container || !placeholder) return;
-    
-    placeholder.style.display = 'none';
-    
-    const iframe = document.createElement('iframe');
-    iframe.setAttribute('src', mapUrl);
-    iframe.setAttribute('width', '100%');
-    iframe.setAttribute('height', '100%');
-    iframe.setAttribute('style', 'border:0;');
-    iframe.setAttribute('allowfullscreen', '');
-    iframe.setAttribute('loading', 'lazy');
-    iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
-    
-    container.appendChild(iframe);
-  }
+  const activateMap = (wrapper: Element) => {
+    const iframe = wrapper.querySelector(".privacy-map-iframe");
+    const placeholder = wrapper.querySelector(".privacy-map-placeholder");
 
-  function handleConsent() {
-    localStorage.setItem(consentKey, 'true');
-    loadMap();
-  }
-  
-  // Prüfen beim Laden der Seite
-  if (localStorage.getItem(consentKey) === 'true') {
-    loadMap();
-  } else {
-    button.addEventListener('click', handleConsent);
-  }
+    if (iframe && placeholder) {
+      const currentSrc = iframe.getAttribute("src");
+      const dataSrc = iframe.getAttribute("data-src");
 
-  // Funktion zum globalen Zurücksetzen des Consents (für die Datenschutzseite)
-  window.revokeMapsConsent = function() {
-    localStorage.removeItem(consentKey);
-    alert('Ihre Zustimmung zum Laden von Karten wurde widerrufen.');
-    location.reload(); // Seite neu laden, um den Platzhalter wieder anzuzeigen
-  }
+      if (!currentSrc && dataSrc) {
+        iframe.setAttribute("src", dataSrc);
+
+        (placeholder as HTMLElement).style.opacity = "0";
+        (placeholder as HTMLElement).style.pointerEvents = "none";
+        iframe.classList.remove("opacity-0");
+
+        setTimeout(() => {
+          (placeholder as HTMLElement).style.display = "none";
+        }, 500);
+      }
+    }
+  };
+
+  const initMaps = () => {
+    const allMaps = document.querySelectorAll(".privacy-map-wrapper");
+    const hasConsent = localStorage.getItem(STORAGE_KEY) === "true";
+
+    if (hasConsent) {
+      allMaps.forEach((map) => activateMap(map));
+    }
+
+    allMaps.forEach((map) => {
+      const btn = map.querySelector(".privacy-map-btn");
+      if (btn) {
+        btn.addEventListener("click", () => {
+          localStorage.setItem(STORAGE_KEY, "true");
+          const mapsNow = document.querySelectorAll(".privacy-map-wrapper");
+          mapsNow.forEach((m) => activateMap(m));
+        });
+      }
+    });
+  };
+
+  initMaps();
+  document.addEventListener("astro:page-load", initMaps);
 </script>

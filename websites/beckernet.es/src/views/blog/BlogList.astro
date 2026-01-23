@@ -5,6 +5,7 @@ import { resolveTranslations, defaultLang } from "@/lib/i18n";
 import type { BlogPostCategory } from "@pulpo/cms";
 import { Icon } from "astro-icon/components";
 import PageHeader from "@/components/ui/PageHeader.astro";
+import { Image } from "astro:assets";
 
 interface Props {
   lang: string;
@@ -41,7 +42,9 @@ const t = resolveTranslations(category, lang);
               <!-- Bild -->
               <div class="aspect-4/3 w-full overflow-hidden bg-surface mb-6 border border-border group-hover:border-secondary transition-all duration-500 relative">
                  {post.image?.id && (
-                  <img
+                  <Image
+                    width={600}
+                    height={450}
                     src={imageUrl(post.image.id, 600)}
                     alt={String(postT.title)}
                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
