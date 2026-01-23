@@ -7,7 +7,7 @@ import {
 } from "@pulpo/cms";
 import { getCollection } from "astro:content";
 
-const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL;
+const DIRECTUS_URL = import.meta.env.DIRECTUS_URL;
 
 export const imageUrl = (id: string, width = 800) =>
   getAssetUrl(id, DIRECTUS_URL, DIRECTUS_TOKEN, { width });

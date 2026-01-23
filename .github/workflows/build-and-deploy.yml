@@ -1,0 +1,56 @@
+name: Build and Deploy
+
+on:
+    push:
+        branches: [main]
+
+jobs:
+    build-and-deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Install PNPM
+              uses: pnpm/action-setup@v2
+              with:
+                  version: 10
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 24
+                  cache: "pnpm"
+
+            - name: Get last successful commit
+              id: last_success
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              # Findet den Commit-Hash des letzten erfolgreichen Laufs DIESES Workflows
+              run: |
+                  LAST_SHA=$(gh run list --workflow "Build and Deploy" --branch main --status success --limit 1 --json headSha -q '.[0].headSha')
+
+                  if [ -z "$LAST_SHA" ]; then
+                      # Fallback, falls es noch keinen erfolgreichen Run gab (z.B. beim allerersten Mal)
+                      echo "Kein erfolgreicher Run gefunden. Vergleiche mit dem vorherigen Commit."
+                      LAST_SHA=${{ github.event.before }}
+                  fi
+
+                  echo "Vergleiche Änderungen seit: $LAST_SHA"
+                  echo "commit=$LAST_SHA" >> "$GITHUB_OUTPUT"
+
+            - name: Install Dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Build
+              env:
+                  DIRECTUS_URL: ${{ secrets.DIRECTUS_URL }}
+                  DIRECTUS_TOKEN: ${{ secrets.DIRECTUS_TOKEN }}
+              run: npx turbo run build --filter=...[${{ steps.last_success.outputs.commit }}]
+
+            - run: npx turbo run deploy --filter=...[${{ steps.last_success.outputs.commit }}]
+              env:
+                  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+                  CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

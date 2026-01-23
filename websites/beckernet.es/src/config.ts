@@ -1,9 +1,9 @@
-export const DIRECTUS_URL = import.meta.env.PUBLIC_DIRECTUS_URL;
+export const DIRECTUS_URL = import.meta.env.DIRECTUS_URL;
 export const DIRECTUS_TOKEN = import.meta.env.DIRECTUS_TOKEN;
-export const TENANT = import.meta.env.TENANT;
+export const TENANT = "17d1e5f7-7736-4628-8d21-5d08e18fb1dd";
 
 if (!DIRECTUS_URL) {
-  throw new Error("PUBLIC_DIRECTUS_URL ist not defined in .env");
+  throw new Error("DIRECTUS_URL ist not defined in .env");
 }
 
 if (!DIRECTUS_TOKEN) {

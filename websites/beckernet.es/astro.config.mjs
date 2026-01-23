@@ -6,7 +6,9 @@ import icon from 'astro-icon';
 export default defineConfig({
   site: 'https://www.beckernet.es',
   vite: {
-    plugins: [tailwindcss()]
+    plugins: [tailwindcss()],
+    envPrefix: ['VITE_', 'DIRECTUS_', 'TENANT'],
+
   },
   integrations: [icon()],
 
