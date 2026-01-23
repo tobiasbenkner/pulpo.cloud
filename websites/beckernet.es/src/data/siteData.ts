@@ -1,6 +1,6 @@
 export const siteData = {
   meta: {
-    name: "Becker & Associates",
+    name: "Becker",
     twitterHandle: "@becker_corp",
   },
   contact: {
