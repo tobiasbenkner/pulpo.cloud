@@ -206,6 +206,9 @@ importers:
       '@fontsource/libre-baskerville':
         specifier: ^5.2.10
         version: 5.2.10
+      '@iconify-json/circle-flags':
+        specifier: ^1.2.10
+        version: 1.2.10
       '@iconify-json/lucide':
         specifier: ^1.2.86
         version: 1.2.86
@@ -230,6 +233,10 @@ importers:
       tailwindcss:
         specifier: ^4.1.18
         version: 4.1.18
+    devDependencies:
+      '@tailwindcss/typography':
+        specifier: ^0.5.19
+        version: 0.5.19(tailwindcss@4.1.18)
 
 packages:
 
@@ -634,6 +641,9 @@ packages:
 
   '@fontsource/libre-baskerville@5.2.10':
     resolution: {integrity: sha512-Y/bGj4cOdWhAxU4+sBPen3MB5Og3t/WvezVL+05CJ7cvhDQUKpQFUuw/hm1IQKRc9u0lWs8VP2MKDOK2uQtloQ==}
+
+  '@iconify-json/circle-flags@1.2.10':
+    resolution: {integrity: sha512-sZRxs689a281RtZvuAiKtV7pQHv8Tk0HkinSM7QvLgdLEK8xgGRCcbDvL09Rq+/KtemmsMzGhS9/qt+r3ca+Ug==}
 
   '@iconify-json/heroicons@1.2.3':
     resolution: {integrity: sha512-n+vmCEgTesRsOpp5AB5ILB6srsgsYK+bieoQBNlafvoEhjVXLq8nIGN4B0v/s4DUfa0dOrjwE/cKJgIKdJXOEg==}
@@ -2961,6 +2971,10 @@ snapshots:
   '@fontsource/inter@5.2.8': {}
 
   '@fontsource/libre-baskerville@5.2.10': {}
+
+  '@iconify-json/circle-flags@1.2.10':
+    dependencies:
+      '@iconify/types': 2.0.0
 
   '@iconify-json/heroicons@1.2.3':
     dependencies:
