@@ -48,6 +48,10 @@ export const translations = {
       },
       btn: { es: "Llamar ahora", de: "Jetzt anrufen", en: "Call now" },
     },
+    mini: {
+      phone: { es: "Tlf.", de: "Tel.", en: "Phone" },
+      email: { es: "Email", de: "E-Mail", en: "Email" },
+    },
     email: {
       title: { es: "Escríbanos", de: "Schreiben Sie uns", en: "Write to us" },
       desc: {

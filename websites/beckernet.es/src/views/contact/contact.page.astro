@@ -136,6 +136,26 @@ const { contact } = siteData;
                   <p>09:00 - 14:00</p>
                   <p>16:30 - 19:30</p>
                 </div>
+
+                <!-- Kleine Action Buttons -->
+                <div
+                  class="flex flex-wrap gap-3 mt-6 pt-4 border-t border-white/5"
+                >
+                  <a
+                    href={`tel:${contact.phone}`}
+                    class="inline-flex items-center gap-2 px-3 py-2 text-xs font-bold uppercase tracking-wider text-text-muted border border-border hover:border-secondary hover:text-white transition-colors rounded-sm"
+                  >
+                    <Icon name="lucide:phone" class="w-3 h-3" />
+                    {t.actions.mini.phone}
+                  </a>
+                  <a
+                    href={`mailto:${contact.email}`}
+                    class="inline-flex items-center gap-2 px-3 py-2 text-xs font-bold uppercase tracking-wider text-text-muted border border-border hover:border-secondary hover:text-white transition-colors rounded-sm"
+                  >
+                    <Icon name="lucide:mail" class="w-3 h-3" />
+                    {t.actions.mini.email}
+                  </a>
+                </div>
               </div>
             </div>
           </div>
