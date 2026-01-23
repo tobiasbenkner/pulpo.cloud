@@ -191,13 +191,16 @@ async function runMigration() {
         }
       }
 
+      const realstate = "2441ed0b-b857-408c-b01d-a837a016fac4"
+      // const insurance = "f95fc509-8304-409e-bcce-e79ea7cc6752"
+
       try {
         await directus.request(
           createItem("posts", {
             image: directusImageId,
             tenant: CONFIG.directus.tenant,
             translations: translations,
-            category: "2441ed0b-b857-408c-b01d-a837a016fac4",
+            category: realstate,
             title: translations[0]?.title ?? "",
             status: "published",
             date: new Date(post.created).toISOString().substring(0, 10),
