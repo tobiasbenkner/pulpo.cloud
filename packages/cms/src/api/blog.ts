@@ -28,6 +28,12 @@ export async function getBlogCategories(
       ...category,
       slug: reduceTranslations(category.translations, "slug"),
       nav_label: reduceTranslations(category.translations, "nav_label"),
+      seo_title: reduceTranslations(category.translations, "seo.title"),
+      seo_description: reduceTranslations(
+        category.translations,
+        "seo.meta_description",
+      ),
+      seo_image: reduceTranslations(category.translations, "seo.og_image"),
     } as BlogPostCategory;
   });
 }

@@ -7,6 +7,9 @@ export interface BlogPostCategory {
   title: string;
   slug: ReducedTranslations;
   nav_label: ReducedTranslations;
+  seo_title: ReducedTranslations;
+  seo_description: ReducedTranslations;
+  seo_image: ReducedTranslations;
   posts: BlogPost[];
 }
 

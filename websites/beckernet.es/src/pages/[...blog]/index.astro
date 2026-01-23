@@ -1,6 +1,6 @@
 ---
 import Layout from "@/layouts/Layout.astro";
-import { getBlogCategories, getPostsByCategory } from "@/lib/cms";
+import { getBlogCategories, getPostsByCategory, imageUrl } from "@/lib/cms";
 import {
   defaultLang,
   languages,
@@ -10,7 +10,7 @@ import {
 import { addRoute } from "@/lib/registry";
 import BlogDetail from "@/views/blog/BlogDetail.astro";
 import BlogList from "@/views/blog/BlogList.astro";
-import type { BlogPost, BlogPostCategory } from "@pulpo/cms";
+import { type BlogPost, type BlogPostCategory } from "@pulpo/cms";
 
 type PathProps = {
   type: "category" | "post";
@@ -112,14 +112,15 @@ let ogImage = undefined;
 
 if (type === "post" && post) {
   const t = resolveTranslations(post, lang);
-  title = String(t.title);
+  title = String(t.seo_title);
   description = String(t.seo_description);
-  // if (post.image) ogImage = post.image.id;
+  if (post.image) ogImage =imageUrl(post.image.id);
 } else {
   // Category
   const t = resolveTranslations(category, lang);
-  title = String(t.title);
-  description = String("");
+  title = String(t.seo_title);
+  description = String(t.seo_description);
+  if (category.seo_image) ogImage = imageUrl(String(t.seo_image));
 }
 ---
 
