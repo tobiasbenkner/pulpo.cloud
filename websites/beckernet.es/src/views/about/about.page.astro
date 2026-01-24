@@ -1,6 +1,7 @@
 ---
 import { Image } from "astro:assets";
 import Container from "@/components/ui/Container.astro";
+import PageHeader from "@/components/ui/PageHeader.astro";
 import { Icon } from "astro-icon/components";
 import type { AboutTranslations } from "./about.i18n";
 import aboutImage from "@/assets/team.jpg";
@@ -15,41 +16,20 @@ interface Props {
 const { t, lang } = Astro.props;
 ---
 
-<section class="pt-24 pb-16 sm:pt-32">
+<PageHeader
+  label={t.hero.label}
+  title={t.hero.headline}
+  description={t.seo.description}
+/>
+
+<section class="pt-16 pb-16">
   <Container>
-    <!-- NEUES TITEL DESIGN: Asymmetrisches Grid -->
-    <div
-      class="grid grid-cols-1 lg:grid-cols-12 gap-8 border-b border-border pb-16 mb-16"
-    >
-      <!-- Linke Spalte: Meta-Info & Großes Datum -->
-      <div class="lg:col-span-4 flex flex-col justify-between">
-        <span
-          class="text-secondary font-bold tracking-widest uppercase text-xs mb-4 flex items-center gap-2"
-        >
-          <span class="w-8 h-px bg-secondary"></span>
-          {t.hero.label}
-        </span>
-        <div
-          class="font-serif text-6xl md:text-8xl text-primary opacity-20 select-none"
-        >
-          1999
-        </div>
-      </div>
-
-      <!-- Rechte Spalte: Die Headline als Statement -->
-      <div class="lg:col-span-8 flex items-end">
-        <h1 class="text-3xl md:text-5xl font-serif text-white leading-tight">
-          {t.hero.headline}
-        </h1>
-      </div>
-    </div>
-
     <!-- Content Bereich -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
       <!-- Linke Spalte: Bild (Scrollt mit) -->
       <div class="lg:col-span-5">
         <div
-          class="aspect-[4/5] w-full overflow-hidden rounded-sm bg-surface mb-8 relative group"
+          class="aspect-4/5 w-full overflow-hidden rounded-sm bg-surface mb-8 relative group"
         >
           <Image
             src={aboutImage}

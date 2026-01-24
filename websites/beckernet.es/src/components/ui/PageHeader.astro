@@ -11,48 +11,72 @@ interface Props {
 const { label, title, description, class: className } = Astro.props;
 ---
 
-<section
-  class:list={[
-    "border-b border-border/40 pt-12 pb-16 md:pt-20 md:pb-24",
-    className,
-  ]}
->
+<section class:list={["relative overflow-hidden", className]}>
+  <!-- Dekorative Elemente -->
+  <div
+    class="absolute top-0 right-0 w-96 h-96 bg-secondary/[0.07] blur-3xl rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none"
+  >
+  </div>
+  <div
+    class="absolute -left-20 top-1/2 w-40 h-40 bg-secondary/3 blur-2xl rounded-full pointer-events-none"
+  >
+  </div>
+
   <Container>
-    <div
-      class="flex flex-col lg:flex-row lg:items-end justify-between gap-10 lg:gap-20"
-    >
-      <!-- Linke Seite -->
-      <div class="max-w-3xl">
+    <div class="relative pt-12 md:pt-14 pb-8 md:pb-10">
+      <div class="max-w-4xl mx-auto text-center">
         {
           label && (
-            <span class="text-secondary font-bold tracking-widest uppercase text-xs mb-6 flex items-center gap-2">
-              <span class="w-6 h-px bg-secondary" />
-              {label}
-            </span>
+            <div class="inline-flex md:hidden items-center gap-2.5 text-secondary font-medium text-xs tracking-[0.2em] uppercase mb-5 group">
+              <span class="relative flex items-center gap-2.5">
+                <span class="w-5 h-px bg-linear-to-r from-secondary to-secondary/40" />
+                <span class="relative">
+                  {label}
+                  <span class="absolute -bottom-0.5 left-0 w-0 h-px bg-secondary/50 group-hover:w-full transition-all duration-300" />
+                </span>
+              </span>
+            </div>
           )
         }
 
         <h1
-          class="text-4xl md:text-5xl lg:text-6xl font-serif text-white leading-tight text-balance"
+          class="text-3xl md:text-4xl xl:text-5xl font-serif text-white leading-[1.15] tracking-tight mb-6 relative"
         >
-          {title}
+          <span class="relative inline-block">
+            {title}
+            <span
+              class="absolute -inset-1 bg-linear-to-r from-secondary/10 via-secondary/5 to-transparent blur-xl -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+            >
+            </span>
+          </span>
         </h1>
+
+        {
+          description && (
+            <div class="relative max-w-2xl mx-auto">
+              <p class="text-base md:text-lg text-text-muted/90 leading-relaxed">
+                {description}
+              </p>
+            </div>
+          )
+        }
 
         <div class="empty:hidden mt-6">
           <slot name="meta" />
         </div>
       </div>
-
-      <!-- Rechte Seite -->
-      {
-        description && (
-          <div class="max-w-xl lg:pb-2">
-            <p class="text-base md:text-lg text-text-muted leading-relaxed border-l border-border pl-6 text-pretty">
-              {description}
-            </p>
-          </div>
-        )
-      }
     </div>
   </Container>
+
+  <!-- Subtile Trennlinie mit Gradient -->
+  <div class="relative h-px">
+    <div
+      class="absolute inset-0 bg-linear-to-r from-transparent via-secondary/30 to-transparent"
+    >
+    </div>
+    <div
+      class="absolute inset-0 bg-linear-to-r from-transparent via-border/40 to-transparent"
+    >
+    </div>
+  </div>
 </section>
