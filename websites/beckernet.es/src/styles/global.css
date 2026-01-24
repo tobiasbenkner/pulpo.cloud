@@ -107,6 +107,27 @@
   font-family: var(--font-sans);
 }
 
+/* Größere Schriftgrößen für prose */
+.prose-sm {
+  font-size: 1rem; /* 18px statt 14px */
+  line-height: 1.75;
+}
+
+.prose-base {
+  font-size: 1.125rem; /* 20px statt 16px */
+  line-height: 1.75;
+}
+
+.prose-lg {
+  font-size: 1.25rem; /* 22.5px statt 18px */
+  line-height: 1.75;
+}
+
+.prose-xl {
+  font-size: 1.375rem; /* 24.75px statt 20px */
+  line-height: 1.8;
+}
+
 /* --- Spezifische Anpassungen (ehemals im HTML) --- */
 
 /* Überschriften */

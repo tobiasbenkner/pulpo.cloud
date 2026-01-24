@@ -50,18 +50,18 @@ const t = resolveTranslations(category, lang);
                   />
                 )}
                 <!-- Datum Badge über dem Bild -->
-                <div class="absolute top-3 md:top-4 left-3 md:left-4 bg-background/90 backdrop-blur-sm px-2.5 md:px-3 py-1 text-xs font-bold uppercase tracking-widest text-white border border-white/10">
+                <div class="absolute top-3 md:top-4 left-3 md:left-4 bg-background/90 backdrop-blur-sm px-2.5 md:px-3 py-1 text-sm font-bold uppercase tracking-widest text-white border border-white/10">
                    {new Date(post.date).toLocaleDateString(lang)}
                 </div>
               </div>
 
               <!-- Text -->
               <div class="flex-1 flex flex-col">
-                <h2 class="text-xl md:text-2xl font-serif text-white mb-2 md:mb-3 leading-tight group-hover:text-secondary transition-colors">
+                <h2 class="text-2xl md:text-3xl font-serif text-white mb-2 md:mb-3 leading-tight group-hover:text-secondary transition-colors">
                   {postT.title}
                 </h2>
 
-                <p class="text-text-muted text-sm md:text-base line-clamp-3 mb-4 md:mb-6 flex-1">
+                <p class="text-text-muted text-base md:text-lg line-clamp-3 mb-4 md:mb-6 flex-1">
                   {postT.excerpt}
                 </p>
               </div>
