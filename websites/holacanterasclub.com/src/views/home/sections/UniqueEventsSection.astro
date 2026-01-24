@@ -32,27 +32,14 @@ const { title, description } = Astro.props;
 
       <!-- Content -->
       <div class="order-1 md:order-2">
-        <h2
-          class="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-secondary"
-        >
+        <div class="flex items-center gap-3 mb-3">
+          <div class="h-px w-8 bg-secondary"></div>
+          <span class="text-secondary text-xs font-medium tracking-widest uppercase">Events</span>
+        </div>
+        <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-white">
           {title}
         </h2>
-        <!-- Decorative line -->
-        <div class="flex items-center gap-2 mb-6">
-          <div class="h-1 w-20 bg-gradient-to-r from-secondary to-transparent">
-          </div>
-          <div class="flex gap-1">
-            <div class="w-2 h-2 rounded-full bg-secondary animate-pulse"></div>
-            <div
-              class="w-2 h-2 rounded-full bg-secondary animate-pulse delay-100"
-            >
-            </div>
-            <div
-              class="w-2 h-2 rounded-full bg-secondary animate-pulse delay-200"
-            >
-            </div>
-          </div>
-        </div>
+        <div class="h-1 w-16 bg-gradient-to-r from-secondary to-transparent mb-6"></div>
         <p class="text-base md:text-lg text-text-muted leading-relaxed">
           {description}
         </p>

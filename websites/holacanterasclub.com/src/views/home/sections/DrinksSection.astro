@@ -38,7 +38,11 @@ const optimizedBg = await getImage({ src: background, width: 1920 });
     <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-8 md:gap-12 items-center">
       <!-- Text Content -->
       <div>
-        <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 text-secondary">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="h-px w-8 bg-secondary"></div>
+          <span class="text-secondary text-xs font-medium tracking-widest uppercase">Bar & Drinks</span>
+        </div>
+        <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 text-white">
           {title}
         </h2>
         <p class="text-base md:text-lg text-text leading-relaxed">
