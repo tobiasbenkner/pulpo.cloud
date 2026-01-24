@@ -41,3 +41,22 @@ coverage/
 tmp/
 temp/
 *.tmp
+
+# Große Mediendateien
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.webm
+
+# Optional: Große Bilder (wenn nicht benötigt)
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.webp
+*.svg
+
+# Generierte/gecachte Bilder
+**/thumbnails/
+**/optimized/
