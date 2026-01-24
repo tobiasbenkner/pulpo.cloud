@@ -1,0 +1,107 @@
+---
+import { getImage } from "astro:assets";
+import defaultOgImageSource from "../assets/og-default.png";
+
+import {
+  languages,
+  defaultLang,
+  type Language,
+  openGraphLocales,
+} from "@/lib/i18n";
+import { getTranslatedPath } from "@/lib/registry";
+import { siteData } from "@/data/siteData";
+
+interface Props {
+  title: string;
+  description: string;
+  lang: Language;
+  routeKey: string;
+  ogImage?: string | ImageMetadata;
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description,
+  lang,
+  routeKey,
+  ogImage,
+  noindex = false,
+} = Astro.props;
+
+const siteUrl =
+  Astro.site?.toString().replace(/\/$/, "") || "http://localhost:4321";
+
+const imageToOptimize = ogImage || defaultOgImageSource;
+const optimizedImage = await getImage({
+  src: imageToOptimize,
+  format: "jpg",
+  width: 1200,
+  height: 630,
+  quality: 90,
+});
+
+const image = new URL(optimizedImage.src, Astro.site).toString();
+
+const canonicalURL = new URL(
+  getTranslatedPath(routeKey, lang),
+  siteUrl,
+).toString();
+
+const xDefaultHref = new URL(
+  getTranslatedPath(routeKey, defaultLang),
+  siteUrl,
+).toString();
+const currentLocale = openGraphLocales[lang];
+
+const alternates = languages.map((l) => ({
+  lang: l,
+  href: new URL(getTranslatedPath(routeKey, l), siteUrl).toString(),
+  locale: openGraphLocales[l],
+}));
+
+const robotsContent = noindex ? "noindex, nofollow" : "index, follow";
+---
+
+<!-- Primary Meta Tags -->
+<title>{title}</title>
+<meta name="title" content={title} />
+<meta name="description" content={description} />
+<meta name="robots" content={robotsContent} />
+
+<!-- Canonical -->
+<link rel="canonical" href={canonicalURL} />
+
+<!-- Hreflang Tags -->
+<link rel="alternate" hreflang="x-default" href={xDefaultHref} />
+{
+  alternates.map((link) => (
+    <link rel="alternate" hreflang={link.lang} href={link.href} />
+  ))
+}
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website" />
+<meta property="og:url" content={canonicalURL} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:image" content={image} />
+<meta property="og:site_name" content={siteData.meta.name} />
+
+<!-- Open Graph Locales -->
+<meta property="og:locale" content={currentLocale} />
+{
+  alternates
+    .filter((link) => link.lang !== lang)
+    .map((link) => (
+      <meta property="og:locale:alternate" content={link.locale} />
+    ))
+}
+
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:url" content={canonicalURL} />
+<meta property="twitter:title" content={title} />
+<meta property="twitter:description" content={description} />
+<meta property="twitter:image" content={image} />
+<meta name="twitter:site" content={siteData.meta.twitterHandle} />
