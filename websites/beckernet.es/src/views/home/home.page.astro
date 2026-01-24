@@ -19,7 +19,7 @@ const aboutPath = getTranslatedPath("about", lang as any);
 
 <!-- HERO SECTION -->
 <section
-  class="relative min-h-[70vh] md:min-h-[80vh] lg:min-h-[85vh] flex flex-col justify-center border-b border-border pt-12 md:pt-16 lg:pt-20"
+  class="relative h-[calc(100dvh-4rem)] md:h-[calc(100dvh-5rem)] flex flex-col justify-center border-b border-border"
 >
   <div class="absolute inset-0 z-0 overflow-hidden">
     <Image
@@ -28,7 +28,7 @@ const aboutPath = getTranslatedPath("about", lang as any);
       class="w-full h-full object-cover grayscale opacity-30"
     />
     <div
-      class="absolute inset-0 bg-gradient-to-b from-background via-background/10 to-background"
+      class="absolute inset-0 bg-linear-to-b from-background via-background/10 to-background"
     >
     </div>
   </div>
@@ -54,7 +54,9 @@ const aboutPath = getTranslatedPath("about", lang as any);
       >
     </h1>
 
-    <p class="text-base sm:text-lg md:text-xl text-text-muted max-w-2xl mx-auto font-light mt-6 md:mt-8 px-4">
+    <p
+      class="text-base sm:text-lg md:text-xl text-text-muted max-w-2xl mx-auto font-light mt-6 md:mt-8 px-4"
+    >
       {t.hero.subheadline}
     </p>
 
@@ -64,7 +66,10 @@ const aboutPath = getTranslatedPath("about", lang as any);
         class="inline-flex flex-col items-center gap-2 text-text-muted hover:text-white transition-colors"
       >
         <span class="text-xs uppercase tracking-widest">{t.hero.cta}</span>
-        <Icon name="lucide:arrow-down" class="w-4 md:w-5 h-4 md:h-5 animate-bounce" />
+        <Icon
+          name="lucide:arrow-down"
+          class="w-4 md:w-5 h-4 md:h-5 animate-bounce"
+        />
       </a>
     </div>
   </Container>
@@ -73,7 +78,7 @@ const aboutPath = getTranslatedPath("about", lang as any);
 <!-- SERVICES GRID -->
 <section id="services" class="border-b border-border bg-surface/10">
   <div
-    class="grid grid-cols-1 lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-border border-b border-border max-w-[1920px] mx-auto"
+    class="grid grid-cols-1 lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-border border-b border-border max-w-480 mx-auto"
   >
     <!-- Pillar 1: Finance -->
     <div
@@ -91,7 +96,9 @@ const aboutPath = getTranslatedPath("about", lang as any);
       <h2 class="text-2xl md:text-3xl font-serif text-white mb-4 md:mb-6">
         {t.services.finance.title}
       </h2>
-      <p class="text-text-muted leading-relaxed text-base md:text-lg mb-6 md:mb-8">
+      <p
+        class="text-text-muted leading-relaxed text-base md:text-lg mb-6 md:mb-8"
+      >
         {t.services.finance.desc}
       </p>
       <div
@@ -116,7 +123,9 @@ const aboutPath = getTranslatedPath("about", lang as any);
       <h2 class="text-2xl md:text-3xl font-serif text-white mb-4 md:mb-6">
         {t.services.realestate.title}
       </h2>
-      <p class="text-text-muted leading-relaxed text-base md:text-lg mb-6 md:mb-8">
+      <p
+        class="text-text-muted leading-relaxed text-base md:text-lg mb-6 md:mb-8"
+      >
         {t.services.realestate.desc}
       </p>
       <div
@@ -132,7 +141,10 @@ const aboutPath = getTranslatedPath("about", lang as any);
       <div
         class="mb-6 md:mb-8 inline-flex p-2.5 md:p-3 rounded-sm bg-surface border border-border group-hover:border-secondary/30 transition-colors"
       >
-        <Icon name="lucide:shield-check" class="w-7 md:w-8 h-7 md:h-8 text-white" />
+        <Icon
+          name="lucide:shield-check"
+          class="w-7 md:w-8 h-7 md:h-8 text-white"
+        />
       </div>
       <span
         class="block text-xs font-bold uppercase tracking-widest text-secondary mb-2"
@@ -141,7 +153,9 @@ const aboutPath = getTranslatedPath("about", lang as any);
       <h2 class="text-2xl md:text-3xl font-serif text-white mb-4 md:mb-6">
         {t.services.insurance.title}
       </h2>
-      <p class="text-text-muted leading-relaxed text-base md:text-lg mb-6 md:mb-8">
+      <p
+        class="text-text-muted leading-relaxed text-base md:text-lg mb-6 md:mb-8"
+      >
         {t.services.insurance.desc}
       </p>
       <div
@@ -155,7 +169,9 @@ const aboutPath = getTranslatedPath("about", lang as any);
 <!-- SYNERGY / VALUE SECTION -->
 <section class="py-12 md:py-16 lg:py-24 border-b border-border">
   <Container>
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-12 lg:gap-16 items-center">
+    <div
+      class="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-12 lg:gap-16 items-center"
+    >
       <div>
         <h2
           class="text-3xl md:text-4xl lg:text-5xl font-serif text-white mb-5 md:mb-6 leading-tight"
@@ -163,7 +179,9 @@ const aboutPath = getTranslatedPath("about", lang as any);
           {t.synergy.title}
         </h2>
         <div class="w-16 md:w-20 h-1 bg-secondary mb-6 md:mb-8"></div>
-        <p class="text-base md:text-lg lg:text-xl text-text-muted leading-relaxed mb-6 md:mb-8">
+        <p
+          class="text-base md:text-lg lg:text-xl text-text-muted leading-relaxed mb-6 md:mb-8"
+        >
           {t.synergy.desc}
         </p>
         <a
@@ -174,28 +192,36 @@ const aboutPath = getTranslatedPath("about", lang as any);
         </a>
       </div>
 
-      <div class="bg-surface/30 p-6 md:p-10 lg:p-12 border border-border rounded-sm">
+      <div
+        class="bg-surface/30 p-6 md:p-10 lg:p-12 border border-border rounded-sm"
+      >
         <ul class="space-y-5 md:space-y-6">
           <li class="flex items-start gap-3 md:gap-4">
             <Icon
               name="lucide:check-circle"
               class="w-5 md:w-6 h-5 md:h-6 text-secondary shrink-0 mt-1"
             />
-            <span class="text-base md:text-lg text-text-muted">{t.synergy.list.p1}</span>
+            <span class="text-base md:text-lg text-text-muted"
+              >{t.synergy.list.p1}</span
+            >
           </li>
           <li class="flex items-start gap-3 md:gap-4">
             <Icon
               name="lucide:check-circle"
               class="w-5 md:w-6 h-5 md:h-6 text-secondary shrink-0 mt-1"
             />
-            <span class="text-base md:text-lg text-text-muted">{t.synergy.list.p2}</span>
+            <span class="text-base md:text-lg text-text-muted"
+              >{t.synergy.list.p2}</span
+            >
           </li>
           <li class="flex items-start gap-3 md:gap-4">
             <Icon
               name="lucide:check-circle"
               class="w-5 md:w-6 h-5 md:h-6 text-secondary shrink-0 mt-1"
             />
-            <span class="text-base md:text-lg text-text-muted">{t.synergy.list.p3}</span>
+            <span class="text-base md:text-lg text-text-muted"
+              >{t.synergy.list.p3}</span
+            >
           </li>
         </ul>
       </div>
@@ -210,7 +236,8 @@ const aboutPath = getTranslatedPath("about", lang as any);
       class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-border/50"
     >
       <div class="px-4 py-6 md:py-4">
-        <span class="block text-3xl sm:text-4xl md:text-5xl font-serif text-white mb-2"
+        <span
+          class="block text-3xl sm:text-4xl md:text-5xl font-serif text-white mb-2"
           >25+</span
         >
         <span class="text-xs uppercase tracking-widest text-text-muted"
@@ -218,7 +245,8 @@ const aboutPath = getTranslatedPath("about", lang as any);
         >
       </div>
       <div class="px-4 py-6 md:py-4">
-        <span class="block text-3xl sm:text-4xl md:text-5xl font-serif text-white mb-2"
+        <span
+          class="block text-3xl sm:text-4xl md:text-5xl font-serif text-white mb-2"
           >3</span
         >
         <span class="text-xs uppercase tracking-widest text-text-muted"
@@ -226,7 +254,8 @@ const aboutPath = getTranslatedPath("about", lang as any);
         >
       </div>
       <div class="px-4 py-6 md:py-4">
-        <span class="block text-3xl sm:text-4xl md:text-5xl font-serif text-white mb-2"
+        <span
+          class="block text-3xl sm:text-4xl md:text-5xl font-serif text-white mb-2"
           >100%</span
         >
         <span class="text-xs uppercase tracking-widest text-text-muted"
@@ -240,7 +269,9 @@ const aboutPath = getTranslatedPath("about", lang as any);
 <!-- FINAL CTA -->
 <section class="py-16 md:py-24 lg:py-32 bg-background text-center">
   <Container>
-    <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif text-white mb-8 md:mb-10 px-4">
+    <h2
+      class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif text-white mb-8 md:mb-10 px-4"
+    >
       {t.cta.text}
     </h2>
     <a
