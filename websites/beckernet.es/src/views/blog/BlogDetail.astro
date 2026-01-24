@@ -32,29 +32,29 @@ const dateStr = new Date(post.date).toLocaleDateString(lang, {
 });
 ---
 
-<article class="pt-4 md:pt-8 pb-24 min-h-screen bg-background">
+<article class="pt-4 md:pt-6 lg:pt-8 pb-16 md:pb-20 lg:pb-24 min-h-screen bg-background">
   <Container>
     <!-- 1. TOP NAV -->
-    <div class="max-w-3xl mx-auto mb-8">
+    <div class="max-w-3xl mx-auto mb-6 md:mb-8 px-4">
       <a
         href={categoryHref}
         class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-text-muted hover:text-secondary transition-colors"
       >
-        <Icon name="lucide:arrow-left" class="w-4 h-4" />
+        <Icon name="lucide:arrow-left" class="w-3 md:w-4 h-3 md:h-4" />
         <span>{categoryT.title}</span>
       </a>
     </div>
 
     <!-- 2. HEADER -->
-    <header class="max-w-4xl mx-auto text-center mb-10">
+    <header class="max-w-4xl mx-auto text-center mb-8 md:mb-10 px-4">
       <div
-        class="flex items-center justify-center gap-4 text-sm text-secondary font-bold tracking-widest uppercase mb-4"
+        class="flex items-center justify-center gap-3 md:gap-4 text-xs md:text-sm text-secondary font-bold tracking-widest uppercase mb-3 md:mb-4"
       >
         <span>{dateStr}</span>
       </div>
 
       <h1
-        class="text-3xl md:text-5xl lg:text-6xl font-serif text-white leading-tight text-balance"
+        class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-serif text-white leading-tight text-balance"
       >
         {t.title}
       </h1>
@@ -62,7 +62,7 @@ const dateStr = new Date(post.date).toLocaleDateString(lang, {
 
     {
       post.image && (
-        <div class="max-w-3xl mx-auto mb-12">
+        <div class="max-w-3xl mx-auto mb-10 md:mb-12 px-4">
           <div class="w-full overflow-hidden rounded-sm bg-surface border border-border/20 shadow-2xl">
             <Image
               src={imageUrl(post.image.id, 1000)}
@@ -77,26 +77,26 @@ const dateStr = new Date(post.date).toLocaleDateString(lang, {
     }
 
     <!-- 4. CONTENT -->
-    <div class="max-w-3xl mx-auto">
+    <div class="max-w-3xl mx-auto px-4">
       <div
-        class="prose prose-lg prose-invert max-w-none"
+        class="prose prose-sm md:prose-base lg:prose-lg prose-invert max-w-none"
         set:html={contentHtml}
       />
 
       <!-- 5. BOTTOM NAV -->
-      <div class="mt-16 pt-12 border-t border-border/40">
-        <a href={categoryHref} class="inline-flex items-center gap-3 group">
+      <div class="mt-12 md:mt-16 pt-10 md:pt-12 border-t border-border/40">
+        <a href={categoryHref} class="inline-flex items-center gap-2 md:gap-3 group">
           <div
-            class="p-3 rounded-full border border-border bg-surface group-hover:border-secondary group-hover:bg-secondary transition-colors"
+            class="p-2.5 md:p-3 rounded-full border border-border bg-surface group-hover:border-secondary group-hover:bg-secondary transition-colors"
           >
             <Icon
               name="lucide:arrow-left"
-              class="w-4 h-4 text-white group-hover:text-background"
+              class="w-3 md:w-4 h-3 md:h-4 text-white group-hover:text-background"
             />
           </div>
           <div class="flex flex-col">
             <span
-              class="text-lg font-serif text-white group-hover:text-secondary transition-colors"
+              class="text-base md:text-lg font-serif text-white group-hover:text-secondary transition-colors"
               >{categoryT.title}</span
             >
           </div>
