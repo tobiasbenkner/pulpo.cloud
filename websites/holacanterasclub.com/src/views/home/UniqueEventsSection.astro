@@ -1,7 +1,7 @@
 ---
 import Container from "@/components/ui/Container.astro";
 import { Image } from "astro:assets";
-import photo from "../../assets/text_2.jpeg"
+import photo from "../../assets/text_2.jpeg";
 
 interface Props {
   title: string;
@@ -13,10 +13,14 @@ const { title, description } = Astro.props;
 
 <section class="py-16 md:py-24 bg-background">
   <Container>
-    <div class="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+    <div
+      class="max-w-4xl mx-auto grid md:grid-cols-2 gap-6 md:gap-8 items-center"
+    >
       <!-- Image -->
-      <div class="order-2 md:order-1">
-        <div class="aspect-[3/4] rounded-lg overflow-hidden shadow-2xl border border-border">
+      <div class="order-2 md:order-1 flex justify-center">
+        <div
+          class="aspect-square w-64 md:w-72 lg:w-80 rounded-lg overflow-hidden shadow-2xl border border-border"
+        >
           <Image
             src={photo}
             alt="Unique party atmosphere"
@@ -28,16 +32,25 @@ const { title, description } = Astro.props;
 
       <!-- Content -->
       <div class="order-1 md:order-2">
-        <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-secondary">
+        <h2
+          class="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-secondary"
+        >
           {title}
         </h2>
         <!-- Decorative line -->
         <div class="flex items-center gap-2 mb-6">
-          <div class="h-1 w-20 bg-gradient-to-r from-secondary to-transparent"></div>
+          <div class="h-1 w-20 bg-gradient-to-r from-secondary to-transparent">
+          </div>
           <div class="flex gap-1">
             <div class="w-2 h-2 rounded-full bg-secondary animate-pulse"></div>
-            <div class="w-2 h-2 rounded-full bg-secondary animate-pulse delay-100"></div>
-            <div class="w-2 h-2 rounded-full bg-secondary animate-pulse delay-200"></div>
+            <div
+              class="w-2 h-2 rounded-full bg-secondary animate-pulse delay-100"
+            >
+            </div>
+            <div
+              class="w-2 h-2 rounded-full bg-secondary animate-pulse delay-200"
+            >
+            </div>
           </div>
         </div>
         <p class="text-base md:text-lg text-text-muted leading-relaxed">

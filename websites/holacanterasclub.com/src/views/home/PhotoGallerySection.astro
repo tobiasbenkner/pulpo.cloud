@@ -1,5 +1,4 @@
 ---
-import Container from "@/components/ui/Container.astro";
 import { Image } from "astro:assets";
 import photo1 from "../../assets/gallery_1.jpg";
 import photo2 from "../../assets/gallery_2.jpg";
@@ -15,33 +14,30 @@ interface Props {
 const { title } = Astro.props;
 
 const photos = [
-  { image: photo1, alt: "Event impression 1", span: "md:row-span-2" },
-  { image: photo2, alt: "Event impression 2", span: "" },
-  { image: photo3, alt: "Event impression 3", span: "" },
-  { image: photo4, alt: "Event impression 4", span: "" },
-  { image: photo5, alt: "Event impression 5", span: "" },
-  { image: photo6, alt: "Event impression 6", span: "md:row-span-2" },
+  { image: photo1, alt: "Event impression 1" },
+  { image: photo2, alt: "Event impression 2" },
+  { image: photo3, alt: "Event impression 3" },
+  { image: photo4, alt: "Event impression 4" },
+  { image: photo5, alt: "Event impression 5" },
+  { image: photo6, alt: "Event impression 6" },
 ];
 ---
 
-<section class="py-16 md:py-24 bg-background">
-  <Container>
-    <!-- Gallery Grid -->
-    <div class="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4">
-      {
-        photos.map((photo) => (
-          <div class="overflow-hidden rounded-sm h-[33vh] md:h-[50vh] hover:opacity-90 transition-opacity duration-300">
-            <Image
-              src={photo.image}
-              alt={photo.alt}
-              class="w-full h-full object-cover"
-              loading="lazy"
-              widths={[400, 600, 800]}
-              sizes="(max-width: 768px) 50vw, 33vw"
-            />
-          </div>
-        ))
-      }
-    </div>
-  </Container>
+<section class="bg-background">
+  <div class="grid grid-cols-2 md:grid-cols-3">
+    {
+      photos.map((photo) => (
+        <div class="overflow-hidden h-[33vh] md:h-[50vh] hover:opacity-90 transition-opacity duration-300">
+          <Image
+            src={photo.image}
+            alt={photo.alt}
+            class="w-full h-full object-cover"
+            loading="lazy"
+            widths={[400, 600, 800]}
+            sizes="(max-width: 768px) 50vw, 33vw"
+          />
+        </div>
+      ))
+    }
+  </div>
 </section>

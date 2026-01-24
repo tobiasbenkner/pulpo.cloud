@@ -223,9 +223,6 @@ importers:
       '@fontsource-variable/inter':
         specifier: ^5.2.8
         version: 5.2.8
-      '@fontsource/libre-baskerville':
-        specifier: ^5.2.10
-        version: 5.2.10
       '@iconify-json/circle-flags':
         specifier: ^1.2.10
         version: 1.2.10

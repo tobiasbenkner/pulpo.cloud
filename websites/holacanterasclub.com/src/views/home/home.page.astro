@@ -24,6 +24,13 @@ const { lang, t } = Astro.props;
 
 <TestimonialSection quote={t.testimonial.quote} author={t.testimonial.author} />
 
+<AgendaSection
+  title={t.agenda.title}
+  eventTitle={t.agenda.eventTitle}
+  eventTime={t.agenda.eventTime}
+  eventDescription={t.agenda.eventDescription}
+/>
+
 <DrinksSection title={t.drinks.title} description={t.drinks.description} />
 
 <UniqueEventsSection
@@ -52,11 +59,4 @@ const { lang, t } = Astro.props;
   hoursLabel={t.contact.hoursLabel}
   hoursText={t.contact.hoursText}
   viewOnMap={t.contact.viewOnMap}
-/>
-
-<AgendaSection
-  title={t.agenda.title}
-  eventTitle={t.agenda.eventTitle}
-  eventTime={t.agenda.eventTime}
-  eventDescription={t.agenda.eventDescription}
 />
