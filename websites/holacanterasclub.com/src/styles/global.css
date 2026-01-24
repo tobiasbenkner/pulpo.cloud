@@ -23,15 +23,15 @@
 
 /* --- VARIABLES --- */
 :root {
-  --background: #0a0e1a;
-  --surface: #1a1f2e;
-  --border: #2a3244;
+  --background: #0a0a0a;
+  --surface: #1a1a1a;
+  --border: #2a2a2a;
 
   --primary: #ffffff;
-  --text: #e2e8f0;
-  --text-muted: #94a3b8;
-  --secondary: #d4b57e;
-  --secondary-hover: #e5c68d;
+  --text: #f2f2f2;
+  --text-muted: #a0a0a0;
+  --secondary: #ffcf00;
+  --secondary-hover: #ffd633;
 }
 
 /* --- BASE STYLES --- */
@@ -201,9 +201,17 @@
   }
 
   .text-gradient-gold {
-    background: linear-gradient(135deg, #fbf2d5 0%, #d4b57e 100%);
+    background: linear-gradient(135deg, #fff4b3 0%, #ffcf00 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+  }
+
+  .delay-100 {
+    animation-delay: 100ms;
+  }
+
+  .delay-200 {
+    animation-delay: 200ms;
   }
 }

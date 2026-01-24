@@ -1,0 +1,84 @@
+---
+import Container from "@/components/ui/Container.astro";
+import { siteData } from "@/data/siteData";
+
+interface Props {
+  title: string;
+  addressLabel: string;
+  emailLabel: string;
+  hoursLabel: string;
+  hoursText: string;
+  viewOnMap: string;
+}
+
+const { title, addressLabel, emailLabel, hoursLabel, hoursText, viewOnMap } = Astro.props;
+---
+
+<section class="py-16 md:py-24 bg-background">
+  <Container>
+    <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-12 text-center text-secondary">
+      {title}
+    </h2>
+
+    <div class="grid md:grid-cols-3 gap-8 md:gap-12">
+      <!-- Google Maps -->
+      <div class="md:col-span-2">
+        <div class="aspect-video md:aspect-[16/10] rounded-lg overflow-hidden shadow-xl border border-border">
+          <iframe
+            src={siteData.contact.googleMapsEmbed}
+            width="100%"
+            height="100%"
+            style="border:0;"
+            allowfullscreen=""
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+          ></iframe>
+        </div>
+      </div>
+
+      <!-- Contact Info -->
+      <div class="space-y-6">
+        <!-- Address -->
+        <div>
+          <h3 class="text-xl font-bold mb-3 text-secondary">
+            {addressLabel}
+          </h3>
+          <p class="text-text leading-relaxed whitespace-pre-line">
+            {siteData.contact.address}
+          </p>
+          <a
+            href={siteData.contact.googleMaps}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-block mt-3 text-secondary hover:text-secondary-hover transition-colors underline"
+          >
+            {viewOnMap}
+          </a>
+        </div>
+
+        <!-- Email -->
+        <div>
+          <h3 class="text-xl font-bold mb-3 text-secondary">
+            {emailLabel}
+          </h3>
+          <a
+            href={`mailto:${siteData.contact.email}`}
+            class="text-text hover:text-secondary transition-colors"
+          >
+            {siteData.contact.email}
+          </a>
+        </div>
+
+        <!-- Opening Hours -->
+        <div>
+          <h3 class="text-xl font-bold mb-3 text-secondary">
+            {hoursLabel}
+          </h3>
+          <p class="text-text leading-relaxed">
+            {hoursText}
+          </p>
+        </div>
+      </div>
+    </div>
+  </Container>
+</section>

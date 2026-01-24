@@ -17,16 +17,16 @@ const { title, review1, review2, review3 } = Astro.props;
 const reviews = [review1, review2, review3];
 ---
 
-<section class="py-16 md:py-24">
+<section class="py-16 md:py-24 bg-background">
   <Container>
-    <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-12 text-center">
+    <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-12 text-center text-secondary">
       {title}
     </h2>
 
     <div class="grid md:grid-cols-3 gap-6 md:gap-8">
       {
         reviews.map((review) => (
-          <div class="bg-surface rounded-lg p-6 md:p-8 hover:bg-surface/80 transition-colors">
+          <div class="bg-surface/50 rounded-lg p-6 md:p-8 border border-border hover:border-secondary/50 transition-all">
             {/* Stars */}
             <div class="flex gap-1 mb-4">
               {Array.from({ length: 5 }).map(() => (
@@ -41,12 +41,12 @@ const reviews = [review1, review2, review3];
             </div>
 
             {/* Review text */}
-            <p class="text-text-muted mb-4 leading-relaxed italic">
+            <p class="text-text mb-4 leading-relaxed text-base">
               "{review.text}"
             </p>
 
             {/* Author */}
-            <p class="text-secondary font-medium">— {review.author}</p>
+            <p class="text-primary font-bold">— {review.author}</p>
           </div>
         ))
       }

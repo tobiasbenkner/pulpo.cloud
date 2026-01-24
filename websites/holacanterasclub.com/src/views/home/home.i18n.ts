@@ -11,58 +11,58 @@ export const translations = {
       en: "Hola Canteras Club - Every Party, A Story",
     },
     description: {
-      es: "El mejor club de Las Palmas de Gran Canaria. Eventos únicos, bebidas premium y una atmósfera inigualable en Las Canteras.",
-      en: "The best club in Las Palmas de Gran Canaria. Unique events, premium drinks, and an unmatched atmosphere in Las Canteras.",
+      es: "Vive noches inolvidables en Las Palmas, copas, música, baile y conexiones que se convierten en historias.",
+      en: "Experience unforgettable nights in Las Palmas - where every drink, every song, and every encounter creates lasting memories.",
     },
   },
   hero: {
     title: {
       es: "Cada Fiesta, Una Historia",
-      en: "Every Party, A Story",
+      en: "Every Party, A Story...",
     },
     subtitle: {
-      es: "Vive experiencias únicas en el corazón de Las Canteras. Un lugar donde cada noche se convierte en un recuerdo inolvidable.",
-      en: "Live unique experiences in the heart of Las Canteras. A place where every night becomes an unforgettable memory.",
+      es: "Vive noches inolvidables en Las Palmas, copas, música, baile y conexiones que se convierten en historias.",
+      en: "Experience unforgettable nights in Las Palmas - where every drink, every song, and every encounter creates lasting memories.",
     },
   },
   testimonial: {
     quote: {
-      es: "Hola Canteras Club no es solo un lugar para bailar, es un espacio donde se crean conexiones auténticas y momentos que perduran. Cada evento está diseñado para que vivas algo especial.",
-      en: "Hola Canteras Club is not just a place to dance, it's a space where authentic connections and lasting moments are created. Every event is designed for you to experience something special.",
+      es: "Baila, ríe, vive y aprovecha cada momento… la vida puede ser genial si la disfrutas.",
+      en: "Dance, laugh, live — make every moment count… life's amazing if you let it be.",
     },
     author: {
-      es: "Jose, Club",
-      en: "Jose, Club",
+      es: "Jose - Hola Canteras Club",
+      en: "Jose - Hola Canteras Club",
     },
   },
   drinks: {
     title: {
       es: "Bebidas que hacen fiesta",
-      en: "Drinks that make the party",
+      en: "Drinks that steal the show",
     },
     description: {
-      es: "Nuestros bartenders crean cócteles únicos que complementan perfectamente la energía de cada noche. Desde clásicos reinventados hasta creaciones exclusivas, cada bebida es una experiencia en sí misma.",
-      en: "Our bartenders create unique cocktails that perfectly complement the energy of every night. From reinvented classics to exclusive creations, each drink is an experience in itself.",
+      es: "Ya sea una cerveza fría, una bebida sin alcohol con sabor a frutas, un cóctel bien preparado o cualquier cosa que te apetezca en ese momento, las bebidas de nuestro bar serán protagonistas clave de tu noche. Si de verdad quieres divertirte —como dice alguien muy sabio—, ten en cuenta que las mejores historias no se escriben con una botellita de agua 😉",
+      en: "Whether it's a cold beer, a fruity soft drink, a perfectly mixed cocktail, or anything else you're craving, the drinks at our bar will be one of the main stars of your evening. And if you really want to have fun — as someone wise once said — remember that the best stories don't usually start with a little bottle of water 😉",
     },
   },
   uniqueEvents: {
     title: {
       es: "Fiestas únicas",
-      en: "Unique parties",
+      en: "Unique Parties",
     },
     description: {
-      es: "Cada evento en Hola Canteras Club es diferente. Desde noches temáticas hasta fiestas con DJs internacionales, siempre hay algo nuevo que descubrir. No repetimos, innovamos.",
-      en: "Every event at Hola Canteras Club is different. From themed nights to parties with international DJs, there's always something new to discover. We don't repeat, we innovate.",
+      es: "Cada fiesta es un universo distinto. Desde noches latinas hasta fiestas retro y temáticas, transformamos el espacio para crear historias únicas. ¿Quieres escribir la tuya? También puedes alquilar la sala para tus eventos privados.",
+      en: "Every party is its own universe. From Latin nights to retro and themed parties, we transform the space to create unique stories. Want to write yours? The venue is also available for private events.",
     },
   },
   networking: {
     title: {
       es: "Conoce nuevos amigos o ven con los tuyos",
-      en: "Meet new friends or come with yours",
+      en: "Meet new friends or bring your own",
     },
     description: {
-      es: "Nuestro ambiente acogedor facilita que conozcas gente nueva mientras disfrutas de buena música y mejor compañía. Ven solo o acompañado, aquí todos encuentran su lugar.",
-      en: "Our welcoming atmosphere makes it easy to meet new people while enjoying good music and even better company. Come alone or with friends, everyone finds their place here.",
+      es: "En Hola Canteras Club, el ambiente perfecto para conocer gente nueva o divertirte con tu grupo. Copas, música e historias por vivir.",
+      en: "At Hola Canteras Club, find the perfect vibe whether you're looking to meet new people or party with your crew. Drinks, music and stories to share.",
     },
   },
   gallery: {
@@ -78,32 +78,32 @@ export const translations = {
     },
     review1: {
       text: {
-        es: "El mejor club de Las Palmas. La atmósfera es increíble y el personal muy atento. Siempre vuelvo.",
-        en: "The best club in Las Palmas. The atmosphere is incredible and the staff very attentive. I always come back.",
+        es: "¡Increíble ambiente y variedad de eventos! Fui a una fiesta retro de los 90 y luego a una noche de baile latino... ¡en la misma semana!",
+        en: "Unreal vibe and insane variety! Hit a '90s retro party and a Latin dance night... IN THE SAME WEEK!",
       },
       author: {
-        es: "María G.",
-        en: "María G.",
+        es: "Maria G.G.",
+        en: "Maria G.G.",
       },
     },
     review2: {
       text: {
-        es: "Eventos únicos que no encuentras en ningún otro lugar. Los DJs son de primera y las bebidas excelentes.",
-        en: "Unique events that you won't find anywhere else. The DJs are top-notch and the drinks excellent.",
+        es: "El evento de los 80s fue una bomba de nostalgia y ritmo. Sonaron todos los clásicos del pop, como Michael Jackson.",
+        en: "The 80s event was a blast of nostalgia and rhythm. All the classic pop hits played, including Michael Jackson.",
       },
       author: {
-        es: "Carlos R.",
-        en: "Carlos R.",
+        es: "Paula",
+        en: "Paula",
       },
     },
     review3: {
       text: {
-        es: "Un lugar perfecto para conocer gente nueva. El ambiente es muy acogedor y siempre hay buena música.",
-        en: "A perfect place to meet new people. The atmosphere is very welcoming and there's always good music.",
+        es: "¡Este lugar nunca decepciona! La semana pasada fui y quedé alucinado con la mezcla de ritmos vintage y beats modernos.",
+        en: "This place never disappoints! I went last week and was blown away by the mix of vintage rhythms and modern beats.",
       },
       author: {
-        es: "Ana L.",
-        en: "Ana L.",
+        es: "Mario",
+        en: "Mario",
       },
     },
   },
@@ -112,13 +112,43 @@ export const translations = {
       es: "Nuestra agenda semanal",
       en: "Our weekly schedule",
     },
-    specialEvents: {
-      es: "Eventos especiales",
-      en: "Special events",
+    eventTitle: {
+      es: "Sábado Latino",
+      en: "Latin Saturday",
     },
-    comingSoon: {
-      es: "Próximamente",
-      en: "Coming soon",
+    eventTime: {
+      es: "20:00 - 02:00",
+      en: "20:00 - 02:00",
+    },
+    eventDescription: {
+      es: "Cada sábado, Fiesta. Gente de Todo el Mundo hablando en Salsa y susurrando en Bachata.",
+      en: "Every Saturday, Party. People from all over the world speaking in Salsa and whispering in Bachata.",
+    },
+  },
+  contact: {
+    title: {
+      es: "Encuéntranos",
+      en: "Find us",
+    },
+    addressLabel: {
+      es: "Dirección",
+      en: "Address",
+    },
+    emailLabel: {
+      es: "Email",
+      en: "Email",
+    },
+    hoursLabel: {
+      es: "Horario",
+      en: "Opening Hours",
+    },
+    hoursText: {
+      es: "Sábado: 20:00 - 02:00",
+      en: "Saturday: 20:00 - 02:00",
+    },
+    viewOnMap: {
+      es: "Ver en Google Maps",
+      en: "View on Google Maps",
     },
   },
 };

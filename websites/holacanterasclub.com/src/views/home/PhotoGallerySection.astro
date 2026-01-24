@@ -9,7 +9,7 @@ import photo5 from "../../assets/gallery_5.jpg";
 import photo6 from "../../assets/gallery_6.jpg";
 
 interface Props {
-  title: string;
+  title?: string;
 }
 
 const { title } = Astro.props;
@@ -24,19 +24,13 @@ const photos = [
 ];
 ---
 
-<section class="py-16 md:py-24 bg-surface">
+<section class="py-16 md:py-24 bg-background">
   <Container>
-    <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-12 text-center">
-      {title}
-    </h2>
-
-    <!-- Masonry Grid -->
-    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 auto-rows-[200px]">
+    <!-- Gallery Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4">
       {
         photos.map((photo) => (
-          <div
-            class={`overflow-hidden rounded-lg bg-background/50 hover:scale-[1.02] transition-transform duration-300 ${photo.span}`}
-          >
+          <div class="overflow-hidden rounded-sm h-[33vh] md:h-[50vh] hover:opacity-90 transition-opacity duration-300">
             <Image
               src={photo.image}
               alt={photo.alt}

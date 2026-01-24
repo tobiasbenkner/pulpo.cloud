@@ -9,6 +9,7 @@ import UniqueEventsSection from "./UniqueEventsSection.astro";
 import NetworkingSection from "./NetworkingSection.astro";
 import PhotoGallerySection from "./PhotoGallerySection.astro";
 import ReviewsSection from "./ReviewsSection.astro";
+import ContactSection from "./ContactSection.astro";
 import AgendaSection from "./AgendaSection.astro";
 
 interface Props {
@@ -22,12 +23,6 @@ const { lang, t } = Astro.props;
 <HeroSection title={t.hero.title} subtitle={t.hero.subtitle} />
 
 <TestimonialSection quote={t.testimonial.quote} author={t.testimonial.author} />
-
-<AgendaSection
-  title={t.agenda.title}
-  specialEventsLabel={t.agenda.specialEvents}
-  comingSoonLabel={t.agenda.comingSoon}
-/>
 
 <DrinksSection title={t.drinks.title} description={t.drinks.description} />
 
@@ -48,4 +43,20 @@ const { lang, t } = Astro.props;
   review1={t.reviews.review1}
   review2={t.reviews.review2}
   review3={t.reviews.review3}
+/>
+
+<ContactSection
+  title={t.contact.title}
+  addressLabel={t.contact.addressLabel}
+  emailLabel={t.contact.emailLabel}
+  hoursLabel={t.contact.hoursLabel}
+  hoursText={t.contact.hoursText}
+  viewOnMap={t.contact.viewOnMap}
+/>
+
+<AgendaSection
+  title={t.agenda.title}
+  eventTitle={t.agenda.eventTitle}
+  eventTime={t.agenda.eventTime}
+  eventDescription={t.agenda.eventDescription}
 />

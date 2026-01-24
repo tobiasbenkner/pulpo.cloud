@@ -22,33 +22,36 @@ const drinks = [
 ];
 ---
 
-<section class="py-16 md:py-24">
+<section class="py-16 md:py-24 bg-background">
   <Container>
-    <div class="text-center mb-12">
-      <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
-        {title}
-      </h2>
-      <p class="text-lg md:text-xl text-text-muted max-w-3xl mx-auto leading-relaxed">
-        {description}
-      </p>
-    </div>
+    <div class="grid md:grid-cols-3 gap-8 md:gap-12 items-center">
+      <!-- Text Content -->
+      <div class="md:col-span-1">
+        <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 text-secondary">
+          {title}
+        </h2>
+        <p class="text-base md:text-lg text-text-muted leading-relaxed">
+          {description}
+        </p>
+      </div>
 
-    <!-- Drinks Grid -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-      {
-        drinks.map((drink) => (
-          <div class="aspect-square rounded-lg overflow-hidden bg-surface/50 hover:scale-105 transition-transform duration-300">
-            <Image
-              src={drink.image}
-              alt={drink.alt}
-              class="w-full h-full object-cover"
-              loading="lazy"
-              widths={[300, 400, 600]}
-              sizes="(max-width: 768px) 50vw, 25vw"
-            />
-          </div>
-        ))
-      }
+      <!-- Drinks Grid -->
+      <div class="md:col-span-2 grid grid-cols-2 gap-4 md:gap-6">
+        {
+          drinks.map((drink) => (
+            <div class="aspect-square rounded-lg overflow-hidden hover:scale-105 transition-transform duration-300 shadow-lg">
+              <Image
+                src={drink.image}
+                alt={drink.alt}
+                class="w-full h-full object-cover"
+                loading="lazy"
+                widths={[300, 400, 600]}
+                sizes="(max-width: 768px) 50vw, 33vw"
+              />
+            </div>
+          ))
+        }
+      </div>
     </div>
   </Container>
 </section>
