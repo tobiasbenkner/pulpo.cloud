@@ -78,8 +78,8 @@ export const translations = {
     },
     review1: {
       text: {
-        es: "¡Increíble ambiente y variedad de eventos! Fui a una fiesta retro de los 90 y luego a una noche de baile latino... ¡en la misma semana!",
-        en: "Unreal vibe and insane variety! Hit a '90s retro party and a Latin dance night... IN THE SAME WEEK!",
+        es: "¡Increíble ambiente y variedad de eventos! Fui a una fiesta retro de los 90 y luego a una noche de baile latino... ¡en la misma semana! Ambiente súper internacional con gente de todas partes, bebidas ricas a buen precio, y música que SÍ sabe lo que me gusta. El personal es ese detalle que lo hace especial: hasta se acordaron de mi nombre y me recomendaron eventos según mis gustos. Sin duda, mi sitio favorito en Las Palmas. ¡Hasta me uní a su grupo de WhatsApp para no perderme nada!",
+        en: "Incredible atmosphere and variety of events! I went to a 90s retro party and then a Latin dance night... in the same week! Super international vibe with people from everywhere, great drinks at good prices, and music that really knows what I like. The staff is what makes it special: they even remembered my name and recommended events based on my tastes. Without a doubt, my favorite spot in Las Palmas. I even joined their WhatsApp group so I don't miss anything!",
       },
       author: {
         es: "Maria G.G.",
@@ -88,8 +88,8 @@ export const translations = {
     },
     review2: {
       text: {
-        es: "El evento de los 80s fue una bomba de nostalgia y ritmo. Sonaron todos los clásicos del pop, como Michael Jackson.",
-        en: "The 80s event was a blast of nostalgia and rhythm. All the classic pop hits played, including Michael Jackson.",
+        es: "El evento de los 80s fue una bomba de nostalgia y ritmo. Sonaron todos los clásicos del pop, como Michael Jackson. El ambiente fue increíble, la gente bailó sin parar y la decoración retro le dio un toque único. ¡Una experiencia para repetir!",
+        en: "The 80s event was a blast of nostalgia and rhythm. All the classic pop hits played, including Michael Jackson. The atmosphere was incredible, people danced non-stop, and the retro decoration gave it a unique touch. An experience worth repeating!",
       },
       author: {
         es: "Paula",
@@ -98,8 +98,8 @@ export const translations = {
     },
     review3: {
       text: {
-        es: "¡Este lugar nunca decepciona! La semana pasada fui y quedé alucinado con la mezcla de ritmos vintage y beats modernos.",
-        en: "This place never disappoints! I went last week and was blown away by the mix of vintage rhythms and modern beats.",
+        es: "¡Este lugar nunca decepciona! La semana pasada fui y quedé alucinado con la mezcla de ritmos vintage y beats modernos. La pista estaba llena de gente con onda, bailando sin parar, y la música supo mantener la energía al máximo toda la noche. Además, la barra tenía cócteles temáticos súper originales. Me encanta que siempre están innovando con propuestas distintas y que el staff es tan cercano: te hacen sentir parte de la familia. Es el sitio ideal para salir con amigos o conocer gente nueva. ¡Ya estoy esperando el próximo evento!",
+        en: "This place never disappoints! I went last week and was blown away by the mix of vintage rhythms and modern beats. The dance floor was full of cool people, dancing non-stop, and the music kept the energy at maximum all night. Plus, the bar had super original themed cocktails. I love that they're always innovating with different concepts and that the staff is so friendly: they make you feel like part of the family. It's the ideal spot to go out with friends or meet new people. I'm already waiting for the next event!",
       },
       author: {
         es: "Mario",
