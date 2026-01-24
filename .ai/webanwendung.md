@@ -1,1 +1,0 @@
-Erweitere den Technologie Stack auf Svelte und shadcn-svelte. 
