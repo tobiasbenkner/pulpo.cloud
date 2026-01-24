@@ -2,6 +2,15 @@
 import type { HomeTranslations } from "./home.i18n";
 import type { Language } from "@/lib/i18n";
 
+import HeroSection from "./HeroSection.astro";
+import TestimonialSection from "./TestimonialSection.astro";
+import DrinksSection from "./DrinksSection.astro";
+import UniqueEventsSection from "./UniqueEventsSection.astro";
+import NetworkingSection from "./NetworkingSection.astro";
+import PhotoGallerySection from "./PhotoGallerySection.astro";
+import ReviewsSection from "./ReviewsSection.astro";
+import AgendaSection from "./AgendaSection.astro";
+
 interface Props {
   lang: Language;
   t: HomeTranslations;
@@ -9,9 +18,34 @@ interface Props {
 
 const { lang, t } = Astro.props;
 ---
-Home
 
-<video controls>
-    <source src="/hero.mp4" type="video/mp4">
-    Dein Browser unterstützt kein Video.
-</video>
+<HeroSection title={t.hero.title} subtitle={t.hero.subtitle} />
+
+<TestimonialSection quote={t.testimonial.quote} author={t.testimonial.author} />
+
+<AgendaSection
+  title={t.agenda.title}
+  specialEventsLabel={t.agenda.specialEvents}
+  comingSoonLabel={t.agenda.comingSoon}
+/>
+
+<DrinksSection title={t.drinks.title} description={t.drinks.description} />
+
+<UniqueEventsSection
+  title={t.uniqueEvents.title}
+  description={t.uniqueEvents.description}
+/>
+
+<NetworkingSection
+  title={t.networking.title}
+  description={t.networking.description}
+/>
+
+<PhotoGallerySection title={t.gallery.title} />
+
+<ReviewsSection
+  title={t.reviews.title}
+  review1={t.reviews.review1}
+  review2={t.reviews.review2}
+  review3={t.reviews.review3}
+/>

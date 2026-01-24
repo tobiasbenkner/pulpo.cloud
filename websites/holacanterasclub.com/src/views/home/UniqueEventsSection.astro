@@ -1,0 +1,40 @@
+---
+import Container from "@/components/ui/Container.astro";
+import { Image } from "astro:assets";
+import photo from "../../assets/text_2.jpeg"
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<section class="py-16 md:py-24 bg-surface">
+  <Container>
+    <div class="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+      <!-- Image -->
+      <div class="order-2 md:order-1">
+        <div class="aspect-4/3 rounded-lg overflow-hidden">
+          <Image
+            src={photo}
+            alt="Unique party atmosphere"
+            class="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+            loading="lazy"
+          />
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="order-1 md:order-2">
+        <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+          {title}
+        </h2>
+        <p class="text-lg md:text-xl text-text-muted leading-relaxed">
+          {description}
+        </p>
+      </div>
+    </div>
+  </Container>
+</section>

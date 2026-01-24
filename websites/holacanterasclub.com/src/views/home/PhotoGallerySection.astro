@@ -1,0 +1,53 @@
+---
+import Container from "@/components/ui/Container.astro";
+import { Image } from "astro:assets";
+import photo1 from "../../assets/gallery_1.jpg";
+import photo2 from "../../assets/gallery_2.jpg";
+import photo3 from "../../assets/gallery_3.jpg";
+import photo4 from "../../assets/gallery_4.jpg";
+import photo5 from "../../assets/gallery_5.jpg";
+import photo6 from "../../assets/gallery_6.jpg";
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+
+const photos = [
+  { image: photo1, alt: "Event impression 1", span: "md:row-span-2" },
+  { image: photo2, alt: "Event impression 2", span: "" },
+  { image: photo3, alt: "Event impression 3", span: "" },
+  { image: photo4, alt: "Event impression 4", span: "" },
+  { image: photo5, alt: "Event impression 5", span: "" },
+  { image: photo6, alt: "Event impression 6", span: "md:row-span-2" },
+];
+---
+
+<section class="py-16 md:py-24 bg-surface">
+  <Container>
+    <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-12 text-center">
+      {title}
+    </h2>
+
+    <!-- Masonry Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 auto-rows-[200px]">
+      {
+        photos.map((photo) => (
+          <div
+            class={`overflow-hidden rounded-lg bg-background/50 hover:scale-[1.02] transition-transform duration-300 ${photo.span}`}
+          >
+            <Image
+              src={photo.image}
+              alt={photo.alt}
+              class="w-full h-full object-cover"
+              loading="lazy"
+              widths={[400, 600, 800]}
+              sizes="(max-width: 768px) 50vw, 33vw"
+            />
+          </div>
+        ))
+      }
+    </div>
+  </Container>
+</section>

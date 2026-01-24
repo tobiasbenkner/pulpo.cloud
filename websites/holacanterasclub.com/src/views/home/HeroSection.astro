@@ -1,0 +1,54 @@
+---
+interface Props {
+  title: string;
+  subtitle: string;
+}
+
+const { title, subtitle } = Astro.props;
+---
+
+<section class="relative h-screen w-full overflow-hidden -mt-16 md:-mt-20">
+  <!-- Background Video -->
+  <div class="absolute inset-0 w-full h-full">
+    <video
+      autoplay
+      muted
+      loop
+      playsinline
+      class="w-full h-full object-cover"
+    >
+      <source src="/hero.mp4" type="video/mp4" />
+    </video>
+    <!-- Dark overlay -->
+    <div class="absolute inset-0 bg-black/50"></div>
+  </div>
+
+  <!-- Content -->
+  <div class="relative h-full flex items-center justify-center px-4">
+    <div class="text-center max-w-4xl mx-auto">
+      <h1 class="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 text-gradient-gold">
+        {title}
+      </h1>
+      <p class="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto">
+        {subtitle}
+      </p>
+    </div>
+  </div>
+
+  <!-- Scroll indicator -->
+  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+    <svg
+      class="w-6 h-6 text-white/70"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M19 14l-7 7m0 0l-7-7m7 7V3"
+      ></path>
+    </svg>
+  </div>
+</section>
