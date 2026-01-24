@@ -45,11 +45,13 @@
     /* Verhindert horizontales Scrollen */
     overflow-x: hidden;
     width: 100%;
+
+    font-size: 18px;
   }
 
   body {
     font-family: var(--font-sans);
-    line-height: 1.6;
+    line-height: 1.65;
 
     /* Doppelt: Verhindert horizontales Scrollen */
     overflow-x: hidden;
