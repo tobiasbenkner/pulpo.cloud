@@ -20,7 +20,7 @@ const { title, description, lang, routeKey, ogImage, noindex } = Astro.props;
 ---
 
 <!doctype html>
-<html lang={lang} class="scroll-pt-20">
+<html lang={lang} class="scroll-pt-16 md:scroll-pt-20">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -34,7 +34,7 @@ const { title, description, lang, routeKey, ogImage, noindex } = Astro.props;
       noindex={noindex}
     />
   </head>
-  <body class="min-h-screen flex flex-col bg-background text-text pt-20">
+  <body class="min-h-screen flex flex-col bg-background text-text pt-16 md:pt-20">
     <Header lang={lang} routeKey={routeKey} />
     <main class="flex-1">
       <slot />
