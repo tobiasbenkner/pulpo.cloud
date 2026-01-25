@@ -1,0 +1,12 @@
+{
+  "name": "proxy",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "dev": "docker compose up"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.27.0"
+}

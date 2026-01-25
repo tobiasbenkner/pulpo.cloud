@@ -6,10 +6,11 @@ import { directus } from "../lib/directus";
 
 interface DirectusRealtimeMessage<T = any> {
   type: "subscription" | "items" | "auth" | "ping" | "pong";
-  event?: "create" | "update" | "delete";
+  event?: "create" | "update" | "delete" | "init" | "error";
   data?: T[] | T;
   uid?: string;
-  status?: string;
+  status?: "ok" | "error" | "expired";
+  error?: { code: string; message: string };
 }
 
 interface DirectusRealtimeOptions<T = any> {
@@ -72,26 +73,105 @@ export function useDirectusRealtime<T = any>(
   let onlineHandler: (() => void) | null = null;
   let offlineHandler: (() => void) | null = null;
   let currentReconnectDelay = reconnectInterval;
-  let subscription: any = null;
-  let refreshToken: string | null = null;
+  let subscription: AsyncGenerator<any> | null = null;
+  let eventHandlersRegistered = false;
+  let isReconnecting = false;
+
+  function setupWebSocketEventHandlers() {
+    // Nur einmal registrieren
+    if (eventHandlersRegistered) return;
+    eventHandlersRegistered = true;
+
+    // WebSocket Close Handler
+    directus.onWebSocket("close", () => {
+      console.log("[Realtime] WebSocket geschlossen");
+      state.update((s) => ({
+        ...s,
+        connected: false,
+        authenticated: false,
+      }));
+      onDisconnect?.();
+
+      if (!isIntentionallyClosed && autoReconnect) {
+        scheduleReconnect();
+      }
+    });
+
+    // WebSocket Error Handler
+    directus.onWebSocket("error", (error) => {
+      console.error("[Realtime] WebSocket Fehler:", error);
+      const err = new Error("WebSocket Verbindungsfehler");
+      state.update((s) => ({
+        ...s,
+        error: err.message,
+      }));
+      onError?.(err);
+    });
+
+    // WebSocket Message Handler für Auth und initiale Daten
+    directus.onWebSocket("message", (message: DirectusRealtimeMessage) => {
+      // Ping/Pong für Keep-Alive
+      if (message.type === "ping") {
+        directus.sendMessage({ type: "pong" });
+        return;
+      }
+
+      // Auth-Nachrichten verarbeiten (handshake-mode sendet diese automatisch)
+      if (message.type === "auth") {
+        if (message.status === "ok") {
+          console.log("[Realtime] Authentifizierung erfolgreich");
+          state.update((s) => ({ ...s, authenticated: true, error: null }));
+        } else if (message.status === "expired") {
+          console.log("[Realtime] Token abgelaufen, reconnect...");
+          state.update((s) => ({ ...s, authenticated: false }));
+          // Bei handshake-mode mit Cookie: komplett neu verbinden
+          // Das SDK refresht den Token automatisch über die REST-Auth
+          scheduleReconnect();
+        } else if (message.status === "error") {
+          console.error("[Realtime] Auth-Fehler:", message.error);
+          state.update((s) => ({
+            ...s,
+            authenticated: false,
+            error: message.error?.message || "Authentifizierungsfehler",
+          }));
+          onError?.(new Error(message.error?.message || "Authentifizierungsfehler"));
+        }
+        return;
+      }
+
+      // Handle initial data load response
+      if (loadInitialData && message.uid?.includes("initial")) {
+        console.log("[Realtime] Initiale Daten empfangen");
+        if (message.data && Array.isArray(message.data)) {
+          onMessage?.(message as DirectusRealtimeMessage<T>);
+        }
+      }
+    });
+  }
 
   async function connect() {
-    if (get(state).connected) {
+    const currentState = get(state);
+    if (currentState.connected || isReconnecting) {
       return;
     }
 
+    isReconnecting = true;
+
     try {
-      // Setup Event Handlers vor dem Connect
+      // Event Handlers nur einmal registrieren
       setupWebSocketEventHandlers();
 
-      // Verbinde WebSocket
+      // Verbinde WebSocket - Auth erfolgt automatisch via handshake-mode
+      // Der Token wird aus dem HTTP-only Cookie gelesen
       await directus.connect();
 
-      state.update((s) => ({ ...s, connected: true, error: null }));
-      console.log("WebSocket verbunden");
-
-      // Authentifizierung
-      await authenticate();
+      state.update((s) => ({
+        ...s,
+        connected: true,
+        error: null,
+        reconnecting: false,
+      }));
+      console.log("[Realtime] WebSocket verbunden");
 
       // Lade initiale Daten wenn gewünscht
       if (loadInitialData) {
@@ -107,44 +187,22 @@ export function useDirectusRealtime<T = any>(
 
       onConnect?.();
     } catch (error) {
-      console.error("Verbindungsfehler:", error);
+      console.error("[Realtime] Verbindungsfehler:", error);
       const err =
         error instanceof Error ? error : new Error("Unbekannter Fehler");
-      state.update((s) => ({ ...s, error: err.message, connected: false }));
+      state.update((s) => ({
+        ...s,
+        error: err.message,
+        connected: false,
+        authenticated: false,
+      }));
       onError?.(err);
 
-      if (autoReconnect) {
+      if (autoReconnect && !isIntentionallyClosed) {
         scheduleReconnect();
       }
-    }
-  }
-
-  async function authenticate() {
-    try {
-      // Versuche zuerst mit Access Token
-      const accessToken = await directus.getToken();
-
-      if (accessToken) {
-        directus.sendMessage({
-          type: "auth",
-          access_token: accessToken,
-        });
-        console.log("Authentifizierung mit Access Token erfolgreich");
-      } else if (refreshToken) {
-        // Fallback auf Refresh Token
-        directus.sendMessage({
-          type: "auth",
-          refresh_token: refreshToken,
-        });
-        console.log("Authentifizierung mit Refresh Token erfolgreich");
-      } else {
-        throw new Error("Keine Authentifizierungs-Tokens verfügbar");
-      }
-
-      state.update((s) => ({ ...s, authenticated: true }));
-    } catch (error) {
-      console.error("Authentifizierungsfehler:", error);
-      throw error;
+    } finally {
+      isReconnecting = false;
     }
   }
 
@@ -176,96 +234,36 @@ export function useDirectusRealtime<T = any>(
 
       subscription = sub;
 
-      // Verarbeite eingehende Events
-      (async () => {
-        try {
-          for await (const message of subscription) {
-            console.log("Neue Nachricht empfangen:", message);
-            onMessage?.(message as DirectusRealtimeMessage<T>);
-          }
-        } catch (error) {
-          console.error("Subscription Fehler:", error);
-          if (get(state).connected && autoReconnect) {
-            state.update((s) => ({ ...s, connected: false }));
-            scheduleReconnect();
-          }
-        }
-      })();
+      // Verarbeite eingehende Events in separater async Funktion
+      processSubscriptionMessages();
 
-      console.log(`Erfolgreich subscribed zu ${collection}`);
+      console.log(`[Realtime] Subscribed zu ${collection}`);
     } catch (error) {
-      console.error("Subscription fehlgeschlagen:", error);
+      console.error("[Realtime] Subscription fehlgeschlagen:", error);
       throw error;
     }
   }
 
-  function setupWebSocketEventHandlers() {
-    // WebSocket Close Handler
-    directus.onWebSocket("close", () => {
-      console.log("WebSocket Verbindung geschlossen");
-      state.update((s) => ({
-        ...s,
-        connected: false,
-        authenticated: false,
-      }));
-      onDisconnect?.();
+  async function processSubscriptionMessages() {
+    if (!subscription) return;
 
-      if (!isIntentionallyClosed && autoReconnect) {
-        scheduleReconnect();
+    try {
+      for await (const message of subscription) {
+        // Prüfe ob wir noch verbunden sein sollen
+        if (isIntentionallyClosed) break;
+
+        console.log("[Realtime] Nachricht empfangen:", message);
+        onMessage?.(message as DirectusRealtimeMessage<T>);
       }
-    });
-
-    // WebSocket Error Handler
-    directus.onWebSocket("error", (error) => {
-      console.error("WebSocket Fehler:", error);
-      const err = new Error("WebSocket Verbindungsfehler");
-      state.update((s) => ({
-        ...s,
-        error: err.message,
-        connected: false,
-      }));
-      onError?.(err);
-    });
-
-    // WebSocket Message Handler
-    directus.onWebSocket("message", async (message) => {
-      // Ping/Pong für Keep-Alive
-      if (message.type === "ping") {
-        directus.sendMessage({ type: "pong" });
-        return;
+    } catch (error) {
+      // Nur reconnecten wenn nicht absichtlich geschlossen
+      // und der close-Handler nicht bereits einen Reconnect plant
+      if (!isIntentionallyClosed && get(state).connected) {
+        console.error("[Realtime] Subscription unterbrochen:", error);
+        state.update((s) => ({ ...s, connected: false }));
+        // Nicht scheduleReconnect() aufrufen - der close-Handler macht das bereits
       }
-
-      // Handle initial data load response
-      if (loadInitialData && message.uid?.includes("initial")) {
-        console.log("Initiale Daten empfangen:", message);
-        if (message.data && Array.isArray(message.data)) {
-          onMessage?.(message as DirectusRealtimeMessage<T>);
-        }
-        return;
-      }
-
-      // Handle auth expiration
-      if (message.type === "auth" && message.status === "expired") {
-        console.log("Authentifizierung abgelaufen, re-authentifiziere...");
-
-        try {
-          if (refreshToken) {
-            await directus.sendMessage({
-              type: "auth",
-              refresh_token: refreshToken,
-            });
-            console.log("Re-Authentifizierung erfolgreich");
-            state.update((s) => ({ ...s, authenticated: true }));
-          } else {
-            console.log("Kein Refresh Token verfügbar");
-            scheduleReconnect();
-          }
-        } catch (error) {
-          console.error("Re-Authentifizierung fehlgeschlagen:", error);
-          scheduleReconnect();
-        }
-      }
-    });
+    }
   }
 
   function disconnect() {
@@ -276,14 +274,12 @@ export function useDirectusRealtime<T = any>(
       reconnectTimeout = null;
     }
 
-    if (subscription) {
-      subscription = null;
-    }
+    subscription = null;
 
     try {
       directus.disconnect();
     } catch (error) {
-      console.error("Disconnect Fehler:", error);
+      console.error("[Realtime] Disconnect Fehler:", error);
     }
 
     state.update((s) => ({
@@ -296,28 +292,31 @@ export function useDirectusRealtime<T = any>(
   }
 
   function scheduleReconnect() {
+    // Verhindere doppelte Reconnect-Aufrufe
+    if (reconnectTimeout || isIntentionallyClosed) return;
+
     const currentState = get(state);
 
     if (currentState.reconnectAttempts >= maxReconnectAttempts) {
-      console.log("Maximale Reconnect-Versuche erreicht");
+      console.log("[Realtime] Maximale Reconnect-Versuche erreicht");
       state.update((s) => ({
         ...s,
         error: "Maximale Reconnect-Versuche erreicht",
         reconnecting: false,
       }));
+      onError?.(new Error("Maximale Reconnect-Versuche erreicht"));
       return;
     }
 
-    if (reconnectTimeout) return;
-
+    const nextAttempt = currentState.reconnectAttempts + 1;
     state.update((s) => ({
       ...s,
       reconnecting: true,
-      reconnectAttempts: s.reconnectAttempts + 1,
+      reconnectAttempts: nextAttempt,
     }));
 
     console.log(
-      `Reconnect-Versuch ${currentState.reconnectAttempts + 1}/${maxReconnectAttempts} in ${currentReconnectDelay}ms`
+      `[Realtime] Reconnect ${nextAttempt}/${maxReconnectAttempts} in ${currentReconnectDelay}ms`
     );
 
     reconnectTimeout = setTimeout(async () => {
@@ -326,9 +325,8 @@ export function useDirectusRealtime<T = any>(
       if (!get(state).connected && !isIntentionallyClosed) {
         try {
           await connect();
-          currentReconnectDelay = reconnectInterval; // Reset delay on success
         } catch (error) {
-          console.error("Reconnect fehlgeschlagen:", error);
+          console.error("[Realtime] Reconnect fehlgeschlagen:", error);
           // Exponential backoff (max 30s)
           currentReconnectDelay = Math.min(currentReconnectDelay * 1.5, 30000);
           scheduleReconnect();
@@ -339,40 +337,42 @@ export function useDirectusRealtime<T = any>(
 
   function handleVisibilityChange() {
     if (document.visibilityState === "visible") {
-      console.log("Tab wieder aktiv");
-      if (!get(state).connected && !isIntentionallyClosed) {
+      console.log("[Realtime] Tab wieder aktiv");
+      const currentState = get(state);
+      if (!currentState.connected && !isIntentionallyClosed) {
+        // Reset delay bei manueller Reaktivierung
+        currentReconnectDelay = reconnectInterval;
         connect();
       }
     }
   }
 
   function handleOnline() {
-    console.log("Internet-Verbindung wiederhergestellt");
+    console.log("[Realtime] Internet-Verbindung wiederhergestellt");
     state.update((s) => ({ ...s, error: null }));
-    if (!get(state).connected && !isIntentionallyClosed) {
+    const currentState = get(state);
+    if (!currentState.connected && !isIntentionallyClosed) {
+      // Reset delay bei Netzwerk-Wiederherstellung
+      currentReconnectDelay = reconnectInterval;
       connect();
     }
   }
 
   function handleOffline() {
-    console.log("Keine Internet-Verbindung");
+    console.log("[Realtime] Keine Internet-Verbindung");
     state.update((s) => ({
       ...s,
       error: "Keine Internet-Verbindung",
-      connected: false,
-      authenticated: false,
     }));
   }
 
   onMount(async () => {
     isIntentionallyClosed = false;
-
-    // Lade Refresh Token falls vorhanden
-    refreshToken = localStorage.getItem("directus_refresh_token");
+    eventHandlersRegistered = false;
 
     await connect();
 
-    // Event Listener
+    // Event Listener für Browser-Events
     visibilityHandler = handleVisibilityChange;
     document.addEventListener("visibilitychange", visibilityHandler);
 
@@ -396,7 +396,6 @@ export function useDirectusRealtime<T = any>(
     }
   });
 
-  // Erstelle einen abgeleiteten Store für einfacheren Zugriff
   const api = {
     state,
     connect,
@@ -420,13 +419,12 @@ export function useDirectusRealtime<T = any>(
         uid: uid ? `${uid}-${action}` : undefined,
       };
 
-      console.log("📤 Sende Message:", message);
+      console.log("[Realtime] Sende:", message);
 
       try {
         directus.sendMessage(message);
-        console.log("✅ Message erfolgreich gesendet");
       } catch (error) {
-        console.error("❌ Fehler beim Senden der Message:", error);
+        console.error("[Realtime] Senden fehlgeschlagen:", error);
         throw error;
       }
     },
