@@ -1,90 +1,238 @@
 ---
 import Container from "@/components/ui/Container.astro";
+import PrivacyMap from "@/components/ui/PrivacyMap.astro";
 import { siteData } from "@/data/siteData";
+import type { Language } from "@/lib/i18n";
 
 interface Props {
+  label: string;
   title: string;
   addressLabel: string;
   emailLabel: string;
   hoursLabel: string;
   hoursText: string;
   viewOnMap: string;
+  socialLabel: string;
+  mapLoad: string;
+  mapAccept: string;
+  mapShow: string;
+  lang: Language;
 }
 
-const { title, addressLabel, emailLabel, hoursLabel, hoursText, viewOnMap } = Astro.props;
+const {
+  label,
+  title,
+  addressLabel,
+  emailLabel,
+  hoursLabel,
+  hoursText,
+  viewOnMap,
+  socialLabel,
+  mapLoad,
+  mapAccept,
+  mapShow,
+} = Astro.props;
 ---
 
-<section class="py-16 md:py-24 bg-background">
+<section class="py-16 md:py-24 bg-surface">
   <Container>
     <div class="text-center mb-12">
       <div class="flex items-center justify-center gap-3 mb-3">
         <div class="h-px w-8 bg-secondary"></div>
-        <span class="text-secondary text-xs font-medium tracking-widest uppercase">Contacto</span>
+        <span
+          class="text-secondary text-xs font-medium tracking-widest uppercase"
+          >{label}</span
+        >
         <div class="h-px w-8 bg-secondary"></div>
       </div>
       <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold text-white">
         {title}
       </h2>
-      <div class="h-1 w-16 bg-gradient-to-r from-transparent via-secondary to-transparent mx-auto mt-4"></div>
+      <div
+        class="h-1 w-16 bg-gradient-to-r from-transparent via-secondary to-transparent mx-auto mt-4"
+      >
+      </div>
     </div>
 
-    <div class="grid md:grid-cols-3 gap-8 md:gap-12">
-      <!-- Google Maps -->
-      <div class="md:col-span-2">
-        <div class="aspect-video md:aspect-[16/10] rounded-lg overflow-hidden shadow-xl border border-border">
-          <iframe
-            src={siteData.contact.googleMapsEmbed}
-            width="100%"
-            height="100%"
-            style="border:0;"
-            allowfullscreen=""
-            loading="lazy"
-            referrerpolicy="no-referrer-when-downgrade"
-          ></iframe>
+    <div class="grid lg:grid-cols-5 gap-8 lg:gap-12">
+      <!-- Map -->
+      <div class="lg:col-span-3">
+        <div
+          class="aspect-video lg:aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border border-border"
+        >
+          <PrivacyMap
+            url={siteData.contact.googleMapsEmbed}
+            height="h-full"
+            loadMap={mapLoad}
+            accept={mapAccept}
+            showMap={mapShow}
+          />
         </div>
       </div>
 
       <!-- Contact Info -->
-      <div class="space-y-6">
-        <!-- Address -->
-        <div>
-          <h3 class="text-xl font-bold mb-3 text-secondary">
-            {addressLabel}
-          </h3>
-          <p class="text-text leading-relaxed whitespace-pre-line">
-            {siteData.contact.address}
-          </p>
-          <a
-            href={siteData.contact.googleMaps}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="inline-block mt-3 text-secondary hover:text-secondary-hover transition-colors underline"
+      <div class="lg:col-span-2 flex flex-col justify-center">
+        <div class="space-y-8">
+          <!-- Address Card -->
+          <div
+            class="group bg-background/50 rounded-xl p-6 border border-border hover:border-secondary/50 transition-all duration-300"
           >
-            {viewOnMap}
-          </a>
-        </div>
+            <div class="flex items-start gap-4">
+              <div
+                class="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center shrink-0 group-hover:bg-secondary/20 transition-colors"
+              >
+                <svg
+                  class="w-5 h-5 text-secondary"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                  ></path>
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-white mb-2">
+                  {addressLabel}
+                </h3>
+                <p class="text-text-muted leading-relaxed whitespace-pre-line">
+                  {siteData.contact.address}
+                </p>
+                <a
+                  href={siteData.contact.googleMaps}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center gap-2 mt-3 text-secondary hover:text-secondary-hover transition-colors text-sm font-medium"
+                >
+                  {viewOnMap}
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                    ></path>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
 
-        <!-- Email -->
-        <div>
-          <h3 class="text-xl font-bold mb-3 text-secondary">
-            {emailLabel}
-          </h3>
-          <a
-            href={`mailto:${siteData.contact.email}`}
-            class="text-text hover:text-secondary transition-colors"
-          >
-            {siteData.contact.email}
-          </a>
-        </div>
+          <!-- Hours & Email Row -->
+          <div class="grid sm:grid-cols-2 gap-4">
+            <!-- Hours -->
+            <div
+              class="group bg-background/50 rounded-xl p-5 border border-border hover:border-secondary/50 transition-all duration-300"
+            >
+              <div class="flex items-center gap-3 mb-3">
+                <div
+                  class="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center group-hover:bg-secondary/20 transition-colors"
+                >
+                  <svg
+                    class="w-4 h-4 text-secondary"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                </div>
+                <h3 class="text-base font-bold text-white">{hoursLabel}</h3>
+              </div>
+              <p class="text-text-muted text-sm">{hoursText}</p>
+            </div>
 
-        <!-- Opening Hours -->
-        <div>
-          <h3 class="text-xl font-bold mb-3 text-secondary">
-            {hoursLabel}
-          </h3>
-          <p class="text-text leading-relaxed">
-            {hoursText}
-          </p>
+            <!-- Email -->
+            <div
+              class="group bg-background/50 rounded-xl p-5 border border-border hover:border-secondary/50 transition-all duration-300"
+            >
+              <div class="flex items-center gap-3 mb-3">
+                <div
+                  class="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center group-hover:bg-secondary/20 transition-colors"
+                >
+                  <svg
+                    class="w-4 h-4 text-secondary"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    ></path>
+                  </svg>
+                </div>
+                <h3 class="text-base font-bold text-white">{emailLabel}</h3>
+              </div>
+              <a
+                href={`mailto:${siteData.contact.email}`}
+                class="text-text-muted hover:text-secondary transition-colors text-sm break-all"
+              >
+                {siteData.contact.email}
+              </a>
+            </div>
+          </div>
+
+          <!-- Social Media -->
+          <div class="bg-background/50 rounded-xl p-6 border border-border">
+            <h3 class="text-lg font-bold text-white mb-4">{socialLabel}</h3>
+            <div class="flex gap-4">
+              <a
+                href={siteData.social.facebook}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="group flex items-center justify-center w-12 h-12 rounded-full bg-secondary/10 hover:bg-secondary transition-all duration-300"
+                aria-label="Facebook"
+              >
+                <svg
+                  class="w-5 h-5 text-secondary group-hover:text-background transition-colors"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
+                  ></path>
+                </svg>
+              </a>
+              <a
+                href={siteData.social.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="group flex items-center justify-center w-12 h-12 rounded-full bg-secondary/10 hover:bg-secondary transition-all duration-300"
+                aria-label="Instagram"
+              >
+                <svg
+                  class="w-5 h-5 text-secondary group-hover:text-background transition-colors"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"
+                  ></path>
+                </svg>
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </div>

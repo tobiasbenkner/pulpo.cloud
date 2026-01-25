@@ -126,6 +126,10 @@ export const translations = {
     },
   },
   contact: {
+    label: {
+      es: "Contacto",
+      en: "Contact",
+    },
     title: {
       es: "Encuéntranos",
       en: "Find us",
@@ -149,6 +153,22 @@ export const translations = {
     viewOnMap: {
       es: "Ver en Google Maps",
       en: "View on Google Maps",
+    },
+    socialLabel: {
+      es: "Síguenos",
+      en: "Follow us",
+    },
+    mapLoad: {
+      es: "Cargar mapa",
+      en: "Load map",
+    },
+    mapAccept: {
+      es: "Al hacer clic, acepta la transferencia de datos a Google.",
+      en: "By clicking, you accept data transfer to Google.",
+    },
+    mapShow: {
+      es: "Mostrar mapa",
+      en: "Show map",
     },
   },
 };
