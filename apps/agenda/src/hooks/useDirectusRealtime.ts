@@ -26,6 +26,7 @@ interface DirectusRealtimeOptions<T = any> {
   onConnect?: () => void;
   onDisconnect?: () => void;
   onError?: (error: Error) => void;
+  onResume?: () => void;
   autoReconnect?: boolean;
   reconnectInterval?: number;
   maxReconnectAttempts?: number;
@@ -42,7 +43,7 @@ interface RealtimeState {
 }
 
 export function useDirectusRealtime<T = any>(
-  options: DirectusRealtimeOptions<T>
+  options: DirectusRealtimeOptions<T>,
 ) {
   const {
     collection,
@@ -52,6 +53,7 @@ export function useDirectusRealtime<T = any>(
     onConnect,
     onDisconnect,
     onError,
+    onResume,
     autoReconnect = true,
     reconnectInterval = 2000,
     maxReconnectAttempts = 20,
@@ -137,7 +139,9 @@ export function useDirectusRealtime<T = any>(
             authenticated: false,
             error: message.error?.message || "Authentifizierungsfehler",
           }));
-          onError?.(new Error(message.error?.message || "Authentifizierungsfehler"));
+          onError?.(
+            new Error(message.error?.message || "Authentifizierungsfehler"),
+          );
         }
         return;
       }
@@ -343,7 +347,7 @@ export function useDirectusRealtime<T = any>(
     }));
 
     console.log(
-      `[Realtime] Reconnect ${nextAttempt}/${maxReconnectAttempts} in ${currentReconnectDelay}ms`
+      `[Realtime] Reconnect ${nextAttempt}/${maxReconnectAttempts} in ${currentReconnectDelay}ms`,
     );
 
     reconnectTimeout = setTimeout(async () => {
@@ -366,10 +370,16 @@ export function useDirectusRealtime<T = any>(
     if (document.visibilityState === "visible") {
       console.log("[Realtime] Tab wieder aktiv");
       const currentState = get(state);
+
       if (!currentState.connected && !isIntentionallyClosed) {
         // Reset delay bei manueller Reaktivierung
         currentReconnectDelay = reconnectInterval;
         connect();
+      }
+
+      // Daten könnten veraltet sein - View informieren
+      if (navigator.onLine) {
+        onResume?.();
       }
     }
   }
@@ -378,11 +388,15 @@ export function useDirectusRealtime<T = any>(
     console.log("[Realtime] Internet-Verbindung wiederhergestellt");
     state.update((s) => ({ ...s, error: null }));
     const currentState = get(state);
+
     if (!currentState.connected && !isIntentionallyClosed) {
       // Reset delay bei Netzwerk-Wiederherstellung
       currentReconnectDelay = reconnectInterval;
       connect();
     }
+
+    // Daten könnten veraltet sein - View informieren
+    onResume?.();
   }
 
   function handleOffline() {

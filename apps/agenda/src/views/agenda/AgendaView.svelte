@@ -51,36 +51,36 @@
           if (timeCompare !== 0) return timeCompare;
           return a.name.localeCompare(b.name);
         });
-    }
+    },
   );
 
   // --- INTERNAL STATE ---
   let abortController: AbortController | null = null;
-  let refetchDebounceTimer: ReturnType<typeof setTimeout>;
 
   // --- REALTIME HOOK ---
   const realtime = useDirectusRealtime<Reservation>({
     collection: "reservations",
-    query: {
-      filter: { date: { _eq: get(date) } },
-    },
     onMessage: (message) => {
-      // Bei jeder Realtime-Nachricht: Daten neu laden (debounced)
-      if (message.event === "create" || message.event === "update" || message.event === "delete") {
-        clearTimeout(refetchDebounceTimer);
-        refetchDebounceTimer = setTimeout(() => fetchData(true), 300);
+      if (
+        message.event === "create" ||
+        message.event === "update" ||
+        message.event === "delete"
+      ) {
+        fetchData(true);
       }
     },
     onConnect: () => {
       console.log("[Agenda] Realtime verbunden");
-      // Sync Gap Fix: Nach Verbindung sofort Daten aktualisieren
-      fetchData(true);
     },
     onDisconnect: () => {
       console.log("[Agenda] Realtime getrennt");
     },
     onError: (err) => {
       console.error("[Agenda] Realtime Fehler:", err);
+    },
+    onResume: () => {
+      // Daten synchronisieren bei: Tab-Rückkehr, Internet zurück
+      fetchData(true);
     },
     autoReconnect: true,
     reconnectInterval: 2000,
@@ -123,7 +123,7 @@
           filter: { date: { _eq: currentDate } },
           sort: ["time", "name"],
           fields: ["*", "user_created.*", "user_created.avatar.*"],
-        })
+        }),
       );
 
       if (signal.aborted) return;
@@ -158,10 +158,6 @@
 
     // Daten für neues Datum laden
     fetchData();
-
-    // Realtime mit neuem Filter neu verbinden
-    realtime.setQuery({ filter: { date: { _eq: newDate } } });
-    realtime.reconnect();
   }
 
   async function toggleArrived(reservation: Reservation) {
@@ -176,20 +172,20 @@
     // Optimistic Update
     reservations.update((all) =>
       all.map((r) =>
-        r.id === reservation.id ? { ...r, arrived: newState } : r
-      )
+        r.id === reservation.id ? { ...r, arrived: newState } : r,
+      ),
     );
 
     try {
       await directus.request(
-        updateItem("reservations", reservation.id, { arrived: newState })
+        updateItem("reservations", reservation.id, { arrived: newState }),
       );
     } catch (e) {
       // Rollback bei Fehler
       reservations.update((all) =>
         all.map((r) =>
-          r.id === reservation.id ? { ...r, arrived: !newState } : r
-        )
+          r.id === reservation.id ? { ...r, arrived: !newState } : r,
+        ),
       );
       error.set("Status konnte nicht gespeichert werden.");
       setTimeout(() => error.set(null), 3000);
@@ -211,10 +207,8 @@
   function handleOnlineStatus() {
     const online = navigator.onLine;
     isOnline.set(online);
-
     if (online) {
       error.set(null);
-      fetchData(true);
     }
   }
 
@@ -223,7 +217,8 @@
     // Initial fetch
     fetchData();
 
-    // Browser Events
+    // Browser Events (popstate für URL-History, online/offline für UI-State)
+    // Visibility und Reconnect-Fetches werden vom Hook via onResume gehandhabt
     window.addEventListener("popstate", handlePopState);
     window.addEventListener("online", handleOnlineStatus);
     window.addEventListener("offline", handleOnlineStatus);
@@ -231,7 +226,6 @@
 
   onDestroy(() => {
     if (abortController) abortController.abort();
-    clearTimeout(refetchDebounceTimer);
     unsubShowArrived();
 
     window.removeEventListener("popstate", handlePopState);
