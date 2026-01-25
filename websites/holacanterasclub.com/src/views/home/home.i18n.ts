@@ -109,8 +109,8 @@ export const translations = {
   },
   agenda: {
     title: {
-      es: "Nuestra agenda semanal",
-      en: "Our weekly schedule",
+      es: "Próximos eventos",
+      en: "Upcoming events",
     },
     eventTitle: {
       es: "Sábado Latino",

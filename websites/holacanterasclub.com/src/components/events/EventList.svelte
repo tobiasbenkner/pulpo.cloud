@@ -1,28 +1,37 @@
 <script lang="ts">
   import { onMount } from "svelte";
-
-  interface EventData {
-    id: string;
-    date: string;
-    time: string;
-    price: number;
-    image: string | { id: string };
-    title: string;
-    description: string;
-  }
+  import type { Event } from "@pulpo/cms";
 
   interface Props {
     directusUrl: string;
-    directusToken: string;
     tenant: string;
     lang: string;
   }
 
-  let { directusUrl, directusToken, tenant, lang }: Props = $props();
+  let { directusUrl, tenant, lang }: Props = $props();
 
-  let events = $state<EventData[]>([]);
+  let events = $state<Event[]>([]);
   let loading = $state(true);
   let error = $state<string | null>(null);
+  let lightboxImage = $state<string | null>(null);
+
+  function openLightbox(imageId: string) {
+    lightboxImage = `${directusUrl}/assets/${imageId}`;
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeLightbox() {
+    lightboxImage = null;
+    document.documentElement.style.overflow = "";
+    document.body.style.overflow = "";
+  }
+
+  function handleKeydown(e: KeyboardEvent) {
+    if (e.key === "Escape" && lightboxImage) {
+      closeLightbox();
+    }
+  }
 
   const translations = {
     es: {
@@ -31,7 +40,6 @@
         "Estamos preparando algo especial. ¡Vuelve pronto para descubrir nuestros próximos eventos!",
       price: "Entrada",
       free: "Gratis",
-      time: "Hora",
       loading: "Cargando eventos...",
       error: "Error al cargar los eventos",
     },
@@ -41,7 +49,6 @@
         "We're preparing something special. Come back soon to discover our upcoming events!",
       price: "Entry",
       free: "Free",
-      time: "Time",
       loading: "Loading events...",
       error: "Error loading events",
     },
@@ -65,10 +72,25 @@
     return formatted.charAt(0).toUpperCase() + formatted.slice(1);
   }
 
-  function getImageUrl(image: string | { id: string }): string {
-    const imageId = typeof image === "string" ? image : image?.id;
+  function getImageUrl(imageId: string): string {
     if (!imageId) return "";
-    return `${directusUrl}/assets/${imageId}?width=800&access_token=${directusToken}`;
+    return `${directusUrl}/assets/${imageId}?width=800`;
+  }
+
+  function reduceTranslations(
+    trans: any[],
+    fieldName: string,
+  ): Record<string, string> {
+    const getNestedValue = (obj: any, path: string) =>
+      path.split(".").reduce((acc, part) => acc?.[part], obj);
+
+    return (trans ?? []).reduce(
+      (acc: Record<string, string>, t: any) => {
+        acc[t.languages_id.code] = getNestedValue(t, fieldName) ?? "";
+        return acc;
+      },
+      {} as Record<string, string>,
+    );
   }
 
   async function fetchEvents() {
@@ -82,17 +104,13 @@
         "filter[tenant][_eq]": tenant,
         "filter[date][_gte]": today,
         "sort[]": "date",
-        "fields[]": "*",
-        "fields[]": "image.*",
-        "fields[]": "translations.*",
-        "fields[]": "translations.languages_id.*",
       });
+      params.append("fields[]", "*");
+      params.append("fields[]", "image.*");
+      params.append("fields[]", "translations.*");
+      params.append("fields[]", "translations.languages_id.*");
 
-      const response = await fetch(`${directusUrl}/items/events?${params}`, {
-        headers: {
-          Authorization: `Bearer ${directusToken}`,
-        },
-      });
+      const response = await fetch(`${directusUrl}/items/events?${params}`);
 
       if (!response.ok) {
         throw new Error("Failed to fetch events");
@@ -100,21 +118,23 @@
 
       const data = await response.json();
 
-      events = (data.data || []).map((event: any) => {
-        const translation =
-          event.translations?.find((t: any) => t.languages_id?.code === lang) ||
-          event.translations?.[0];
-
-        return {
+      events = (data.data || []).map(
+        (event: any): Event => ({
           id: event.id,
           date: event.date,
           time: event.time,
           price: event.price,
-          image: event.image,
-          title: translation?.title || "",
-          description: translation?.content || "",
-        };
-      });
+          image: event.image?.id ?? event.image,
+          title: reduceTranslations(event.translations, "title"),
+          description: reduceTranslations(event.translations, "description"),
+          slug: reduceTranslations(event.translations, "slug"),
+          seo_title: reduceTranslations(event.translations, "seo.title"),
+          seo_description: reduceTranslations(
+            event.translations,
+            "seo.meta_description",
+          ),
+        }),
+      );
     } catch (err) {
       console.error("Error fetching events:", err);
       error = t.error;
@@ -166,13 +186,22 @@
           <div class="md:flex">
             {#if event.image}
               <div class="md:w-2/5 relative overflow-hidden">
-                <img
-                  src={getImageUrl(event.image)}
-                  alt={event.title}
-                  class="w-full h-48 md:h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
+                <button
+                  type="button"
+                  class="w-full cursor-zoom-in"
+                  onclick={(e) => {
+                    e.preventDefault();
+                    openLightbox(event.image);
+                  }}
+                >
+                  <img
+                    src={getImageUrl(event.image)}
+                    alt={event.title[lang] || event.title["es"]}
+                    class="w-full h-auto object-contain"
+                  />
+                </button>
                 <div
-                  class="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent md:bg-gradient-to-r"
+                  class="absolute inset-0 bg-linear-to-t from-background/80 via-transparent to-transparent md:bg-gradient-to-r pointer-events-none"
                 ></div>
               </div>
             {/if}
@@ -215,7 +244,7 @@
                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                       />
                     </svg>
-                    {event.time}
+                    {event.time.slice(0, 5)}
                   </span>
                 {/if}
               </div>
@@ -223,14 +252,14 @@
               <h3
                 class="text-2xl md:text-3xl font-bold text-white mb-3 group-hover:text-secondary transition-colors"
               >
-                {event.title}
+                {event.title[lang] || event.title["es"]}
               </h3>
 
-              {#if event.description}
+              {#if event.description[lang] || event.description["es"]}
                 <p
                   class="text-text-muted text-base md:text-lg leading-relaxed mb-4 line-clamp-3"
                 >
-                  {@html event.description}
+                  {@html event.description[lang] || event.description["es"]}
                 </p>
               {/if}
 
@@ -251,6 +280,45 @@
     </div>
   {/if}
 </div>
+
+{#if lightboxImage}
+  <div
+    class="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+    onclick={closeLightbox}
+    onkeydown={handleKeydown}
+    role="dialog"
+    aria-modal="true"
+    tabindex="-1"
+  >
+    <button
+      type="button"
+      class="absolute top-4 right-4 text-white hover:text-secondary transition-colors"
+      onclick={closeLightbox}
+      aria-label="Schließen"
+    >
+      <svg
+        class="w-8 h-8"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M6 18L18 6M6 6l12 12"
+        />
+      </svg>
+    </button>
+    <img
+      src={lightboxImage}
+      alt=""
+      class="max-w-full max-h-full object-contain"
+    />
+  </div>
+{/if}
+
+<svelte:window onkeydown={handleKeydown} />
 
 <style>
   .line-clamp-3 {

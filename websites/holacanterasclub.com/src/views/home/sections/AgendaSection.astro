@@ -1,7 +1,7 @@
 ---
 import Container from "@/components/ui/Container.astro";
 import EventList from "@/components/events/EventList.svelte";
-import { DIRECTUS_URL, DIRECTUS_TOKEN, TENANT } from "@/config";
+import { DIRECTUS_URL, TENANT } from "@/config";
 import type { Language } from "@/lib/i18n";
 
 interface Props {
@@ -19,7 +19,7 @@ const { title, lang } = Astro.props;
         <div class="h-px w-8 bg-secondary"></div>
         <span
           class="text-secondary text-xs font-medium tracking-widest uppercase"
-          >Agenda</span
+          >{lang === "en" ? "Events" : "Eventos"}</span
         >
         <div class="h-px w-8 bg-secondary"></div>
       </div>
@@ -35,7 +35,6 @@ const { title, lang } = Astro.props;
     <EventList
       client:load
       directusUrl={DIRECTUS_URL}
-      directusToken={DIRECTUS_TOKEN}
       tenant={TENANT}
       lang={lang}
     />
