@@ -51,9 +51,10 @@
         <thead>
           <tr class="text-gray-500 uppercase tracking-wider text-xs font-medium">
             <th class="px-6 py-4 font-normal w-24">Hora</th>
+            <th class="px-6 py-4 font-normal w-16 text-center">Pax</th>
             <th class="px-6 py-4 font-normal">Nombre</th>
             <th class="px-6 py-4 font-normal">Contacto</th>
-            <th class="px-6 py-4 font-normal w-1/3">Observación</th>
+            <th class="px-6 py-4 font-normal">Notas</th>
             <th class="px-6 py-4 font-normal text-right">Agente</th>
           </tr>
         </thead>
@@ -79,6 +80,9 @@
               >
                 {res.time.substring(0, 5)}
               </td>
+              <td class="px-6 py-4 w-16 text-center text-gray-700 font-medium">
+                {res.person_count || "-"}
+              </td>
               <td class="px-6 py-4">
                 <div class="flex items-center gap-3">
                   {#if res.arrived}
@@ -99,10 +103,10 @@
               </td>
               <td class="px-6 py-4 text-gray-500">{res.contact}</td>
               <td
-                class="px-6 py-4 text-gray-500 italic truncate max-w-[300px] w-1/3"
-                title={res.observation}
+                class="px-6 py-4 text-gray-500 italic truncate max-w-[300px]"
+                title={res.notes}
               >
-                {res.observation || "-"}
+                {res.notes || "-"}
               </td>
               <td class="px-6 py-4 text-right">
                 <div class="flex justify-end">

@@ -58,7 +58,7 @@
         value={dateStr}
         on:change={(e) => changeDate(e.currentTarget.value)}
       />
-      <div class="text-center cursor-pointer min-w-[220px]">
+      <div class="text-center cursor-pointer min-w-55">
         <span
           class="block text-xs uppercase tracking-widest text-gray-400 font-semibold mb-0.5"
           >Agenda</span

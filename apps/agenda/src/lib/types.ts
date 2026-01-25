@@ -13,7 +13,8 @@ export interface Reservation {
   time: string;
   name: string;
   contact: string;
-  observation?: string;
+  person_count?: number;
+  notes?: string;
   arrived: boolean;
   user_created: string | User;
 }

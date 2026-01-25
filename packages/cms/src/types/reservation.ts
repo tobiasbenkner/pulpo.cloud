@@ -12,6 +12,7 @@ export type Reservation = {
   was_there: boolean;
   tenant: string;
   user: string | User;
+  arrived: boolean;
 };
 
 export type ReservationSettingTurn = {
