@@ -7,12 +7,15 @@ import photo3 from "@/assets/cocktail_3.jpg";
 import photo4 from "@/assets/cocktail_4.jpg";
 import background from "@/assets/cocktail_background.jpg";
 
+import type { Language } from "@/lib/i18n";
+
 interface Props {
   title: string;
   description: string;
+  lang: Language;
 }
 
-const { title, description } = Astro.props;
+const { title, description, lang } = Astro.props;
 
 const drinks = [
   { image: photo1, alt: "Cocktail 1" },
@@ -40,7 +43,7 @@ const optimizedBg = await getImage({ src: background, width: 1920 });
       <div>
         <div class="flex items-center gap-3 mb-3">
           <div class="h-px w-8 bg-secondary"></div>
-          <span class="text-secondary text-xs font-medium tracking-widest uppercase">Bar & Drinks</span>
+          <span class="text-secondary text-xs font-medium tracking-widest uppercase">{lang === "es" ? "Bar y Bebidas" : "Bar & Drinks"}</span>
         </div>
         <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 text-white">
           {title}

@@ -41,7 +41,7 @@ export const translations = {
       en: "Drinks that steal the show",
     },
     description: {
-      es: "Ya sea una cerveza fría, una bebida sin alcohol con sabor a frutas, un cóctel bien preparado o cualquier cosa que te apetezca en ese momento, las bebidas de nuestro bar serán protagonistas clave de tu noche. Si de verdad quieres divertirte —como dice alguien muy sabio—, ten en cuenta que las mejores historias no se escriben con una botellita de agua 😉",
+      es: "Ya sea una cerveza fría, una bebida sin alcohol con sabor a frutas, un cóctel bien preparado o cualquier cosa que te apetezca en ese momento, las bebidas de nuestro bar serán protagonistas clave de tu noche. Si de verdad quieres divertirte - como dice alguien muy sabio -, ten en cuenta que las mejores historias no se escriben con una botellita de agua 😉",
       en: "Whether it's a cold beer, a fruity soft drink, a perfectly mixed cocktail, or anything else you're craving, the drinks at our bar will be one of the main stars of your evening. And if you really want to have fun — as someone wise once said — remember that the best stories don't usually start with a little bottle of water 😉",
     },
   },

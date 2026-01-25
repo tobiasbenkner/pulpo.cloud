@@ -6,14 +6,17 @@ interface Review {
   author: string;
 }
 
+import type { Language } from "@/lib/i18n";
+
 interface Props {
   title: string;
   review1: Review;
   review2: Review;
   review3: Review;
+  lang: Language;
 }
 
-const { title, review1, review2, review3 } = Astro.props;
+const { title, review1, review2, review3, lang } = Astro.props;
 const reviews = [review1, review2, review3];
 ---
 
@@ -22,7 +25,7 @@ const reviews = [review1, review2, review3];
     <div class="text-center mb-12">
       <div class="flex items-center justify-center gap-3 mb-3">
         <div class="h-px w-8 bg-secondary"></div>
-        <span class="text-secondary text-xs font-medium tracking-widest uppercase">Testimonials</span>
+        <span class="text-secondary text-xs font-medium tracking-widest uppercase">{lang === "es" ? "Reseñas" : "Reviews"}</span>
         <div class="h-px w-8 bg-secondary"></div>
       </div>
       <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold text-white">

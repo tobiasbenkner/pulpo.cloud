@@ -26,16 +26,22 @@ const { lang, t } = Astro.props;
 
 <AgendaSection title={t.agenda.title} lang={lang} />
 
-<DrinksSection title={t.drinks.title} description={t.drinks.description} />
+<DrinksSection
+  title={t.drinks.title}
+  description={t.drinks.description}
+  lang={lang}
+/>
 
 <UniqueEventsSection
   title={t.uniqueEvents.title}
   description={t.uniqueEvents.description}
+  lang={lang}
 />
 
 <NetworkingSection
   title={t.networking.title}
   description={t.networking.description}
+  lang={lang}
 />
 
 <PhotoGallerySection title={t.gallery.title} />
@@ -45,6 +51,7 @@ const { lang, t } = Astro.props;
   review1={t.reviews.review1}
   review2={t.reviews.review2}
   review3={t.reviews.review3}
+  lang={lang}
 />
 
 <ContactSection
