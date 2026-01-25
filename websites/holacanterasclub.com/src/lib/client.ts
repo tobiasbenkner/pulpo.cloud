@@ -4,6 +4,8 @@ import {
   getBlogPosts as _getBlogPosts,
   getBlogCategories as _getBlogCategories,
   getLanguages as _getLanguages,
+  createClientPublic,
 } from "@pulpo/cms";
 
 export const client = createClient(DIRECTUS_URL, DIRECTUS_TOKEN);
+export const clientPublic = createClientPublic(DIRECTUS_URL);

@@ -8,3 +8,8 @@ export function createClient(url: string, token?: string) {
     .with(realtime());
   return client;
 }
+
+export function createClientPublic(url: string) {
+  const client = createDirectus<Schema>(url).with(rest());
+  return client;
+}

@@ -6,7 +6,7 @@ import {
   type Event,
 } from "@pulpo/cms";
 import { getCollection } from "astro:content";
-import { client } from "./client";
+import { clientPublic } from "./client";
 
 const DIRECTUS_URL = import.meta.env.DIRECTUS_URL;
 
@@ -14,8 +14,7 @@ export const imageUrl = (id: string, width = 800) =>
   getAssetUrl(id, DIRECTUS_URL, DIRECTUS_TOKEN, { width });
 
 export const getEvents = async (): Promise<Event[]> => {
-  const events = await _getEvents(client);
-  console.log(events);
+  const events = await _getEvents(clientPublic);
   return events;
 };
 
