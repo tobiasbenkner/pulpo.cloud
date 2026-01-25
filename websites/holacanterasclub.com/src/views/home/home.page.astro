@@ -24,12 +24,7 @@ const { lang, t } = Astro.props;
 
 <TestimonialSection quote={t.testimonial.quote} author={t.testimonial.author} />
 
-<AgendaSection
-  title={t.agenda.title}
-  eventTitle={t.agenda.eventTitle}
-  eventTime={t.agenda.eventTime}
-  eventDescription={t.agenda.eventDescription}
-/>
+<AgendaSection title={t.agenda.title} lang={lang} />
 
 <DrinksSection title={t.drinks.title} description={t.drinks.description} />
 

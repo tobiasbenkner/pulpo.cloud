@@ -1,5 +1,4 @@
-import { getBlogCategories } from "@/lib/cms";
-import { resolveTranslations, defaultLang, type Language } from "@/lib/i18n";
+import { type Language } from "@/lib/i18n";
 import { getTranslatedPath, getRouteLabel, routeSlugs } from "@/lib/registry";
 
 export type NavbarItem = {

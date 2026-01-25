@@ -1,16 +1,15 @@
 ---
 import Container from "@/components/ui/Container.astro";
-import { getEvents } from "@/lib/cms";
+import EventList from "@/components/events/EventList.svelte";
+import { DIRECTUS_URL, DIRECTUS_TOKEN, TENANT } from "@/config";
+import type { Language } from "@/lib/i18n";
 
 interface Props {
   title: string;
-  eventTitle: string;
-  eventTime: string;
-  eventDescription: string;
+  lang: Language;
 }
 
-const { title, eventTitle, eventTime, eventDescription } = Astro.props;
-const events = await getEvents();
+const { title, lang } = Astro.props;
 ---
 
 <section class="py-16 md:py-24 bg-surface">
@@ -33,34 +32,12 @@ const events = await getEvents();
       </div>
     </div>
 
-    <div class="max-w-4xl mx-auto">
-      <!-- Featured Event -->
-      <div
-        class="bg-background rounded-lg overflow-hidden border border-border hover:border-secondary/50 transition-all"
-      >
-        <div
-          class="aspect-video bg-gradient-to-br from-secondary/20 to-background flex items-center justify-center"
-        >
-          <div class="text-center">
-            <span class="text-6xl">💃🕺</span>
-          </div>
-        </div>
-        <div class="p-6 md:p-8">
-          <div class="flex flex-wrap items-center gap-4 mb-4">
-            <h3 class="text-2xl md:text-3xl font-bold text-white">
-              {eventTitle}
-            </h3>
-            <span
-              class="bg-secondary text-background px-3 py-1 rounded-full text-sm font-bold"
-            >
-              {eventTime}
-            </span>
-          </div>
-          <p class="text-text-muted text-lg leading-relaxed">
-            {eventDescription}
-          </p>
-        </div>
-      </div>
-    </div>
+    <EventList
+      client:load
+      directusUrl={DIRECTUS_URL}
+      directusToken={DIRECTUS_TOKEN}
+      tenant={TENANT}
+      lang={lang}
+    />
   </Container>
 </section>
