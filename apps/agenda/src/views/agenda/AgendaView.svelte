@@ -61,11 +61,38 @@
   const realtime = useDirectusRealtime<Reservation>({
     collection: "reservations",
     onMessage: (message) => {
+      if (!message.event || !message.data) {
+        return;
+      }
+
       if (
-        message.event === "create" ||
-        message.event === "update" ||
-        message.event === "delete"
+        message.event !== "create" &&
+        message.event !== "update" &&
+        message.event !== "delete"
       ) {
+        return;
+      }
+
+      const items = Array.isArray(message.data) ? message.data : [message.data];
+      const currentDate = get(date);
+      const currentReservations = get(reservations);
+
+      console.log("[Agenda] Event:", message.event, "Items:", items);
+
+      const isRelevant = items.some((item) => {
+        if (!item) return false;
+        const isDelete = message.event === "delete";
+
+        const itemId = isDelete ? item : item.id;
+        const itemDate = isDelete ? null : item.date;
+
+        const wasInList = currentReservations.some((r) => r.id === itemId);
+        const matchesDate = itemDate === currentDate;
+
+        return matchesDate || wasInList;
+      });
+
+      if (isRelevant) {
         fetchData(true);
       }
     },
