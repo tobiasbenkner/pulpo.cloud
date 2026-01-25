@@ -159,11 +159,9 @@
     // Daten für neues Datum laden
     fetchData();
 
-    // Realtime neu verbinden mit neuem Filter
-    // (Der Hook selbst reconnected nicht automatisch bei Query-Änderung,
-    // daher manuell disconnect/connect)
-    realtime.disconnect();
-    setTimeout(() => realtime.connect(), 100);
+    // Realtime mit neuem Filter neu verbinden
+    realtime.setQuery({ filter: { date: { _eq: newDate } } });
+    realtime.reconnect();
   }
 
   async function toggleArrived(reservation: Reservation) {

@@ -47,7 +47,7 @@ export function useDirectusRealtime<T = any>(
   const {
     collection,
     event = undefined,
-    query = {},
+    query: initialQuery = {},
     onMessage,
     onConnect,
     onDisconnect,
@@ -58,6 +58,9 @@ export function useDirectusRealtime<T = any>(
     loadInitialData = false,
     uid,
   } = options;
+
+  // Mutable query that can be updated
+  let currentQuery = { ...initialQuery };
 
   const state: Writable<RealtimeState> = writable({
     connected: false,
@@ -216,7 +219,7 @@ export function useDirectusRealtime<T = any>(
       query: {
         limit: 100,
         sort: ["-date_created"],
-        ...query,
+        ...currentQuery,
       },
       uid: messageUid,
     });
@@ -228,7 +231,7 @@ export function useDirectusRealtime<T = any>(
 
       const { subscription: sub } = await directus.subscribe(collection, {
         event: event,
-        query: query,
+        query: currentQuery,
         uid: subscriptionUid,
       });
 
@@ -268,7 +271,10 @@ export function useDirectusRealtime<T = any>(
 
   function disconnect() {
     isIntentionallyClosed = true;
+    performDisconnect();
+  }
 
+  function performDisconnect() {
     if (reconnectTimeout) {
       clearTimeout(reconnectTimeout);
       reconnectTimeout = null;
@@ -279,7 +285,7 @@ export function useDirectusRealtime<T = any>(
     try {
       directus.disconnect();
     } catch (error) {
-      console.error("[Realtime] Disconnect Fehler:", error);
+      // Ignoriere Fehler beim Disconnect (z.B. wenn bereits geschlossen)
     }
 
     state.update((s) => ({
@@ -289,6 +295,27 @@ export function useDirectusRealtime<T = any>(
       reconnecting: false,
       reconnectAttempts: 0,
     }));
+  }
+
+  async function reconnect() {
+    console.log("[Realtime] Reconnecting...");
+
+    // Disconnect ohne isIntentionallyClosed zu setzen
+    performDisconnect();
+
+    // Kurz warten bis WebSocket wirklich geschlossen ist
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    // Flags zurücksetzen
+    isIntentionallyClosed = false;
+    isReconnecting = false;
+
+    // Neu verbinden
+    await connect();
+  }
+
+  function setQuery(newQuery: DirectusRealtimeOptions<T>["query"]) {
+    currentQuery = { ...newQuery };
   }
 
   function scheduleReconnect() {
@@ -400,6 +427,8 @@ export function useDirectusRealtime<T = any>(
     state,
     connect,
     disconnect,
+    reconnect,
+    setQuery,
     send: async (action: "create" | "update" | "delete", data: any) => {
       const currentState = get(state);
 
