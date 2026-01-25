@@ -1,7 +1,9 @@
 ---
 import Container from "@/components/ui/Container.astro";
 import PrivacyMap from "@/components/ui/PrivacyMap.astro";
+import OpeningHours from "@/components/contact/OpeningHours.svelte";
 import { siteData } from "@/data/siteData";
+import { DIRECTUS_URL, TENANT } from "@/config";
 import type { Language } from "@/lib/i18n";
 
 interface Props {
@@ -10,7 +12,6 @@ interface Props {
   addressLabel: string;
   emailLabel: string;
   hoursLabel: string;
-  hoursText: string;
   viewOnMap: string;
   socialLabel: string;
   mapLoad: string;
@@ -25,12 +26,12 @@ const {
   addressLabel,
   emailLabel,
   hoursLabel,
-  hoursText,
   viewOnMap,
   socialLabel,
   mapLoad,
   mapAccept,
   mapShow,
+  lang,
 } = Astro.props;
 ---
 
@@ -135,30 +136,13 @@ const {
           <!-- Hours & Email Row -->
           <div class="grid sm:grid-cols-2 gap-4">
             <!-- Hours -->
-            <div
-              class="group bg-background/50 rounded-xl p-5 border border-border hover:border-secondary/50 transition-all duration-300"
-            >
-              <div class="flex items-center gap-3 mb-3">
-                <div
-                  class="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center group-hover:bg-secondary/20 transition-colors"
-                >
-                  <svg
-                    class="w-4 h-4 text-secondary"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                  </svg>
-                </div>
-                <h3 class="text-base font-bold text-white">{hoursLabel}</h3>
-              </div>
-              <p class="text-text-muted text-sm">{hoursText}</p>
-            </div>
+            <OpeningHours
+              client:load
+              directusUrl={DIRECTUS_URL}
+              tenant={TENANT}
+              lang={lang}
+              label={hoursLabel}
+            />
 
             <!-- Email -->
             <div

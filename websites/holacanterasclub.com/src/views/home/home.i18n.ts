@@ -146,10 +146,6 @@ export const translations = {
       es: "Horario",
       en: "Opening Hours",
     },
-    hoursText: {
-      es: "Sábado: 20:00 - 02:00",
-      en: "Saturday: 20:00 - 02:00",
-    },
     viewOnMap: {
       es: "Ver en Google Maps",
       en: "View on Google Maps",
