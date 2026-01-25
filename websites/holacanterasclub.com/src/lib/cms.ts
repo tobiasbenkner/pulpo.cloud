@@ -1,32 +1,22 @@
 import { DIRECTUS_TOKEN } from "@/config";
 import {
   getAssetUrl,
-  type BlogPostCategory,
+  getEvents as _getEvents,
   type Language,
-  type BlogPost,
+  type Event,
 } from "@pulpo/cms";
 import { getCollection } from "astro:content";
+import { client } from "./client";
 
 const DIRECTUS_URL = import.meta.env.DIRECTUS_URL;
 
 export const imageUrl = (id: string, width = 800) =>
   getAssetUrl(id, DIRECTUS_URL, DIRECTUS_TOKEN, { width });
 
-export const getBlogCategories = async (): Promise<BlogPostCategory[]> => {
-  const categories = await getCollection("categories");
-  return categories.map((it) => it.data);
-};
-
-export const getPosts = async (): Promise<BlogPost[]> => {
-  const posts = await getCollection("posts");
-  return posts.map((it) => it.data);
-};
-
-export const getPostsByCategory = async (
-  categoryId: string,
-): Promise<BlogPost[]> => {
-  const posts = await getCollection("posts");
-  return posts.map((it) => it.data).filter((it) => it.category === categoryId);
+export const getEvents = async (): Promise<Event[]> => {
+  const events = await _getEvents(client);
+  console.log(events);
+  return events;
 };
 
 export const getLanguages = async (): Promise<Language[]> => {
