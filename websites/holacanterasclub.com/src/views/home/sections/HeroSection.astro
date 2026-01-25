@@ -23,7 +23,10 @@ const { title, subtitle } = Astro.props;
       <source src="/hero.mp4" type="video/mp4" />
     </video>
     <!-- Gradient overlay -->
-    <div class="absolute inset-0 bg-gradient-to-t from-background via-black/50 to-black/30"></div>
+    <div
+      class="absolute inset-0 bg-gradient-to-t from-background via-black/50 to-black/30"
+    >
+    </div>
   </div>
 
   <!-- Content -->
@@ -33,20 +36,30 @@ const { title, subtitle } = Astro.props;
         <!-- Decorative element -->
         <div class="flex items-center gap-3 mb-6 animate-fade-in">
           <div class="h-px w-12 bg-secondary"></div>
-          <span class="text-secondary text-sm font-medium tracking-widest uppercase">Hola Canteras Club</span>
+          <span
+            class="text-secondary text-sm font-medium tracking-widest uppercase"
+            >Hola Canteras Club</span
+          >
         </div>
 
         <!-- Title -->
-        <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 text-white leading-tight animate-fade-in-up">
-          {title.split(',').map((part, i) => (
-            <span class:list={[i === 0 ? "text-secondary" : "text-white"]}>
-              {part}{i === 0 ? ',' : ''}
-            </span>
-          ))}
+        <h1
+          class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 text-white leading-tight animate-fade-in-up"
+        >
+          {
+            title.split(",").map((part, i) => (
+              <span class:list={[i === 0 ? "text-secondary" : "text-white"]}>
+                {part}
+                {i === 0 ? "," : ""}
+              </span>
+            ))
+          }
         </h1>
 
         <!-- Subtitle -->
-        <p class="text-lg md:text-xl lg:text-2xl text-white/80 max-w-2xl leading-relaxed animate-fade-in-up animation-delay-200">
+        <p
+          class="text-lg md:text-xl lg:text-2xl text-white/80 max-w-2xl leading-relaxed animate-fade-in-up animation-delay-200"
+        >
           {subtitle}
         </p>
       </div>
@@ -56,9 +69,18 @@ const { title, subtitle } = Astro.props;
   <!-- Scroll indicator -->
   <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
     <div class="flex flex-col items-center gap-2 text-white/60">
-      <span class="text-xs tracking-widest uppercase">Scroll</span>
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+      <span class="text-xs tracking-widest uppercase"></span>
+      <svg
+        class="w-5 h-5"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
       </svg>
     </div>
   </div>
@@ -66,8 +88,12 @@ const { title, subtitle } = Astro.props;
 
 <style>
   @keyframes fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 
   @keyframes fade-in-up {
