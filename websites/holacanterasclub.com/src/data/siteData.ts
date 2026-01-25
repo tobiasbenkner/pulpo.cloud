@@ -11,7 +11,7 @@ export const siteData = {
     googleMaps: "https://maps.app.goo.gl/JiignvyJWpnzmSmm9",
   },
   social: {
-    facebook: "https://www.facebook.com/holacanterasclub",
+    facebook: "https://www.facebook.com/hookahcanterasclub",
     instagram: "https://www.instagram.com/holacanterasclub",
   },
 } as const;
