@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import {
     format,
     startOfMonth,
@@ -13,14 +13,15 @@
     isToday,
   } from "date-fns";
   import { es } from "date-fns/locale";
+  import type { Locale } from "date-fns";
   import { ChevronLeft, ChevronRight } from "lucide-svelte";
 
-  export let value = null; // Date object oder null
-  export let locale = es;
-  export let weekStartsOn = 1; // 0 = Sonntag, 1 = Montag
+  export let value: Date | null = null;
+  export let locale: Locale = es;
+  export let weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5 | 6 = 1;
   export let showTodayButton = true;
 
-  export let onSelect = (date) => {};
+  export let onSelect: (date: Date) => void = () => {};
 
   let viewDate = value || new Date();
 
@@ -32,8 +33,8 @@
   // Wochentage (kurz)
   $: weekdays = getWeekdays();
 
-  function getWeekdays() {
-    const days = [];
+  function getWeekdays(): string[] {
+    const days: string[] = [];
     const start = startOfWeek(new Date(), { weekStartsOn });
     for (let i = 0; i < 7; i++) {
       const day = new Date(start);
@@ -46,7 +47,7 @@
   // Kalender-Tage für den aktuellen Monat
   $: calendarDays = getCalendarDays(viewDate);
 
-  function getCalendarDays(date) {
+  function getCalendarDays(date: Date): Date[] {
     const monthStart = startOfMonth(date);
     const monthEnd = endOfMonth(date);
     const calendarStart = startOfWeek(monthStart, { weekStartsOn });
@@ -55,26 +56,28 @@
     return eachDayOfInterval({ start: calendarStart, end: calendarEnd });
   }
 
-  function selectDate(date) {
+  function selectDate(date: Date): void {
     onSelect(date);
   }
 
-  function prevMonth() {
+  function prevMonth(): void {
     viewDate = subMonths(viewDate, 1);
   }
 
-  function nextMonth() {
+  function nextMonth(): void {
     viewDate = addMonths(viewDate, 1);
   }
 
-  function goToToday() {
+  function goToToday(): void {
     const today = new Date();
     viewDate = today;
     onSelect(today);
   }
 </script>
 
-<div class="w-[300px] bg-gray-950 border border-gray-800 rounded-xl shadow-2xl p-4 text-white">
+<div
+  class="w-75 bg-gray-950 border border-gray-800 rounded-xl shadow-2xl p-4 text-white"
+>
   <!-- Header mit Monat/Jahr und Navigation -->
   <div class="flex items-center justify-between mb-4">
     <button
@@ -103,7 +106,9 @@
   <!-- Wochentage -->
   <div class="grid grid-cols-7 gap-1 mb-2">
     {#each weekdays as day}
-      <div class="text-center text-xs font-semibold text-gray-500 uppercase py-1">
+      <div
+        class="text-center text-xs font-semibold text-gray-500 uppercase py-1"
+      >
         {day}
       </div>
     {/each}

@@ -1,14 +1,7 @@
 <script lang="ts">
   import { format, parseISO, subDays, addDays } from "date-fns";
   import { es } from "date-fns/locale";
-  import {
-    ChevronLeft,
-    ChevronRight,
-    Plus,
-    Eye,
-    EyeOff,
-    RefreshCw,
-  } from "lucide-svelte";
+  import { ChevronLeft, ChevronRight, Plus, Eye, EyeOff } from "lucide-svelte";
   import { clsx } from "clsx";
   import { slide } from "svelte/transition";
   import Calendar from "../../components/ui/Calendar.svelte";
@@ -71,11 +64,14 @@
 <svelte:window on:click={handleClickOutside} on:keydown={handleKeydown} />
 
 <header
-  class="flex flex-col md:flex-row justify-between items-center gap-6 border-b border-border pb-6"
+  class="flex flex-col md:flex-row justify-between items-center gap-6 border-b border-border pb-6 max-w-7xl mx-auto w-full"
 >
   <!-- Date Navigation -->
   <div
-    class="flex items-center gap-4 bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-100 relative"
+    class={clsx(
+      "flex items-center gap-4 bg-white px-4 py-2 rounded-lg shadow-sm relative transition-all duration-300 border",
+      isRefetching ? "border-primary/30 shadow-primary/10" : "border-gray-100",
+    )}
   >
     <button
       on:click={goPrev}
@@ -95,14 +91,9 @@
         >
           Agenda
         </span>
-        <div class="flex items-center justify-center gap-2">
-          <h2 class="text-xl font-serif text-primary capitalize">
-            {displayDate}
-          </h2>
-          {#if isRefetching}
-            <RefreshCw size={14} class="animate-spin text-gray-400" />
-          {/if}
-        </div>
+        <h2 class="text-xl font-serif text-primary capitalize">
+          {displayDate}
+        </h2>
       </button>
 
       {#if isCalendarOpen}
