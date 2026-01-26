@@ -14,7 +14,7 @@ interface Props {
 }
 
 const { lang, t } = Astro.props;
-const aboutPath = getTranslatedPath("about", lang as any);
+const aboutPath = getTranslatedPath("about", lang);
 ---
 
 <!-- HERO SECTION -->
@@ -45,12 +45,9 @@ const aboutPath = getTranslatedPath("about", lang as any);
     <h1
       class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-serif text-white mb-4 md:mb-6 tracking-tight leading-[1.1]"
     >
-      <span class="block md:inline">{t.hero.headline.split(".")[0]}.</span>
-      <span class="block md:inline text-text-muted md:text-white"
-        >{t.hero.headline.split(".")[1]}.</span
-      >
+      <span class="block md:inline">{t.hero.headline.split(".")[0]}</span>
       <span class="block md:inline text-secondary"
-        >{t.hero.headline.split(".")[2]}.</span
+        >{t.hero.headline.split(".")[1]}.</span
       >
     </h1>
 
@@ -78,12 +75,9 @@ const aboutPath = getTranslatedPath("about", lang as any);
 <!-- SERVICES GRID -->
 <section id="services" class="border-b border-border bg-surface/10">
   <div
-    class="grid grid-cols-1 lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-border border-b border-border max-w-480 mx-auto"
+    class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-border border-b border-border max-w-7xl mx-auto"
   >
-    <!-- Pillar 1: Finance -->
-    
-
-    <!-- Pillar 2: Real Estate -->
+    <!-- Pillar 1: Real Estate -->
     <div
       class="group relative bg-background p-8 md:p-10 lg:py-24 lg:px-16 hover:bg-surface transition-colors duration-500"
     >
@@ -104,13 +98,18 @@ const aboutPath = getTranslatedPath("about", lang as any);
       >
         {t.services.realestate.desc}
       </p>
-      <div
-        class="h-0.5 w-12 bg-border group-hover:w-full group-hover:bg-secondary transition-all duration-700 ease-out"
+      <a
+        href="https://becker24.es"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center gap-2 px-6 py-3 bg-secondary text-white text-sm font-bold uppercase tracking-widest hover:bg-secondary/80 transition-colors"
       >
-      </div>
+        {t.services.realestate.btn}
+        <Icon name="lucide:arrow-right" class="w-4 h-4" />
+      </a>
     </div>
 
-    <!-- Pillar 3: Insurance -->
+    <!-- Pillar 2: Insurance -->
     <div
       class="group relative bg-background p-8 md:p-10 lg:py-24 lg:px-16 hover:bg-surface transition-colors duration-500"
     >
@@ -134,10 +133,15 @@ const aboutPath = getTranslatedPath("about", lang as any);
       >
         {t.services.insurance.desc}
       </p>
-      <div
-        class="h-0.5 w-12 bg-border group-hover:w-full group-hover:bg-secondary transition-all duration-700 ease-out"
+      <a
+        href="https://seguros.beckernet.es"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center gap-2 px-6 py-3 bg-secondary text-white text-sm font-bold uppercase tracking-widest hover:bg-secondary/80 transition-colors"
       >
-      </div>
+        {t.services.insurance.btn}
+        <Icon name="lucide:arrow-right" class="w-4 h-4" />
+      </a>
     </div>
   </div>
 </section>
@@ -223,7 +227,7 @@ const aboutPath = getTranslatedPath("about", lang as any);
       <div class="px-4 py-6 md:py-4">
         <span
           class="block text-3xl sm:text-4xl md:text-5xl font-serif text-white mb-2"
-          >3</span
+          >2</span
         >
         <span class="text-xs uppercase tracking-widest text-text-muted"
           >{t.features.y2}</span

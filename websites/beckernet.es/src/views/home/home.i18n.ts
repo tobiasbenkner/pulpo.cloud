@@ -57,6 +57,11 @@ export const translations = {
         de: "Wir beraten mit Engagement, um die ideale Immobilie zu finden, optimieren jeden Schritt und sichern eine sichere und rentable Investition.",
         en: "We provide dedicated advice to find the ideal property, optimizing every step and ensuring a safe and profitable investment.",
       },
+      btn: {
+        es: "Ver propiedades",
+        de: "Immobilien ansehen",
+        en: "View properties",
+      },
     },
     insurance: {
       title: {
@@ -73,6 +78,11 @@ export const translations = {
         es: "Ofrecemos pólizas adaptadas a sus necesidades, protegiendo su patrimonio y brindándole la confianza que merece en todo momento.",
         de: "Wir bieten individuell angepasste Versicherungslösungen, schützen Ihr Vermögen und geben Ihnen jederzeit die Sicherheit, die Sie verdienen.",
         en: "We offer insurance policies tailored to your needs, protecting your assets and providing you with the confidence you deserve at all times.",
+      },
+      btn: {
+        es: "Más información",
+        de: "Mehr erfahren",
+        en: "Learn more",
       },
     },
   },
