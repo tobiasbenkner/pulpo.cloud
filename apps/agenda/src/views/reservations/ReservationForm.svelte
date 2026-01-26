@@ -1,76 +1,101 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { readItem, updateItem, deleteItem } from "@directus/sdk";
-  import { directus } from "../../../lib/directus";
+  import { createItem, readItem, updateItem, deleteItem } from "@directus/sdk";
+  import { directus } from "../../lib/directus";
   import {
     ArrowLeft,
     Save,
     Loader2,
-    Calendar,
     Clock,
     User,
     Phone,
     AlignLeft,
     Trash2,
     AlertTriangle,
+    Users,
+    Plus,
   } from "lucide-svelte";
+  import DatePicker from "../../components/ui/DatePicker.svelte";
+  import TimePicker from "../../components/ui/TimePicker.svelte";
+  import { es } from "date-fns/locale";
 
-  export let id: string;
+  // Props
+  export let id: string | null = null;
 
-  let isLoadingData = true;
+  // Derived state
+  $: isEditMode = !!id;
+
+  // State
+  let isLoading = true;
   let isSaving = false;
   let isDeleting = false;
   let error: string | null = null;
   let showDeleteConfirm = false;
 
   let formData = {
-    date: "",
+    date: new Date().toISOString().split("T")[0],
     time: "",
     name: "",
     contact: "",
-    observation: "",
+    person_count: 2,
+    notes: "",
   };
 
-  // Originaldatum speichern für den "Zurück"-Button
   let originalDate = "";
 
   onMount(async () => {
-    try {
-      const res = await directus.request(readItem("reservations", id));
-
-      // Daten mappen
-      formData = {
-        date: res.date,
-        // Directus liefert oft Sekunden (12:00:00), Input type="time" mag nur HH:MM
-        time: res.time ? res.time.substring(0, 5) : "",
-        name: res.name,
-        contact: res.contact,
-        observation: res.observation || "",
-      };
-      originalDate = res.date;
-    } catch (e) {
-      error = "Die Reservierung konnte nicht geladen werden.";
-    } finally {
-      isLoadingData = false;
+    if (isEditMode && id) {
+      // Edit mode: load existing data
+      try {
+        const res = await directus.request(readItem("reservations", id));
+        formData = {
+          date: res.date,
+          time: res.time ? res.time.substring(0, 5) : "",
+          name: res.name,
+          contact: res.contact || "",
+          person_count: res.person_count || 2,
+          notes: res.notes || "",
+        };
+        originalDate = res.date;
+      } catch (e) {
+        error = "Die Reservierung konnte nicht geladen werden.";
+      }
+    } else {
+      // Create mode: check for date in URL
+      const params = new URLSearchParams(window.location.search);
+      const dateParam = params.get("date");
+      if (dateParam) {
+        formData.date = dateParam;
+      }
     }
+    isLoading = false;
   });
 
-  async function handleUpdate() {
+  async function handleSubmit() {
     isSaving = true;
     error = null;
 
     try {
-      await directus.request(updateItem("reservations", id, formData));
-      // Zurück zur Agenda an das (ggf. neue) Datum
+      if (isEditMode && id) {
+        // Update existing
+        await directus.request(updateItem("reservations", id, formData));
+      } else {
+        // Create new
+        await directus.request(createItem("reservations", formData));
+      }
       window.location.href = `/?date=${formData.date}`;
     } catch (e) {
       console.error(e);
-      error = "Fehler beim Speichern der Änderungen.";
+      error = isEditMode
+        ? "Fehler beim Speichern der Änderungen."
+        : "Fehler beim Erstellen der Reservierung.";
       isSaving = false;
     }
   }
 
   async function handleDelete() {
+    if (!id) return;
+
     isDeleting = true;
     try {
       await directus.request(deleteItem("reservations", id));
@@ -83,7 +108,6 @@
   }
 
   function goBack() {
-    // Falls Daten noch nicht geladen, fallback auf heute
     const targetDate =
       originalDate || formData.date || new Date().toISOString().split("T")[0];
     window.location.href = `/?date=${targetDate}`;
@@ -101,14 +125,18 @@
       <ArrowLeft size={20} />
     </button>
     <div>
-      <h1 class="text-2xl font-serif text-primary">Reservierung bearbeiten</h1>
+      <h1 class="text-2xl font-serif text-primary">
+        {isEditMode ? "Reservierung bearbeiten" : "Neue Reservierung"}
+      </h1>
       <p class="text-sm text-gray-500">
-        Details aktualisieren oder stornieren.
+        {isEditMode
+          ? "Details aktualisieren oder stornieren."
+          : "Neue Reservierung erstellen."}
       </p>
     </div>
   </div>
 
-  {#if isLoadingData}
+  {#if isLoading}
     <div
       class="bg-white p-12 rounded-lg border border-gray-200 shadow-sm flex justify-center items-center"
     >
@@ -128,58 +156,60 @@
         </div>
       {/if}
 
-      <form on:submit|preventDefault={handleUpdate} class="space-y-6">
-        <!-- Grid Layout -->
+      <form on:submit|preventDefault={handleSubmit} class="space-y-6">
+        <!-- Date & Time -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="space-y-1.5">
-            <label
-              for="date"
-              class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-500"
-            >
-              <Calendar size={14} /> Datum
-            </label>
-            <input
-              id="date"
-              type="date"
-              required
-              bind:value={formData.date}
-              class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-sm text-primary focus:outline-none focus:ring-1 focus:ring-primary focus:bg-white transition-all"
-            />
-          </div>
+          <DatePicker
+            label="Datum"
+            bind:value={formData.date}
+            locale={es}
+            placeholder="Datum wählen"
+          />
 
-          <div class="space-y-1.5">
-            <label
-              for="time"
-              class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-500"
-            >
-              <Clock size={14} /> Uhrzeit
-            </label>
-            <input
-              id="time"
-              type="time"
-              required
-              bind:value={formData.time}
-              class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-sm text-primary focus:outline-none focus:ring-1 focus:ring-primary focus:bg-white transition-all"
-            />
-          </div>
-        </div>
-
-        <div class="space-y-1.5">
-          <label
-            for="name"
-            class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-500"
-          >
-            <User size={14} /> Name
-          </label>
-          <input
-            id="name"
-            type="text"
-            required
-            bind:value={formData.name}
-            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-sm text-primary placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary focus:bg-white transition-all"
+          <TimePicker
+            label="Uhrzeit"
+            bind:value={formData.time}
           />
         </div>
 
+        <!-- Name & Person Count -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="md:col-span-2 space-y-1.5">
+            <label
+              for="name"
+              class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-500"
+            >
+              <User size={14} /> Name
+            </label>
+            <input
+              id="name"
+              type="text"
+              required
+              bind:value={formData.name}
+              placeholder="Name des Gastes"
+              class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-sm text-primary placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary focus:bg-white transition-all"
+            />
+          </div>
+
+          <div class="space-y-1.5">
+            <label
+              for="person_count"
+              class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-500"
+            >
+              <Users size={14} /> Personen
+            </label>
+            <input
+              id="person_count"
+              type="number"
+              min="1"
+              max="99"
+              bind:value={formData.person_count}
+              class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-sm text-primary focus:outline-none focus:ring-1 focus:ring-primary focus:bg-white transition-all"
+            />
+          </div>
+        </div>
+
+        <!-- Contact -->
         <div class="space-y-1.5">
           <label
             for="contact"
@@ -191,21 +221,24 @@
             id="contact"
             type="text"
             bind:value={formData.contact}
+            placeholder="Telefon oder E-Mail"
             class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-sm text-primary placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary focus:bg-white transition-all"
           />
         </div>
 
+        <!-- Notes -->
         <div class="space-y-1.5">
           <label
-            for="observation"
+            for="notes"
             class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-500"
           >
             <AlignLeft size={14} /> Anmerkungen
           </label>
           <textarea
-            id="observation"
+            id="notes"
             rows="3"
-            bind:value={formData.observation}
+            bind:value={formData.notes}
+            placeholder="Besondere Wünsche, Allergien, etc."
             class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-sm text-primary placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary focus:bg-white transition-all resize-none"
           ></textarea>
         </div>
@@ -214,37 +247,41 @@
         <div
           class="pt-6 border-t border-gray-100 flex items-center justify-between"
         >
-          <!-- Delete Button (Left) -->
-          {#if !showDeleteConfirm}
-            <button
-              type="button"
-              on:click={() => (showDeleteConfirm = true)}
-              class="text-red-600 hover:text-red-800 text-sm font-medium flex items-center gap-1.5 px-2 py-2 -ml-2 rounded hover:bg-red-50 transition-colors"
-            >
-              <Trash2 size={16} /> <span>Löschen</span>
-            </button>
-          {:else}
-            <div
-              class="flex items-center gap-3 bg-red-50 px-3 py-1.5 rounded-md animate-fade-in border border-red-100"
-            >
-              <span class="text-xs text-red-800 font-medium">Sicher?</span>
-              <button
-                type="button"
-                on:click={handleDelete}
-                disabled={isDeleting}
-                class="text-xs font-bold text-red-700 hover:text-red-900 underline"
-              >
-                {isDeleting ? "..." : "Ja, löschen"}
-              </button>
-              <button
-                type="button"
-                on:click={() => (showDeleteConfirm = false)}
-                class="text-xs text-gray-500 hover:text-gray-700"
-              >
-                Abbruch
-              </button>
-            </div>
-          {/if}
+          <!-- Delete Button (Left) - Only in Edit Mode -->
+          <div>
+            {#if isEditMode}
+              {#if !showDeleteConfirm}
+                <button
+                  type="button"
+                  on:click={() => (showDeleteConfirm = true)}
+                  class="text-red-600 hover:text-red-800 text-sm font-medium flex items-center gap-1.5 px-2 py-2 -ml-2 rounded hover:bg-red-50 transition-colors"
+                >
+                  <Trash2 size={16} /> <span>Löschen</span>
+                </button>
+              {:else}
+                <div
+                  class="flex items-center gap-3 bg-red-50 px-3 py-1.5 rounded-md animate-fade-in border border-red-100"
+                >
+                  <span class="text-xs text-red-800 font-medium">Sicher?</span>
+                  <button
+                    type="button"
+                    on:click={handleDelete}
+                    disabled={isDeleting}
+                    class="text-xs font-bold text-red-700 hover:text-red-900 underline"
+                  >
+                    {isDeleting ? "..." : "Ja, löschen"}
+                  </button>
+                  <button
+                    type="button"
+                    on:click={() => (showDeleteConfirm = false)}
+                    class="text-xs text-gray-500 hover:text-gray-700"
+                  >
+                    Abbruch
+                  </button>
+                </div>
+              {/if}
+            {/if}
+          </div>
 
           <!-- Save Button (Right) -->
           <div class="flex items-center gap-3">
@@ -263,9 +300,12 @@
               {#if isSaving}
                 <Loader2 class="animate-spin" size={18} />
                 <span>Speichern...</span>
-              {:else}
+              {:else if isEditMode}
                 <Save size={18} />
                 <span>Aktualisieren</span>
+              {:else}
+                <Plus size={18} />
+                <span>Erstellen</span>
               {/if}
             </button>
           </div>

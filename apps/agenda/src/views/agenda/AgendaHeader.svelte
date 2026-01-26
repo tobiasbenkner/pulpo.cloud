@@ -154,7 +154,7 @@
     </button>
 
     <a
-      href="/reservations/new?date={dateStr}"
+      href="/new?date={dateStr}"
       class="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-sm hover:bg-gray-800 transition-all shadow-md shadow-gray-200 text-sm font-medium tracking-wide"
     >
       <Plus size={18} />

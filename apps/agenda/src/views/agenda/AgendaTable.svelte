@@ -37,7 +37,7 @@
         </button>
       {:else}
         <a
-          href={`/reservations/new?date=${dateStr}`}
+          href={`/new?date=${dateStr}`}
           class="text-secondary hover:underline text-sm font-medium tracking-wide"
         >
           Crear la primera reserva
@@ -89,7 +89,7 @@
                     <CircleCheck size={18} class="text-green-700" />
                   {/if}
                   <a
-                    href={`/reservations/${res.id}/edit`}
+                    href={`/edit?id=${res.id}`}
                     class={clsx(
                       "font-medium transition-colors hover:underline decoration-primary/30 underline-offset-4",
                       res.arrived

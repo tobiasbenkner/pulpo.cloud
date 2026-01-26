@@ -9,7 +9,6 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/node": "^9.5.1",
     "@astrojs/svelte": "^7.2.4",
     "@directus/sdk": "^20.3.0",
     "@lucide/astro": "^0.562.0",

@@ -1,0 +1,13 @@
+---
+import Layout from "../layouts/Layout.astro";
+import AuthGuard from "../components/AuthGuard.svelte";
+import ReservationForm from "../views/reservations/ReservationForm.svelte";
+---
+
+<Layout title="Neue Reservierung | Pulpo">
+  <AuthGuard client:only="svelte" protect={true}>
+    <main class="min-h-screen bg-surface py-12 px-4 md:px-8">
+      <ReservationForm client:only="svelte" />
+    </main>
+  </AuthGuard>
+</Layout>
