@@ -17,7 +17,11 @@
   let isCalendarOpen = false;
   let calendarWrapperRef: HTMLElement;
 
-  $: displayDate = format(parseISO(dateStr), "EEEE, d. MMMM yyyy", {
+  $: displayDateFull = format(parseISO(dateStr), "EEEE, d. MMMM yyyy", {
+    locale: es,
+  });
+
+  $: displayDateShort = format(parseISO(dateStr), "EEE, d MMM", {
     locale: es,
   });
 
@@ -64,42 +68,40 @@
 <svelte:window on:click={handleClickOutside} on:keydown={handleKeydown} />
 
 <header
-  class="flex flex-col md:flex-row justify-between items-center gap-6 border-b border-border pb-6 max-w-7xl mx-auto w-full"
+  class="flex items-center justify-between gap-2 md:gap-6 pb-3 md:pb-6 border-b border-border max-w-7xl mx-auto w-full"
 >
   <!-- Date Navigation -->
   <div
     class={clsx(
-      "flex items-center gap-4 bg-white px-4 py-2 rounded-lg shadow-sm relative transition-all duration-300 border",
+      "flex items-center gap-1 md:gap-4 bg-white px-2 md:px-4 py-1.5 md:py-2 rounded-lg shadow-sm relative transition-all duration-300 border",
       isRefetching ? "border-primary/30 shadow-primary/10" : "border-gray-100",
     )}
   >
     <button
       on:click={goPrev}
-      class="p-2 hover:bg-gray-100 rounded-md text-gray-600"
+      class="p-1.5 md:p-2 hover:bg-gray-100 rounded-md text-gray-600 active:bg-gray-200"
     >
-      <ChevronLeft size={20} />
+      <ChevronLeft size={18} class="md:w-5 md:h-5" />
     </button>
 
-    <div class="relative group" bind:this={calendarWrapperRef}>
+    <div class="relative" bind:this={calendarWrapperRef}>
       <button
         type="button"
         on:click|stopPropagation={toggleCalendar}
-        class="text-center cursor-pointer min-w-55 focus:outline-none"
+        class="text-center cursor-pointer focus:outline-none px-1 md:px-2"
       >
-        <span
-          class="block text-xs uppercase tracking-widest text-gray-400 font-semibold mb-0.5"
+        <h2
+          class="text-sm md:text-xl font-serif text-primary capitalize whitespace-nowrap"
         >
-          Agenda
-        </span>
-        <h2 class="text-xl font-serif text-primary capitalize">
-          {displayDate}
+          <span class="md:hidden">{displayDateShort}</span>
+          <span class="hidden md:inline">{displayDateFull}</span>
         </h2>
       </button>
 
       {#if isCalendarOpen}
         <div
           transition:slide={{ duration: 150 }}
-          class="absolute top-full left-1/2 -translate-x-1/2 mt-3 z-50"
+          class="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-50"
         >
           <Calendar
             value={selectedDate}
@@ -113,17 +115,17 @@
 
     <button
       on:click={goNext}
-      class="p-2 hover:bg-gray-100 rounded-md text-gray-600"
+      class="p-1.5 md:p-2 hover:bg-gray-100 rounded-md text-gray-600 active:bg-gray-200"
     >
-      <ChevronRight size={20} />
+      <ChevronRight size={18} class="md:w-5 md:h-5" />
     </button>
   </div>
 
   <!-- Actions -->
-  <div class="flex items-center gap-3">
+  <div class="flex items-center gap-1 md:gap-3">
     <button
       on:click={() => changeDate(format(new Date(), "yyyy-MM-dd"))}
-      class="text-sm font-medium text-gray-500 hover:text-primary px-3 py-2"
+      class="text-xs md:text-sm font-medium text-gray-500 hover:text-primary px-2 py-1.5 md:py-2"
     >
       Hoy
     </button>
@@ -131,25 +133,27 @@
     <button
       on:click={onToggleFilter}
       class={clsx(
-        "flex items-center gap-2 px-4 py-2 rounded-md border text-sm transition-all shadow-sm",
+        "p-2 md:px-4 md:py-2 rounded-md border text-sm transition-all",
         showArrived
           ? "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
           : "border-secondary/30 bg-secondary/5 text-secondary-dark font-medium",
       )}
     >
       {#if showArrived}
-        <Eye size={16} /> <span>Ocultar llegadas</span>
+        <Eye size={16} />
+        <span class="hidden md:inline ml-2">Ocultar llegadas</span>
       {:else}
-        <EyeOff size={16} /> <span>Mostrar todas</span>
+        <EyeOff size={16} />
+        <span class="hidden md:inline ml-2">Mostrar todas</span>
       {/if}
     </button>
 
     <a
       href="/new?date={dateStr}"
-      class="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-sm hover:bg-gray-800 transition-all shadow-md shadow-gray-200 text-sm font-medium tracking-wide"
+      class="p-2 md:px-5 md:py-2.5 bg-primary text-white rounded-sm hover:bg-gray-800 transition-all shadow-md shadow-gray-200 text-sm font-medium"
     >
       <Plus size={18} />
-      <span>Nueva Reserva</span>
+      <span class="hidden md:inline ml-2">Nueva Reserva</span>
     </a>
   </div>
 </header>

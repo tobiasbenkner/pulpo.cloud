@@ -263,7 +263,7 @@
 
 <div class="flex flex-col h-full animate-fade-in">
   <!-- Sticky Header Section -->
-  <div class="shrink-0 bg-white px-4 md:px-8 pt-8 pb-4 space-y-4">
+  <div class="shrink-0 bg-white px-3 md:px-8 pt-4 md:pt-8 pb-3 md:pb-4 space-y-3 md:space-y-4">
     <AgendaHeader
       dateStr={$date}
       onDateChange={(newDate) => setDate(newDate)}
@@ -318,7 +318,7 @@
   </div>
 
   <!-- Scrollable Table Section -->
-  <div class="flex-1 min-h-0 px-4 md:px-8 pb-4">
+  <div class="flex-1 min-h-0 px-0 md:px-8 pb-0 md:pb-4">
     <AgendaTable
       reservations={$filteredReservations}
       loading={$loading}
