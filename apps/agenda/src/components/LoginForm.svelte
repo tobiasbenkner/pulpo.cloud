@@ -60,6 +60,7 @@
         type="email"
         bind:value={email}
         required
+        autocomplete="email"
         placeholder="nombre@pulpo.cloud"
         class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-sm text-primary placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all hover:bg-white"
       />
@@ -77,6 +78,7 @@
         type="password"
         bind:value={password}
         required
+        autocomplete="current-password"
         placeholder="••••••••"
         class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-sm text-primary placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all hover:bg-white"
       />
