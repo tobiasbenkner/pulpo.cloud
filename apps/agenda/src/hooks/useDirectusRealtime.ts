@@ -372,8 +372,9 @@ export function useDirectusRealtime<T = any>(
       const currentState = get(state);
 
       if (!currentState.connected && !isIntentionallyClosed) {
-        // Reset delay bei manueller Reaktivierung
+        // Reset bei Rückkehr zum Tab (User könnte sich neu eingeloggt haben)
         currentReconnectDelay = reconnectInterval;
+        state.update((s) => ({ ...s, reconnectAttempts: 0, error: null }));
         connect();
       }
 
