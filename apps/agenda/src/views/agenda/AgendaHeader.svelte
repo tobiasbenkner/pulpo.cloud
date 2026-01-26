@@ -4,13 +4,14 @@
   import {
     ChevronLeft,
     ChevronRight,
-    Calendar as CalIcon,
     Plus,
     Eye,
     EyeOff,
     RefreshCw,
   } from "lucide-svelte";
   import { clsx } from "clsx";
+  import { slide } from "svelte/transition";
+  import Calendar from "../../components/ui/Calendar.svelte";
 
   export let dateStr: string;
   export let showArrived: boolean;
@@ -20,9 +21,14 @@
   export let onToggleFilter: () => void = () => {};
   export let onDateChange: (newDate: string) => void = () => {};
 
+  let isCalendarOpen = false;
+  let calendarWrapperRef: HTMLElement;
+
   $: displayDate = format(parseISO(dateStr), "EEEE, d. MMMM yyyy", {
     locale: es,
   });
+
+  $: selectedDate = parseISO(dateStr);
 
   function changeDate(newDate: string) {
     onDateChange(newDate);
@@ -35,7 +41,34 @@
   function goNext() {
     changeDate(format(addDays(parseISO(dateStr), 1), "yyyy-MM-dd"));
   }
+
+  function handleCalendarSelect(date: Date) {
+    changeDate(format(date, "yyyy-MM-dd"));
+    isCalendarOpen = false;
+  }
+
+  function toggleCalendar() {
+    isCalendarOpen = !isCalendarOpen;
+  }
+
+  function handleClickOutside(event: MouseEvent) {
+    if (
+      isCalendarOpen &&
+      calendarWrapperRef &&
+      !calendarWrapperRef.contains(event.target as Node)
+    ) {
+      isCalendarOpen = false;
+    }
+  }
+
+  function handleKeydown(event: KeyboardEvent) {
+    if (event.key === "Escape" && isCalendarOpen) {
+      isCalendarOpen = false;
+    }
+  }
 </script>
+
+<svelte:window on:click={handleClickOutside} on:keydown={handleKeydown} />
 
 <header
   class="flex flex-col md:flex-row justify-between items-center gap-6 border-b border-border pb-6"
@@ -51,32 +84,40 @@
       <ChevronLeft size={20} />
     </button>
 
-    <div class="relative group">
-      <input
-        type="date"
-        class="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
-        value={dateStr}
-        on:change={(e) => changeDate(e.currentTarget.value)}
-      />
-      <div class="text-center cursor-pointer min-w-55">
+    <div class="relative group" bind:this={calendarWrapperRef}>
+      <button
+        type="button"
+        on:click|stopPropagation={toggleCalendar}
+        class="text-center cursor-pointer min-w-55 focus:outline-none"
+      >
         <span
           class="block text-xs uppercase tracking-widest text-gray-400 font-semibold mb-0.5"
-          >Agenda</span
         >
+          Agenda
+        </span>
         <div class="flex items-center justify-center gap-2">
           <h2 class="text-xl font-serif text-primary capitalize">
             {displayDate}
           </h2>
           {#if isRefetching}
             <RefreshCw size={14} class="animate-spin text-gray-400" />
-          {:else}
-            <CalIcon
-              size={16}
-              class="text-secondary opacity-0 group-hover:opacity-100 transition-opacity"
-            />
           {/if}
         </div>
-      </div>
+      </button>
+
+      {#if isCalendarOpen}
+        <div
+          transition:slide={{ duration: 150 }}
+          class="absolute top-full left-1/2 -translate-x-1/2 mt-3 z-50"
+        >
+          <Calendar
+            value={selectedDate}
+            locale={es}
+            showTodayButton={false}
+            onSelect={handleCalendarSelect}
+          />
+        </div>
+      {/if}
     </div>
 
     <button
@@ -102,7 +143,7 @@
         "flex items-center gap-2 px-4 py-2 rounded-md border text-sm transition-all shadow-sm",
         showArrived
           ? "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
-          : "border-secondary/30 bg-secondary/5 text-secondary-dark font-medium"
+          : "border-secondary/30 bg-secondary/5 text-secondary-dark font-medium",
       )}
     >
       {#if showArrived}
