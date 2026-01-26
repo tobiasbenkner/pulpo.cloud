@@ -25,14 +25,14 @@ export const translations = {
       en: "Becker & Associates",
     },
     headline: {
-      es: "Finanzas. Inmobiliaria. Seguros.",
-      de: "Finanzen. Immobilien. Versicherungen.",
-      en: "Finance. Real Estate. Insurance.",
+      es: "Consultoría Inmobiliaria. Correduría de Seguros",
+      de: "Immobilienberatung. Versicherungsvermittlung",
+      en: "Real Estate Consulting. Insurance Brokerage",
     },
     subheadline: {
-      es: "Tres áreas, un solo socio de confianza. Desde 1999.",
-      de: "Drei Bereiche, ein vertrauenswürdiger Partner. Seit 1999.",
-      en: "Three areas, one trusted partner. Since 1999.",
+      es: "Dos áreas, un solo socio de confianza. Desde 1999.",
+      de: "Zwei Bereiche, ein vertrauenswürdiger Partner. Seit 1999.",
+      en: "Two areas, one trusted partner. Since 1999.",
     },
     cta: {
       es: "Nuestros Servicios",
@@ -41,37 +41,28 @@ export const translations = {
     },
   },
   services: {
-    finance: {
+    realestate: {
       title: {
-        es: "Agentes Financieros",
-        de: "Finanzagenten",
-        en: "Financial Agents",
+        es: "Consultoría Inmobiliaria Personalizada",
+        de: "Personalisierte Immobilienberatung",
+        en: "Personalized Real Estate Consulting",
       },
       subtitle: {
-        es: "Deutsche Bank",
-        de: "Deutsche Bank",
-        en: "Deutsche Bank",
+        es: "Becker 24.es",
+        de: "Becker 24.es",
+        en: "Becker 24.es",
       },
       desc: {
-        es: "Operamos como una oficina de Agentes Financieros de Deutsche Bank, ofreciendo la solidez de una gran entidad con un trato personal.",
-        de: "Wir agieren als Finanzagentur der Deutschen Bank und bieten die Solidität eines großen Instituts mit persönlicher Betreuung.",
-        en: "We operate as a Deutsche Bank Financial Agents office, offering the solidity of a major entity with personal service.",
-      },
-    },
-    realestate: {
-      title: { es: "Inmobiliaria", de: "Immobilien", en: "Real Estate" },
-      subtitle: { es: "Becker24.es", de: "Becker24.es", en: "Becker24.es" },
-      desc: {
-        es: "Intermediación en compraventa y alquiler. Transparencia y tecnología propia para navegar el mercado inmobiliario.",
-        de: "Vermittlung von Kauf und Miete. Transparenz und eigene Technologie, um den Immobilienmarkt zu navigieren.",
-        en: "Brokerage in sales and rentals. Transparency and proprietary technology to navigate the real estate market.",
+        es: "Asesoramos con dedicación para encontrar la propiedad ideal, optimizando cada paso y asegurando una inversión segura y rentable.",
+        de: "Wir beraten mit Engagement, um die ideale Immobilie zu finden, optimieren jeden Schritt und sichern eine sichere und rentable Investition.",
+        en: "We provide dedicated advice to find the ideal property, optimizing every step and ensuring a safe and profitable investment.",
       },
     },
     insurance: {
       title: {
-        es: "Correduría de Seguros",
-        de: "Versicherungsmakler",
-        en: "Insurance Broker",
+        es: "Correduría de Seguros Integral",
+        de: "Ganzheitliche Versicherungsvermittlung",
+        en: "Comprehensive Insurance Brokerage",
       },
       subtitle: {
         es: "Becker Insurance Broker",
@@ -79,9 +70,9 @@ export const translations = {
         en: "Becker Insurance Broker",
       },
       desc: {
-        es: "Buscamos la solución óptima en precio y coberturas para proteger su patrimonio familiar y empresarial.",
-        de: "Wir suchen die optimale Lösung in Preis und Deckung, um Ihr Familien- und Betriebsvermögen zu schützen.",
-        en: "We seek the optimal solution in price and coverage to protect your family and business assets.",
+        es: "Ofrecemos pólizas adaptadas a sus necesidades, protegiendo su patrimonio y brindándole la confianza que merece en todo momento.",
+        de: "Wir bieten individuell angepasste Versicherungslösungen, schützen Ihr Vermögen und geben Ihnen jederzeit die Sicherheit, die Sie verdienen.",
+        en: "We offer insurance policies tailored to your needs, protecting your assets and providing you with the confidence you deserve at all times.",
       },
     },
   },
