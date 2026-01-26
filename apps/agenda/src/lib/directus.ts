@@ -5,9 +5,7 @@ import {
   authentication,
   type AuthenticationData,
 } from "@directus/sdk";
-
-// Storage helper für Token-Persistierung
-const TOKEN_KEY = "directus_auth";
+import { DIRECTUS_URL, TOKEN_KEY } from "../config";
 
 function getStoredToken() {
   if (typeof window === "undefined") return null;
@@ -33,7 +31,7 @@ function storeToken(data: AuthenticationData | null) {
   }
 }
 
-export const directus = createDirectus(import.meta.env.PUBLIC_DIRECTUS_URL)
+export const directus = createDirectus(DIRECTUS_URL)
   .with(
     authentication("json", {
       autoRefresh: true,
