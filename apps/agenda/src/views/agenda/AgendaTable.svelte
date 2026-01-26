@@ -96,13 +96,13 @@
           {#if typeof res.user_created === "object" && res.user_created?.avatar}
             {@const avatarId = typeof res.user_created.avatar === "object" ? res.user_created.avatar.id : res.user_created.avatar}
             <img
-              src={`https://admin.pulpo.cloud/assets/${avatarId}?width=48&height=48&fit=cover`}
+              src={`https://admin.pulpo.cloud/assets/${avatarId}?width=56&height=56&fit=cover`}
               alt=""
-              class="w-7 h-7 rounded-full border border-gray-200 object-cover shrink-0"
+              class="size-7 aspect-square rounded-full border border-gray-200 object-cover shrink-0"
             />
           {:else if typeof res.user_created === "object"}
             <div
-              class="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-[10px] text-gray-500 border border-gray-200 font-medium shrink-0"
+              class="size-7 aspect-square rounded-full bg-gray-100 flex items-center justify-center text-[10px] text-gray-500 border border-gray-200 font-medium shrink-0"
             >
               {res.user_created?.first_name?.[0]?.toUpperCase() || "?"}
             </div>
@@ -120,13 +120,13 @@
       <div class="shrink-0 bg-gray-50 border-b border-gray-200">
         <table class="w-full text-left text-sm">
           <thead>
-            <tr class="text-gray-500 uppercase tracking-wider text-xs font-medium">
-              <th class="px-6 py-4 font-normal w-24">Hora</th>
-              <th class="px-6 py-4 font-normal w-16 text-center">Pax</th>
-              <th class="px-6 py-4 font-normal">Nombre</th>
-              <th class="px-6 py-4 font-normal">Contacto</th>
-              <th class="px-6 py-4 font-normal">Notas</th>
-              <th class="px-6 py-4 font-normal text-right">Agente</th>
+            <tr class="text-gray-500 uppercase tracking-wider text-[11px] font-medium">
+              <th class="px-4 py-2.5 font-normal w-16">Hora</th>
+              <th class="px-3 py-2.5 font-normal w-12 text-center">Pax</th>
+              <th class="px-4 py-2.5 font-normal">Nombre</th>
+              <th class="px-4 py-2.5 font-normal">Contacto</th>
+              <th class="px-4 py-2.5 font-normal">Notas</th>
+              <th class="px-4 py-2.5 font-normal w-12"></th>
             </tr>
           </thead>
         </table>
@@ -147,22 +147,22 @@
                 )}
               >
                 <td
-                  class="px-6 py-4 whitespace-nowrap font-medium font-serif text-gray-900 w-24"
+                  class="px-4 py-2 whitespace-nowrap font-medium font-serif text-gray-900 w-16"
                 >
                   {res.time.substring(0, 5)}
                 </td>
-                <td class="px-6 py-4 w-16 text-center text-gray-700 font-medium">
+                <td class="px-3 py-2 w-12 text-center text-gray-600 text-xs">
                   {res.person_count || "-"}
                 </td>
-                <td class="px-6 py-4">
-                  <div class="flex items-center gap-3">
+                <td class="px-4 py-2">
+                  <div class="flex items-center gap-2">
                     {#if res.arrived}
-                      <CircleCheck size={18} class="text-green-700" />
+                      <CircleCheck size={14} class="text-green-700 shrink-0" />
                     {/if}
                     <a
                       href={`/edit?id=${res.id}`}
                       class={clsx(
-                        "font-medium transition-colors hover:underline decoration-primary/30 underline-offset-4",
+                        "font-medium text-sm transition-colors hover:underline decoration-primary/30 underline-offset-4",
                         res.arrived
                           ? "text-green-900 line-through decoration-green-900/30"
                           : "text-gray-900",
@@ -172,33 +172,26 @@
                     </a>
                   </div>
                 </td>
-                <td class="px-6 py-4 text-gray-500">{res.contact}</td>
-                <td
-                  class="px-6 py-4 text-gray-500 italic truncate max-w-[300px]"
-                  title={res.notes}
-                >
+                <td class="px-4 py-2 text-gray-500 text-sm">{res.contact || "-"}</td>
+                <td class="px-4 py-2 text-gray-400 text-xs italic leading-snug">
                   {res.notes || "-"}
                 </td>
-                <td class="px-6 py-4 text-right">
+                <td class="px-4 py-2 w-12">
                   <div class="flex justify-end">
                     {#if typeof res.user_created === "object" && res.user_created?.avatar}
                       {@const avatarId = typeof res.user_created.avatar === "object" ? res.user_created.avatar.id : res.user_created.avatar}
-                      <img
-                        src={`https://admin.pulpo.cloud/assets/${avatarId}?width=64&height=64&fit=cover`}
-                        alt="Agent"
-                        class="w-8 h-8 rounded-full border border-gray-200 object-cover"
-                      />
+                      <div class="w-6 h-6 shrink-0">
+                        <img
+                          src={`https://admin.pulpo.cloud/assets/${avatarId}?width=48&height=48&fit=cover`}
+                          alt=""
+                          class="w-full h-full rounded-full border border-gray-200 object-cover"
+                        />
+                      </div>
                     {:else if typeof res.user_created === "object"}
                       <div
-                        class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xs text-gray-500 border border-gray-200 font-medium"
+                        class="w-6 h-6 shrink-0 rounded-full bg-gray-100 flex items-center justify-center text-[10px] text-gray-500 border border-gray-200 font-medium"
                       >
-                        {res.user_created?.first_name?.[0]?.toUpperCase() || "A"}
-                      </div>
-                    {:else}
-                      <div
-                        class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-300 border border-gray-100"
-                      >
-                        <UserIcon size={14} />
+                        {res.user_created?.first_name?.[0]?.toUpperCase() || "?"}
                       </div>
                     {/if}
                   </div>
