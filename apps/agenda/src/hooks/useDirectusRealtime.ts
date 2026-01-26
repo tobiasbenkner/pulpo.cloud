@@ -194,6 +194,25 @@ export function useDirectusRealtime<T = any>(
 
       onConnect?.();
     } catch (error) {
+      // WebSocket ist bereits offen - State synchronisieren statt Fehler werfen
+      if (
+        error instanceof Error &&
+        error.message.includes('Cannot connect when state is "open"')
+      ) {
+        console.log(
+          "[Realtime] WebSocket bereits verbunden, synchronisiere State",
+        );
+        state.update((s) => ({
+          ...s,
+          connected: true,
+          error: null,
+          reconnecting: false,
+          reconnectAttempts: 0,
+        }));
+        currentReconnectDelay = reconnectInterval;
+        return;
+      }
+
       console.error("[Realtime] Verbindungsfehler:", error);
       const err =
         error instanceof Error ? error : new Error("Unbekannter Fehler");
