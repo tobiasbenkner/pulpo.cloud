@@ -26,8 +26,8 @@ export const translations = {
     },
     headline: {
       es: "Consultoría Inmobiliaria. Correduría de Seguros",
-      de: "Immobilienberatung. Versicherungsvermittlung",
-      en: "Real Estate Consulting. Insurance Brokerage",
+      de: "Immobilien. Versicherungen",
+      en: "Real Estate. Insurance",
     },
     subheadline: {
       es: "Dos áreas, un solo socio de confianza. Desde 1999.",
