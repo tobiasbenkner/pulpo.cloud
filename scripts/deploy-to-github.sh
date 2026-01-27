@@ -1,19 +1,19 @@
 #!/bin/bash
 
-# Deploy Script TEST MODE - Kein Push zu GitHub
-# Usage: ./scripts/deploy-to-github-test.sh <project-name> <github-repo-url>
+# Deploy Script für Turborepo → GitHub Pages (PRODUCTION)
+# Usage: ./scripts/deploy-to-github.sh <project-name> <github-repo-url>
 
 set -e
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
 NC='\033[0m'
 
 if [ "$#" -ne 2 ]; then
     echo -e "${RED}Error: Falsche Anzahl an Argumenten${NC}"
     echo "Usage: $0 <project-name> <github-repo-url>"
+    echo "Beispiel: $0 holacanterasclub git@github.com:username/holacanterasclub.git"
     exit 1
 fi
 
@@ -21,8 +21,7 @@ PROJECT_NAME=$1
 GITHUB_REPO=$2
 TIMESTAMP=$(date +%Y%m%d-%H%M%S)
 
-echo -e "${BLUE}🧪 TEST MODE - Kein Push zu GitHub${NC}"
-echo -e "${GREEN}🚀 Starting deployment process for ${PROJECT_NAME}${NC}"
+echo -e "${GREEN}🚀 Starting deployment for ${PROJECT_NAME}${NC}"
 echo ""
 
 # Finde Turborepo Root
@@ -46,30 +45,19 @@ echo ""
 
 # 1. Prune das Projekt
 echo -e "${YELLOW}📦 Step 1: Pruning project...${NC}"
-echo "Running: turbo prune --scope=${PROJECT_NAME}"
-
-# Entferne altes out directory
 rm -rf out
 
-# Führe prune aus
 if ! turbo prune --scope="${PROJECT_NAME}" 2>&1 | grep -v "npm warn"; then
-    echo -e "${RED}Error: turbo prune command failed${NC}"
+    echo -e "${RED}Error: turbo prune failed${NC}"
     exit 1
 fi
 
-# Prüfe ob out directory erstellt wurde
 if [ ! -d "out" ]; then
-    echo -e "${RED}Error: 'out' directory not found after prune${NC}"
-    echo "Current directory: $(pwd)"
-    echo "Contents:"
-    ls -la
+    echo -e "${RED}Error: 'out' directory not found${NC}"
     exit 1
 fi
 
 echo -e "${GREEN}✓ Prune successful${NC}"
-echo "  Output directory: $TURBO_ROOT/out"
-echo "  Contents:"
-ls -la out/ | head -10
 echo ""
 
 # 2. Erstelle temporäres Deployment-Verzeichnis
@@ -78,25 +66,22 @@ TEMP_DIR="$TURBO_ROOT/temp-deploy-${PROJECT_NAME}"
 rm -rf "${TEMP_DIR}"
 mkdir -p "${TEMP_DIR}"
 cp -r "$TURBO_ROOT/out/." "${TEMP_DIR}/"
-echo -e "${GREEN}✓ Deployment directory created: ${TEMP_DIR}${NC}"
+cd "${TEMP_DIR}"
+echo -e "${GREEN}✓ Deployment directory created${NC}"
 echo ""
 
 # 3. Bereinige sensitive Daten
 echo -e "${YELLOW}🧹 Step 3: Cleaning sensitive data...${NC}"
-cd "${TEMP_DIR}"
 
-# Zeige welche .env files gefunden wurden
-ENV_FILES=$(find . -name ".env*" -type f 2>/dev/null || true)
-if [ -n "$ENV_FILES" ]; then
-    echo -e "${YELLOW}Found .env files (would be deleted):${NC}"
-    echo "$ENV_FILES"
-else
-    echo -e "${GREEN}✓ No .env files found${NC}"
+# Entferne .env files
+ENV_COUNT=$(find . -name ".env*" -type f | wc -l)
+if [ "$ENV_COUNT" -gt 0 ]; then
+    echo "Removing $ENV_COUNT .env file(s)..."
+    find . -name ".env*" -type f -delete
 fi
 
 # Erstelle .gitignore
-if [ ! -f ".gitignore" ]; then
-    cat > .gitignore << 'EOF'
+cat > .gitignore << 'EOF'
 node_modules/
 dist/
 .astro/
@@ -105,10 +90,7 @@ dist/
 !.env.example
 .DS_Store
 EOF
-    echo -e "${GREEN}✓ .gitignore created${NC}"
-else
-    echo -e "${GREEN}✓ .gitignore already exists${NC}"
-fi
+echo -e "${GREEN}✓ Sensitive data cleaned${NC}"
 echo ""
 
 # 4. Erstelle README
@@ -147,7 +129,7 @@ npm run build
 
 *Letzte Aktualisierung: ${TIMESTAMP}*
 EOF
-echo -e "${GREEN}✓ README.md created${NC}"
+echo -e "${GREEN}✓ README created${NC}"
 echo ""
 
 # 5. Erstelle GitHub Action Workflow
@@ -209,72 +191,103 @@ EOF
 echo -e "${GREEN}✓ GitHub Actions workflow created${NC}"
 echo ""
 
-# 6. Zeige Struktur
-echo -e "${YELLOW}📂 Step 6: Deployment structure:${NC}"
-echo ""
-if command -v tree &> /dev/null; then
-    tree -L 2 -a . 2>/dev/null | head -50
-else
-    find . -maxdepth 2 \( -type f -o -type d \) ! -path "*/node_modules/*" | head -30
-fi
-echo ""
+# 6. Git Setup
+echo -e "${YELLOW}🔧 Step 6: Setting up Git repository...${NC}"
 
-# 7. Zeige package.json Infos
-echo -e "${YELLOW}📦 Step 7: Package info:${NC}"
-if [ -f "package.json" ]; then
-    echo "Package name: $(node -p "require('./package.json').name" 2>/dev/null || echo 'N/A')"
-    echo "Version: $(node -p "require('./package.json').version" 2>/dev/null || echo 'N/A')"
-    echo ""
-    echo "Scripts available:"
-    node -p "Object.keys(require('./package.json').scripts || {}).join(', ')" 2>/dev/null || echo "No scripts found"
-    echo ""
-    echo "Dependencies:"
-    node -p "Object.keys(require('./package.json').dependencies || {}).join(', ')" 2>/dev/null || echo "No dependencies"
-else
-    echo -e "${YELLOW}⚠️  No package.json found in root${NC}"
+# Prüfe ob bereits ein Git Repo existiert
+if [ -d ".git" ]; then
+    echo "Existing Git repository found, resetting..."
+    rm -rf .git
 fi
-echo ""
 
-# 8. Git Status (ohne Push)
-echo -e "${YELLOW}🔧 Step 8: Git initialization (TEST - no push)...${NC}"
-git init -q
+git init
 git branch -M main
+
+# Prüfe ob Remote bereits existiert und setze/update ihn
+git remote add origin "${GITHUB_REPO}" 2>/dev/null || git remote set-url origin "${GITHUB_REPO}"
+
+echo -e "${GREEN}✓ Git repository initialized${NC}"
+echo "  Remote: ${GITHUB_REPO}"
+echo ""
+
+# 7. Commit
+echo -e "${YELLOW}💾 Step 7: Committing changes...${NC}"
 git add .
 
-echo "Files to be committed:"
-git status --short | head -20
-if [ $(git status --short | wc -l) -gt 20 ]; then
-    echo "... and $(( $(git status --short | wc -l) - 20 )) more files"
-fi
+# Erstelle Commit Message mit Details
+COMMIT_MSG="Deploy ${PROJECT_NAME} - ${TIMESTAMP}
+
+Automated deployment from Turborepo
+Project: ${PROJECT_NAME}
+Timestamp: ${TIMESTAMP}"
+
+git commit -m "$COMMIT_MSG"
+echo -e "${GREEN}✓ Changes committed${NC}"
 echo ""
 
-# 9. Zusammenfassung
+# 8. Push zu GitHub
+echo -e "${YELLOW}🚢 Step 8: Pushing to GitHub...${NC}"
+echo "Repository: ${GITHUB_REPO}"
 echo ""
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${GREEN}✅ TEST COMPLETED SUCCESSFULLY!${NC}"
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+
+if git push -u origin main --force; then
+    echo ""
+    echo -e "${GREEN}✓ Successfully pushed to GitHub${NC}"
+else
+    echo ""
+    echo -e "${RED}✗ Push failed${NC}"
+    echo ""
+    echo "Mögliche Ursachen:"
+    echo "1. SSH Key nicht konfiguriert"
+    echo "2. Keine Berechtigung für das Repository"
+    echo "3. Repository existiert nicht"
+    echo ""
+    echo "Troubleshooting:"
+    echo "- SSH: ssh -T git@github.com"
+    echo "- Repo erstellen: gh repo create ${PROJECT_NAME} --public"
+    exit 1
+fi
+
+# 9. Cleanup
 echo ""
-echo -e "${YELLOW}📍 Test deployment location:${NC}"
+echo -e "${YELLOW}🧹 Step 9: Cleaning up...${NC}"
+cd "$TURBO_ROOT"
+rm -rf out
+echo -e "${GREEN}✓ Temporary files cleaned${NC}"
+
+# 10. Zusammenfassung
+echo ""
+echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${GREEN}✅ DEPLOYMENT SUCCESSFUL!${NC}"
+echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+echo -e "${YELLOW}📦 Project:${NC} ${PROJECT_NAME}"
+echo -e "${YELLOW}🔗 Repository:${NC} ${GITHUB_REPO}"
+echo -e "${YELLOW}📁 Deployed from:${NC} ${TEMP_DIR}"
+echo ""
+echo -e "${YELLOW}📋 Next Steps:${NC}"
+echo ""
+echo "1. GitHub Pages aktivieren:"
+echo "   → Gehe zu: https://github.com/$(echo ${GITHUB_REPO} | sed 's/.*github.com[:/]\(.*\)\.git/\1/')/settings/pages"
+echo "   → Source: GitHub Actions"
+echo ""
+echo "2. Deployment verfolgen:"
+echo "   → https://github.com/$(echo ${GITHUB_REPO} | sed 's/.*github.com[:/]\(.*\)\.git/\1/')/actions"
+echo ""
+echo "3. Website nach ~2 Minuten verfügbar unter:"
+echo "   → https://$(echo ${GITHUB_REPO} | sed 's/.*github.com[:/]\([^/]*\).*/\1/').github.io/${PROJECT_NAME}/"
+echo ""
+echo -e "${YELLOW}💡 Tipp:${NC} Für Custom Domain, füge eine CNAME Datei hinzu:"
+echo "   cd ${TEMP_DIR}"
+echo "   echo 'www.domain.com' > public/CNAME"
+echo "   git add public/CNAME && git commit -m 'Add custom domain' && git push"
+echo ""
+
+# Optional: Temp-Directory behalten für weitere Anpassungen
+echo -e "${YELLOW}🗂️  Deployment Directory:${NC}"
 echo "   ${TEMP_DIR}"
 echo ""
-echo -e "${YELLOW}📋 What would happen in production:${NC}"
-echo "   1. ✓ Project pruned"
-echo "   2. ✓ Deployment directory created"
-echo "   3. ✓ Sensitive data cleaned"
-echo "   4. ✓ README generated"
-echo "   5. ✓ GitHub Actions workflow created"
-echo "   6. ✓ Git repository initialized"
-echo "   7. ⏭  Git push to: ${GITHUB_REPO}"
-echo ""
-echo -e "${YELLOW}🔍 Next steps - Inspect the deployment:${NC}"
-echo "   cd ${TEMP_DIR}"
-echo "   npm install    # Test installation"
-echo "   npm run build  # Test build"
-echo "   npm run preview # Test preview (if available)"
-echo ""
-echo -e "${YELLOW}🧹 To cleanup when done:${NC}"
-echo "   rm -rf ${TEMP_DIR}"
-echo "   rm -rf ${TURBO_ROOT}/out"
+echo -e "${YELLOW}   Cleanup mit:${NC} rm -rf ${TEMP_DIR}"
 echo ""
 
 # Zurück zum ursprünglichen Verzeichnis
