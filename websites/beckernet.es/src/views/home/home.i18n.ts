@@ -80,9 +80,9 @@ export const translations = {
         en: "We offer insurance policies tailored to your needs, protecting your assets and providing you with the confidence you deserve at all times.",
       },
       btn: {
-        es: "Más información",
-        de: "Mehr erfahren",
-        en: "Learn more",
+        es: "Ir a Seguros Becker",
+        de: "Zu Becker Versicherungen",
+        en: "Go to Becker Insurance",
       },
     },
   },
