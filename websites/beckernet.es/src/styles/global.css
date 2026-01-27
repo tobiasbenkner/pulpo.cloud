@@ -23,15 +23,15 @@
 
 /* --- VARIABLES --- */
 :root {
-  --background: #0a0e1a;
-  --surface: #1a1f2e;
-  --border: #2a3244;
+  --background: #1c1d21;
+  --surface: #28292e;
+  --border: #3d3f46;
 
-  --primary: #ffffff;
-  --text: #e2e8f0;
-  --text-muted: #94a3b8;
-  --secondary: #d4b57e;
-  --secondary-hover: #e5c68d;
+  --primary: #fafaf9;
+  --text: #ececea;
+  --text-muted: #b5b3ae;
+  --secondary: #c9a962;
+  --secondary-hover: #dbbf78;
 }
 
 /* --- BASE STYLES --- */
