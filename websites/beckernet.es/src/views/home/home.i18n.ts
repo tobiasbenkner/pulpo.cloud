@@ -132,6 +132,103 @@ export const translations = {
       en: "Personal Focus",
     },
   },
+  specialists: {
+    title: {
+      es: "Especialistas en consultoría inmobiliaria y correduría de seguros",
+      de: "Spezialisten für Immobilienberatung und Versicherungsvermittlung",
+      en: "Specialists in real estate consulting and insurance brokerage",
+    },
+    desc: {
+      es: "Descubra la amplia gama de servicios que brindamos, siempre enfocados en la excelencia y el compromiso con nuestros clientes.",
+      de: "Entdecken Sie unser breites Serviceangebot, stets mit Fokus auf Exzellenz und Engagement für unsere Kunden.",
+      en: "Discover the wide range of services we provide, always focused on excellence and commitment to our clients.",
+    },
+    realestate: {
+      title: {
+        es: "Asesoramiento Inmobiliario",
+        de: "Immobilienberatung",
+        en: "Real Estate Advisory",
+      },
+      items: {
+        es: [
+          "Valoración de propiedades",
+          "Comercialización de inmuebles tanto en venta como en alquiler",
+          "Búsqueda de propiedades para la compra como el alquiler",
+          "Asesoramiento legal y fiscal específico",
+          "Ayuda en la búsqueda de financiación",
+          "Redacción de contratos",
+        ],
+        de: [
+          "Immobilienbewertung",
+          "Vermarktung von Immobilien zum Verkauf und zur Vermietung",
+          "Suche nach Kauf- und Mietobjekten",
+          "Spezifische Rechts- und Steuerberatung",
+          "Unterstützung bei der Finanzierungssuche",
+          "Vertragsgestaltung",
+        ],
+        en: [
+          "Property valuation",
+          "Marketing of properties for sale and rent",
+          "Search for properties to buy or rent",
+          "Specific legal and tax advice",
+          "Help finding financing",
+          "Contract drafting",
+        ],
+      },
+    },
+    insurance: {
+      title: {
+        es: "Gestión de Seguros",
+        de: "Versicherungsmanagement",
+        en: "Insurance Management",
+      },
+      items: {
+        es: [
+          "Automóviles: turismos, motos, autocaravanas",
+          "Patrimoniales: hogar, mascotas, decesos",
+          "Empresas: comercios, responsabilidad civil, accidentes colectivos",
+          "Salud: asistencia sanitaria, seguros de reembolso, incapacidad laboral transitoria",
+          "Vida y ahorro: vida-riesgo, accidentes, vida-ahorro",
+        ],
+        de: [
+          "Fahrzeuge: PKW, Motorräder, Wohnmobile",
+          "Sachversicherungen: Hausrat, Haustiere, Sterbegeld",
+          "Unternehmen: Gewerbe, Haftpflicht, Gruppenunfälle",
+          "Gesundheit: Krankenversicherung, Kostenerstattung, Arbeitsunfähigkeit",
+          "Leben und Sparen: Risikoleben, Unfälle, Kapitallebensversicherung",
+        ],
+        en: [
+          "Vehicles: cars, motorcycles, motorhomes",
+          "Property: home, pets, funeral",
+          "Business: commercial, liability, group accidents",
+          "Health: medical assistance, reimbursement insurance, temporary disability",
+          "Life and savings: term life, accidents, endowment",
+        ],
+      },
+    },
+  },
+  languages: {
+    title: {
+      es: "Atención en distintos idiomas",
+      de: "Betreuung in verschiedenen Sprachen",
+      en: "Service in different languages",
+    },
+    desc: {
+      es: "Dada la ascendencia alemana de los fundadores de Becker, existe para nosotros una clara conexión con el espacio noreuropeo. Podemos atender a clientes de distintas nacionalidades en su idioma nativo como inglés y alemán.",
+      de: "Aufgrund der deutschen Herkunft der Becker-Gründer besteht für uns eine klare Verbindung zum nordeuropäischen Raum. Wir können Kunden verschiedener Nationalitäten in ihrer Muttersprache betreuen – auf Englisch und Deutsch.",
+      en: "Given the German ancestry of Becker's founders, there is a clear connection to the Northern European sphere. We can serve clients of different nationalities in their native language, including English and German.",
+    },
+    extra: {
+      es: "Como es muy común que además estos clientes precisen de ayuda adicional en distintas gestiones como importaciones de vehículos, herencias, traducciones juradas, etc. les damos asesoramiento básico al respecto.",
+      de: "Da diese Kunden häufig zusätzliche Hilfe bei verschiedenen Angelegenheiten wie Fahrzeugimporten, Erbschaften, beglaubigten Übersetzungen usw. benötigen, bieten wir ihnen grundlegende Beratung in diesen Bereichen.",
+      en: "As these clients often need additional help with various matters such as vehicle imports, inheritances, certified translations, etc., we provide basic advice on these topics.",
+    },
+    list: {
+      es: ["Español", "Alemán", "Inglés"],
+      de: ["Spanisch", "Deutsch", "Englisch"],
+      en: ["Spanish", "German", "English"],
+    },
+  },
   cta: {
     text: {
       es: "¿Cómo podemos ayudarle hoy?",

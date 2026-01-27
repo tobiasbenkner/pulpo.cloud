@@ -6,6 +6,8 @@ import type { HomeTranslations } from "./home.i18n";
 import { getTranslatedPath } from "@/lib/registry";
 
 import heroImage from "@/assets/hero.webp";
+import teamImage from "@/assets/team.jpg";
+import languagesImage from "@/assets/languages.jpg";
 import type { Language } from "@/lib/i18n";
 
 interface Props {
@@ -145,8 +147,124 @@ const { lang, t } = Astro.props;
   </div>
 </section>
 
+<!-- SPECIALISTS SECTION -->
+<section class="py-16 md:py-24 border-b border-border">
+  <Container>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+      <div class="order-2 lg:order-1">
+        <Image
+          src={teamImage}
+          alt="Becker Team"
+          class="w-full rounded-sm border border-border"
+        />
+      </div>
+      <div class="order-1 lg:order-2">
+        <h2
+          class="text-3xl md:text-4xl lg:text-5xl font-serif text-white mb-5 md:mb-6 leading-tight"
+        >
+          {t.specialists.title}
+        </h2>
+        <div class="w-16 md:w-20 h-1 bg-secondary mb-6 md:mb-8"></div>
+        <p class="text-base md:text-lg text-text-muted leading-relaxed">
+          {t.specialists.desc}
+        </p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 mt-12 md:mt-16">
+      <!-- Real Estate Services -->
+      <div class="bg-surface/30 p-6 md:p-8 border border-border rounded-sm">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="p-2 bg-secondary/10 rounded-sm">
+            <Icon name="lucide:key" class="w-6 h-6 text-secondary" />
+          </div>
+          <h3 class="text-xl md:text-2xl font-serif text-white">
+            {t.specialists.realestate.title}
+          </h3>
+        </div>
+        <ul class="space-y-3">
+          {
+            t.specialists.realestate.items.map((item: string) => (
+              <li class="flex items-start gap-3">
+                <Icon
+                  name="lucide:check"
+                  class="w-5 h-5 text-secondary shrink-0 mt-0.5"
+                />
+                <span class="text-text-muted">{item}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <!-- Insurance Services -->
+      <div class="bg-surface/30 p-6 md:p-8 border border-border rounded-sm">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="p-2 bg-secondary/10 rounded-sm">
+            <Icon name="lucide:shield-check" class="w-6 h-6 text-secondary" />
+          </div>
+          <h3 class="text-xl md:text-2xl font-serif text-white">
+            {t.specialists.insurance.title}
+          </h3>
+        </div>
+        <ul class="space-y-3">
+          {
+            t.specialists.insurance.items.map((item: string) => (
+              <li class="flex items-start gap-3">
+                <Icon
+                  name="lucide:check"
+                  class="w-5 h-5 text-secondary shrink-0 mt-0.5"
+                />
+                <span class="text-text-muted">{item}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </Container>
+</section>
+
+<!-- LANGUAGES SECTION -->
+<section class="py-16 md:py-24 border-b border-border bg-surface/10">
+  <Container>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+      <div>
+        <h2
+          class="text-3xl md:text-4xl lg:text-5xl font-serif text-white mb-5 md:mb-6 leading-tight"
+        >
+          {t.languages.title}
+        </h2>
+        <div class="w-16 md:w-20 h-1 bg-secondary mb-6 md:mb-8"></div>
+        <p class="text-base md:text-lg text-text-muted leading-relaxed mb-6">
+          {t.languages.desc}
+        </p>
+        <p class="text-base md:text-lg text-text-muted leading-relaxed mb-8">
+          {t.languages.extra}
+        </p>
+        <div class="flex flex-wrap gap-3">
+          {
+            t.languages.list.map((lang: string) => (
+              <span class="px-4 py-2 bg-surface border border-border rounded-sm text-white text-sm font-medium">
+                {lang}
+              </span>
+            ))
+          }
+        </div>
+      </div>
+      <div>
+        <Image
+          src={languagesImage}
+          alt="Multilingual service"
+          class="w-full rounded-sm border border-border"
+        />
+      </div>
+    </div>
+  </Container>
+</section>
+
 <!-- STATS / FACTS -->
-<section class="py-12 md:py-16 bg-surface/10 border-b border-border">
+<section class="py-12 md:py-16 bg-background border-b border-border">
   <Container>
     <div
       class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-border/50"
