@@ -126,7 +126,7 @@ ${xDefaultLink}
         blogUrls += `
   <url>
     <loc>${currentUrl}</loc>
-    <lastmod>${post.date_updated || post.date_created || new Date().toISOString()}</lastmod>
+    <lastmod>${post.date || post.date || new Date().toISOString()}</lastmod>
 ${alternates}
 ${xDefaultLink}
   </url>`;
