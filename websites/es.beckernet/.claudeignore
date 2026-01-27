@@ -1,0 +1,62 @@
+# Environment & Secrets
+.env
+.env.*
+**/.env
+**/.env.*
+
+# Dependencies
+node_modules/
+**/node_modules/
+.pnpm-store/
+.yarn/
+.npm/
+
+# Astro Build outputs
+dist/
+.astro/
+**/.astro/
+
+# Build outputs (general)
+build/
+out/
+
+# Cache & Logs
+.cache/
+*.log
+.turbo/
+**/.turbo/
+
+# IDE & System
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*.swo
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Große Mediendateien
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.webm
+
+# Optional: Große Bilder (wenn nicht benötigt)
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.webp
+*.svg
+
+# Generierte/gecachte Bilder
+**/thumbnails/
+**/optimized/

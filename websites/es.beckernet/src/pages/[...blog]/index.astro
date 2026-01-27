@@ -1,0 +1,145 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { getBlogCategories, getPostsByCategory, imageUrl } from "@/lib/cms";
+import {
+  defaultLang,
+  languages,
+  resolveTranslations,
+  type Language,
+} from "@/lib/i18n";
+import { addRoute } from "@/lib/registry";
+import BlogDetail from "@/views/blog/BlogDetail.astro";
+import BlogList from "@/views/blog/BlogList.astro";
+import { type BlogPost, type BlogPostCategory } from "@pulpo/cms";
+
+type PathProps = {
+  type: "category" | "post";
+  lang: string;
+  category: BlogPostCategory;
+  post?: BlogPost;
+  routeKey: string;
+};
+
+export async function getStaticPaths() {
+  const paths: {
+    params: { blog: string };
+    props: PathProps;
+  }[] = [];
+
+  const categories = await getBlogCategories();
+  const allPostsMap: Record<string, BlogPost[]> = {};
+
+  // Categories
+  for (const category of categories) {
+    const posts = await getPostsByCategory(category.id);
+    allPostsMap[category.id] = posts;
+    category.posts = posts;
+
+    // Register Routes
+    const routeKey = `blog_category_${category.id}`;
+    const categorySlugs: Record<string, string> = {};
+    languages.forEach((lang) => {
+      const slug = resolveTranslations(category.slug, lang);
+      categorySlugs[lang] = `blog/${slug}`;
+    });
+    addRoute(routeKey, categorySlugs as Record<Language, string>);
+
+    // Register Paths
+    for (const lang of languages) {
+      const isDefaultLang = lang === defaultLang;
+      const slugParam = isDefaultLang
+        ? categorySlugs[lang]
+        : `${lang}/${categorySlugs[lang]}`;
+
+      paths.push({
+        params: { blog: slugParam },
+        props: {
+          type: "category",
+          lang,
+          category,
+          routeKey,
+        },
+      });
+    }
+  }
+
+  // Posts
+  for (const category of categories) {
+    const posts = allPostsMap[category.id] || [];
+
+    for (const post of posts) {
+      const routeKey = `blog_post_${post.id}`;
+      const postSlugs: Record<string, string> = {};
+
+      // Register Routes
+      languages.forEach((lang) => {
+        const catSlug = resolveTranslations(category.slug, lang);
+        const pSlug = resolveTranslations(post.slug, lang);
+        postSlugs[lang] = `blog/${catSlug}/${pSlug}`;
+      });
+      addRoute(routeKey, postSlugs as Record<Language, string>);
+
+      // Register Paths
+      for (const lang of languages) {
+        const isDefaultLang = lang === defaultLang;
+        const slugParam = isDefaultLang
+          ? postSlugs[lang]
+          : `${lang}/${postSlugs[lang]}`;
+
+        paths.push({
+          params: { blog: slugParam },
+          props: {
+            type: "post",
+            lang,
+            post,
+            category,
+            routeKey,
+          },
+        });
+      }
+    }
+  }
+
+  return paths;
+}
+
+const { lang, type, category, post, routeKey } = Astro.props;
+
+// SEO Logic
+let title = "";
+let description = "";
+let ogImage = undefined;
+
+if (type === "post" && post) {
+  const t = resolveTranslations(post, lang);
+  title = String(t.seo_title);
+  description = String(t.seo_description);
+  if (post.image) ogImage = imageUrl(post.image.id);
+} else {
+  // Category
+  const t = resolveTranslations(category, lang);
+  title = String(t.seo_title);
+  description = String(t.seo_description);
+  if (category.seo_image) ogImage = imageUrl(String(t.seo_image));
+}
+---
+
+<Layout
+  title={title}
+  description={description}
+  lang={lang as Language}
+  routeKey={routeKey}
+  ogImage={ogImage}
+>
+  {
+    type === "post" && !!post && (
+      <BlogDetail lang={lang as Language} post={post} category={category} />
+    )
+  }
+
+  {
+    type === "category" && (
+      <BlogList lang={lang} category={category} title={title} />
+    )
+  }
+</Layout>

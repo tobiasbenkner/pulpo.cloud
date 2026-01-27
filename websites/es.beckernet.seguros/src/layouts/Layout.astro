@@ -1,0 +1,64 @@
+---
+import "@fontsource-variable/inter";
+import "@fontsource/libre-baskerville/700.css";
+import "@/styles/global.css";
+
+import SeoHead from "@/components/SeoHead.astro";
+import type { Language } from "@/lib/i18n";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import { siteData } from "@/data/siteData";
+
+interface Props {
+  title: string;
+  description: string;
+  lang: Language;
+  routeKey: string;
+  ogImage?: string;
+  noindex?: boolean;
+}
+const { title, description, lang, routeKey, ogImage, noindex } = Astro.props;
+---
+
+<!doctype html>
+<html lang={lang} class="scroll-pt-16 md:scroll-pt-20">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <SeoHead
+      title={title}
+      description={description}
+      lang={lang}
+      routeKey={routeKey}
+      ogImage={ogImage}
+      noindex={noindex}
+    />
+  </head>
+  <body
+    class="min-h-screen flex flex-col bg-background text-text pt-16 md:pt-20"
+  >
+    <Header lang={lang} routeKey={routeKey} />
+    <main class="flex-1">
+      <slot />
+    </main>
+    <Footer lang={lang} />
+
+    <!-- Tawk.to Live Chat -->
+    <!--Start of Tawk.to Script-->
+    <script type="text/javascript">
+      var Tawk_API = Tawk_API || {},
+        Tawk_LoadStart = new Date();
+      (function () {
+        var s1 = document.createElement("script"),
+          s0 = document.getElementsByTagName("script")[0];
+        s1.async = true;
+        s1.src = `https://embed.tawk.to/5b4c934691379020b95ee63f/1i91t7hc8`;
+        s1.charset = "UTF-8";
+        s1.setAttribute("crƒossorigin", "*");
+        s0.parentNode.insertBefore(s1, s0);
+      })();
+    </script>
+    <!--End of Tawk.to Script-->
+  </body>
+</html>

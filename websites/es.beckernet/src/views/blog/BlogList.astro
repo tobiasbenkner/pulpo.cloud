@@ -1,0 +1,74 @@
+---
+import { imageUrl } from "@/lib/cms";
+import Container from "@/components/ui/Container.astro";
+import { resolveTranslations, defaultLang } from "@/lib/i18n";
+import type { BlogPostCategory } from "@pulpo/cms";
+import PageHeader from "@/components/ui/PageHeader.astro";
+import { Image } from "astro:assets";
+
+interface Props {
+  lang: string;
+  category: BlogPostCategory;
+  title: string;
+}
+const { lang, category, title } = Astro.props;
+const posts = category.posts || [];
+
+const t = resolveTranslations(category, lang);
+---
+
+<PageHeader
+  label="Blog"
+  title={String(t.title)}
+  description={String(t.description)}
+/>
+
+<!-- CONTENT SECTION -->
+<section class="py-10 md:py-16 lg:py-24 bg-background">
+  <Container>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 md:gap-x-8 gap-y-10 md:gap-y-12 lg:gap-y-16">
+      {
+        posts.map((post) => {
+          const slug = resolveTranslations(post.slug, lang);
+          const isDefault = lang === defaultLang;
+          const urlPrefix = isDefault ? "" : `/${lang}`;
+          const href = `${urlPrefix}/blog/${t.slug}/${slug}`;
+
+          const postT = resolveTranslations(post, lang);
+
+          return (
+            <a href={href} class="group flex flex-col h-full">
+              <!-- Bild -->
+              <div class="aspect-[4/3] w-full overflow-hidden bg-surface mb-4 md:mb-6 border border-border group-hover:border-secondary transition-all duration-500 relative">
+                 {post.image?.id && (
+                  <Image
+                    width={600}
+                    height={450}
+                    src={imageUrl(post.image.id, 600)}
+                    alt={String(postT.title)}
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                )}
+                <!-- Datum Badge über dem Bild -->
+                <div class="absolute top-3 md:top-4 left-3 md:left-4 bg-background/90 backdrop-blur-sm px-2.5 md:px-3 py-1 text-sm font-bold uppercase tracking-widest text-white border border-white/10">
+                   {new Date(post.date).toLocaleDateString(lang)}
+                </div>
+              </div>
+
+              <!-- Text -->
+              <div class="flex-1 flex flex-col">
+                <h2 class="text-2xl md:text-3xl font-serif text-white mb-2 md:mb-3 leading-tight group-hover:text-secondary transition-colors">
+                  {postT.title}
+                </h2>
+
+                <p class="text-text-muted text-base md:text-lg line-clamp-3 mb-4 md:mb-6 flex-1">
+                  {postT.excerpt}
+                </p>
+              </div>
+            </a>
+          );
+        })
+      }
+    </div>
+  </Container>
+</section>

@@ -1,0 +1,30 @@
+{
+  "name": "@pulpo/beckernet-seguros",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "deploy": "wrangler pages deploy dist --project-name=beckernet-seguros --branch=main"
+  },
+  "dependencies": {
+    "@fontsource-variable/inter": "^5.2.8",
+    "@fontsource/libre-baskerville": "^5.2.10",
+    "@iconify-json/circle-flags": "^1.2.10",
+    "@iconify-json/lucide": "^1.2.86",
+    "@pulpo/cms": "workspace:*",
+    "@tailwindcss/vite": "^4.1.18",
+    "astro": "^5.16.11",
+    "astro-icon": "^1.1.5",
+    "dotenv": "^17.2.3",
+    "marked": "^17.0.1",
+    "sharp": "^0.34.5",
+    "tailwindcss": "^4.1.18"
+  },
+  "devDependencies": {
+    "@tailwindcss/typography": "^0.5.19",
+    "wrangler": "^4.60.0"
+  }
+}
