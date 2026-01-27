@@ -7,7 +7,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "deploy": "wrangler pages deploy dist --project-name=beckernet --branch=main"
+    "deploy": "gh-pages -d dist -r https://x-access-token:${GH_TOKEN}@github.com/tobiasbenkner/es.beckernet -b main"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.2.8",
@@ -25,6 +25,7 @@
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.19",
+    "gh-pages": "^6.3.0",
     "wrangler": "^4.60.0"
   }
 }
