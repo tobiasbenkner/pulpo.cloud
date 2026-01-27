@@ -135,8 +135,8 @@ export const translations = {
   specialists: {
     title: {
       es: "Especialistas en consultoría inmobiliaria y correduría de seguros",
-      de: "Spezialisten für Immobilienberatung und Versicherungsvermittlung",
-      en: "Specialists in real estate consulting and insurance brokerage",
+      de: "Spezialisten für Immobilien & Versicherungen",
+      en: "Specialists in real estate & insurance",
     },
     desc: {
       es: "Descubra la amplia gama de servicios que brindamos, siempre enfocados en la excelencia y el compromiso con nuestros clientes.",
