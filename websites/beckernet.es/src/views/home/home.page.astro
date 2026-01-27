@@ -147,18 +147,48 @@ const { lang, t } = Astro.props;
   </div>
 </section>
 
+<!-- STATS / FACTS -->
+<section class="py-12 md:py-16 bg-surface/10 border-b border-border">
+  <Container>
+    <div
+      class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-border/50"
+    >
+      <div class="px-4 py-6 md:py-4">
+        <span
+          class="block text-3xl sm:text-4xl md:text-5xl font-serif text-white mb-2"
+          >25+</span
+        >
+        <span class="text-xs uppercase tracking-widest text-text-muted"
+          >{t.features.y1}</span
+        >
+      </div>
+      <div class="px-4 py-6 md:py-4">
+        <span
+          class="block text-3xl sm:text-4xl md:text-5xl font-serif text-white mb-2"
+          >2</span
+        >
+        <span class="text-xs uppercase tracking-widest text-text-muted"
+          >{t.features.y2}</span
+        >
+      </div>
+      <div class="px-4 py-6 md:py-4">
+        <span
+          class="block text-3xl sm:text-4xl md:text-5xl font-serif text-white mb-2"
+          >100%</span
+        >
+        <span class="text-xs uppercase tracking-widest text-text-muted"
+          >{t.features.y3}</span
+        >
+      </div>
+    </div>
+  </Container>
+</section>
+
 <!-- SPECIALISTS SECTION -->
 <section class="py-16 md:py-24 border-b border-border">
   <Container>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-      <div class="order-2 lg:order-1">
-        <Image
-          src={teamImage}
-          alt="Becker Team"
-          class="w-full rounded-sm border border-border"
-        />
-      </div>
-      <div class="order-1 lg:order-2">
+      <div>
         <h2
           class="text-3xl md:text-4xl lg:text-5xl font-serif text-white mb-5 md:mb-6 leading-tight"
         >
@@ -168,6 +198,13 @@ const { lang, t } = Astro.props;
         <p class="text-base md:text-lg text-text-muted leading-relaxed">
           {t.specialists.desc}
         </p>
+      </div>
+      <div>
+        <Image
+          src={teamImage}
+          alt="Becker Team"
+          class="w-full rounded-sm border border-border"
+        />
       </div>
     </div>
 
@@ -229,7 +266,14 @@ const { lang, t } = Astro.props;
 <section class="py-16 md:py-24 border-b border-border bg-surface/10">
   <Container>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-      <div>
+      <div class="order-2 lg:order-1">
+        <Image
+          src={languagesImage}
+          alt="Multilingual service"
+          class="w-full rounded-sm border border-border"
+        />
+      </div>
+      <div class="order-1 lg:order-2">
         <h2
           class="text-3xl md:text-4xl lg:text-5xl font-serif text-white mb-5 md:mb-6 leading-tight"
         >
@@ -251,50 +295,6 @@ const { lang, t } = Astro.props;
             ))
           }
         </div>
-      </div>
-      <div>
-        <Image
-          src={languagesImage}
-          alt="Multilingual service"
-          class="w-full rounded-sm border border-border"
-        />
-      </div>
-    </div>
-  </Container>
-</section>
-
-<!-- STATS / FACTS -->
-<section class="py-12 md:py-16 bg-background border-b border-border">
-  <Container>
-    <div
-      class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-border/50"
-    >
-      <div class="px-4 py-6 md:py-4">
-        <span
-          class="block text-3xl sm:text-4xl md:text-5xl font-serif text-white mb-2"
-          >25+</span
-        >
-        <span class="text-xs uppercase tracking-widest text-text-muted"
-          >{t.features.y1}</span
-        >
-      </div>
-      <div class="px-4 py-6 md:py-4">
-        <span
-          class="block text-3xl sm:text-4xl md:text-5xl font-serif text-white mb-2"
-          >2</span
-        >
-        <span class="text-xs uppercase tracking-widest text-text-muted"
-          >{t.features.y2}</span
-        >
-      </div>
-      <div class="px-4 py-6 md:py-4">
-        <span
-          class="block text-3xl sm:text-4xl md:text-5xl font-serif text-white mb-2"
-          >100%</span
-        >
-        <span class="text-xs uppercase tracking-widest text-text-muted"
-          >{t.features.y3}</span
-        >
       </div>
     </div>
   </Container>
