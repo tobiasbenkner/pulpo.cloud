@@ -7,7 +7,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "deploy": "gh-pages -d dist -r https://x-access-token:${GH_TOKEN}@github.com/tobiasbenkner/es.beckernet.seguros -b main"
+    "deploy": "gh-pages -d dist --repo https://x-access-token:${GH_TOKEN}@github.com/tobiasbenkner/es.beckernet.seguros --branch main --cname seguros.beckernet.es --dotfiles --nojekyll"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.2.8",
