@@ -219,9 +219,9 @@ export const translations = {
       en: "Given the German ancestry of Becker's founders, there is a clear connection to the Northern European sphere. We can serve clients of different nationalities in their native language, including English and German.",
     },
     extra: {
-      es: "Como es muy común que además estos clientes precisen de ayuda adicional en distintas gestiones como importaciones de vehículos, herencias, traducciones juradas, etc. les damos asesoramiento básico al respecto.",
-      de: "Da diese Kunden häufig zusätzliche Hilfe bei verschiedenen Angelegenheiten wie Fahrzeugimporten, Erbschaften, beglaubigten Übersetzungen usw. benötigen, bieten wir ihnen grundlegende Beratung in diesen Bereichen.",
-      en: "As these clients often need additional help with various matters such as vehicle imports, inheritances, certified translations, etc., we provide basic advice on these topics.",
+      es: "Como es muy común que además estos clientes precisen de ayuda adicional en distintas gestiones como importaciones de vehículos, herencias, traducciones juradas, etc. les damos asesoramiento básico al respecto y, cuando es necesario, nos preocupamos de derivarles al profesional pertinente.",
+      de: "Da diese Kunden häufig zusätzliche Hilfe bei verschiedenen Angelegenheiten wie Fahrzeugimporten, Erbschaften, beglaubigten Übersetzungen usw. benötigen, bieten wir ihnen grundlegende Beratung in diesen Bereichen und vermitteln sie bei Bedarf an den entsprechenden Fachmann.",
+      en: "As these clients often need additional help with various matters such as vehicle imports, inheritances, certified translations, etc., we provide basic advice on these topics and, when necessary, refer them to the appropriate professional.",
     },
     list: {
       es: ["Español", "Alemán", "Inglés"],
