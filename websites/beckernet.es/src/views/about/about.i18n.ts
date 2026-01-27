@@ -56,21 +56,16 @@ export const translations = {
     },
     // Technologie & Innovation
     subtitle_innovation: {
-      es: "Innovación y Beevelo",
-      de: "Innovation & Beevelo",
-      en: "Innovation & Beevelo",
+      es: "Innovación",
+      de: "Innovation",
+      en: "Innovation",
     },
     p4: {
       es: "Si algo ha caracterizado a Becker es la forma crítica en la manera de optimizar los procesos y en general la atención al cliente en los distintos campos de actuación en los que opera. Siempre con la humildad de quien aprende de quien está consolidado, pero huyendo de la zona de confort. Así, ya hace muchos años, decidimos desarrollar desde cero nuestra propia aplicación informática para la gestión de una oficina inmobiliaria basándonos en la experiencia que solo da el día a día.",
       de: "Wenn etwas Becker auszeichnet, dann ist es die kritische Art und Weise, Prozesse und den Kundenservice in unseren Tätigkeitsfeldern zu optimieren. Immer mit der Demut dessen, der von Etablierten lernt, aber stets die Komfortzone meidend. So entschieden wir uns schon vor vielen Jahren, unsere eigene Software für das Immobilienmanagement von Grund auf neu zu entwickeln, basierend auf der Erfahrung, die nur das Tagesgeschäft bietet.",
       en: "If anything has characterized Becker, it is our critical approach to optimizing processes and customer service across our fields of operation. Always with the humility of one who learns from the established, but fleeing the comfort zone. Thus, many years ago, we decided to develop our own software for real estate office management from scratch, based on the experience that only day-to-day work provides.",
     },
-    p5: {
-      es: "Recientemente hemos dado el paso también a permitir el acceso a esta tecnología a otros profesionales del sector a través de Beevelo. Destacan en ella su simplicidad, competitividad en el precio y sobre todo: la posibilidad de publicar en los principales portales inmobiliarios de forma completamente flexible y directa a través de nuestro Club Beevelo.",
-      de: "Kürzlich haben wir den Schritt gewagt, diese Technologie über Beevelo auch anderen Branchenprofis zugänglich zu machen. Sie zeichnet sich durch Einfachheit, wettbewerbsfähige Preise und vor allem durch die Möglichkeit aus, über unseren Club Beevelo völlig flexibel und direkt auf den wichtigsten Immobilienportalen zu veröffentlichen.",
-      en: "Recently, we have also taken the step to allow other professionals in the sector access to this technology through Beevelo. It stands out for its simplicity, price competitiveness, and above all: the possibility of publishing on major real estate portals in a completely flexible and direct way through our Club Beevelo.",
-    },
-    // Identität
+// Identität
     p6: {
       es: "Cabe destacar también que, dada nuestra ascendencia alemana y la habitualidad en el manejo del inglés, hemos podido consolidarnos como gestores de referencia para el público noreuropeo.",
       de: "Hervorzuheben ist auch, dass wir uns aufgrund unserer deutschen Abstammung und unserer Englischkenntnisse als Referenzverwalter für das nordeuropäische Publikum etablieren konnten.",
