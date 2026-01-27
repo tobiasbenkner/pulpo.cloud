@@ -14,7 +14,6 @@ interface Props {
 }
 
 const { lang, t } = Astro.props;
-const aboutPath = getTranslatedPath("about", lang);
 ---
 
 <!-- HERO SECTION -->
@@ -144,69 +143,6 @@ const aboutPath = getTranslatedPath("about", lang);
       </a>
     </div>
   </div>
-</section>
-
-<!-- SYNERGY / VALUE SECTION -->
-<section class="py-12 md:py-16 lg:py-24 border-b border-border">
-  <Container>
-    <div
-      class="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-12 lg:gap-16 items-center"
-    >
-      <div>
-        <h2
-          class="text-3xl md:text-4xl lg:text-5xl font-serif text-white mb-5 md:mb-6 leading-tight"
-        >
-          {t.synergy.title}
-        </h2>
-        <div class="w-16 md:w-20 h-1 bg-secondary mb-6 md:mb-8"></div>
-        <p
-          class="text-base md:text-lg lg:text-xl text-text-muted leading-relaxed mb-6 md:mb-8"
-        >
-          {t.synergy.desc}
-        </p>
-        <a
-          href={aboutPath}
-          class="inline-flex items-center gap-2 text-white font-bold border-b border-secondary pb-1 hover:text-secondary transition-colors text-sm md:text-base"
-        >
-          {t.intro.link}
-        </a>
-      </div>
-
-      <div
-        class="bg-surface/30 p-6 md:p-10 lg:p-12 border border-border rounded-sm"
-      >
-        <ul class="space-y-5 md:space-y-6">
-          <li class="flex items-start gap-3 md:gap-4">
-            <Icon
-              name="lucide:check-circle"
-              class="w-5 md:w-6 h-5 md:h-6 text-secondary shrink-0 mt-1"
-            />
-            <span class="text-base md:text-lg text-text-muted"
-              >{t.synergy.list.p1}</span
-            >
-          </li>
-          <li class="flex items-start gap-3 md:gap-4">
-            <Icon
-              name="lucide:check-circle"
-              class="w-5 md:w-6 h-5 md:h-6 text-secondary shrink-0 mt-1"
-            />
-            <span class="text-base md:text-lg text-text-muted"
-              >{t.synergy.list.p2}</span
-            >
-          </li>
-          <li class="flex items-start gap-3 md:gap-4">
-            <Icon
-              name="lucide:check-circle"
-              class="w-5 md:w-6 h-5 md:h-6 text-secondary shrink-0 mt-1"
-            />
-            <span class="text-base md:text-lg text-text-muted"
-              >{t.synergy.list.p3}</span
-            >
-          </li>
-        </ul>
-      </div>
-    </div>
-  </Container>
 </section>
 
 <!-- STATS / FACTS -->
