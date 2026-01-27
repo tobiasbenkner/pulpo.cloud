@@ -23,13 +23,13 @@
 
 /* --- VARIABLES --- */
 :root {
-  --background: #1c1d21;
-  --surface: #28292e;
-  --border: #3d3f46;
+  --background: #171c24;
+  --surface: #1f2633;
+  --border: #2d3544;
 
-  --primary: #fafaf9;
-  --text: #ececea;
-  --text-muted: #b5b3ae;
+  --primary: #f8fafc;
+  --text: #e2e8f0;
+  --text-muted: #94a3b8;
   --secondary: #c9a962;
   --secondary-hover: #dbbf78;
 }
