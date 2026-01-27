@@ -7,7 +7,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "deploy": "gh-pages -d dist --repo https://x-access-token:${GH_TOKEN}@github.com/tobiasbenkner/com.holacanterasclub --branch main --cname hola.pulpo.cloud --dotfiles --nojekyll"
+    "deploy": "bash ../../scripts/deploy-to-github.sh @pulpo/holacanterasclub https://x-access-token:${GH_TOKEN}@github.com/tobiasbenkner/com.holacanterasclub"
   },
   "dependencies": {
     "@astrojs/svelte": "^7.2.4",
