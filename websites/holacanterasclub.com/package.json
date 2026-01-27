@@ -7,7 +7,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "deploy": "wrangler pages deploy dist --project-name=holacanterasclub --branch=main"
+    "deploy": "gh-pages -d dist -r https://x-access-token:${GH_TOKEN}@github.com/tobiasbenkner/com.holacanterasclub -b main"
   },
   "dependencies": {
     "@astrojs/svelte": "^7.2.4",
@@ -25,6 +25,6 @@
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.19",
-    "wrangler": "^4.60.0"
+    "gh-pages": "^6.3.0"
   }
 }
