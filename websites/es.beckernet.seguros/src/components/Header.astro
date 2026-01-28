@@ -5,8 +5,7 @@ import { getNavbarItems } from "@/lib/navbar";
 import { getTranslatedPath } from "@/lib/registry";
 import type { Language } from "@/lib/i18n";
 import { Image } from "astro:assets";
-import logo from "../assets/logo.png";
-import becker from "../assets/becker.png";
+import logo from "../assets/todo.png";
 
 interface Props {
   lang: Language;
@@ -28,8 +27,7 @@ const homeHref = getTranslatedPath("home", lang);
         href={homeHref}
         class="relative z-50 flex items-center gap-2 md:gap-3 text-lg md:text-xl font-bold font-serif text-primary"
       >
-        <Image src={logo} alt="Logo" class="w-7 md:w-8 h-7 md:h-8" />
-        <Image src={becker} alt="Becker" class="w-full h-4 md:h-5" />
+        <Image src={logo} alt="Logo" class="w-full h-12 md:h-16" />
       </a>
 
       <!-- Desktop Nav -->

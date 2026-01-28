@@ -8,9 +8,9 @@ export const translations = {
   },
   seo: {
     title: {
-      es: "Becker & Associates | Finanzas, Inmobiliaria, Seguros",
-      de: "Becker & Associates | Finanzen, Immobilien, Versicherungen",
-      en: "Becker & Associates | Finance, Real Estate, Insurance",
+      es: "Consultores Inmobiliarios y de Seguros | Finanzas, Inmobiliaria, Seguros",
+      de: "Consultores Inmobiliarios y de Seguros | Finanzen, Immobilien, Versicherungen",
+      en: "Consultores Inmobiliarios y de Seguros | Finance, Real Estate, Insurance",
     },
     description: {
       es: "Agentes financieros de Deutsche Bank, servicios inmobiliarios y correduría de seguros en la Costa del Sol.",
@@ -20,9 +20,9 @@ export const translations = {
   },
   hero: {
     label: {
-      es: "Becker & Associates",
-      de: "Becker & Associates",
-      en: "Becker & Associates",
+      es: "Consultores Inmobiliarios y de Seguros",
+      de: "Consultores Inmobiliarios y de Seguros",
+      en: "Consultores Inmobiliarios y de Seguros",
     },
     headline: {
       es: "Consultoría Inmobiliaria. Correduría de Seguros",
@@ -80,7 +80,7 @@ export const translations = {
         en: "We offer insurance policies tailored to your needs, protecting your assets and providing you with the confidence you deserve at all times.",
       },
       btn: {
-        es: "Ir a Seguros Becker",
+        es: "Ir a Becker Insurance Broker",
         de: "Zu Becker Versicherungen",
         en: "Go to Becker Insurance",
       },

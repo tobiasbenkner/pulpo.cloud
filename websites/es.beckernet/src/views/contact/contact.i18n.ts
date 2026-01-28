@@ -8,9 +8,9 @@ export const translations = {
   },
   seo: {
     title: {
-      es: "Contacto | Becker & Associates",
-      de: "Kontakt | Becker & Associates",
-      en: "Contact | Becker & Associates",
+      es: "Contacto | Consultores Inmobiliarios y de Seguros",
+      de: "Kontakt | Consultores Inmobiliarios y de Seguros",
+      en: "Contact | Consultores Inmobiliarios y de Seguros",
     },
     description: {
       es: "Solicite una cita personal. Asesoramiento financiero, inmobiliario y seguros en la Costa del Sol.",

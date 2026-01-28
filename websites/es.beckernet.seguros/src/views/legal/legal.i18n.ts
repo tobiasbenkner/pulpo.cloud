@@ -8,9 +8,9 @@ export const translations = {
   },
   seo: {
     title: {
-      es: "Aviso Legal | Becker & Associates",
-      de: "Impressum | Becker & Associates",
-      en: "Legal Notice | Becker & Associates",
+      es: "Aviso Legal | Consultores Inmobiliarios y de Seguros",
+      de: "Impressum | Consultores Inmobiliarios y de Seguros",
+      en: "Legal Notice | Consultores Inmobiliarios y de Seguros",
     },
     description: {
       es: "Información legal y condiciones de uso.",

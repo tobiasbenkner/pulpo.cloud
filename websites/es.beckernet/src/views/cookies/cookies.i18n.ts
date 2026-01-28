@@ -8,9 +8,9 @@ export const translations = {
   },
   seo: {
     title: {
-      es: "Política de Cookies | Becker & Associates",
-      de: "Cookie-Richtlinie | Becker & Associates",
-      en: "Cookies Policy | Becker & Associates",
+      es: "Política de Cookies | Consultores Inmobiliarios y de Seguros",
+      de: "Cookie-Richtlinie | Consultores Inmobiliarios y de Seguros",
+      en: "Cookies Policy | Consultores Inmobiliarios y de Seguros",
     },
     description: {
       es: "Información sobre el uso de cookies y gestión del consentimiento.",

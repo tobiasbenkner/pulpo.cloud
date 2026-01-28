@@ -8,9 +8,9 @@ export const translations = {
   },
   seo: {
     title: {
-      es: "Política de Privacidad | Becker & Associates",
-      de: "Datenschutzerklärung | Becker & Associates",
-      en: "Privacy Policy | Becker & Associates",
+      es: "Política de Privacidad | Consultores Inmobiliarios y de Seguros",
+      de: "Datenschutzerklärung | Consultores Inmobiliarios y de Seguros",
+      en: "Privacy Policy | Consultores Inmobiliarios y de Seguros",
     },
     description: {
       es: "Información sobre cómo tratamos sus datos personales.",

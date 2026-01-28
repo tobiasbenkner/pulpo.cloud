@@ -8,9 +8,9 @@ export const translations = {
   },
   seo: {
     title: {
-      es: "Nuestra Historia | Becker & Associates",
-      de: "Unsere Geschichte | Becker & Associates",
-      en: "Our Story | Becker & Associates",
+      es: "Nuestra Historia | Consultores Inmobiliarios y de Seguros",
+      de: "Unsere Geschichte | Consultores Inmobiliarios y de Seguros",
+      en: "Our Story | Consultores Inmobiliarios y de Seguros",
     },
     description: {
       es: "Desde 1999: Finanzas, Inmobiliaria y Tecnología. Una empresa familiar con visión de futuro.",
