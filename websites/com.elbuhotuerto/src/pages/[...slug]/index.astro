@@ -1,86 +1,75 @@
 ---
-import { getCollection } from "astro:content";
 import Layout from "../../layouts/Layout.astro";
-import { t } from "../../utils/t";
-import BlockRenderer from "../../components/blocks/BlockRenderer.astro";
+import { languages, defaultLang, openGraphLocales, type Language } from "../../lib/i18n";
+import { routeSlugs, getView, getTranslatedPath } from "../../lib/registry";
 
 export async function getStaticPaths() {
-  const pages = (await getCollection("pages")).map((it) => it.data);
-  const languages = (await getCollection("languages")).map((it) => {
-    return {
-      ...it.data,
-    };
-  });
-  const defaultLanguage = languages[0];
-
   const paths = [];
-  for (const page of pages) {
-    const alternateLinks: Record<string, string> = {};
-    for (const { code } of languages) {
-      let href = "/";
-      const isDefault = code === defaultLanguage.code;
-      const slug = t(page.slug, code);
+
+  for (const routeKey of Object.keys(routeSlugs)) {
+    const slugs = routeSlugs[routeKey];
+
+    for (const lang of languages) {
+      const slug = slugs[lang];
+      const isDefault = lang === defaultLang;
+
+      // Build alternate links for hreflang
+      const alternateLinks: Record<string, string> = {};
+      for (const l of languages) {
+        alternateLinks[l] = getTranslatedPath(routeKey, l);
+      }
 
       if (isDefault) {
-        href = slug ? `/${slug}` : "/";
-      } else {
-        href = slug ? `/${code}/${slug}` : `/${code}/`;
-      }
-      href = href.replace(/\/$/, "") || "/";
-      alternateLinks[code] = href;
-    }
-
-    for (const language of languages) {
-      const slug = t(page.slug, language.code);
-
-      if (language.code === defaultLanguage.code) {
         paths.push({
           params: { slug: slug || undefined },
-          props: {
-            page: page,
-            lang: defaultLanguage,
-            languages: languages,
-            alternateLinks: alternateLinks,
-          },
+          props: { routeKey, lang, alternateLinks },
         });
       } else {
         paths.push({
-          params: {
-            slug: slug ? `${language.code}/${slug}` : language.code,
-          },
-          props: {
-            page: page,
-            lang: language,
-            languages: languages,
-            alternateLinks: alternateLinks,
-          },
+          params: { slug: slug ? `${lang}/${slug}` : lang },
+          props: { routeKey, lang, alternateLinks },
         });
       }
     }
   }
+
   return paths;
 }
 
-const { page, lang, languages, alternateLinks } = Astro.props;
+interface Props {
+  routeKey: string;
+  lang: Language;
+  alternateLinks: Record<string, string>;
+}
 
-const title = t(page.seo.title, lang.code);
-const description = t(page.seo.description, lang.code);
-const og_image = t(page.seo.og_image, lang.code);
+const { routeKey, lang, alternateLinks } = Astro.props;
+
+const view = getView(routeKey, lang);
+
+if (!view) {
+  return Astro.redirect("/404");
+}
+
+const { Component, t } = view;
+
+const title = t.seo?.title ?? t.navigationLabel ?? routeKey;
+const description = t.seo?.description ?? "";
+
+// Build language objects for Layout compatibility
+const languageObjects = languages.map((code) => ({
+  code,
+  name: code,
+  flag: "",
+}));
+const currentLangObj = { code: lang, name: lang, flag: "" };
 ---
 
 <Layout
   title={title}
   description={description}
-  og_image={og_image}
-  lang={lang}
-  languages={languages}
+  lang={currentLangObj}
+  languages={languageObjects}
   alternateLinks={alternateLinks}
 >
-  {
-    page.blocks.map((block) => {
-      return (
-        <BlockRenderer block={block} lang={lang} defaultLang={languages[0]} />
-      );
-    })
-  }
+  <Component lang={lang} t={t} />
 </Layout>
