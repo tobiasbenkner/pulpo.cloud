@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Deploy Script für Turborepo → GitHub Pages (PRODUCTION)
-# Usage: ./scripts/deploy-to-github.sh <project-name> <github-repo-url>
+# Deploy Script für Turborepo → GitHub Pages (HTTPS mit Token)
+# Usage: ./scripts/deploy-to-github-https.sh <project-name> <github-repo-url> [token]
 
 set -e
 
@@ -10,19 +10,34 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-if [ "$#" -ne 2 ]; then
+if [ "$#" -lt 2 ]; then
     echo -e "${RED}Error: Falsche Anzahl an Argumenten${NC}"
-    echo "Usage: $0 <project-name> <github-repo-url>"
-    echo "Beispiel: $0 holacanterasclub git@github.com:username/holacanterasclub.git"
+    echo "Usage: $0 <project-name> <github-repo-url> [token]"
+    echo ""
+    echo "Beispiele:"
+    echo "  $0 holacanterasclub https://github.com/username/holacanterasclub.git"
+    echo "  $0 holacanterasclub https://github.com/username/holacanterasclub.git ghp_xxxxx"
+    echo ""
+    echo "Token erstellen: https://github.com/settings/tokens"
+    echo "Required scope: repo (full control)"
     exit 1
 fi
 
 PROJECT_NAME=$1
 GITHUB_REPO=$2
+GITHUB_TOKEN=${3:-""}
 TIMESTAMP=$(date +%Y%m%d-%H%M%S)
 
-echo -e "${GREEN}🚀 Starting deployment for ${PROJECT_NAME}${NC}"
+echo -e "${GREEN}🚀 Starting HTTPS deployment for ${PROJECT_NAME}${NC}"
 echo ""
+
+# Prüfe ob HTTPS URL
+if [[ ! "$GITHUB_REPO" == https://* ]]; then
+    echo -e "${RED}Error: Keine HTTPS URL${NC}"
+    echo "Erwartet: https://github.com/username/repo.git"
+    echo "Erhalten: ${GITHUB_REPO}"
+    exit 1
+fi
 
 # Finde Turborepo Root
 ORIGINAL_DIR=$(pwd)
@@ -73,14 +88,12 @@ echo ""
 # 3. Bereinige sensitive Daten
 echo -e "${YELLOW}🧹 Step 3: Cleaning sensitive data...${NC}"
 
-# Entferne .env files
 ENV_COUNT=$(find . -name ".env*" -type f | wc -l)
 if [ "$ENV_COUNT" -gt 0 ]; then
     echo "Removing $ENV_COUNT .env file(s)..."
     find . -name ".env*" -type f -delete
 fi
 
-# Erstelle .gitignore
 cat > .gitignore << 'EOF'
 node_modules/
 dist/
@@ -160,22 +173,31 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'npm'
+          node-version: 24
+          cache: 'pnpm'
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Build
-        run: npm run build
+        run: pnpm run build
+
+      - name: Find dist directory
+        id: find-dist
+        run: |
+          DIST_PATH=$(find . -name "dist" -type d -not -path "*/node_modules/*" | head -n 1)
+          echo "dist_path=$DIST_PATH" >> $GITHUB_OUTPUT
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist
+          path: ${{ steps.find-dist.outputs.dist_path }}
 
   deploy:
     environment:
@@ -191,10 +213,9 @@ EOF
 echo -e "${GREEN}✓ GitHub Actions workflow created${NC}"
 echo ""
 
-# 6. Git Setup
-echo -e "${YELLOW}🔧 Step 6: Setting up Git repository...${NC}"
+# 6. Git Setup mit HTTPS
+echo -e "${YELLOW}🔧 Step 6: Setting up Git repository (HTTPS)...${NC}"
 
-# Prüfe ob bereits ein Git Repo existiert
 if [ -d ".git" ]; then
     echo "Existing Git repository found, resetting..."
     rm -rf .git
@@ -203,10 +224,20 @@ fi
 git init
 git branch -M main
 
-# Prüfe ob Remote bereits existiert und setze/update ihn
-git remote add origin "${GITHUB_REPO}" 2>/dev/null || git remote set-url origin "${GITHUB_REPO}"
+# Baue HTTPS URL mit Token wenn vorhanden
+if [ -n "$GITHUB_TOKEN" ]; then
+    # Extrahiere username/repo aus URL
+    REPO_PATH=$(echo "$GITHUB_REPO" | sed 's|https://github.com/||' | sed 's|.git$||')
+    AUTH_URL="https://${GITHUB_TOKEN}@github.com/${REPO_PATH}.git"
+    
+    git remote add origin "$AUTH_URL" 2>/dev/null || git remote set-url origin "$AUTH_URL"
+    echo -e "${GREEN}✓ Git repository initialized with token authentication${NC}"
+else
+    git remote add origin "${GITHUB_REPO}" 2>/dev/null || git remote set-url origin "${GITHUB_REPO}"
+    echo -e "${GREEN}✓ Git repository initialized${NC}"
+    echo -e "${YELLOW}⚠️  Kein Token angegeben - Du wirst nach Credentials gefragt${NC}"
+fi
 
-echo -e "${GREEN}✓ Git repository initialized${NC}"
 echo "  Remote: ${GITHUB_REPO}"
 echo ""
 
@@ -214,7 +245,6 @@ echo ""
 echo -e "${YELLOW}💾 Step 7: Committing changes...${NC}"
 git add .
 
-# Erstelle Commit Message mit Details
 COMMIT_MSG="Deploy ${PROJECT_NAME} - ${TIMESTAMP}
 
 Automated deployment from Turborepo
@@ -226,25 +256,49 @@ echo -e "${GREEN}✓ Changes committed${NC}"
 echo ""
 
 # 8. Push zu GitHub
-echo -e "${YELLOW}🚢 Step 8: Pushing to GitHub...${NC}"
+echo -e "${YELLOW}🚢 Step 8: Pushing to GitHub (HTTPS)...${NC}"
 echo "Repository: ${GITHUB_REPO}"
 echo ""
+
+if [ -z "$GITHUB_TOKEN" ]; then
+    echo -e "${YELLOW}Hinweis: Du wirst nach Username und Personal Access Token gefragt${NC}"
+    echo ""
+fi
 
 if git push -u origin main --force; then
     echo ""
     echo -e "${GREEN}✓ Successfully pushed to GitHub${NC}"
 else
     echo ""
-    echo -e "${RED}✗ Push failed${NC}"
+    echo -e "${RED}✗ HTTPS Push failed${NC}"
     echo ""
-    echo "Mögliche Ursachen:"
-    echo "1. SSH Key nicht konfiguriert"
-    echo "2. Keine Berechtigung für das Repository"
-    echo "3. Repository existiert nicht"
+    echo -e "${YELLOW}Troubleshooting:${NC}"
     echo ""
-    echo "Troubleshooting:"
-    echo "- SSH: ssh -T git@github.com"
-    echo "- Repo erstellen: gh repo create ${PROJECT_NAME} --public"
+    echo "1. Personal Access Token erstellen:"
+    echo "   → https://github.com/settings/tokens/new"
+    echo "   → Name: 'Turborepo Deployment'"
+    echo "   → Expiration: Custom (oder No expiration)"
+    echo "   → Scopes: Wähle 'repo' (full control of private repositories)"
+    echo "   → Generate Token"
+    echo ""
+    echo "2. Token speichern (eine dieser Optionen):"
+    echo ""
+    echo "   a) Im Script Parameter:"
+    echo "      ./scripts/deploy-to-github-https.sh ${PROJECT_NAME} ${GITHUB_REPO} ghp_your_token"
+    echo ""
+    echo "   b) In Git Credential Helper:"
+    echo "      git config --global credential.helper store"
+    echo "      # Beim nächsten Push Token eingeben, wird dann gespeichert"
+    echo ""
+    echo "   c) Als Environment Variable:"
+    echo "      export GITHUB_TOKEN=ghp_your_token"
+    echo "      ./scripts/deploy-to-github-https.sh ${PROJECT_NAME} ${GITHUB_REPO} \$GITHUB_TOKEN"
+    echo ""
+    echo "3. Repository muss existieren:"
+    echo "   → Erstelle es manuell auf GitHub, oder"
+    echo "   → gh repo create ${PROJECT_NAME} --public"
+    echo ""
+    
     exit 1
 fi
 
@@ -263,32 +317,31 @@ echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━
 echo ""
 echo -e "${YELLOW}📦 Project:${NC} ${PROJECT_NAME}"
 echo -e "${YELLOW}🔗 Repository:${NC} ${GITHUB_REPO}"
-echo -e "${YELLOW}📁 Deployed from:${NC} ${TEMP_DIR}"
 echo ""
 echo -e "${YELLOW}📋 Next Steps:${NC}"
 echo ""
 echo "1. GitHub Pages aktivieren:"
-echo "   → Gehe zu: https://github.com/$(echo ${GITHUB_REPO} | sed 's/.*github.com[:/]\(.*\)\.git/\1/')/settings/pages"
+echo "   → https://github.com/$(echo ${GITHUB_REPO} | sed 's|https://github.com/||' | sed 's|.git$||')/settings/pages"
 echo "   → Source: GitHub Actions"
 echo ""
 echo "2. Deployment verfolgen:"
-echo "   → https://github.com/$(echo ${GITHUB_REPO} | sed 's/.*github.com[:/]\(.*\)\.git/\1/')/actions"
+echo "   → https://github.com/$(echo ${GITHUB_REPO} | sed 's|https://github.com/||' | sed 's|.git$||')/actions"
 echo ""
+REPO_OWNER=$(echo ${GITHUB_REPO} | sed 's|https://github.com/||' | sed 's|/.*||')
 echo "3. Website nach ~2 Minuten verfügbar unter:"
-echo "   → https://$(echo ${GITHUB_REPO} | sed 's/.*github.com[:/]\([^/]*\).*/\1/').github.io/${PROJECT_NAME}/"
-echo ""
-echo -e "${YELLOW}💡 Tipp:${NC} Für Custom Domain, füge eine CNAME Datei hinzu:"
-echo "   cd ${TEMP_DIR}"
-echo "   echo 'www.domain.com' > public/CNAME"
-echo "   git add public/CNAME && git commit -m 'Add custom domain' && git push"
+echo "   → https://${REPO_OWNER}.github.io/${PROJECT_NAME}/"
 echo ""
 
-# Optional: Temp-Directory behalten für weitere Anpassungen
-echo -e "${YELLOW}🗂️  Deployment Directory:${NC}"
-echo "   ${TEMP_DIR}"
+if [ -n "$GITHUB_TOKEN" ]; then
+    echo -e "${GREEN}✓ Token wurde verwendet - zukünftige Pushes werden automatisch authentifiziert${NC}"
+else
+    echo -e "${YELLOW}💡 Tipp: Verwende einen Token als 3. Parameter für automatische Auth:${NC}"
+    echo "   ./scripts/deploy-to-github-https.sh ${PROJECT_NAME} ${GITHUB_REPO} ghp_xxxxx"
+fi
+
 echo ""
+echo -e "${YELLOW}🗂️  Deployment Directory:${NC} ${TEMP_DIR}"
 echo -e "${YELLOW}   Cleanup mit:${NC} rm -rf ${TEMP_DIR}"
 echo ""
 
-# Zurück zum ursprünglichen Verzeichnis
 cd "$ORIGINAL_DIR"
