@@ -142,6 +142,16 @@ importers:
         specifier: ^5.0.0
         version: 5.9.3
 
+  packages/i18n:
+    dependencies:
+      zod:
+        specifier: ^3.24.0
+        version: 3.25.76
+    devDependencies:
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.3
+
   tools/migrate:
     dependencies:
       '@directus/sdk':
@@ -189,6 +199,9 @@ importers:
       '@iconify-json/heroicons':
         specifier: ^1.2.3
         version: 1.2.3
+      '@pulpo/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
       '@tailwindcss/vite':
         specifier: ^4.1.18
         version: 4.1.18(vite@6.4.1(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0))
@@ -235,6 +248,9 @@ importers:
       '@pulpo/cms':
         specifier: workspace:*
         version: link:../../packages/cms
+      '@pulpo/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
       '@tailwindcss/vite':
         specifier: ^4.1.18
         version: 4.1.18(vite@6.4.1(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0))
@@ -281,6 +297,9 @@ importers:
       '@pulpo/cms':
         specifier: workspace:*
         version: link:../../packages/cms
+      '@pulpo/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
       '@tailwindcss/vite':
         specifier: ^4.1.18
         version: 4.1.18(vite@6.4.1(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0))
@@ -327,6 +346,9 @@ importers:
       '@pulpo/cms':
         specifier: workspace:*
         version: link:../../packages/cms
+      '@pulpo/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
       '@tailwindcss/vite':
         specifier: ^4.1.18
         version: 4.1.18(vite@6.4.1(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0))

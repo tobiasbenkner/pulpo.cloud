@@ -15,6 +15,7 @@
     "@iconify-json/circle-flags": "^1.2.10",
     "@iconify-json/lucide": "^1.2.86",
     "@pulpo/cms": "workspace:*",
+    "@pulpo/i18n": "workspace:*",
     "@tailwindcss/vite": "^4.1.18",
     "astro": "^5.16.11",
     "astro-icon": "^1.1.5",
