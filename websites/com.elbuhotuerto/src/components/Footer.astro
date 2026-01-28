@@ -1,0 +1,162 @@
+---
+import { getCollection, getEntry, type CollectionEntry } from "astro:content";
+import Icon from "./ui/Icon.astro";
+import { t } from "../utils/t";
+import { Image } from "astro:assets";
+
+interface Props {
+  lang: CollectionEntry<"languages">["data"];
+  languages: CollectionEntry<"languages">["data"][];
+}
+
+const currentYear = new Date().getFullYear();
+const entry = await getEntry("tenant", "main");
+const tenant = entry?.data;
+
+const { data: footerNav } =
+  (await getCollection("navigations"))
+    .filter((it) => it.data.type === "footer")
+    .at(0) ?? {};
+
+const { lang, languages } = Astro.props;
+const defaultLang = languages.at(0);
+const isDefaultLanguage = defaultLang?.code === lang.code;
+
+const navLinks = (footerNav?.navigation_items ?? []).map((it) => {
+  const name = t(it.label, lang.code);
+  const slug = t(it.page?.slug, lang.code);
+
+  let href = "";
+  if (isDefaultLanguage) {
+    href = slug ? `/${slug}` : "/";
+  } else {
+    href = slug ? `/${lang.code}/${slug}` : `/${lang.code}`;
+  }
+
+  return {
+    name: name,
+    href: href,
+  };
+});
+
+const legal = [
+  { label: "Aviso Legal", href: "/legal" },
+  { label: "Política de Privacidad", href: "/privacidad" },
+  { label: "Cookies", href: "/cookies" },
+];
+---
+
+<footer
+  class="bg-background text-white pt-24 pb-12 relative overflow-hidden border-t border-white/5"
+>
+  <!-- Dekorativer "Schein" im Hintergrund -->
+  <div
+    class="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-px bg-linear-to-r from-transparent via-amber-200/20 to-transparent"
+  >
+  </div>
+
+  <div class="max-w-7xl mx-auto px-6">
+    <!-- Grid jetzt optimiert auf 3 Hauptspalten -->
+    <div
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-8 mb-20"
+    >
+      <!-- Spalte 1: Brand -->
+      <div class="lg:col-span-5 space-y-6">
+        {
+          footerNav?.image?.src && (
+            <div>
+              <Image
+                src={footerNav.image.src}
+                height={footerNav?.image?.height}
+                width={footerNav?.image?.width}
+                alt="Logo"
+                class="h-24 w-auto object-contain"
+              />
+            </div>
+          )
+        }
+
+        <!-- Social Icons -->
+        <div class="flex flex-wrap gap-4">
+          {
+            (tenant?.social_links ?? []).map((social) => (
+              <a
+                href={social.url}
+                target="_blank"
+                aria-label={social.name}
+                class="w-10 h-10 flex items-center justify-center rounded-full border border-white/10 text-gray-400 hover:text-amber-200 hover:border-amber-200/50 hover:bg-white/5 transition-all duration-300"
+              >
+                <Icon name={social.name as any} size={26} />
+              </a>
+            ))
+          }
+        </div>
+      </div>
+
+      <!-- Spalte 2: Navigation -->
+      <div class="lg:col-span-3 lg:pl-4">
+        <h3 class="text-xs tracking-[0.3em] uppercase text-amber-200/50 mb-8">
+          Explorar
+        </h3>
+        <ul class="space-y-4">
+          {
+            navLinks.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  class="text-sm tracking-[0.2em] uppercase text-gray-400 hover:text-white transition-colors duration-300 flex items-center gap-2 group"
+                >
+                  <span class="w-0 h-px bg-amber-200 transition-all duration-300 group-hover:w-4" />
+                  {link.name}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <!-- Spalte 3: Kontakt & CTA -->
+      <div class="lg:col-span-4">
+        <h3 class="text-xs tracking-[0.3em] uppercase text-amber-200/50 mb-8">
+          Visítanos
+        </h3>
+
+        <div class="flex flex-col gap-8">
+          <!-- Adresse & Kontakt -->
+          <div class="space-y-4">
+            <div class="space-y-1 text-gray-400 font-serif italic">
+              <p>
+                {tenant?.name}<br />
+                {tenant?.street}<br />
+                {tenant?.postcode}
+                {tenant?.city}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div
+      class="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6"
+    >
+      <p class="text-[10px] tracking-[0.2em] uppercase text-gray-600">
+        © {currentYear} El Búho Tuerto.
+      </p>
+
+      <div class="flex flex-wrap gap-6 justify-center">
+        {
+          legal.map((item) => (
+            <a
+              href={item.href}
+              class="text-[10px] tracking-widest uppercase text-gray-600 hover:text-gray-400 transition-colors"
+            >
+              {item.label}
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</footer>

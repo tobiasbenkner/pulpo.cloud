@@ -172,6 +172,95 @@ importers:
 
   tools/proxy: {}
 
+  websites/com.elbuhotuerto:
+    dependencies:
+      '@astrojs/sitemap':
+        specifier: ^3.6.1
+        version: 3.6.1
+      '@directus/sdk':
+        specifier: ^20.3.0
+        version: 20.3.0
+      '@fontsource-variable/lora':
+        specifier: ^5.2.8
+        version: 5.2.8
+      '@fontsource-variable/montserrat':
+        specifier: ^5.2.8
+        version: 5.2.8
+      '@iconify-json/heroicons':
+        specifier: ^1.2.3
+        version: 1.2.3
+      '@tailwindcss/vite':
+        specifier: ^4.1.18
+        version: 4.1.18(vite@6.4.1(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0))
+      astro:
+        specifier: ^5.16.6
+        version: 5.16.11(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.54.0)(tsx@4.21.0)(typescript@5.9.3)
+      astro-icon:
+        specifier: ^1.1.5
+        version: 1.1.5
+      sharp:
+        specifier: ^0.34.5
+        version: 0.34.5
+      tailwindcss:
+        specifier: ^4.1.18
+        version: 4.1.18
+    devDependencies:
+      '@tailwindcss/forms':
+        specifier: ^0.5.11
+        version: 0.5.11(tailwindcss@4.1.18)
+      '@tailwindcss/typography':
+        specifier: ^0.5.19
+        version: 0.5.19(tailwindcss@4.1.18)
+      dotenv:
+        specifier: ^17.2.3
+        version: 17.2.3
+
+  websites/com.holacanterasclub:
+    dependencies:
+      '@astrojs/svelte':
+        specifier: ^7.2.4
+        version: 7.2.4(@types/node@25.0.3)(astro@5.16.11(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.54.0)(tsx@4.21.0)(typescript@5.9.3))(jiti@2.6.1)(lightningcss@1.30.2)(svelte@5.46.1)(tsx@4.21.0)(typescript@5.9.3)
+      '@fontsource-variable/inter':
+        specifier: ^5.2.8
+        version: 5.2.8
+      '@iconify-json/circle-flags':
+        specifier: ^1.2.10
+        version: 1.2.10
+      '@iconify-json/lucide':
+        specifier: ^1.2.86
+        version: 1.2.86
+      '@pulpo/cms':
+        specifier: workspace:*
+        version: link:../../packages/cms
+      '@tailwindcss/vite':
+        specifier: ^4.1.18
+        version: 4.1.18(vite@6.4.1(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0))
+      astro:
+        specifier: ^5.16.11
+        version: 5.16.11(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.54.0)(tsx@4.21.0)(typescript@5.9.3)
+      astro-icon:
+        specifier: ^1.1.5
+        version: 1.1.5
+      marked:
+        specifier: ^17.0.1
+        version: 17.0.1
+      sharp:
+        specifier: ^0.34.5
+        version: 0.34.5
+      svelte:
+        specifier: ^5.46.1
+        version: 5.46.1
+      tailwindcss:
+        specifier: ^4.1.18
+        version: 4.1.18
+    devDependencies:
+      '@tailwindcss/typography':
+        specifier: ^0.5.19
+        version: 0.5.19(tailwindcss@4.1.18)
+      gh-pages:
+        specifier: ^6.3.0
+        version: 6.3.0
+
   websites/es.beckernet:
     dependencies:
       '@fontsource-variable/inter':
@@ -253,52 +342,6 @@ importers:
       sharp:
         specifier: ^0.34.5
         version: 0.34.5
-      tailwindcss:
-        specifier: ^4.1.18
-        version: 4.1.18
-    devDependencies:
-      '@tailwindcss/typography':
-        specifier: ^0.5.19
-        version: 0.5.19(tailwindcss@4.1.18)
-      gh-pages:
-        specifier: ^6.3.0
-        version: 6.3.0
-
-  websites/holacanterasclub.com:
-    dependencies:
-      '@astrojs/svelte':
-        specifier: ^7.2.4
-        version: 7.2.4(@types/node@25.0.3)(astro@5.16.11(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.54.0)(tsx@4.21.0)(typescript@5.9.3))(jiti@2.6.1)(lightningcss@1.30.2)(svelte@5.46.1)(tsx@4.21.0)(typescript@5.9.3)
-      '@fontsource-variable/inter':
-        specifier: ^5.2.8
-        version: 5.2.8
-      '@iconify-json/circle-flags':
-        specifier: ^1.2.10
-        version: 1.2.10
-      '@iconify-json/lucide':
-        specifier: ^1.2.86
-        version: 1.2.86
-      '@pulpo/cms':
-        specifier: workspace:*
-        version: link:../../packages/cms
-      '@tailwindcss/vite':
-        specifier: ^4.1.18
-        version: 4.1.18(vite@6.4.1(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0))
-      astro:
-        specifier: ^5.16.11
-        version: 5.16.11(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.54.0)(tsx@4.21.0)(typescript@5.9.3)
-      astro-icon:
-        specifier: ^1.1.5
-        version: 1.1.5
-      marked:
-        specifier: ^17.0.1
-        version: 17.0.1
-      sharp:
-        specifier: ^0.34.5
-        version: 0.34.5
-      svelte:
-        specifier: ^5.46.1
-        version: 5.46.1
       tailwindcss:
         specifier: ^4.1.18
         version: 4.1.18

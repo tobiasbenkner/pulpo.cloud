@@ -1,0 +1,205 @@
+---
+import type { CollectionEntry } from "astro:content";
+import SectionHeader from "../../ui/SectionHeader.astro";
+import { t } from "../../../utils/t";
+import { convertI18n } from "../../../content/utils";
+import { Image } from "astro:assets";
+import type { DirectusFile } from "@directus/sdk";
+
+type Props = {
+  lang: CollectionEntry<"languages">["data"];
+  defaultLang: CollectionEntry<"languages">["data"];
+  data: any;
+};
+
+const { data, lang, defaultLang } = Astro.props;
+
+// 1. Bilder aus Daten mappen
+const awards: {
+  src: string;
+  alt: string;
+  height: number;
+  width: number;
+}[] = (data.images ?? []).map(({ directus_files_id }: any) => {
+  const image: DirectusFile = directus_files_id;
+  const src = `${import.meta.env.DIRECTUS_URL}/assets/${
+    image.id
+  }?access_token=${
+    import.meta.env.DIRECTUS_TOKEN
+  }&width=800&withoutEnlargement=true`;
+
+  return {
+    src: src,
+    alt: image.filename_disk,
+    height: image.height,
+    width: image.width,
+  };
+});
+
+// 2. WICHTIG: Inhalt verdoppeln für den nahtlosen Loop
+const doubledAwards = [...awards, ...awards];
+
+const title = t(
+  convertI18n(data?.translations, "title", defaultLang.code),
+  lang?.code
+);
+const subtitle = t(
+  convertI18n(data?.translations, "subtitle", defaultLang.code),
+  lang?.code
+);
+const text = t(
+  convertI18n(data?.translations, "text", defaultLang.code),
+  lang?.code
+);
+const author = t(
+  convertI18n(data?.translations, "author", defaultLang.code),
+  lang?.code
+);
+---
+
+<section class="relative bg-background py-16 md:py-24 px-6 overflow-hidden">
+  <div class="max-w-6xl mx-auto">
+    <SectionHeader subtitle={subtitle} title={title} />
+
+    <div
+      class="flex flex-col lg:grid lg:grid-cols-2 gap-16 lg:gap-32 items-center mt-12"
+    >
+      <!-- Desktop: Vertical Marquee -->
+      <div
+        class="hidden lg:block relative h-150 w-full overflow-hidden mask-gradient-vertical"
+      >
+        <div
+          class="grid grid-cols-2 gap-4 animate-marquee-vertical hover:[animation-play-state:paused]"
+        >
+          <!-- gap-4 statt gap-16, da wir jetzt Kacheln haben, die Platz brauchen -->
+
+          {
+            doubledAwards.map((award, index) => (
+              <div class="flex items-center justify-center aspect-4/3 group/item bg-white/5 rounded-2xl p-8 transition-colors duration-300 hover:bg-white/10">
+                <Image
+                  src={award.src}
+                  alt={award.alt}
+                  width={award.width}
+                  height={award.height}
+                  class:list={[
+                    "max-w-full max-h-full object-contain", // Logo passt sich der Box an
+                    "transition-all duration-500 ease-in-out",
+                    "grayscale brightness-110 contrast-125",
+                    "group-hover/item:grayscale-0 group-hover/item:brightness-100 group-hover/item:contrast-100 group-hover/item:scale-110",
+                  ]}
+                />
+              </div>
+            ))
+          }
+        </div>
+      </div>
+
+      <!-- Text Content -->
+      <div
+        class="flex flex-col justify-center order-first lg:order-0 relative z-10"
+      >
+        <div class="relative">
+          <span
+            class="text-6xl md:text-8xl text-amber-200/60 font-serif absolute -top-8 md:-top-12 md:-left-10 select-none"
+            >“</span
+          >
+          <p
+            class="text-lg md:text-2xl font-serif text-gray-300 leading-relaxed tracking-wide relative z-10 font-light"
+          >
+            {text}
+          </p>
+        </div>
+        <div class="mt-12 flex items-center gap-4">
+          <div class="h-px w-16 bg-amber-200/60"></div>
+          <span
+            class="text-xs md:text-sm tracking-[0.3em] text-amber-200/60 uppercase font-medium"
+            >{author}</span
+          >
+        </div>
+      </div>
+
+      <!-- Mobile: Horizontal Marquee -->
+      <div class="lg:hidden w-full overflow-hidden pt-8">
+        <div class="relative mask-gradient-horizontal">
+          <div
+            class="flex animate-marquee-horizontal w-max hover:[animation-play-state:paused] gap-4"
+          >
+            {
+              doubledAwards.map((award, index) => (
+                <div class="flex-none w-40 h-32 flex items-center justify-center bg-white/5 rounded-xl p-6 mx-2">
+                  <img
+                    src={award.src}
+                    alt={award.alt}
+                    class="max-w-full max-h-full object-contain grayscale brightness-110 contrast-125"
+                  />
+                </div>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .mask-gradient-vertical {
+    mask-image: linear-gradient(
+      to bottom,
+      transparent,
+      black 10%,
+      black 90%,
+      transparent
+    );
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      transparent,
+      black 10%,
+      black 90%,
+      transparent
+    );
+  }
+  .mask-gradient-horizontal {
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 5%,
+      black 95%,
+      transparent
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 5%,
+      black 95%,
+      transparent
+    );
+  }
+  @keyframes marquee-vertical {
+    0% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(-50%);
+    }
+  }
+  @keyframes marquee-horizontal {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+  .animate-marquee-vertical {
+    animation: marquee-vertical 30s linear infinite;
+  }
+  .animate-marquee-horizontal {
+    animation: marquee-horizontal 30s linear infinite;
+  }
+  img,
+  div {
+    will-change: transform;
+    backface-visibility: hidden;
+  }
+</style>

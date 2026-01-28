@@ -1,0 +1,114 @@
+---
+import '@fontsource-variable/montserrat';
+import '@fontsource-variable/lora';
+import "../styles/global.css";
+
+import { getImage } from "astro:assets";
+import Navbar from "../components/navbar/Navbar.astro";
+import Footer from "../components/Footer.astro";
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  title?: string;
+  description?: string;
+  og_image?: string;
+  noindex?: boolean;
+  siteName?: string;
+  lang: CollectionEntry<"languages">["data"];
+  languages: CollectionEntry<"languages">["data"][];
+  alternateLinks: Record<string, string>;
+}
+
+const {
+  title = "Website",
+  description = "",
+  og_image,
+  noindex = false,
+  siteName = "sitename",
+  lang,
+  languages,
+  alternateLinks = {},
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+let ogImageUrl = "";
+
+if (og_image) {
+  const sourceUrl = `${import.meta.env.DIRECTUS_URL}/assets/${og_image}?access_token=${
+    import.meta.env.DIRECTUS_TOKEN
+  }`;
+  try {
+    const optimizedImage = await getImage({
+      src: sourceUrl,
+      width: 1200,
+      height: 630,
+      format: "jpg",
+      quality: 80,
+    });
+
+    const baseUrl = import.meta.env.PROD ? Astro.site : Astro.url;
+    ogImageUrl = new URL(optimizedImage.src, baseUrl).toString();
+  } catch (e) {
+    console.error("OG Image Error:", e);
+  }
+}
+---
+
+<!doctype html>
+<html lang={lang.code}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <!-- <link rel="apple-touch-icon" href="/apple-touch-icon.png" /> -->
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+
+    {
+      noindex ? (
+        <meta name="robots" content="noindex, nofollow" />
+      ) : (
+        <meta name="robots" content="index, follow" />
+      )
+    }
+
+    <!-- Open Graph (Facebook, WhatsApp, LinkedIn) -->
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:locale" content={lang.code} />
+
+    {
+      ogImageUrl && (
+        <>
+          <meta property="og:image" content={ogImageUrl} />
+          <meta property="og:image:width" content="1200" />
+          <meta property="og:image:height" content="630" />
+          <meta property="og:image:type" content="image/jpeg" />
+        </>
+      )
+    }
+
+    <!-- Twitter Card (X) -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {ogImageUrl && <meta name="twitter:image" content={ogImageUrl} />}
+
+    <!-- <link rel="sitemap" href="/sitemap-index.xml" /> -->
+  </head>
+  <body class="bg-background text-text flex flex-col min-h-screen">
+    <Navbar lang={lang} languages={languages} alternateLinks={alternateLinks} />
+    <main class="flex-1 w-full pt-16">
+      <slot />
+    </main>
+    <Footer lang={lang} languages={languages} />
+  </body>
+</html>

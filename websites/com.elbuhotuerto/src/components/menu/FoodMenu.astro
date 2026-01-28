@@ -1,0 +1,28 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content";
+import CategoryCard from "./CategoryCard.astro";
+import CategoryNav from "./CategoryNav.astro";
+
+type Props = {
+  lang: CollectionEntry<"languages">["data"];
+  defaultLang: CollectionEntry<"languages">["data"];
+  data: any;
+};
+
+const { lang } = Astro.props;
+
+const response = await getCollection("categories");
+const categories = response.map(({ data: category }) => category);
+---
+
+<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
+  <CategoryNav categories={categories} lang={lang} />
+
+  <div class="space-y-24">
+    {
+      categories.map((category) => {
+        return <CategoryCard category={category} lang={lang} />;
+      })
+    }
+  </div>
+</div>

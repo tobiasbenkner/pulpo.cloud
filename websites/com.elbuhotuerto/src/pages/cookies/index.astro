@@ -1,0 +1,172 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import SectionHeader from "../../components/ui/SectionHeader.astro";
+import { getCollection } from "astro:content";
+
+const languages = (await getCollection("languages")).map((it) => it.data);
+const lastUpdate = "Enero 2025";
+---
+
+<Layout
+  noindex
+  title="Política de Cookies"
+  lang={languages[0]}
+  languages={languages}
+  alternateLinks={{}}
+>
+  <main class="bg-background min-h-screen py-32 px-6">
+    <div class="max-w-3xl mx-auto">
+      <div class="mb-16 text-center">
+        <SectionHeader
+          title="Cookies"
+          subtitle="Uso de Cookies"
+          align="center"
+        />
+        <p class="text-xs tracking-[0.2em] uppercase text-white/30 mt-8">
+          Última actualización: {lastUpdate}
+        </p>
+      </div>
+
+      <article
+        class="prose prose-invert prose-lg max-w-none
+        prose-headings:font-serif prose-headings:font-normal prose-headings:text-amber-200
+        prose-p:text-gray-300 prose-p:leading-relaxed prose-p:font-light
+        prose-strong:text-white prose-strong:font-medium"
+      >
+        <h3>¿Qué son las cookies?</h3>
+        <p>
+          Una cookie es un fichero que se descarga en su ordenador al acceder a
+          determinadas páginas web. Las cookies permiten a una página web, entre
+          otras cosas, almacenar y recuperar información sobre los hábitos de
+          navegación de un usuario o de su equipo.
+        </p>
+
+        <h3>¿Qué tipos de cookies utiliza esta web?</h3>
+        <p>Esta página web utiliza los siguientes tipos de cookies:</p>
+        <ul>
+          <li>
+            <strong>Cookies de análisis:</strong> Son aquéllas que bien tratadas por
+            nosotros o por terceros, nos permiten cuantificar el número de usuarios
+            y así realizar la medición y análisis estadístico de la utilización que
+            hacen los usuarios del servicio ofertado. (Google Analytics).
+          </li>
+          <li>
+            <strong>Cookies técnicas:</strong> Son aquellas que permiten al usuario
+            la navegación a través del área restringida y la utilización de sus diferentes
+            funciones.
+          </li>
+        </ul>
+
+        <h3>Desactivar las cookies</h3>
+        <p>
+          Puede usted permitir, bloquear o eliminar las cookies instaladas en su
+          equipo mediante la configuración de las opciones del navegador
+          instalado en su ordenador.
+        </p>
+
+        <h3>Cookies de terceros (Google Maps)</h3>
+        <p>
+          Esta página web utiliza servicios de terceros para mostrar mapas
+          interactivos. Al activar el mapa, se transfieren datos a Google y se
+          guarda su consentimiento en su navegador (Local Storage) para mejorar
+          su experiencia en futuras visitas.
+        </p>
+
+        <div
+          class="bg-white/5 border border-white/10 rounded-xl p-6 not-prose mt-6"
+        >
+          <h4 class="text-amber-200 font-serif text-lg mb-2">
+            Gestionar consentimiento de Mapas
+          </h4>
+          <p id="maps-status-text" class="text-sm text-gray-400 mb-4">
+            Comprobando estado...
+          </p>
+
+          <button
+            id="revoke-maps-btn"
+            class="hidden bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/50 px-4 py-2 rounded-lg text-sm transition-colors duration-300 flex items-center gap-2"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-4 h-4"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
+              ></path>
+            </svg>
+            Revocar permiso de Google Maps
+          </button>
+
+          <div
+            id="no-consent-msg"
+            class="hidden text-sm text-green-400 flex items-center gap-2"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-4 h-4"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              ></path>
+            </svg>
+            No hay consentimientos activos para mapas.
+          </div>
+        </div>
+      </article>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  const STORAGE_KEY = "maps-consent";
+
+  const updateCookieUI = () => {
+    const btn = document.getElementById("revoke-maps-btn");
+    const statusText = document.getElementById("maps-status-text");
+    const noConsentMsg = document.getElementById("no-consent-msg");
+
+    if (!btn || !statusText || !noConsentMsg) return;
+
+    const hasConsent = localStorage.getItem(STORAGE_KEY) === "true";
+
+    if (hasConsent) {
+      statusText.innerText =
+        "Actualmente has dado permiso para cargar Google Maps automáticamente.";
+      btn.classList.remove("hidden");
+      noConsentMsg.classList.add("hidden");
+    } else {
+      statusText.innerText = "Google Maps está bloqueado por defecto.";
+      btn.classList.add("hidden");
+      noConsentMsg.classList.remove("hidden");
+    }
+  };
+
+  const initCookieManager = () => {
+    const btn = document.getElementById("revoke-maps-btn");
+
+    if (btn) {
+      btn.onclick = () => {
+        console.log("Button geklickt - lösche Consent...");
+        localStorage.removeItem(STORAGE_KEY);
+        updateCookieUI();
+      };
+    }
+    updateCookieUI();
+  };
+
+  document.addEventListener("astro:page-load", initCookieManager);
+  document.addEventListener("DOMContentLoaded", initCookieManager);
+  initCookieManager();
+</script>

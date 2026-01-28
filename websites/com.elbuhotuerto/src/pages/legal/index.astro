@@ -1,0 +1,102 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import SectionHeader from "../../components/ui/SectionHeader.astro";
+import { getCollection } from "astro:content";
+
+const languages = (await getCollection("languages")).map((it) => it.data);
+
+const lastUpdate = "Enero 2025";
+---
+
+<Layout
+  noindex
+  title="Aviso Legal"
+  languages={languages}
+  lang={languages[0]}
+  alternateLinks={{}}
+>
+  <main class="bg-background min-h-screen py-32 px-6">
+    <div class="max-w-3xl mx-auto">
+      <!-- Header -->
+      <div class="mb-16 text-center">
+        <SectionHeader
+          title="Aviso Legal"
+          subtitle="Información Corporativa"
+          align="center"
+        />
+        <p class="text-xs tracking-[0.2em] uppercase text-white/30 mt-8">
+          Última actualización: {lastUpdate}
+        </p>
+      </div>
+
+      <!-- Text Content -->
+      <article
+        class="prose prose-invert prose-lg max-w-none
+        prose-headings:font-serif prose-headings:font-normal prose-headings:text-amber-200
+        prose-p:text-gray-300 prose-p:leading-relaxed prose-p:font-light
+        prose-strong:text-white prose-strong:font-medium
+        prose-a:text-amber-200 prose-a:no-underline hover:prose-a:underline"
+      >
+        <p>
+          En cumplimiento con el deber de información recogido en artículo 10 de
+          la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la
+          Información y del Comercio Electrónico, a continuación se reflejan los
+          siguientes datos:
+        </p>
+
+        <h3>1. Datos Identificativos</h3>
+        <p>
+          El titular de este sitio web es <strong
+            >[Nombre de la Empresa S.L. o Autónomo]</strong
+          > (en adelante, "El Búho Tuerto"), con domicilio en Calle de la Gastronomía
+          12, 35001 Las Palmas de Gran Canaria, y con C.I.F. número [B-12345678].
+          Correo electrónico de contacto: hola@elbuho.com.
+        </p>
+
+        <h3>2. Usuarios</h3>
+        <p>
+          El acceso y/o uso de este portal de El Búho Tuerto atribuye la
+          condición de USUARIO, que acepta, desde dicho acceso y/o uso, las
+          Condiciones Generales de Uso aquí reflejadas.
+        </p>
+
+        <h3>3. Uso del Portal</h3>
+        <p>
+          El sitio web proporciona el acceso a multitud de informaciones,
+          servicios, programas o datos (en adelante, "los contenidos") en
+          Internet pertenecientes a El Búho Tuerto. El USUARIO asume la
+          responsabilidad del uso del portal. Dicha responsabilidad se extiende
+          al registro que fuese necesario para acceder a determinados servicios
+          o contenidos.
+        </p>
+
+        <h3>4. Propiedad Intelectual e Industrial</h3>
+        <p>
+          El Búho Tuerto por sí o como cesionaria, es titular de todos los
+          derechos de propiedad intelectual e industrial de su página web, así
+          como de los elementos contenidos en la misma (a título enunciativo,
+          imágenes, sonido, audio, vídeo, software o textos; marcas o logotipos,
+          combinaciones de colores, estructura y diseño, etc.). Todos los
+          derechos reservados.
+        </p>
+
+        <h3>5. Exclusión de Garantías y Responsabilidad</h3>
+        <p>
+          El Búho Tuerto no se hace responsable, en ningún caso, de los daños y
+          perjuicios de cualquier naturaleza que pudieran ocasionar, a título
+          enunciativo: errores u omisiones en los contenidos, falta de
+          disponibilidad del portal o la transmisión de virus o programas
+          maliciosos o lesivos en los contenidos, a pesar de haber adoptado
+          todas las medidas tecnológicas necesarias para evitarlo.
+        </p>
+
+        <h3>6. Legislación Aplicable y Jurisdicción</h3>
+        <p>
+          La relación entre El Búho Tuerto y el USUARIO se regirá por la
+          normativa española vigente y cualquier controversia se someterá a los
+          Juzgados y tribunales de la ciudad de Las Palmas de Gran Canaria.
+        </p>
+      </article>
+    </div>
+  </main>
+</Layout>

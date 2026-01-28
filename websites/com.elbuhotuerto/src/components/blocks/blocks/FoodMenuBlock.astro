@@ -1,0 +1,14 @@
+---
+import type { CollectionEntry } from "astro:content";
+import FoodMenu from "../../menu/FoodMenu.astro";
+
+type Props = {
+  lang: CollectionEntry<"languages">["data"];
+  defaultLang: CollectionEntry<"languages">["data"];
+  data: any;
+};
+
+const { data, defaultLang, lang} = Astro.props;
+---
+
+<FoodMenu data={data} defaultLang={defaultLang} lang={lang} />

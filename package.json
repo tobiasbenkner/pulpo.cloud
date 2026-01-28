@@ -3,7 +3,6 @@
   "private": true,
   "scripts": {
     "build": "turbo run build",
-    "build:website": "turbo run build --filter=@pulpo/website",
     "dev": "turbo run dev",
     "deploy": "turbo run deploy",
     "lint": "turbo run lint",

@@ -1,0 +1,86 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "../../layouts/Layout.astro";
+import { t } from "../../utils/t";
+import BlockRenderer from "../../components/blocks/BlockRenderer.astro";
+
+export async function getStaticPaths() {
+  const pages = (await getCollection("pages")).map((it) => it.data);
+  const languages = (await getCollection("languages")).map((it) => {
+    return {
+      ...it.data,
+    };
+  });
+  const defaultLanguage = languages[0];
+
+  const paths = [];
+  for (const page of pages) {
+    const alternateLinks: Record<string, string> = {};
+    for (const { code } of languages) {
+      let href = "/";
+      const isDefault = code === defaultLanguage.code;
+      const slug = t(page.slug, code);
+
+      if (isDefault) {
+        href = slug ? `/${slug}` : "/";
+      } else {
+        href = slug ? `/${code}/${slug}` : `/${code}/`;
+      }
+      href = href.replace(/\/$/, "") || "/";
+      alternateLinks[code] = href;
+    }
+
+    for (const language of languages) {
+      const slug = t(page.slug, language.code);
+
+      if (language.code === defaultLanguage.code) {
+        paths.push({
+          params: { slug: slug || undefined },
+          props: {
+            page: page,
+            lang: defaultLanguage,
+            languages: languages,
+            alternateLinks: alternateLinks,
+          },
+        });
+      } else {
+        paths.push({
+          params: {
+            slug: slug ? `${language.code}/${slug}` : language.code,
+          },
+          props: {
+            page: page,
+            lang: language,
+            languages: languages,
+            alternateLinks: alternateLinks,
+          },
+        });
+      }
+    }
+  }
+  return paths;
+}
+
+const { page, lang, languages, alternateLinks } = Astro.props;
+
+const title = t(page.seo.title, lang.code);
+const description = t(page.seo.description, lang.code);
+const og_image = t(page.seo.og_image, lang.code);
+---
+
+<Layout
+  title={title}
+  description={description}
+  og_image={og_image}
+  lang={lang}
+  languages={languages}
+  alternateLinks={alternateLinks}
+>
+  {
+    page.blocks.map((block) => {
+      return (
+        <BlockRenderer block={block} lang={lang} defaultLang={languages[0]} />
+      );
+    })
+  }
+</Layout>

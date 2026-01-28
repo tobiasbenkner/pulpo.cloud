@@ -1,0 +1,105 @@
+---
+import { convertI18n } from "../../../content/utils";
+import { t } from "../../../utils/t";
+import SectionHeader from "../../ui/SectionHeader.astro";
+import { Icon } from "astro-icon/components";
+import Whatsapp from "../../Whatsapp.astro";
+
+const { data, lang, defaultLang } = Astro.props;
+
+const title = t(
+  convertI18n(data?.translations, "title", defaultLang.code),
+  lang?.code
+);
+const subtitle = t(
+  convertI18n(data?.translations, "subtitle", defaultLang.code),
+  lang?.code
+);
+
+const actions = data.links;
+
+const contactInfos = (actions ?? []).map((it: any) => {
+  const action = it.actions_id;
+
+  const label = t(
+    convertI18n(action?.translations, "label", defaultLang?.code),
+    lang?.code
+  );
+
+  const title = t(
+    convertI18n(action?.translations, "title", defaultLang?.code),
+    lang?.code
+  );
+
+  const subtitle = t(
+    convertI18n(action?.translations, "subtitle", defaultLang?.code),
+    lang?.code
+  );
+
+  const actionLabel = t(
+    convertI18n(action?.translations, "action", defaultLang?.code),
+    lang?.code
+  );
+
+  return {
+    ...action,
+    title: title,
+    subtitle: subtitle,
+    action: actionLabel,
+    label: label,
+  };
+});
+
+function getColor(type: string) {
+  if (type === "whatsapp") {
+    return "text-green-400";
+  } else if (type === "tel") {
+    return "text-amber-200";
+  } else {
+    return "";
+  }
+}
+---
+
+<section
+  id="contact-hub"
+  class="bg-background py-24 px-6 relative overflow-hidden"
+>
+  <SectionHeader subtitle={subtitle} title={title} />
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    {
+      contactInfos.map((it: any) => {
+        return (
+          <a
+            href={it.url}
+            class="group relative p-8 border border-white/10 hover:border-white/30 transition-all duration-500 bg-white/[0.02] hover:bg-white/[0.04] flex flex-col items-center text-center"
+          >
+            <div
+              class={`w-12 h-12 mb-6 ${getColor(it.type)} opacity-60 group-hover:scale-110 transition-all duration-500`}
+            >
+              {it.type === "tel" && (
+                <Icon name={"heroicons:phone"} class="h-12 w-12" />
+              )}
+              {it.type === "email" && (
+                <Icon name={"heroicons:envelope"} class="h-12 w-12" />
+              )}
+              {it.type === "whatsapp" && <Whatsapp />}
+            </div>
+
+            <h3 class="text-xl font-serif italic text-white mb-2">
+              {it.title}
+            </h3>
+            <p class="text-sm text-gray-400 font-light mb-8 leading-relaxed">
+              {it.subtitle}
+            </p>
+
+            <span class="mt-auto text-[10px] uppercase tracking-[0.3em] text-gray-300 group-hover:text-white transition-colors border-b border-white/20 pb-1">
+              {it.action}
+            </span>
+          </a>
+        );
+      })
+    }
+  </div>
+</section>
