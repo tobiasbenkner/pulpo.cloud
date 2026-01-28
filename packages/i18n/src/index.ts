@@ -3,6 +3,9 @@ export type {
   FlattenTranslation,
   RouteDefinition,
   I18n,
+  RouteModules,
+  TranslationModules,
+  PageModules,
 } from "./types";
 export { I18nSchema } from "./types";
 

@@ -1,6 +1,4 @@
+import type { RouteDefinition as BaseRouteDefinition } from "@pulpo/i18n";
 import type { Language } from "./i18n";
 
-export type RouteDefinition = {
-  key: string;
-  slugs: { [key in Language]: string };
-};
+export type RouteDefinition = BaseRouteDefinition<Language>;

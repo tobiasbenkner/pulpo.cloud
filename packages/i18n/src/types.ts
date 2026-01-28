@@ -35,3 +35,24 @@ export const I18nSchema = z.object({
 });
 
 export type I18n = z.infer<typeof I18nSchema>;
+
+/**
+ * Type for import.meta.glob route modules
+ * Usage: const routeModules: RouteModules<Language> = import.meta.glob("...", { eager: true });
+ */
+export type RouteModules<L extends string = string> = Record<
+  string,
+  { route: RouteDefinition<L> }
+>;
+
+/**
+ * Type for import.meta.glob translation modules
+ * Usage: const translationModules: TranslationModules = import.meta.glob("...", { eager: true });
+ */
+export type TranslationModules = Record<string, { translations: any }>;
+
+/**
+ * Type for import.meta.glob page modules
+ * Usage: const pageModules: PageModules = import.meta.glob("...", { eager: true });
+ */
+export type PageModules = Record<string, { default: any }>;
