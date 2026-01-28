@@ -37,12 +37,18 @@ const { title, description, lang } = Astro.props;
       <div class="order-1 md:order-2">
         <div class="flex items-center gap-3 mb-3">
           <div class="h-px w-8 bg-secondary"></div>
-          <span class="text-secondary text-xs font-medium tracking-widest uppercase">{lang === "es" ? "Eventos" : "Events"}</span>
+          <span
+            class="text-secondary text-xs font-medium tracking-widest uppercase"
+            >{lang === "es" ? "Eventos" : "Events"}</span
+          >
         </div>
         <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-white">
           {title}
         </h2>
-        <div class="h-1 w-16 bg-gradient-to-r from-secondary to-transparent mb-6"></div>
+        <div
+          class="h-1 w-16 bg-gradient-to-r from-secondary to-transparent mb-6"
+        >
+        </div>
         <p class="text-base md:text-lg text-text-muted leading-relaxed">
           {description}
         </p>
