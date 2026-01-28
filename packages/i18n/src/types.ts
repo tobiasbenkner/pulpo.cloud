@@ -7,13 +7,17 @@ import { z } from "zod";
  * Example:
  * Input:  { seo: { title: { es: string, de: string } } }
  * Output: { seo: { title: string } }
+ *
+ * Also preserves value types (arrays, etc.):
+ * Input:  { items: { es: string[], de: string[] } }
+ * Output: { items: string[] }
  */
 export type FlattenTranslation<T, L extends string = string> = {
   [K in keyof T]: T[K] extends Record<string, any>
     ? keyof T[K] extends string
       ? Extract<keyof T[K], L> extends never
         ? FlattenTranslation<T[K], L>
-        : string
+        : T[K][keyof T[K]] // Extract actual value type (string, string[], etc.)
       : never
     : T[K];
 };
