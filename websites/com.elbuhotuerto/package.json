@@ -10,9 +10,10 @@
     "deploy": "gh-pages -d dist --repo https://x-access-token:${GH_TOKEN}@github.com/tobiasbenkner/com.elbuhotuerto --branch main --cname elbuhotuerto.com --dotfiles --nojekyll"
   },
   "dependencies": {
+    "@pulpo/i18n": "workspace:*",
+    "@pulpo/cms": "workspace:*",
     "@astrojs/sitemap": "^3.6.1",
     "@directus/sdk": "^20.3.0",
-    "@pulpo/i18n": "workspace:*",
     "@fontsource-variable/lora": "^5.2.8",
     "@fontsource-variable/montserrat": "^5.2.8",
     "@iconify-json/heroicons": "^1.2.3",

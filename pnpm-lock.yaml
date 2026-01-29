@@ -199,6 +199,9 @@ importers:
       '@iconify-json/heroicons':
         specifier: ^1.2.3
         version: 1.2.3
+      '@pulpo/cms':
+        specifier: workspace:*
+        version: link:../../packages/cms
       '@pulpo/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n

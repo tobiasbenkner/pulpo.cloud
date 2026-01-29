@@ -1,8 +1,8 @@
 import { readItems } from "@directus/sdk";
-import { directus } from "../lib/directus";
+import {  client } from "../lib/directus";
 
 export async function getDefaultLanguage(tenantId: string) {
-  const languages = await directus.request(
+  const languages = await client.request(
     readItems("languages", {
       sort: ["sort"],
       filter: {

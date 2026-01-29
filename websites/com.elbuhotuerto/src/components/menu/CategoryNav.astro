@@ -1,14 +1,10 @@
 ---
-import type { CollectionEntry } from "astro:content";
-import { t } from "../../utils/t";
+import type { ProductCategory } from "@pulpo/cms";
 
-type Category = CollectionEntry<"categories">["data"];
 interface Props {
-  categories: Category[];
-  lang: CollectionEntry<"languages">["data"];
-};
-
-const { categories, lang } = Astro.props;
+  categories: ProductCategory[];
+}
+const { categories } = Astro.props;
 ---
 
 <nav
@@ -30,7 +26,7 @@ const { categories, lang } = Astro.props;
                 ${index === 0 ? "active" : ""}`}
                 data-target={category.id}
               >
-                {t(category.name, lang.code)}
+                {category.name}
               </a>
             </li>
           ))
@@ -143,7 +139,7 @@ const { categories, lang } = Astro.props;
       currentActive?.classList.remove("active");
 
       const activeLink = document.querySelector<HTMLElement>(
-        `.category-link[href="#${id}"]`
+        `.category-link[href="#${id}"]`,
       );
 
       if (activeLink && navContainer) {

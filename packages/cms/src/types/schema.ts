@@ -7,6 +7,9 @@ export interface Schema {
   posts_categories: any[];
   events: any[];
 
+  categories: any[];
+  products: any[];
+
   reservations: Reservation[];
   reservations_settings: ReservationSetting[];
   directus_users: User[];

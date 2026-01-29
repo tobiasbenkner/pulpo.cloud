@@ -1,5 +1,5 @@
 import { z } from "astro/zod";
-import { directus } from "../lib/directus";
+import { client } from "../lib/directus";
 import { defineCollection } from "astro:content";
 import { readItem } from "@directus/sdk";
 import { I18nSchema } from "../utils/t";
@@ -28,7 +28,7 @@ export const tenant = defineCollection({
 
     const defaultLanguage = await getDefaultLanguage(tenantId);
 
-    const tenant = await directus.request(
+    const tenant = await client.request(
       readItem("tenants", tenantId, {
         fields: [
           "*",

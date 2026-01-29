@@ -1,5 +1,13 @@
-import { createDirectus, rest, staticToken } from "@directus/sdk";
+import { TENANT_ID } from "@/config";
+import {
+  createClientPublic,
+  getCategoriesWithProducts as _getCategoriesWithProducts,
+} from "@pulpo/cms";
 
-export const directus = createDirectus(import.meta.env.DIRECTUS_URL)
-  .with(staticToken(import.meta.env.DIRECTUS_TOKEN))
-  .with(rest());
+export const client = createClientPublic();
+
+export function getCategoriesWithProducts() {
+  return _getCategoriesWithProducts(client, {
+    tenant: TENANT_ID,
+  });
+}

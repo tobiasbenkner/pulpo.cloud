@@ -1,3 +1,5 @@
+import { URL as BASE_URL } from "./config";
+
 export const getAssetUrl = (
   id: string,
   cmsUrl: string,
@@ -11,3 +13,9 @@ export const getAssetUrl = (
     url.searchParams.set("quality", options.quality.toString());
   return url.toString();
 };
+
+
+export function imageUrl(id: string, width: number = 800) {
+  return getAssetUrl(id, BASE_URL, "", { width });
+}
+  

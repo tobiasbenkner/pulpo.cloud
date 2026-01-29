@@ -16,7 +16,7 @@ export const navigations = defineCollection({
 
     const defaultLanguage = await getDefaultLanguage(tenantId);
 
-    const response = await directus.request(
+    const response = await client.request(
       readItems("navigations", {
         sort: ["sort"],
         fields: [
