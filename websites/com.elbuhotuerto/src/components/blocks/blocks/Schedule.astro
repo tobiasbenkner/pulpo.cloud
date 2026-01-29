@@ -1,18 +1,26 @@
 ---
-import type { CollectionEntry } from "astro:content";
 import SectionHeader from "../../ui/SectionHeader.astro";
-import { translations } from "./Schedule.i18n";
 
 type Props = {
-  lang: CollectionEntry<"languages">["data"];
-  defaultLang: CollectionEntry<"languages">["data"];
-  data: any;
+  title: string;
+  subtitle: string;
+  sittings: {
+    days: string;
+    type: string;
+    range: string;
+    label: string;
+    turnos: { label: string, time: string }[];
+    message: string;
+    sessions: {
+      label: string;
+      range: string;
+      turnos: {label: string; time: string;}[]
+    }[];
+  }[];
 };
 
-const {lang} = Astro.props;
-const title = (translations as any)[lang.code].title;
-const subtitle = (translations as any)[lang.code].subtitle;
-const sittings = (translations as any)[lang.code].sittings;
+
+const {title, subtitle, sittings} = Astro.props;
 ---
 
 <section class="bg-background py-24 px-6 relative overflow-hidden text-white">
@@ -27,7 +35,7 @@ const sittings = (translations as any)[lang.code].sittings;
     <!-- Grid Layout -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
       
-      {sittings.map((item: any) => (
+      {sittings.map((item) => (
         <div class={`relative flex flex-col p-8 md:p-10 rounded-2xl border ${item.type === 'closed' ? 'border-white/5 bg-white/1' : 'border-white/10 bg-white/3'}`}>
           
           <!-- Wochentage (Größe angehoben) -->
@@ -42,7 +50,7 @@ const sittings = (translations as any)[lang.code].sittings;
                 <p class="text-gray-400 font-serif italic text-xl">{item.message}</p>
               </div>
             ) : (
-              (item.sessions || [item]).map((session: any) => (
+              (item.sessions || [item]).map((session) => (
                 <div class="space-y-6">
                   <!-- Session Header (Almuerzo/Cena) -->
                   <div class="flex justify-between items-end border-b border-white/10 pb-3">
@@ -52,7 +60,7 @@ const sittings = (translations as any)[lang.code].sittings;
                   </div>
                   
                   <div class="space-y-5">
-                    {(session.turnos ?? []).map((turno: any) => (
+                    {(session.turnos ?? []).map((turno) => (
                       <div class="flex justify-between items-center group">
                         <div class="flex items-center gap-3">
                            <div class="w-1.5 h-1.5 rounded-full bg-amber-200/40 group-hover:bg-amber-200 transition-colors"></div>

@@ -21,6 +21,7 @@ import g23_tc from "../../assets/awards/23-tc.webp";
 import g24_ta from "../../assets/awards/24-ta.webp";
 import g25_guru from "../../assets/awards/25-guru.webp";
 import g25_ta from "../../assets/awards/25-ta.webp";
+import Schedule from "../../components/blocks/blocks/Schedule.astro";
 
 interface Props {
   lang: Language;
@@ -115,6 +116,12 @@ const sittings = t.schedule.sittings;
       alt: "Trip Advisor 2025",
     },
   ]}
+/>
+
+<Schedule
+  title={t.schedule.title}
+  subtitle={t.schedule.subtitle}
+  sittings={t.schedule.sittings as any}
 />
 
 <!-- ABOUT SECTION -->
