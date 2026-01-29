@@ -1,83 +1,34 @@
 ---
-import { convertI18n } from "../../../content/utils";
-import { t } from "../../../utils/t";
 import PrivacyMap from "../../PrivacyMap.astro";
 import Icon from "../../ui/Icon.astro";
 import SectionHeader from "../../ui/SectionHeader.astro";
-import { getEntry, type CollectionEntry } from "astro:content";
-import { translations } from "./Contact.i18n";
+import { getEntry } from "astro:content";
+import { translations } from "./Location.i18n";
 
 type Props = {
-  lang: CollectionEntry<"languages">["data"];
-  defaultLang: CollectionEntry<"languages">["data"];
-  data: any;
+  title: string;
+  subtitle: string;
+  contactInfos: {
+    title: string;
+    subtitle: string;
+    action: string;
+    label: string;
+  }[];
+  openingHours: {
+    days_label: string;
+    additional_info: string;
+    hours_text: string;
+  }[];
 };
 
-const { data, lang, defaultLang } = Astro.props;
-
-const title = t(
-  convertI18n(data?.translations, "title", defaultLang?.code),
-  lang?.code
-);
-const subtitle = t(
-  convertI18n(data?.translations, "subtitle", defaultLang?.code),
-  lang?.code
-);
-
-const actions = data.links;
-
-const contactInfos = (actions ?? []).map((it: any) => {
-  const action = it.actions_id;
-
-  const label = t(
-    convertI18n(action?.translations, "label", defaultLang?.code),
-    lang?.code
-  );
-
-  const title = t(
-    convertI18n(action?.translations, "title", defaultLang?.code),
-    lang?.code
-  );
-
-  const subtitle = t(
-    convertI18n(action?.translations, "subtitle", defaultLang?.code),
-    lang?.code
-  );
-
-  const actionLabel = t(
-    convertI18n(action?.translations, "action", defaultLang?.code),
-    lang?.code
-  );
-
-  return {
-    ...action,
-    title: title,
-    subtitle: subtitle,
-    action: actionLabel,
-    label: label,
-  };
-});
+const { title, subtitle, contactInfos, openingHours } = Astro.props;
 
 const entry = await getEntry("tenant", "main");
 const tenant = entry?.data;
 
-const openingHours = (tenant?.opening_hours ?? []).map((it) => {
-  return {
-    ...it,
-    days_label: t(it.days_label, lang.code),
-    additional_info: t(it.additional_info, lang.code),
-    hours_text: t(it.hours_text, lang.code),
-  };
-});
-
-function translate(lang: string, key: string) {
-  const l = (translations as any)[lang] ?? translations.en;
-  return l[key] ?? key;
-}
-
-const location = translate(lang.code, "location");
-const follow = translate(lang.code, "follow");
-const schedule = translate(lang.code, "schedule");
+const location = translations.es.location;
+const follow = translations.es.follow;
+const schedule = translations.es.schedule;
 ---
 
 <section class="bg-background py-24 px-6 relative overflow-hidden text-white">
