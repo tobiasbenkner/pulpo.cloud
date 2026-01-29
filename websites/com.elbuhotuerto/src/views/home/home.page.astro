@@ -23,6 +23,7 @@ import g25_guru from "../../assets/awards/25-guru.webp";
 import g25_ta from "../../assets/awards/25-ta.webp";
 import Schedule from "../../components/blocks/blocks/Schedule.astro";
 import About from "../../components/blocks/blocks/About.astro";
+import chiquita from "@/assets/chiquita.webp";
 
 interface Props {
   lang: Language;
@@ -32,15 +33,12 @@ interface Props {
 const { lang, t } = Astro.props;
 
 const video = "/hero.mp4";
-const logo = "/chiquita.webp";
-
-const sittings = t.schedule.sittings;
 ---
 
 <Hero
   title={t.hero.title}
   subtitle={t.hero.subtitle}
-  logo={logo}
+  logo={chiquita}
   video={video}
   links={[
     {

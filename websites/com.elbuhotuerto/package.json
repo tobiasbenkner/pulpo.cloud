@@ -12,7 +12,6 @@
   "dependencies": {
     "@pulpo/i18n": "workspace:*",
     "@pulpo/cms": "workspace:*",
-    "@astrojs/sitemap": "^3.6.1",
     "@directus/sdk": "^20.3.0",
     "@fontsource-variable/lora": "^5.2.8",
     "@fontsource-variable/montserrat": "^5.2.8",
@@ -26,7 +25,6 @@
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/typography": "^0.5.19",
-    "dotenv": "^17.2.3",
     "gh-pages": "^6.3.0"
   }
 }

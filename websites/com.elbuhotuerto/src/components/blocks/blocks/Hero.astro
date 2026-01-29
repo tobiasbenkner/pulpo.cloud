@@ -1,8 +1,11 @@
 ---
+import type { ImageMetadata } from "astro";
+import { Image } from "astro:assets";
+
 type Props = {
   title?: string;
   subtitle?: string;
-  logo?: string;
+  logo?: ImageMetadata;
   video?: string;
   links?: { href: string; label: string }[];
   background?: string;
@@ -12,7 +15,7 @@ const {
   title,
   subtitle,
   links = [],
-  logo = "/hero.webp",
+  logo,
   video = "/hero.mp4",
   background,
 } = Astro.props;
@@ -55,8 +58,10 @@ const {
       {
         logo && (
           <div class="mb-8 drop-shadow-2xl">
-            <img
+            <Image
               src={logo}
+              width={1000}
+              height={1000}
               alt="Logo"
               class="h-auto w-full mx-auto max-w-64 md:max-w-md brightness-110"
             />

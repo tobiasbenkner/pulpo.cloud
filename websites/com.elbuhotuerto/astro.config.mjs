@@ -1,9 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
-import 'dotenv/config';
 import icon from "astro-icon";
-import sitemap from '@astrojs/sitemap';
 
 
 export default defineConfig({
@@ -15,17 +13,6 @@ export default defineConfig({
     plugins: [tailwindcss()]
   },
   integrations: [
-    icon(),
-    sitemap({
-      i18n: {
-        defaultLocale: 'es',
-        locales: {
-          es: 'es',
-          "es-ar": 'es-ar',
-          en: 'en',
-          de: 'de',
-        },
-      },
-    })
+    icon()
   ]
 });

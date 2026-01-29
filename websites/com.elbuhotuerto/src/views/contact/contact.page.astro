@@ -1,11 +1,11 @@
 ---
 import type { ContactTranslations } from "./contact.i18n";
-import type { Language } from "../../lib/i18n";
+import { resolveTranslations, type Language } from "../../lib/i18n";
 import { getEntry } from "astro:content";
 import Icon from "../../components/ui/Icon.astro";
 import SectionHeader from "../../components/ui/SectionHeader.astro";
 import PrivacyMap from "../../components/PrivacyMap.astro";
-import { t as translateCms } from "@pulpo/i18n";
+import { getOpeningHours } from "@/lib/directus";
 
 interface Props {
   lang: Language;
@@ -13,18 +13,8 @@ interface Props {
 }
 
 const { lang, t } = Astro.props;
-
-const entry = await getEntry("tenant", "main");
-const tenant = entry?.data;
-
-const openingHours = (tenant?.opening_hours ?? []).map((it) => {
-  return {
-    ...it,
-    days_label: translateCms(it.days_label, lang),
-    additional_info: translateCms(it.additional_info, lang),
-    hours_text: translateCms(it.hours_text, lang),
-  };
-});
+const openingHours = resolveTranslations(await getOpeningHours(), lang);
+console.log(openingHours);
 ---
 
 <section class="bg-background py-24 px-6 relative overflow-hidden text-white">

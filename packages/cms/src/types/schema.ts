@@ -9,6 +9,7 @@ export interface Schema {
 
   categories: any[];
   products: any[];
+  opening_hours: any[];
 
   reservations: Reservation[];
   reservations_settings: ReservationSetting[];

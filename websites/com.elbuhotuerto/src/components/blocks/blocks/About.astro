@@ -1,6 +1,7 @@
 ---
-import type { CollectionEntry } from "astro:content";
 import SectionHeader from "../../ui/SectionHeader.astro";
+import team from "@/assets/team.webp";
+import { Image } from "astro:assets";
 
 type Props = {
   chapter: string;
@@ -35,8 +36,8 @@ const { chapter, title, content, footer } = Astro.props;
         </div>
 
         <div class="w-full h-full overflow-hidden relative">
-          <img
-            src={"/team.webp"}
+          <Image
+            src={team}
             alt="Team El Búho Tuerto"
             class="w-full h-full object-cover opacity-90"
           />
