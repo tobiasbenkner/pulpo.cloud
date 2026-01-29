@@ -32,8 +32,14 @@ const { title, description, lang, routeKey, ogImage, noindex } = Astro.props;
       ogImage={ogImage}
       noindex={noindex}
     />
+    <script
+      defer
+      src="https://analytics.pulpo.cloud/script.js"
+      data-website-id="d9757dc4-33aa-4ef5-baba-77416505546c"></script>
   </head>
-  <body class="min-h-screen flex flex-col bg-background text-text pt-16 md:pt-20">
+  <body
+    class="min-h-screen flex flex-col bg-background text-text pt-16 md:pt-20"
+  >
     <Header lang={lang} routeKey={routeKey} />
     <main class="flex-1">
       <slot />
