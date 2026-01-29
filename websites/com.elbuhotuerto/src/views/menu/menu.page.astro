@@ -2,23 +2,14 @@
 import type { MenuTranslations } from "./menu.i18n";
 import type { Language } from "../../lib/i18n";
 import FoodMenu from "../../components/menu/FoodMenu.astro";
-import SectionHeader from "../../components/ui/SectionHeader.astro";
-
 interface Props {
   lang: Language;
   t: MenuTranslations;
 }
 
 const { lang, t } = Astro.props;
-
-// Create a language object compatible with the FoodMenu component
-const langObj = { code: lang, name: lang, flag: "" };
 ---
 
-<section class="bg-background min-h-screen py-16">
-  <div class="max-w-7xl mx-auto px-6 mb-12">
-    <SectionHeader title={t.title} subtitle={t.subtitle} align="center" />
-  </div>
-  
+<section class="bg-background min-h-screen py-16">  
   <FoodMenu lang={langObj} defaultLang={langObj} data={{}} />
 </section>

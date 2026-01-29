@@ -1,12 +1,11 @@
 ---
-import { getCollection, type CollectionEntry } from "astro:content";
+import { getCollection } from "astro:content";
 import CategoryCard from "./CategoryCard.astro";
 import CategoryNav from "./CategoryNav.astro";
+import type { Language } from "../../lib/i18n";
 
 type Props = {
-  lang: CollectionEntry<"languages">["data"];
-  defaultLang: CollectionEntry<"languages">["data"];
-  data: any;
+  lang: Language;
 };
 
 const { lang } = Astro.props;

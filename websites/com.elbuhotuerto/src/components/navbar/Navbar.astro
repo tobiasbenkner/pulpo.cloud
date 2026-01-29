@@ -1,50 +1,32 @@
 ---
-import { getCollection, type CollectionEntry } from "astro:content";
-import { t } from "../../utils/t";
 import { Image } from "astro:assets";
+import { getTranslatedPath } from "@/lib/registry";
+import { getNavbarItems } from "./getNavbarItems";
+import { languages, type Language } from "@/lib/i18n";
+import logo from "@/assets/logo.webp";
 
 interface Props {
-  lang: CollectionEntry<"languages">["data"];
-  languages: CollectionEntry<"languages">["data"][];
-  alternateLinks: Record<string, string>;
+  lang: Language;
+  routeKey: string;
 }
 
-const { data: headerNav } =
-  (await getCollection("navigations"))
-    .filter((it) => it.data.type === "header")
-    .at(0) ?? {};
+const { lang, routeKey } = Astro.props;
 
-const { lang, languages, alternateLinks } = Astro.props;
-const defaultLang = languages.at(0);
-const isDefaultLanguage = defaultLang?.code === lang.code;
+const navItems = await getNavbarItems(lang, Astro.url.pathname);
+const homeHref = getTranslatedPath("home", lang);
 
-const navLinks = (headerNav?.navigation_items ?? []).map((it) => {
-  const name = t(it.label, lang.code);
-  const slug = t(it.page?.slug, lang.code);
-
-  let href = "";
-  if (isDefaultLanguage) {
-    href = slug ? `/${slug}` : "/";
-  } else {
-    href = slug ? `/${lang.code}/${slug}` : `/${lang.code}`;
-  }
-
-  return {
-    name: name,
-    href: href,
-  };
-});
-
-const currentPath = Astro.url.pathname;
-
-const isActive = (href: string) => {
-  const normalize = (path: string) => path.replace(/\/$/, "");
-  return normalize(currentPath) === normalize(href);
+const flagIcons: Record<Language, string> = {
+  es: "🇪🇸",
+  "es-ar": "🇦🇷",
+  de: "🇩🇪",
+  en: "🇬🇧",
 };
 
-const getPathForLang = (targetLangCode: string) => {
-  const specificPath = alternateLinks?.[targetLangCode];
-  return specificPath || "/";
+const labels: Record<Language, string> = {
+  es: "Español",
+  "es-ar": "Argentino",
+  de: "Deutsch",
+  en: "English",
 };
 ---
 
@@ -54,38 +36,27 @@ const getPathForLang = (targetLangCode: string) => {
 >
   <nav class="max-w-7xl mx-auto px-6" aria-label="Top">
     <div class="flex justify-between items-center h-16">
-      <!-- 1. Logo -->
-      {
-        headerNav?.image?.src && (
-          <div class="flex-1 flex justify-start">
-            <a
-              href={isDefaultLanguage ? "/" : `/${lang.code}/`}
-              class="group transition-opacity hover:opacity-80"
-            >
-              <Image
-                src={headerNav.image.src}
-                height={headerNav?.image?.height}
-                width={headerNav?.image?.width}
-                alt="Logo"
-                class="h-10 w-auto object-contain brightness-0 invert opacity-90 group-hover:opacity-100 transition-all"
-              />
-            </a>
-          </div>
-        )
-      }
+      <div class="flex-1 flex justify-start">
+        <a href={homeHref} class="group transition-opacity hover:opacity-80">
+          <Image
+            src={logo}
+            alt="Logo"
+            class="h-10 w-auto object-contain brightness-0 invert opacity-90 group-hover:opacity-100 transition-all"
+          />
+        </a>
+      </div>
 
       <!-- 2. Desktop Navigation -->
       <div class="hidden md:flex flex-1 justify-center space-x-12 items-center">
         {
-          navLinks.map((link) => {
-            const active = isActive(link.href);
+          navItems.map((link) => {
             return (
               <a
                 href={link.href}
                 class={`text-[11px] uppercase tracking-[0.2em] py-2 transition-colors duration-300
-                ${active ? "text-amber-200" : "text-white/70 hover:text-amber-200"}`}
+                ${link.isActive ? "text-amber-200" : "text-white/70 hover:text-amber-200"}`}
               >
-                {link.name}
+                {link.label}
               </a>
             );
           })
@@ -104,7 +75,7 @@ const getPathForLang = (targetLangCode: string) => {
             <span
               class="text-2xl drop-shadow-sm group-hover:scale-110 transition-transform duration-300"
             >
-              {lang.flag}
+              {flagIcons[lang]}
             </span>
             <span
               class="h-4 w-px bg-white/10 group-hover:bg-amber-200/50 transition-colors"
@@ -132,19 +103,19 @@ const getPathForLang = (targetLangCode: string) => {
               {
                 languages.map((l) => (
                   <a
-                    href={getPathForLang(l.code)}
+                    href={getTranslatedPath(routeKey, l)}
                     class="group flex items-center gap-4 px-5 py-3 hover:bg-white/5 transition-colors border-b border-white/5 last:border-0"
                   >
                     <span class="text-lg drop-shadow-sm group-hover:scale-110 transition-transform duration-300">
-                      {l.flag}
+                      {flagIcons[l]}
                     </span>
                     <div class="flex-1 flex justify-between items-center">
                       <span
-                        class={`font-serif italic text-lg ${lang.code === l.code ? "text-amber-200" : "text-gray-400 group-hover:text-white"}`}
+                        class={`font-serif italic text-lg ${lang === l ? "text-amber-200" : "text-gray-400 group-hover:text-white"}`}
                       >
-                        {l.name}
+                        {labels[l]}
                       </span>
-                      {lang.code === l.code && (
+                      {lang === l && (
                         <span class="w-1 h-1 rounded-full bg-amber-200 shadow-[0_0_8px_rgba(253,230,138,0.5)]" />
                       )}
                     </div>
@@ -165,7 +136,7 @@ const getPathForLang = (targetLangCode: string) => {
           class="flex items-center justify-center active:scale-95 transition-transform"
           aria-label="Change Language"
         >
-          <span class="text-2xl drop-shadow-md">{lang.flag}</span>
+          <span class="text-2xl drop-shadow-md">{flagIcons[lang]}</span>
         </button>
 
         <!-- Burger Icon -->
@@ -215,15 +186,14 @@ const getPathForLang = (targetLangCode: string) => {
       >
         <nav class="flex flex-col items-center space-y-6 w-full">
           {
-            navLinks.map((link) => {
-              const active = isActive(link.href);
+            navItems.map((link) => {
               return (
                 <a
                   href={link.href}
                   class={`text-2xl font-serif italic transition-colors 
-                  ${active ? "text-amber-200" : "text-white/80 hover:text-amber-200"}`}
+                  ${link.isActive ? "text-amber-200" : "text-white/80 hover:text-amber-200"}`}
                 >
-                  {link.name}
+                  {link.label}
                 </a>
               );
             })
@@ -236,15 +206,15 @@ const getPathForLang = (targetLangCode: string) => {
           {
             languages.map((l) => (
               <a
-                href={getPathForLang(l.code)}
+                href={getTranslatedPath(routeKey, l)}
                 class={`flex flex-col items-center gap-2 p-3 rounded-md transition-all border border-transparent
-                ${lang.code === l.code ? "border-amber-200/20 bg-white/5" : "text-gray-500"}`}
+                ${lang === l ? "border-amber-200/20 bg-white/5" : "text-gray-500"}`}
               >
-                <span class="text-3xl drop-shadow-md">{l.flag}</span>
+                <span class="text-3xl drop-shadow-md">{flagIcons[l]}</span>
                 <span
-                  class={`text-[10px] uppercase tracking-widest ${lang.code === l.code ? "text-amber-200" : "text-white/50"}`}
+                  class={`text-[10px] uppercase tracking-widest ${lang === l ? "text-amber-200" : "text-white/50"}`}
                 >
-                  {l.code}
+                  {l}
                 </span>
               </a>
             ))
@@ -283,7 +253,7 @@ const getPathForLang = (targetLangCode: string) => {
       header?.classList.remove(
         "bg-background/80",
         "backdrop-blur-md",
-        "border-white/5"
+        "border-white/5",
       );
       header?.classList.add("bg-black", "border-transparent");
     } else {
@@ -298,7 +268,7 @@ const getPathForLang = (targetLangCode: string) => {
       header?.classList.add(
         "bg-background/80",
         "backdrop-blur-md",
-        "border-white/5"
+        "border-white/5",
       );
       header?.classList.remove("bg-black", "border-transparent");
     }

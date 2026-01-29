@@ -1,6 +1,11 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import { languages, defaultLang, openGraphLocales, type Language } from "../../lib/i18n";
+import {
+  languages,
+  defaultLang,
+  openGraphLocales,
+  type Language,
+} from "../../lib/i18n";
 import { routeSlugs, getView, getTranslatedPath } from "../../lib/registry";
 
 export async function getStaticPaths() {
@@ -64,12 +69,6 @@ const languageObjects = languages.map((code) => ({
 const currentLangObj = { code: lang, name: lang, flag: "" };
 ---
 
-<Layout
-  title={title}
-  description={description}
-  lang={currentLangObj}
-  languages={languageObjects}
-  alternateLinks={alternateLinks}
->
+<Layout title={title} description={description} lang={lang} routeKey={routeKey}>
   <Component lang={lang} t={t} />
 </Layout>
