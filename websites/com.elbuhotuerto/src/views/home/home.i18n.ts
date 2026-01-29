@@ -10,29 +10,31 @@ export const translations = {
   seo: {
     title: {
       es: "El Búho Tuerto | Restaurante Argentino & Parrilla en Las Palmas",
-      "es-ar": "El Búho Tuerto | Restaurante Argentino & Parrilla en Las Palmas",
+      "es-ar":
+        "El Búho Tuerto | Restaurante Argentino & Parrilla en Las Palmas",
       en: "El Búho Tuerto | Best Argentine Steakhouse in Las Palmas",
       de: "El Búho Tuerto | Argentinisches Steakhouse in Las Palmas",
     },
     description: {
       es: "Disfruta de la auténtica carne argentina a la brasa. Los mejores cortes, empanadas caseras y vinos Malbec en el corazón de Las Palmas de Gran Canaria. ¡Reserva ahora!",
-      "es-ar": "Disfruta de la auténtica carne argentina a la brasa. Los mejores cortes, empanadas caseras y vinos Malbec en el corazón de Las Palmas de Gran Canaria. ¡Reserva ahora!",
+      "es-ar":
+        "Disfruta de la auténtica carne argentina a la brasa. Los mejores cortes, empanadas caseras y vinos Malbec en el corazón de Las Palmas de Gran Canaria. ¡Reserva ahora!",
       en: "Experience authentic charcoal-grilled Argentine meat. Premium steaks, homemade empanadas, and fine wines in Las Palmas de Gran Canaria. Book your table!",
       de: "Bestes argentinisches Steak auf Gran Canaria. Genießen Sie Fleisch vom Holzkohlegrill, traditionelle Empanadas und exzellente Weine in gemütlicher Atmosphäre.",
     },
   },
   hero: {
     title: {
-      es: "Parrilla Argentina",
-      "es-ar": "Parrilla Argentina",
-      en: "Argentine Grill",
-      de: "Argentinischer Grill",
+      es: "",
+      "es-ar": "",
+      en: "",
+      de: "",
     },
     subtitle: {
-      es: "Tradición, fuego y sabor en cada bocado",
-      "es-ar": "Tradición, fuego y sabor en cada bocado",
-      en: "Tradition, fire and flavor in every bite",
-      de: "Tradition, Feuer und Geschmack in jedem Bissen",
+      es: "Un rincón argentino en Las Palmas",
+      "es-ar": "",
+      en: "An Argentine corner in Las Palmas",
+      de: "Eine argentinische Ecke in Las Palmas",
     },
     cta: {
       es: "Ver Menu",
@@ -271,16 +273,17 @@ Im El Búho Tuerto ehren wir diesen Kampf mit jedem Gericht, mit jeder glühende
       de: "Anerkennungen",
     },
     quote: {
-      es: "En El Búho Tuerto no cocinamos para ganar premios. Cocinamos con el corazón, con fuego y con la pasión de nuestra tierra. Pero cuando el reconocimiento llega, lo recibimos con humildad y orgullo, sabiendo que cada premio es un reflejo del cariño que ponemos en cada plato.",
-      "es-ar": "En El Búho Tuerto no cocinamos para ganar premios. Cocinamos con el corazón, con fuego y con la pasión de nuestra tierra. Pero cuando el reconocimiento llega, lo recibimos con humildad y orgullo, sabiendo que cada premio es un reflejo del cariño que ponemos en cada plato.",
-      en: "At El Búho Tuerto, we don't cook to win awards. We cook with heart, with fire, and with the passion of our homeland. But when recognition comes, we receive it with humility and pride, knowing that each award is a reflection of the love we put into every dish.",
-      de: "Im El Búho Tuerto kochen wir nicht, um Preise zu gewinnen. Wir kochen mit Herz, mit Feuer und mit der Leidenschaft unserer Heimat. Aber wenn Anerkennung kommt, empfangen wir sie mit Demut und Stolz, denn wir wissen, dass jeder Preis ein Spiegelbild der Liebe ist, die wir in jedes Gericht stecken.",
+      es: "Con pasión, fuego y los mejores ingredientes, llevamos la auténtica experiencia del asado argentino a tu mesa. Nuestra dedicación ha sido premiada en múltiples ocasiones: somos orgullosos ganadores de varios reconocidos premios.",
+      "es-ar":
+        "Con pasión, fuego y los mejores ingredientes, llevamos la auténtica experiencia del asado argentino a tu mesa. Nuestra dedicación ha sido premiada en múltiples ocasiones: somos orgullosos ganadores de varios reconocidos premios.",
+      en: "With passion, fire, and the finest ingredients, we bring the authentic Argentine barbecue experience to your table. Our dedication has been recognized on multiple occasions: we are proud winners of several prestigious awards.",
+      de: "Mit Leidenschaft, Feuer und den besten Zutaten bringen wir das authentische Erlebnis des argentinischen Grillens auf Ihren Tisch. Unser Engagement wurde mehrfach ausgezeichnet: Wir sind stolze Gewinner mehrerer renommierter Preise.",
     },
     author: {
-      es: "El Equipo",
-      "es-ar": "El Equipo",
-      en: "The Team",
-      de: "Das Team",
+      es: "Excelencia & Tradición",
+      "es-ar": "Excelencia & Tradición",
+      en: "Excelencia & Tradición",
+      de: "Exzellenz & Tradition",
     },
   },
 };

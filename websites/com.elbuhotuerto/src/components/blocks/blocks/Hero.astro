@@ -1,46 +1,21 @@
 ---
-import type { CollectionEntry } from "astro:content";
-import { convertI18n } from "../../../content/utils";
-import { t } from "../../../utils/t";
-
 type Props = {
-  lang: CollectionEntry<"languages">["data"];
-  defaultLang: CollectionEntry<"languages">["data"];
-  data: any;
+  title?: string;
+  subtitle?: string;
+  logo?: string;
+  video?: string;
+  links?: { href: string; label: string }[];
+  background?: string;
 };
 
-const { data, lang, defaultLang } = Astro.props;
-
-const video = data.video;
-const background = "";
-const logo = "/chiquita.webp";
-const title = t(
-  convertI18n(data?.translations, "title", defaultLang.code),
-  lang?.code
-);
-const subtitle = t(
-  convertI18n(data?.translations, "subtitle", defaultLang.code),
-  lang?.code
-);
-
-const links: { href: string; label: string }[] = data.links.map((link: any) => {
-  const slug = t(
-    convertI18n(link?.actions_id?.page.slugs, "slug", defaultLang.code),
-    lang?.code
-  );
-
-  const href =
-    defaultLang.code === lang.code ? `/${slug}` : `/${lang.code}/${slug}`;
-
-  const label = t(
-    convertI18n(link?.actions_id?.translations, "label", defaultLang.code),
-    lang?.code
-  );
-  return {
-    href: href,
-    label: label,
-  };
-});
+const {
+  title,
+  subtitle,
+  links = [],
+  logo = "/hero.webp",
+  video = "/hero.mp4",
+  background,
+} = Astro.props;
 ---
 
 <section

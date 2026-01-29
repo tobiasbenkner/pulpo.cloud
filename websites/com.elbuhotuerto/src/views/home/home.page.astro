@@ -3,6 +3,7 @@ import type { HomeTranslations } from "./home.i18n";
 import type { Language } from "../../lib/i18n";
 import { getTranslatedPath } from "../../lib/registry";
 import SectionHeader from "../../components/ui/SectionHeader.astro";
+import Hero from "../../components/blocks/blocks/Hero.astro";
 
 interface Props {
   lang: Language;
@@ -17,88 +18,18 @@ const logo = "/chiquita.webp";
 const sittings = t.schedule.sittings;
 ---
 
-<!-- HERO SECTION -->
-<section
-  class="relative w-full overflow-hidden flex items-center justify-center bg-background"
-  style="height: calc(100svh - 64px);"
->
-  <div class="absolute inset-0 z-0">
+<Hero
+  title={t.hero.title}
+  subtitle={t.hero.subtitle}
+  logo={logo}
+  video={video}
+  links={[
     {
-      !!video ? (
-        <video
-          class="w-full h-full object-cover opacity-70"
-          src={video}
-          autoplay
-          muted
-          loop
-          playsinline
-        />
-      ) : (
-        <div class="w-full h-full bg-cover bg-center opacity-70" />
-      )
-    }
-
-    <div
-      class="absolute inset-0 bg-linear-to-b from-black/50 via-transparent to-black/80"
-    >
-    </div>
-  </div>
-
-  <div class="relative z-10 w-full max-w-4xl px-6 text-center -mt-20 md:-mt-24">
-    <div class="animate-fade-in">
-      {
-        logo && (
-          <div class="mb-8 drop-shadow-2xl">
-            <img
-              src={logo}
-              alt="Logo"
-              class="h-auto w-full mx-auto max-w-64 md:max-w-md brightness-110"
-            />
-          </div>
-        )
-      }
-
-      {
-        t.hero.title && (
-          <h1 class="text-4xl md:text-7xl font-light tracking-tight text-white mb-4 uppercase">
-            {t.hero.title}
-          </h1>
-        )
-      }
-
-      {
-        t.hero.subtitle && (
-          <p class="text-xl md:text-2xl text-gray-200 font-serif italic tracking-wide mb-10 max-w-2xl mx-auto leading-relaxed drop-shadow-sm">
-            {t.hero.subtitle}
-          </p>
-        )
-      }
-
-      <div class="flex justify-center mt-8">
-        <a
-          href={getTranslatedPath("menu", lang)}
-          class="group relative inline-block px-10 py-4 overflow-hidden border border-white/30 rounded-sm transition-all duration-500 hover:border-white"
-        >
-          <span
-            class="relative z-10 text-xs md:text-sm font-medium tracking-[0.3em] text-white uppercase transition-colors duration-500"
-          >
-            {t.hero.cta}
-          </span>
-          <div
-            class="absolute inset-0 z-0 bg-white/10 translate-y-full transition-transform duration-500 ease-out group-hover:translate-y-0"
-          >
-          </div>
-        </a>
-      </div>
-    </div>
-  </div>
-
-  <div
-    class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce opacity-40 z-20"
-  >
-    <div class="w-px h-16 bg-linear-to-b from-white to-transparent"></div>
-  </div>
-</section>
+      href: getTranslatedPath("menu", lang),
+      label: t.hero.cta,
+    },
+  ]}
+/>
 
 <!-- AWARDS SECTION -->
 <section class="relative bg-background py-16 md:py-24 px-6 overflow-hidden">
