@@ -4,6 +4,23 @@ import type { Language } from "../../lib/i18n";
 import { getTranslatedPath } from "../../lib/registry";
 import SectionHeader from "../../components/ui/SectionHeader.astro";
 import Hero from "../../components/blocks/blocks/Hero.astro";
+import Awards from "../../components/blocks/blocks/Awards.astro";
+
+import general from "../../assets/awards/general.webp";
+import g16_ta from "../../assets/awards/16-ta.webp";
+import g17_ta from "../../assets/awards/17-ta.webp";
+import g18_ta from "../../assets/awards/18-ta.webp";
+import g19_ta from "../../assets/awards/19-ta.webp";
+import g20_guru from "../../assets/awards/20-guru.webp";
+import g20_tc from "../../assets/awards/20-tc.webp";
+import g21_ta from "../../assets/awards/21-ta.webp";
+import g21_tc from "../../assets/awards/21-tc.webp";
+import g22_guru from "../../assets/awards/22-guru.webp";
+import g22_tc from "../../assets/awards/22-tc.webp";
+import g23_tc from "../../assets/awards/23-tc.webp";
+import g24_ta from "../../assets/awards/24-ta.webp";
+import g25_guru from "../../assets/awards/25-guru.webp";
+import g25_ta from "../../assets/awards/25-ta.webp";
 
 interface Props {
   lang: Language;
@@ -31,34 +48,74 @@ const sittings = t.schedule.sittings;
   ]}
 />
 
-<!-- AWARDS SECTION -->
-<section class="relative bg-background py-16 md:py-24 px-6 overflow-hidden">
-  <div class="max-w-6xl mx-auto">
-    <SectionHeader subtitle={t.awards.subtitle} title={t.awards.title} />
-
-    <div class="flex flex-col items-center mt-12">
-      <div class="relative max-w-3xl">
-        <span
-          class="text-6xl md:text-8xl text-amber-200/60 font-serif absolute -top-8 md:-top-12 -left-4 md:-left-10 select-none"
-          >"</span
-        >
-        <p
-          class="text-lg md:text-2xl font-serif text-gray-300 leading-relaxed tracking-wide relative z-10 font-light text-center"
-        >
-          {t.awards.quote}
-        </p>
-      </div>
-      <div class="mt-12 flex items-center gap-4">
-        <div class="h-px w-16 bg-amber-200/60"></div>
-        <span
-          class="text-xs md:text-sm tracking-[0.3em] text-amber-200/60 uppercase font-medium"
-          >{t.awards.author}</span
-        >
-        <div class="h-px w-16 bg-amber-200/60"></div>
-      </div>
-    </div>
-  </div>
-</section>
+<Awards
+  title={t.awards.title}
+  subtitle={t.awards.subtitle}
+  text={t.awards.quote}
+  author={t.awards.author}
+  awards={[
+    {
+      src: general,
+      alt: "Mejor Premio",
+    },
+    {
+      src: g16_ta,
+      alt: "Trip Advisor 2016",
+    },
+    {
+      src: g17_ta,
+      alt: "Trip Advisor 2017",
+    },
+    {
+      src: g18_ta,
+      alt: "Trip Advisor 2018",
+    },
+    {
+      src: g19_ta,
+      alt: "Trip Advisor 2019",
+    },
+    {
+      src: g20_guru,
+      alt: "Restaurant Guru 2020",
+    },
+    {
+      src: g20_tc,
+      alt: "Travelers Choice 20",
+    },
+    {
+      src: g21_ta,
+      alt: "Trip Advisor 2021",
+    },
+    {
+      src: g21_tc,
+      alt: "Travelers Choice 2021",
+    },
+    {
+      src: g22_guru,
+      alt: "Restaurant Guru 2022",
+    },
+    {
+      src: g22_tc,
+      alt: "Travelers Choice 2022",
+    },
+    {
+      src: g23_tc,
+      alt: "Travelers Choice 2023",
+    },
+    {
+      src: g24_ta,
+      alt: "Trip Advisor 2024",
+    },
+    {
+      src: g25_guru,
+      alt: "Restaurant Guru 2025",
+    },
+    {
+      src: g25_ta,
+      alt: "Trip Advisor 2025",
+    },
+  ]}
+/>
 
 <!-- ABOUT SECTION -->
 <section class="bg-background py-24 px-6 relative overflow-hidden">
