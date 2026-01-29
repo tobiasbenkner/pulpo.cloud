@@ -2,6 +2,7 @@
 import ProductCard from "./ProductCard.astro";
 import { Image } from "astro:assets";
 import { imageUrl, type ProductCategory } from "@pulpo/cms";
+import punto from "@/assets/punto.webp";
 
 type Props = {
   category: ProductCategory;
@@ -52,11 +53,7 @@ if (
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
-    {
-      category.products.map((product) => (
-        <ProductCard product={product} />
-      ))
-    }
+    {category.products.map((product) => <ProductCard product={product} />)}
   </div>
 
   {
@@ -67,7 +64,7 @@ if (
           papas panaderas
         </div>
         <div class="mt-8 w-full flex justify-center">
-          <img class="w-full max-w-3xl" src="/punto.webp" />
+          <Image src={punto} class="w-full max-w-3xl" alt="Punto de la carne" />
         </div>
       </>
     )
