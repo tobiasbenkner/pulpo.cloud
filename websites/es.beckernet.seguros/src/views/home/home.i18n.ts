@@ -3,7 +3,7 @@ import type { FlattenTranslation } from "@/lib/i18n";
 export const translations = {
   navigationLabel: {
     es: "Inicio",
-    de: "Start",
+    de: "Startseite",
     en: "Home",
   },
   seo: {
@@ -67,14 +67,14 @@ export const translations = {
         },
         desc: {
           es: "Siempre buscando maximizar coberturas y minimizar costos para encontrar la mejor relación calidad-precio.",
-          de: "Immer darauf bedacht, die Deckung zu maximieren und die Kosten zu minimieren, um das beste Preis-Leistungs-Verhältnis zu finden.",
+          de: "Immer darauf bedacht, die Deckung zu maximieren und die Kosten zu minimieren, um das beste Preis-Leistungs-Verhältnis für Sie zu finden.",
           en: "Always seeking to maximize coverage and minimize costs to find the best value for money.",
         },
       },
       claims: {
         title: {
           es: "Gestión de siniestros",
-          de: "Schadensmanagement",
+          de: "Schadenmanagement",
           en: "Claims management",
         },
         desc: {
@@ -91,7 +91,7 @@ export const translations = {
         },
         desc: {
           es: "Seguridad, ahorro y tranquilidad, todo de la mano de un profesional que trabaja para ti, no para las aseguradoras.",
-          de: "Sicherheit, Ersparnis und Ruhe, alles aus der Hand eines Profis, der für Sie arbeitet, nicht für die Versicherer.",
+          de: "Sicherheit, Ersparnis und Gelassenheit - alles aus der Hand eines Profis, der für Sie arbeitet, nicht für die Versicherer.",
           en: "Security, savings, and peace of mind, all from a professional who works for you, not for the insurers.",
         },
       },
@@ -163,7 +163,11 @@ export const translations = {
         en: "Health",
       },
       items: {
-        es: ["Asistencia sanitaria", "Seguros de reembolso", "Incapacidad laboral"],
+        es: [
+          "Asistencia sanitaria",
+          "Seguros de reembolso",
+          "Incapacidad laboral",
+        ],
         de: ["Krankenversicherung", "Kostenerstattung", "Arbeitsunfähigkeit"],
         en: ["Medical assistance", "Reimbursement", "Temporary disability"],
       },
@@ -176,7 +180,7 @@ export const translations = {
       },
       items: {
         es: ["Vida-riesgo", "Accidentes", "Vida-ahorro"],
-        de: ["Risikoleben", "Unfälle", "Kapitallebens"],
+        de: ["Risikoleben", "Unfälle", "Kapitallebensvers."],
         en: ["Term life", "Accidents", "Endowment"],
       },
     },
@@ -194,7 +198,7 @@ export const translations = {
     },
     empty: {
       es: "Aún no se ha escrito ningún artículo",
-      de: "Es wurden noch keine Artikel geschrieben",
+      de: "Es wurden noch keine Artikel verfasst",
       en: "No articles have been written yet",
     },
   },

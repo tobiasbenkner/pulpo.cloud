@@ -59,7 +59,7 @@ export const translations = {
       name: "Divina Seguros",
       description: {
         es: "Con sede en Valencia desde 1957, esta compañía se centra en soluciones de seguros orientadas a la familia. Divina ofrece productos flexibles con un enfoque en el servicio personalizado sin sacrificar la modernidad tecnológica.",
-        de: "Valencia-basiert seit 1957, konzentriert sich diese Gesellschaft auf familienfreundliche Versicherungslösungen. Divina bietet flexible Produkte mit Fokus auf persönlichen Service ohne technologische Modernität einzubußen.",
+        de: "Seit 1957 in Valencia ansässig, konzentriert sich diese Gesellschaft auf familienfreundliche Versicherungslösungen. Divina bietet flexible Produkte mit Fokus auf persönlichen Service, ohne auf technologische Modernität zu verzichten.",
         en: "Based in Valencia since 1957, this company focuses on family-oriented insurance solutions. Divina offers flexible products with a focus on personalized service without sacrificing technological modernity.",
       },
     },
@@ -75,7 +75,7 @@ export const translations = {
       name: "Euroins",
       description: {
         es: "La fundación de Bulgaria (1998) condujo a un rápido crecimiento en Europa Central y Oriental. Euroins se centra en diversos tipos de seguros con capacidad de adaptación a los mercados emergentes.",
-        de: "Bulgariens Gründung (1998) führte zu schnellem Wachstum in Mittel- und Osteuropa. Euroins fokussiert auf vielfältige Versicherungstypen mit Anpassungsfähigkeit an Schwellenmärkte.",
+        de: "Die Gründung in Bulgarien (1998) führte zu schnellem Wachstum in Mittel- und Osteuropa. Euroins fokussiert sich auf vielfältige Versicherungstypen mit hoher Anpassungsfähigkeit an Schwellenmärkte.",
         en: "Bulgaria's founding (1998) led to rapid growth in Central and Eastern Europe. Euroins focuses on various types of insurance with adaptability to emerging markets.",
       },
     },
@@ -83,7 +83,7 @@ export const translations = {
       name: "FIATC",
       description: {
         es: "Fundada en Barcelona (1930) como cooperativa de seguros de transporte, se ha convertido en líder del sector en España. FIATC combina valores tradicionales con innovación tecnológica.",
-        de: "Barcelona-Gründung (1930) als Transportversicherer-Genossenschaft, entwickelte sich zu spanischem Branchenführer. FIATC kombiniert traditionelle Werte mit technologischer Innovation.",
+        de: "1930 in Barcelona als Transportversicherer-Genossenschaft gegründet, entwickelte sich das Unternehmen zu einem spanischen Branchenführer. FIATC kombiniert traditionelle Werte mit technologischer Innovation.",
         en: "Founded in Barcelona (1930) as a transport insurance cooperative, it has become an industry leader in Spain. FIATC combines traditional values with technological innovation.",
       },
     },
@@ -91,7 +91,7 @@ export const translations = {
       name: "Generali",
       description: {
         es: "La fundación de Trieste (1831) convirtió a Generali en una de las aseguradoras más antiguas del mundo. La empresa opera en más de 50 países con un enfoque en la sostenibilidad y la innovación digital.",
-        de: "Triests Gründung (1831) machte Generali zu einem der ältesten Versicherer weltweit. Das Unternehmen operiert in über 50 Ländern mit Fokus auf Nachhaltigkeit und digitale Innovation.",
+        de: "Die Gründung 1831 in Triest machte Generali zu einem der ältesten Versicherer weltweit. Das Unternehmen operiert in über 50 Ländern mit Fokus auf Nachhaltigkeit und digitale Innovation.",
         en: "Trieste's founding (1831) made Generali one of the oldest insurers in the world. The company operates in over 50 countries with a focus on sustainability and digital innovation.",
       },
     },
@@ -99,7 +99,7 @@ export const translations = {
       name: "Hiscox",
       description: {
         es: "Fundada en 1901 como aseguradora británica especializada en riesgos marítimos y de transporte, Hiscox se ha convertido en proveedor global de soluciones altamente especializadas (ciberseguridad, objetos de arte, PYMES).",
-        de: "1901 gegründet als britischer Spezialversicherer für See- und Transportrisiken, entwickelte sich Hiscox zum globalen Anbieter hochspezialisierter Lösungen (Cybersicherheit, Kunstobjekte, KMU).",
+        de: "1901 als britischer Spezialversicherer für See- und Transportrisiken gegründet, entwickelte sich Hiscox zum globalen Anbieter hochspezialisierter Lösungen (Cybersicherheit, Kunstobjekte, KMU).",
         en: "Founded in 1901 as a British specialist insurer for marine and transport risks, Hiscox has become a global provider of highly specialized solutions (cybersecurity, art objects, SMEs).",
       },
     },
@@ -107,7 +107,7 @@ export const translations = {
       name: "Life 5",
       description: {
         es: "Joven especialista español en seguros de vida con enfoque digital. Life 5 ofrece productos simplificados y transparentes para las necesidades de los clientes modernos.",
-        de: "Junger spanischer Spezialist für Lebensversicherung mit digitaler Fokussierung. Life 5 bietet vereinfachte, transparente Produkte für moderne Kundenbedürfnisse.",
+        de: "Junger spanischer Spezialist für Lebensversicherungen mit digitaler Fokussierung. Life 5 bietet vereinfachte, transparente Produkte für moderne Kundenbedürfnisse.",
         en: "Young Spanish life insurance specialist with digital focus. Life 5 offers simplified, transparent products for modern customer needs.",
       },
     },
@@ -115,7 +115,7 @@ export const translations = {
       name: "Mapfre",
       description: {
         es: "Fundada en 1933 como cooperativa agraria, Mapfre creció hasta convertirse en un gigante global. Con presencia en más de 40 países, la compañía combina innovación con una sólida posición financiera.",
-        de: "1933 als Agrar-Genossenschaft gegründet, wuchs Mapfre zum globalen Giganten heran. Mit Präsenz in 40+ Ländern vereint die Gesellschaft Innovation mit solider Finanzposition.",
+        de: "1933 als Agrar-Genossenschaft gegründet, wuchs Mapfre zu einem globalen Giganten heran. Mit Präsenz in über 40 Ländern vereint die Gesellschaft Innovation mit solider Finanzposition.",
         en: "Founded in 1933 as an agricultural cooperative, Mapfre grew into a global giant. With presence in 40+ countries, the company combines innovation with a solid financial position.",
       },
     },
@@ -123,7 +123,7 @@ export const translations = {
       name: "Mutua de Propietarios",
       description: {
         es: "La aseguradora de inmuebles más antigua de España (Barcelona 1835), especializada en edificios y comunidades de propietarios. Servicios digitales modernos complementan dos siglos de experiencia.",
-        de: "Spaniens ältester Immobilienversicherer (Barcelona 1835), spezialisiert auf Gebäude und Hausbesitzerverbände. Moderne digitale Services ergänzen zwei Jahrhunderte Erfahrung.",
+        de: "Spaniens ältester Immobilienversicherer (Barcelona 1835), spezialisiert auf Gebäude und Eigentümergemeinschaften. Moderne digitale Services ergänzen zwei Jahrhunderte Erfahrung.",
         en: "Spain's oldest property insurer (Barcelona 1835), specialized in buildings and homeowners' associations. Modern digital services complement two centuries of experience.",
       },
     },
@@ -131,7 +131,7 @@ export const translations = {
       name: "HNA",
       description: {
         es: "Fundada en 1944 para la seguridad social de arquitectos, HNA se expandió más tarde a diversos sectores. La oferta incluye planes de salud, vida, pensiones y ahorro.",
-        de: "1944 gegründet für Architekten-Sozialversicherung, erweiterte HNA später auf diverse Sektoren. Das Angebot umfasst Kranken-, Lebens-, Renten- und Sparpläne.",
+        de: "1944 für die Architekten-Sozialversicherung gegründet, erweiterte HNA später auf diverse Sektoren. Das Angebot umfasst Kranken-, Lebens-, Renten- und Sparpläne.",
         en: "Founded in 1944 for architects' social security, HNA later expanded to various sectors. The offering includes health, life, pension and savings plans.",
       },
     },
@@ -139,7 +139,7 @@ export const translations = {
       name: "Grupo Catalana Occidente",
       description: {
         es: "Fundado en 1864, el grupo creció a través de adquisiciones hasta convertirse en actor global en más de 50 países. El enfoque está en la digitalización, la sostenibilidad y la innovación orientada al cliente.",
-        de: "1864 gegründet, wuchs die Gruppe durch Akquisitionen zu globalem Akteur in 50+ Ländern. Fokus liegt auf Digitalisierung, Nachhaltigkeit und kundenorientierter Innovation.",
+        de: "1864 gegründet, wuchs die Gruppe durch Akquisitionen zu einem globalen Akteur in über 50 Ländern. Der Fokus liegt auf Digitalisierung, Nachhaltigkeit und kundenorientierter Innovation.",
         en: "Founded in 1864, the group grew through acquisitions to become a global player in 50+ countries. Focus is on digitalization, sustainability and customer-oriented innovation.",
       },
     },
@@ -147,7 +147,7 @@ export const translations = {
       name: "Santa Lucía",
       description: {
         es: "Fundada en 1922 especializada en seguros de decesos, Santa Lucía diversificó posteriormente su cartera. Con más de 100 años de experiencia, la compañía combina fiabilidad con progreso tecnológico.",
-        de: "1922 gegründet spezialisiert auf Bestattungsversicherung, diversifizierte Santa Lucía sein Portfolio später. Mit 100+ Jahren Erfahrung kombiniert die Gesellschaft Zuverlässigkeit mit technologischem Fortschritt.",
+        de: "1922 gegründet und spezialisiert auf Sterbegeldversicherung, diversifizierte Santa Lucía sein Portfolio später. Mit über 100 Jahren Erfahrung kombiniert die Gesellschaft Zuverlässigkeit mit technologischem Fortschritt.",
         en: "Founded in 1922 specialized in funeral insurance, Santa Lucía later diversified its portfolio. With 100+ years of experience, the company combines reliability with technological progress.",
       },
     },
@@ -155,7 +155,7 @@ export const translations = {
   cta: {
     text: {
       es: "¿Necesita asesoramiento?",
-      de: "Brauchen Sie Beratung?",
+      de: "Benötigen Sie Beratung?", // Statt "Brauchen Sie"
       en: "Need advice?",
     },
     btn: {

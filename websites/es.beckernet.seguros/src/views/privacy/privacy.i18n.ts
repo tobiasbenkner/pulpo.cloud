@@ -36,16 +36,32 @@ export const translations = {
       de: "Wir nehmen die Privatsphäre unserer Kunden und Besucher sehr ernst. Diese Datenschutzerklärung beschreibt, wie wir Ihre persönlichen Daten erfassen, verwenden und schützen.",
       en: "We take the privacy of our clients and visitors very seriously. This Privacy Policy describes how we collect, use, and protect your personal information.",
     },
-    h1: { es: "1. Responsable del Tratamiento", de: "1. Verantwortlicher", en: "1. Data Controller" },
-    h2: { es: "2. Finalidad del Tratamiento", de: "2. Zweck der Verarbeitung", en: "2. Purpose of Processing" },
+    h1: {
+      es: "1. Responsable del Tratamiento",
+      de: "1. Verantwortlicher",
+      en: "1. Data Controller",
+    },
+    h2: {
+      es: "2. Finalidad del Tratamiento",
+      de: "2. Zweck der Verarbeitung",
+      en: "2. Purpose of Processing",
+    },
     p2_intro: {
       es: "Tratamos la información que nos facilitan las personas interesadas con el fin de:",
       de: "Wir verarbeiten die uns von interessierten Personen zur Verfügung gestellten Informationen zu folgenden Zwecken:",
       en: "We process the information provided by interested persons in order to:",
     },
     p2_list: {
-      l1: { es: "Gestionar los servicios solicitados.", de: "Verwaltung der angeforderten Dienstleistungen.", en: "Manage requested services." },
-      l2: { es: "Responder a consultas realizadas a través del formulario de contacto.", de: "Beantwortung von Anfragen über das Kontaktformular.", en: "Respond to inquiries made through the contact form." },
+      l1: {
+        es: "Gestionar los servicios solicitados.",
+        de: "Verwaltung der angeforderten Dienstleistungen.",
+        en: "Manage requested services.",
+      },
+      l2: {
+        es: "Responder a consultas realizadas a través del formulario de contacto.",
+        de: "Beantwortung von Anfragen über das Kontaktformular.",
+        en: "Respond to inquiries made through the contact form.",
+      },
     },
     h3: { es: "3. Derechos", de: "3. Rechte", en: "3. Rights" },
     p3: {

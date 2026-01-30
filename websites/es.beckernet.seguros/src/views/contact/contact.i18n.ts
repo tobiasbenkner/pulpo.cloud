@@ -93,7 +93,7 @@ export const translations = {
     },
     showMap: {
       es: "Mostrar mapa",
-      de: "Zeige Karte",
+      de: "Karte anzeigen",
       en: "Show map",
     },
   },

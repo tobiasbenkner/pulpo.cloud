@@ -83,7 +83,7 @@ export const translations = {
   cta: {
     text: {
       es: "¿Hablamos?",
-      de: "Sprechen wir?",
+      de: "Lassen Sie uns sprechen",
       en: "Shall we talk?",
     },
     button: {
