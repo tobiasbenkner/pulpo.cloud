@@ -1,49 +1,21 @@
 ---
-import { getCollection, getEntry, type CollectionEntry } from "astro:content";
 import Icon from "./ui/Icon.astro";
-import { t } from "../utils/t";
 import { Image } from "astro:assets";
+import { getTenant } from "@/lib/directus";
+import { getFooterItems } from "./navbar/getNavbarItems";
+import { getNavbarItems } from "./navbar/getNavbarItems";
+import logo from "../assets/chiquita.webp";
 
 interface Props {
-  lang: CollectionEntry<"languages">["data"];
-  languages: CollectionEntry<"languages">["data"][];
+  lang: string;
 }
 
+const tenant = await getTenant();
+const { lang } = Astro.props;
+
 const currentYear = new Date().getFullYear();
-const entry = await getEntry("tenant", "main");
-const tenant = entry?.data;
-
-const { data: footerNav } =
-  (await getCollection("navigations"))
-    .filter((it) => it.data.type === "footer")
-    .at(0) ?? {};
-
-const { lang, languages } = Astro.props;
-const defaultLang = languages.at(0);
-const isDefaultLanguage = defaultLang?.code === lang.code;
-
-const navLinks = (footerNav?.navigation_items ?? []).map((it) => {
-  const name = t(it.label, lang.code);
-  const slug = t(it.page?.slug, lang.code);
-
-  let href = "";
-  if (isDefaultLanguage) {
-    href = slug ? `/${slug}` : "/";
-  } else {
-    href = slug ? `/${lang.code}/${slug}` : `/${lang.code}`;
-  }
-
-  return {
-    name: name,
-    href: href,
-  };
-});
-
-const legal = [
-  { label: "Aviso Legal", href: "/legal" },
-  { label: "Política de Privacidad", href: "/privacidad" },
-  { label: "Cookies", href: "/cookies" },
-];
+const navHeader = await getNavbarItems(lang as any, Astro.url.pathname);
+const navFooter = await getFooterItems(lang as any, Astro.url.pathname);
 ---
 
 <footer
@@ -62,31 +34,21 @@ const legal = [
     >
       <!-- Spalte 1: Brand -->
       <div class="lg:col-span-5 space-y-6">
-        {
-          footerNav?.image?.src && (
-            <div>
-              <Image
-                src={footerNav.image.src}
-                height={footerNav?.image?.height}
-                width={footerNav?.image?.width}
-                alt="Logo"
-                class="h-24 w-auto object-contain"
-              />
-            </div>
-          )
-        }
+        <div>
+          <Image src={logo} alt="Logo" class="h-24 w-auto object-contain" />
+        </div>
 
         <!-- Social Icons -->
         <div class="flex flex-wrap gap-4">
           {
-            (tenant?.social_links ?? []).map((social) => (
+            Object.keys(tenant.social).map((socialKey) => (
               <a
-                href={social.url}
+                href={tenant.social[socialKey] as any}
                 target="_blank"
-                aria-label={social.name}
+                aria-label={socialKey}
                 class="w-10 h-10 flex items-center justify-center rounded-full border border-white/10 text-gray-400 hover:text-amber-200 hover:border-amber-200/50 hover:bg-white/5 transition-all duration-300"
               >
-                <Icon name={social.name as any} size={26} />
+                <Icon name={socialKey as any} size={26} />
               </a>
             ))
           }
@@ -100,14 +62,14 @@ const legal = [
         </h3>
         <ul class="space-y-4">
           {
-            navLinks.map((link) => (
+            navHeader.map((link) => (
               <li>
                 <a
                   href={link.href}
                   class="text-sm tracking-[0.2em] uppercase text-gray-400 hover:text-white transition-colors duration-300 flex items-center gap-2 group"
                 >
                   <span class="w-0 h-px bg-amber-200 transition-all duration-300 group-hover:w-4" />
-                  {link.name}
+                  {link.label}
                 </a>
               </li>
             ))
@@ -147,7 +109,7 @@ const legal = [
 
       <div class="flex flex-wrap gap-6 justify-center">
         {
-          legal.map((item) => (
+          navFooter.map((item) => (
             <a
               href={item.href}
               class="text-[10px] tracking-widest uppercase text-gray-600 hover:text-gray-400 transition-colors"

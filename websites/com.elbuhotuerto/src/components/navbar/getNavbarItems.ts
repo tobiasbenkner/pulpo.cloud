@@ -7,20 +7,35 @@ export type NavbarItem = {
   isActive: boolean;
 };
 
+const createItem = (
+  routeKey: string,
+  lang: Language,
+  currentPath: string,
+): NavbarItem => {
+  const href = getTranslatedPath(routeKey, lang);
+  return {
+    label: getRouteLabel(routeKey, lang),
+    href,
+    isActive:
+      currentPath === href ||
+      (href !== "/" && href !== `/${lang}` && currentPath.startsWith(href)),
+  };
+};
+
 export async function getNavbarItems(
   lang: Language,
   currentPath: string,
 ): Promise<NavbarItem[]> {
-  const createItem = (routeKey: string): NavbarItem => {
-    const href = getTranslatedPath(routeKey, lang);
-    return {
-      label: getRouteLabel(routeKey, lang),
-      href,
-      isActive:
-        currentPath === href ||
-        (href !== "/" && href !== `/${lang}` && currentPath.startsWith(href)),
-    };
-  };
+  return ["home", "menu", "contact"].map((routeKey) =>
+    createItem(routeKey, lang, currentPath),
+  );
+}
 
-  return ["home", "menu", "contact"].map(createItem);
+export async function getFooterItems(
+  lang: Language,
+  currentPath: string,
+): Promise<NavbarItem[]> {
+  return ["legal", "privacy", "cookies"].map((routeKey) =>
+    createItem(routeKey, lang, currentPath),
+  );
 }

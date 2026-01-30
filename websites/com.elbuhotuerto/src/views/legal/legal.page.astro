@@ -1,0 +1,34 @@
+---
+import SectionHeader from "@/components/ui/SectionHeader.astro";
+import type { LegalTranslations } from "./legal.i18n";
+import type { Language } from "@/lib/i18n";
+
+interface Props {
+  lang: Language;
+  t: LegalTranslations;
+}
+
+const { t } = Astro.props;
+---
+
+<div class="bg-background min-h-screen py-32 px-6">
+  <div class="max-w-3xl mx-auto">
+    <!-- Header -->
+    <div class="mb-16 text-center">
+      <SectionHeader title={t.title} subtitle={t.subtitle} align="center" />
+      <p class="text-xs tracking-[0.2em] uppercase text-white/30 mt-8">
+        {t.lastUpdate}
+      </p>
+    </div>
+
+    <!-- Text Content -->
+    <article
+      class="prose prose-invert prose-lg max-w-none
+      prose-headings:font-serif prose-headings:font-normal prose-headings:text-amber-200
+      prose-p:text-gray-300 prose-p:leading-relaxed prose-p:font-light
+      prose-strong:text-white prose-strong:font-medium
+      prose-a:text-amber-200 prose-a:no-underline hover:prose-a:underline"
+      set:html={t.content}
+    />
+  </div>
+</div>
