@@ -3,6 +3,7 @@ import type { ContactTranslations } from "./contact.i18n";
 import { type Language } from "../../lib/i18n";
 import { getTenant } from "@/lib/directus";
 import Location from "@/components/blocks/blocks/Location.astro";
+import ContactCta from "@/components/blocks/blocks/ContactCta.astro";
 
 interface Props {
   lang: Language;
@@ -13,4 +14,10 @@ const { lang, t } = Astro.props;
 const tenant = await getTenant();
 ---
 
-<Location tenant={tenant} title={t.title} subtitle={t.subtitle} lang={lang} />
+<ContactCta tenant={tenant} title={t.title} subtitle={t.subtitle} lang={lang} />
+<Location
+  tenant={tenant}
+  title={t.contact_cta.title}
+  subtitle={t.contact_cta.subtitle}
+  lang={lang}
+/>

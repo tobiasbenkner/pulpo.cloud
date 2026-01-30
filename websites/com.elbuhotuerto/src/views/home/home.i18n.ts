@@ -294,6 +294,20 @@ Im El Búho Tuerto ehren wir diesen Kampf mit jedem Gericht, mit jeder glühende
       de: "Exzellenz & Tradition",
     },
   },
+  contact_cta: {
+    title: {
+      es: "Contacta & Reserva",
+      "es-ar": "Contacta & Reserva",
+      en: "Contact & Booking",
+      de: "Kontakt & Buchung",
+    },
+    subtitle: {
+      es: "Estamos aquí para ti",
+      "es-ar": "Estamos aquí para ti",
+      en: "We are here for you",
+      de: "Wir sind für Sie da",
+    },
+  },
 };
 
 export type HomeTranslations = FlattenTranslation<typeof translations>;

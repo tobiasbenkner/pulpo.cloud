@@ -1,54 +1,20 @@
 ---
-import { convertI18n } from "../../../content/utils";
-import { t } from "../../../utils/t";
 import SectionHeader from "../../ui/SectionHeader.astro";
 import { Icon } from "astro-icon/components";
 import Whatsapp from "../../Whatsapp.astro";
+import type { Tenant } from "@pulpo/cms";
+import { resolveTranslations } from "@/lib/i18n";
 
-const { data, lang, defaultLang } = Astro.props;
+type Props = {
+  title: string;
+  subtitle: string;
+  tenant: Tenant;
+  lang: string;
+};
 
-const title = t(
-  convertI18n(data?.translations, "title", defaultLang.code),
-  lang?.code
-);
-const subtitle = t(
-  convertI18n(data?.translations, "subtitle", defaultLang.code),
-  lang?.code
-);
+const { title, subtitle, tenant, lang } = Astro.props;
 
-const actions = data.links;
-
-const contactInfos = (actions ?? []).map((it: any) => {
-  const action = it.actions_id;
-
-  const label = t(
-    convertI18n(action?.translations, "label", defaultLang?.code),
-    lang?.code
-  );
-
-  const title = t(
-    convertI18n(action?.translations, "title", defaultLang?.code),
-    lang?.code
-  );
-
-  const subtitle = t(
-    convertI18n(action?.translations, "subtitle", defaultLang?.code),
-    lang?.code
-  );
-
-  const actionLabel = t(
-    convertI18n(action?.translations, "action", defaultLang?.code),
-    lang?.code
-  );
-
-  return {
-    ...action,
-    title: title,
-    subtitle: subtitle,
-    action: actionLabel,
-    label: label,
-  };
-});
+const contacts = resolveTranslations(tenant.contacts, lang);
 
 function getColor(type: string) {
   if (type === "whatsapp") {
@@ -69,7 +35,7 @@ function getColor(type: string) {
 
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
     {
-      contactInfos.map((it: any) => {
+      contacts.map((it) => {
         return (
           <a
             href={it.url}

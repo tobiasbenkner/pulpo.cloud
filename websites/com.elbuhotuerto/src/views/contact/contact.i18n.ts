@@ -16,7 +16,8 @@ export const translations = {
     },
     description: {
       es: "Reserva tu mesa en El Búho Tuerto. Encuéntranos en C. Tomás Miller 13, Las Palmas de Gran Canaria.",
-      "es-ar": "Reservá tu mesa en El Búho Tuerto. Encontranos en C. Tomás Miller 13, Las Palmas de Gran Canaria.",
+      "es-ar":
+        "Reservá tu mesa en El Búho Tuerto. Encontranos en C. Tomás Miller 13, Las Palmas de Gran Canaria.",
       en: "Book your table at El Búho Tuerto. Find us at C. Tomás Miller 13, Las Palmas de Gran Canaria.",
       de: "Reservieren Sie Ihren Tisch im El Búho Tuerto. Finden Sie uns in C. Tomás Miller 13, Las Palmas de Gran Canaria.",
     },
@@ -33,41 +34,19 @@ export const translations = {
     en: "We are here for you",
     de: "Wir sind für Sie da",
   },
-  location: {
-    es: "Ubicación",
-    "es-ar": "Ubicación",
-    en: "Location",
-    de: "Standort",
-  },
-  follow: {
-    es: "Síguenos",
-    "es-ar": "Seguinos",
-    en: "Follow us",
-    de: "Folge uns",
-  },
-  schedule: {
-    es: "Horario",
-    "es-ar": "Horario",
-    en: "Schedule",
-    de: "Öffnungszeiten",
-  },
-  phone: {
-    es: "Teléfono",
-    "es-ar": "Teléfono",
-    en: "Phone",
-    de: "Telefon",
-  },
-  email: {
-    es: "Correo",
-    "es-ar": "Correo",
-    en: "Email",
-    de: "E-Mail",
-  },
-  whatsapp: {
-    es: "WhatsApp",
-    "es-ar": "WhatsApp",
-    en: "WhatsApp",
-    de: "WhatsApp",
+  contact_cta: {
+    title: {
+      es: "Contacta & Reserva",
+      "es-ar": "Contacta & Reserva",
+      en: "Contact & Booking",
+      de: "Kontakt & Buchung",
+    },
+    subtitle: {
+      es: "Estamos aquí para ti",
+      "es-ar": "Estamos aquí para ti",
+      en: "We are here for you",
+      de: "Wir sind für Sie da",
+    },
   },
 };
 

@@ -25,6 +25,7 @@ import Schedule from "../../components/blocks/blocks/Schedule.astro";
 import About from "../../components/blocks/blocks/About.astro";
 import chiquita from "@/assets/chiquita.webp";
 import { getTenant } from "@/lib/directus";
+import ContactCta from "@/components/blocks/blocks/ContactCta.astro";
 
 interface Props {
   lang: Language;
@@ -125,6 +126,12 @@ const video = "/hero.mp4";
   sittings={t.schedule.sittings as any}
 />
 
+<ContactCta
+  title={t.contact_cta.title}
+  subtitle={t.contact_cta.subtitle}
+  tenant={tenant}
+  lang={lang}
+/>
 <Location title={t.location.title} subtitle={""} tenant={tenant} lang={lang} />
 
 <About
