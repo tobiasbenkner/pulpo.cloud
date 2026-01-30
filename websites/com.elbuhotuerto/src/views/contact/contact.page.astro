@@ -1,11 +1,10 @@
 ---
 import type { ContactTranslations } from "./contact.i18n";
 import { resolveTranslations, type Language } from "../../lib/i18n";
-import { getEntry } from "astro:content";
 import Icon from "../../components/ui/Icon.astro";
 import SectionHeader from "../../components/ui/SectionHeader.astro";
 import PrivacyMap from "../../components/PrivacyMap.astro";
-import { getOpeningHours } from "@/lib/directus";
+import { getOpeningHours, getTenant } from "@/lib/directus";
 
 interface Props {
   lang: Language;
@@ -13,8 +12,8 @@ interface Props {
 }
 
 const { lang, t } = Astro.props;
+const tenant = await getTenant();
 const openingHours = resolveTranslations(await getOpeningHours(), lang);
-console.log(openingHours);
 ---
 
 <section class="bg-background py-24 px-6 relative overflow-hidden text-white">
@@ -67,16 +66,18 @@ console.log(openingHours);
           </h3>
           <div class="flex flex-wrap gap-6">
             {
-              (tenant?.social_links ?? []).map((social) => (
-                <a
-                  href={social.url}
-                  target="_blank"
-                  aria-label={social.name}
-                  class="w-12 h-12 flex items-center justify-center rounded-full border border-white/10 text-gray-400 hover:text-amber-200 hover:border-amber-200/50 hover:bg-white/5 transition-all duration-300"
-                >
-                  <Icon name={social.name as any} size={26} />
-                </a>
-              ))
+              Object.entries(tenant?.social ?? {})
+                .filter(([_, url]) => !!url) // Nur Links anzeigen, die nicht leer sind
+                .map(([name, url]) => (
+                  <a
+                    href={url}
+                    target="_blank"
+                    aria-label={name}
+                    class="w-12 h-12 flex items-center justify-center rounded-full border border-white/10 text-gray-400 hover:text-amber-200 hover:border-amber-200/50 hover:bg-white/5 transition-all duration-300"
+                  >
+                    <Icon name={name as any} size={26} />
+                  </a>
+                ))
             }
           </div>
         </div>

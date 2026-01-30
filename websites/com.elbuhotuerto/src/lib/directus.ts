@@ -3,6 +3,7 @@ import {
   createClientPublic,
   getCategoriesWithProducts as _getCategoriesWithProducts,
   getOpeningHours as _getOpeningHours,
+  getTenant as _getTenant,
 } from "@pulpo/cms";
 
 export const client = createClientPublic();
@@ -15,4 +16,8 @@ export function getCategoriesWithProducts() {
 
 export function getOpeningHours() {
   return _getOpeningHours(client, TENANT_ID);
+}
+
+export function getTenant() {
+  return _getTenant(client, TENANT_ID);
 }
