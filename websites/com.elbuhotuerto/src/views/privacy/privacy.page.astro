@@ -1,7 +1,7 @@
 ---
 import SectionHeader from "@/components/ui/SectionHeader.astro";
 import type { PrivacidadTranslations } from "./privacy.i18n";
-import type { Language } from "@/lib/i18n";
+import { resolveTranslations, type Language } from "@/lib/i18n";
 import { getTenant } from "@/lib/directus";
 
 interface Props {
@@ -9,8 +9,18 @@ interface Props {
   t: PrivacidadTranslations;
 }
 
-const { t } = Astro.props;
+const { t, lang } = Astro.props;
 const tenant = await getTenant();
+
+const fullAddress = `${tenant.street}, ${tenant.postcode} ${tenant.city}`;
+
+const emailContact = tenant.contacts?.find((c) => c.type === "email");
+const email = resolveTranslations(emailContact, lang);
+
+const contentWithData = t.content
+  .replaceAll("{{tenant_name}}", tenant.name)
+  .replaceAll("{{tenant_address}}", fullAddress)
+  .replaceAll("{{tenant_email}}", String(email?.label));
 ---
 
 <div class="bg-background min-h-screen py-32 px-6">
@@ -22,13 +32,14 @@ const tenant = await getTenant();
       </p>
     </div>
 
+    <!-- Hier nutzen wir nun die Variable 'contentWithData' statt 't.content' -->
     <article
       class="prose prose-invert prose-lg max-w-none
       prose-headings:font-serif prose-headings:font-normal prose-headings:text-amber-200
       prose-p:text-gray-300 prose-p:leading-relaxed prose-p:font-light
       prose-strong:text-white prose-strong:font-medium
       prose-li:text-gray-300"
-      set:html={t.content}
+      set:html={contentWithData}
     />
   </div>
 </div>

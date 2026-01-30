@@ -1,14 +1,28 @@
 ---
 import SectionHeader from "@/components/ui/SectionHeader.astro";
 import type { LegalTranslations } from "./legal.i18n";
-import type { Language } from "@/lib/i18n";
+import { resolveTranslations, type Language } from "@/lib/i18n";
+import { getTenant } from "@/lib/directus";
 
 interface Props {
   lang: Language;
   t: LegalTranslations;
 }
 
-const { t } = Astro.props;
+const { t, lang } = Astro.props;
+const tenant = await getTenant();
+
+// 1. Daten vorbereiten
+const fullAddress = `${tenant.street}, ${tenant.postcode} ${tenant.city}`;
+const emailContact = tenant.contacts?.find((c) => c.type === "email");
+const email = resolveTranslations(emailContact, lang);
+
+// 2. Platzhalter ersetzen
+const contentWithData = t.content
+  .replaceAll("{{tenant_name}}", tenant.name)
+  .replaceAll("{{tenant_address}}", fullAddress)
+  .replaceAll("{{tenant_email}}", String(email?.label))
+  .replaceAll("{{tenant_city}}", tenant.city); // Für den Gerichtsstand
 ---
 
 <div class="bg-background min-h-screen py-32 px-6">
@@ -28,7 +42,7 @@ const { t } = Astro.props;
       prose-p:text-gray-300 prose-p:leading-relaxed prose-p:font-light
       prose-strong:text-white prose-strong:font-medium
       prose-a:text-amber-200 prose-a:no-underline hover:prose-a:underline"
-      set:html={t.content}
+      set:html={contentWithData}
     />
   </div>
 </div>

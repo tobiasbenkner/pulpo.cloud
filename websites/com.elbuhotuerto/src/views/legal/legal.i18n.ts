@@ -10,16 +10,13 @@ const contentEs = `
 
 <h3>1. Datos Identificativos</h3>
 <p>
-  El titular de este sitio web es <strong
-    >[Nombre de la Empresa S.L. o Autónomo]</strong
-  > (en adelante, "El Búho Tuerto"), con domicilio en Calle de la Gastronomía
-  12, 35001 Las Palmas de Gran Canaria, y con C.I.F. número [B-12345678].
-  Correo electrónico de contacto: hola@elbuho.com.
+  El titular de este sitio web es <strong>{{tenant_name}}</strong>, con domicilio en {{tenant_address}}.
+  Correo electrónico de contacto: {{tenant_email}}.
 </p>
 
 <h3>2. Usuarios</h3>
 <p>
-  El acceso y/o uso de este portal de El Búho Tuerto atribuye la
+  El acceso y/o uso de este portal de {{tenant_name}} atribuye la
   condición de USUARIO, que acepta, desde dicho acceso y/o uso, las
   Condiciones Generales de Uso aquí reflejadas.
 </p>
@@ -28,7 +25,7 @@ const contentEs = `
 <p>
   El sitio web proporciona el acceso a multitud de informaciones,
   servicios, programas o datos (en adelante, "los contenidos") en
-  Internet pertenecientes a El Búho Tuerto. El USUARIO asume la
+  Internet pertenecientes a {{tenant_name}}. El USUARIO asume la
   responsabilidad del uso del portal. Dicha responsabilidad se extiende
   al registro que fuese necesario para acceder a determinados servicios
   o contenidos.
@@ -36,7 +33,7 @@ const contentEs = `
 
 <h3>4. Propiedad Intelectual e Industrial</h3>
 <p>
-  El Búho Tuerto por sí o como cesionaria, es titular de todos los
+  {{tenant_name}} por sí o como cesionaria, es titular de todos los
   derechos de propiedad intelectual e industrial de su página web, así
   como de los elementos contenidos en la misma (a título enunciativo,
   imágenes, sonido, audio, vídeo, software o textos; marcas o logotipos,
@@ -46,7 +43,7 @@ const contentEs = `
 
 <h3>5. Exclusión de Garantías y Responsabilidad</h3>
 <p>
-  El Búho Tuerto no se hace responsable, en ningún caso, de los daños y
+  {{tenant_name}} no se hace responsable, en ningún caso, de los daños y
   perjuicios de cualquier naturaleza que pudieran ocasionar, a título
   enunciativo: errores u omisiones en los contenidos, falta de
   disponibilidad del portal o la transmisión de virus o programas
@@ -56,9 +53,9 @@ const contentEs = `
 
 <h3>6. Legislación Aplicable y Jurisdicción</h3>
 <p>
-  La relación entre El Búho Tuerto y el USUARIO se regirá por la
+  La relación entre {{tenant_name}} y el USUARIO se regirá por la
   normativa española vigente y cualquier controversia se someterá a los
-  Juzgados y tribunales de la ciudad de Las Palmas de Gran Canaria.
+  Juzgados y tribunales de la ciudad de {{tenant_city}}.
 </p>
 `;
 
@@ -104,8 +101,8 @@ export const translations = {
   content: {
     es: contentEs,
     "es-ar": contentEs,
-    en: contentEs, // TODO: Translate
-    de: contentEs, // TODO: Translate
+    en: contentEs,
+    de: contentEs,
   },
 };
 

@@ -2,17 +2,16 @@ import type { FlattenTranslation } from "../../lib/i18n";
 
 const contentEs = `
 <p>
-  En El Búho Tuerto nos tomamos muy en serio la privacidad de nuestros
+  En {{tenant_name}} nos tomamos muy en serio la privacidad de nuestros
   clientes y visitantes. Esta Política de Privacidad describe cómo
   recopilamos, usamos y protegemos su información personal.
 </p>
 
 <h3>1. Responsable del Tratamiento</h3>
 <p>
-  <strong>Identidad:</strong> [Nombre de la Empresa S.L.]<br />
-  <strong>Dirección:</strong> Calle de la Gastronomía 12, Las Palmas<br
-  />
-  <strong>Email:</strong> hola@elbuho.com
+  <strong>Identidad:</strong> {{tenant_name}}<br />
+  <strong>Dirección:</strong> {{tenant_address}}<br />
+  <strong>Email:</strong> {{tenant_email}}
 </p>
 
 <h3>2. Finalidad del Tratamiento</h3>
@@ -48,8 +47,8 @@ const contentEs = `
 
 <h3>5. Derechos</h3>
 <p>
-  Cualquier persona tiene derecho a obtener confirmación sobre si en El
-  Búho Tuerto estamos tratando datos personales que les conciernan. Las
+  Cualquier persona tiene derecho a obtener confirmación sobre si en {{tenant_name}}
+  estamos tratando datos personales que les conciernan. Las
   personas interesadas tienen derecho a:
 </p>
 <ul>
@@ -63,7 +62,7 @@ const contentEs = `
 </ul>
 <p>
   Para ejercer estos derechos, puede enviar un correo electrónico a
-  hola@elbuho.com.
+  {{tenant_email}}.
 </p>
 `;
 
@@ -109,8 +108,8 @@ export const translations = {
   content: {
     es: contentEs,
     "es-ar": contentEs,
-    en: contentEs, // TODO: Translate
-    de: contentEs, // TODO: Translate
+    en: contentEs, // TODO: Translate and keep placeholders
+    de: contentEs, // TODO: Translate and keep placeholders
   },
 };
 
