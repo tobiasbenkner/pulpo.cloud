@@ -2,6 +2,17 @@ import { DirectusClient, readItems, RestClient } from "@directus/sdk";
 import { ReducedTranslations, Schema } from "../types";
 import { reduceTranslations } from "../i18n";
 
+export type Contact = {
+  id: string;
+  sort: number;
+  url: string;
+  type: string;
+  label: ReducedTranslations;
+  title: ReducedTranslations;
+  subtitle: ReducedTranslations;
+  action: ReducedTranslations;
+};
+
 export type OpeningHour = {
   id: string;
   days_label: ReducedTranslations;
@@ -26,7 +37,18 @@ export type Tenant = {
     yelp: string;
   };
   opening_hours: OpeningHour[];
+  contacts: Contact[];
 };
+
+function mapContact(contact: any): Contact {
+  return {
+    ...contact,
+    label: reduceTranslations(contact.translations, "label"),
+    title: reduceTranslations(contact.translations, "title"),
+    subtitle: reduceTranslations(contact.translations, "subtitle"),
+    action: reduceTranslations(contact.translations, "action"),
+  } as Contact;
+}
 
 function mapOpeningHours(opening_hours: any): OpeningHour {
   return {
@@ -54,6 +76,9 @@ export async function getTenant(
         "opening_hours.*",
         "opening_hours.translations.*",
         "opening_hours.translations.languages_id.*",
+        "contacts.*",
+        "contacts.translations.*",
+        "contacts.translations.languages_id.*",
       ],
     }),
   );
@@ -63,7 +88,6 @@ export async function getTenant(
   }
 
   const tenant = response[0];
-
   return {
     ...tenant,
     social: {
@@ -76,6 +100,7 @@ export async function getTenant(
       yelp: tenant.yelp,
     },
     opening_hours: (tenant.opening_hours ?? []).map(mapOpeningHours),
+    contacts: (tenant.contacts ?? []).map(mapContact),
   } as Tenant;
 }
 

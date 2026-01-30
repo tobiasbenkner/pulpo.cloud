@@ -2,33 +2,22 @@
 import PrivacyMap from "../../PrivacyMap.astro";
 import Icon from "../../ui/Icon.astro";
 import SectionHeader from "../../ui/SectionHeader.astro";
-import { getEntry } from "astro:content";
+import type { Tenant } from "@pulpo/cms";
+import { resolveTranslations } from "@/lib/i18n";
 import { translations } from "./Location.i18n";
 
 type Props = {
   title: string;
   subtitle: string;
-  contactInfos: {
-    title: string;
-    subtitle: string;
-    action: string;
-    label: string;
-  }[];
-  openingHours: {
-    days_label: string;
-    additional_info: string;
-    hours_text: string;
-  }[];
+  tenant: Tenant;
+  lang: string;
 };
 
-const { title, subtitle, contactInfos, openingHours } = Astro.props;
+const { title, subtitle, tenant, lang } = Astro.props;
 
-const entry = await getEntry("tenant", "main");
-const tenant = entry?.data;
-
-const location = translations.es.location;
-const follow = translations.es.follow;
-const schedule = translations.es.schedule;
+const contacts = resolveTranslations(tenant.contacts, lang);
+const opening_hours = resolveTranslations(tenant.opening_hours, lang);
+const t = resolveTranslations(translations, lang);
 ---
 
 <section class="bg-background py-24 px-6 relative overflow-hidden text-white">
@@ -42,7 +31,7 @@ const schedule = translations.es.schedule;
         <!-- Anschrift -->
         <div>
           <h3 class="text-[10px] tracking-[0.3em] text-white/30 uppercase mb-4">
-            {location}
+            {t.location}
           </h3>
           <p
             class="text-xl md:text-2xl font-serif italic text-gray-200 leading-relaxed max-w-sm"
@@ -58,7 +47,7 @@ const schedule = translations.es.schedule;
         <div class="space-y-8">
           <div class="flex flex-col gap-6">
             {
-              contactInfos.map((it: any) => {
+              contacts.map((it) => {
                 return (
                   <a href={it.url} class="group block w-fit">
                     <span class="block text-[9px] text-white/20 uppercase tracking-[0.2em] mb-1 group-hover:text-white/50 transition-colors">
@@ -75,20 +64,22 @@ const schedule = translations.es.schedule;
         <!-- Social Media Icons -->
         <div>
           <h3 class="text-[10px] tracking-[0.3em] text-white/30 uppercase mb-6">
-            {follow}
+            {t.follow}
           </h3>
           <div class="flex flex-wrap gap-6">
             {
-              (tenant?.social_links ?? []).map((social) => (
-                <a
-                  href={social.url}
-                  target="_blank"
-                  aria-label={social.name}
-                  class="w-12 h-12 flex items-center justify-center rounded-full border border-white/10 text-gray-400 hover:text-amber-200 hover:border-amber-200/50 hover:bg-white/5 transition-all duration-300"
-                >
-                  <Icon name={social.name as any} size={26} />
-                </a>
-              ))
+              Object.entries(tenant?.social ?? {})
+                .filter(([_, url]) => !!url) // Nur Links anzeigen, die nicht leer sind
+                .map(([name, url]) => (
+                  <a
+                    href={url}
+                    target="_blank"
+                    aria-label={name}
+                    class="w-12 h-12 flex items-center justify-center rounded-full border border-white/10 text-gray-400 hover:text-amber-200 hover:border-amber-200/50 hover:bg-white/5 transition-all duration-300"
+                  >
+                    <Icon name={name as any} size={26} />
+                  </a>
+                ))
             }
           </div>
         </div>
@@ -96,11 +87,11 @@ const schedule = translations.es.schedule;
         <!-- Horario -->
         <div class="pt-4">
           <h3 class="text-[10px] tracking-[0.3em] text-white/30 uppercase mb-6">
-            {schedule}
+            {t.schedule}
           </h3>
           <ul class="space-y-4">
             {
-              openingHours.map((item) => (
+              opening_hours.map((item) => (
                 <li class="flex justify-between items-end border-b border-white/5 pb-3">
                   <span class="text-sm text-gray-400 font-light">
                     {item.days_label}

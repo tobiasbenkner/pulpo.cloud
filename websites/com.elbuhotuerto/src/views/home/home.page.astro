@@ -24,6 +24,7 @@ import g25_ta from "../../assets/awards/25-ta.webp";
 import Schedule from "../../components/blocks/blocks/Schedule.astro";
 import About from "../../components/blocks/blocks/About.astro";
 import chiquita from "@/assets/chiquita.webp";
+import { getTenant } from "@/lib/directus";
 
 interface Props {
   lang: Language;
@@ -31,6 +32,7 @@ interface Props {
 }
 
 const { lang, t } = Astro.props;
+const tenant = await getTenant();
 
 const video = "/hero.mp4";
 ---
@@ -123,12 +125,7 @@ const video = "/hero.mp4";
   sittings={t.schedule.sittings as any}
 />
 
-<Location
-  title={"title"}
-  subtitle="subtitle"
-  contactInfos={[]}
-  openingHours={[]}
-/>
+<Location title={t.location.title} subtitle={""} tenant={tenant} lang={lang} />
 
 <About
   title={t.about.title}

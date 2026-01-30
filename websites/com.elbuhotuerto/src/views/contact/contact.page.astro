@@ -1,10 +1,8 @@
 ---
 import type { ContactTranslations } from "./contact.i18n";
-import { resolveTranslations, type Language } from "../../lib/i18n";
-import Icon from "../../components/ui/Icon.astro";
-import SectionHeader from "../../components/ui/SectionHeader.astro";
-import PrivacyMap from "../../components/PrivacyMap.astro";
-import { getOpeningHours, getTenant } from "@/lib/directus";
+import { type Language } from "../../lib/i18n";
+import { getTenant } from "@/lib/directus";
+import Location from "@/components/blocks/blocks/Location.astro";
 
 interface Props {
   lang: Language;
@@ -13,115 +11,6 @@ interface Props {
 
 const { lang, t } = Astro.props;
 const tenant = await getTenant();
-const openingHours = resolveTranslations(await getOpeningHours(), lang);
 ---
 
-<section class="bg-background py-24 px-6 relative overflow-hidden text-white">
-  <div class="max-w-6xl mx-auto">
-    <SectionHeader subtitle={t.subtitle} title={t.title} />
-
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
-      <div class="lg:col-span-5 space-y-12">
-        <!-- Address -->
-        <div>
-          <h3 class="text-[10px] tracking-[0.3em] text-white/30 uppercase mb-4">
-            {t.location}
-          </h3>
-          <p
-            class="text-xl md:text-2xl font-serif italic text-gray-200 leading-relaxed max-w-sm"
-          >
-            {tenant?.name}<br />
-            {tenant?.street}<br />
-            {tenant?.postcode}
-            {tenant?.city}
-          </p>
-        </div>
-
-        <!-- Contact Info -->
-        <div class="space-y-8">
-          <div class="flex flex-col gap-6">
-            <a href="tel:+34928123456" class="group block w-fit">
-              <span
-                class="block text-[9px] text-white/20 uppercase tracking-[0.2em] mb-1 group-hover:text-white/50 transition-colors"
-              >
-                {t.phone}
-              </span>
-              <span class="text-xl font-light">+34 928 123 456</span>
-            </a>
-            <a href="mailto:info@elbuhotuerto.com" class="group block w-fit">
-              <span
-                class="block text-[9px] text-white/20 uppercase tracking-[0.2em] mb-1 group-hover:text-white/50 transition-colors"
-              >
-                {t.email}
-              </span>
-              <span class="text-xl font-light">info@elbuhotuerto.com</span>
-            </a>
-          </div>
-        </div>
-
-        <!-- Social Media -->
-        <div>
-          <h3 class="text-[10px] tracking-[0.3em] text-white/30 uppercase mb-6">
-            {t.follow}
-          </h3>
-          <div class="flex flex-wrap gap-6">
-            {
-              Object.entries(tenant?.social ?? {})
-                .filter(([_, url]) => !!url) // Nur Links anzeigen, die nicht leer sind
-                .map(([name, url]) => (
-                  <a
-                    href={url}
-                    target="_blank"
-                    aria-label={name}
-                    class="w-12 h-12 flex items-center justify-center rounded-full border border-white/10 text-gray-400 hover:text-amber-200 hover:border-amber-200/50 hover:bg-white/5 transition-all duration-300"
-                  >
-                    <Icon name={name as any} size={26} />
-                  </a>
-                ))
-            }
-          </div>
-        </div>
-
-        <!-- Opening Hours -->
-        <div class="pt-4">
-          <h3 class="text-[10px] tracking-[0.3em] text-white/30 uppercase mb-6">
-            {t.schedule}
-          </h3>
-          <ul class="space-y-4">
-            {
-              openingHours.map((item) => (
-                <li class="flex justify-between items-end border-b border-white/5 pb-3">
-                  <span class="text-sm text-gray-400 font-light">
-                    {item.days_label}
-                  </span>
-                  <span class="text-sm md:text-base font-serif italic text-white tracking-wide">
-                    {item.hours_text}
-                  </span>
-                </li>
-              ))
-            }
-          </ul>
-        </div>
-      </div>
-
-      <!-- Map -->
-      <div class="lg:col-span-7 h-full min-h-112.5 lg:min-h-162.5 relative">
-        <div
-          class="absolute inset-0 border border-white/10 rounded-3xl overflow-hidden group"
-        >
-          <div
-            class="absolute inset-0 bg-black/20 pointer-events-none group-hover:bg-transparent transition-all duration-700 z-10"
-          >
-          </div>
-          <PrivacyMap url={tenant?.maps ?? ""} />
-          <iframe
-            src={tenant?.maps}
-            class="w-full h-full"
-            style="border:0;"
-            allowfullscreen=""
-            loading="lazy"></iframe>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+<Location tenant={tenant} title={t.title} subtitle={t.subtitle} lang={lang} />

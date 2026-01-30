@@ -1,17 +1,17 @@
 export const translations = {
-  en: {
-    location: "Location",
-    follow: "Follow us",
-    schedule: "Schedule",
+  location: {
+    es: "Ubicación",
+    en: "Location",
+    de: "Standort",
   },
-  es: {
-    location: "Ubicación",
-    follow: "Síguenos",
-    schedule: "Horario",
+  follow: {
+    es: "Síguenos",
+    en: "Follow us",
+    de: "Folge uns",
   },
-  de: {
-    location: "Standort",
-    follow: "Folge uns",
-    schedule: "Öffnungszeiten",
+  schedule: {
+    es: "Horario",
+    en: "Schedule",
+    de: "Öffnungszeiten",
   },
 } as const;

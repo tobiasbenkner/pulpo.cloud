@@ -259,6 +259,14 @@ Im El Búho Tuerto ehren wir diesen Kampf mit jedem Gericht, mit jeder glühende
       ],
     },
   },
+  location: {
+    title: {
+      es: "Visítenos",
+      "es-ar": "Visítenos",
+      en: "Visit us",
+      de: "Besuche uns",
+    },
+  },
   awards: {
     title: {
       es: "Premios",
