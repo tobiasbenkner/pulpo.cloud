@@ -1,6 +1,7 @@
 {
     "name": "VibraDance Academy",
     "location": {
+        "complex": "Centro Comercial San Fernando",
         "street": "Av. de Tejeda 1, LOCAL 66",
         "city": "Maspalomas",
         "zip": "35100",

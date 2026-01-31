@@ -23,6 +23,9 @@ const { t } = Astro.props;
             <p class="text-xs uppercase tracking-widest text-gray-500 mb-4">
               {t.footer.address}
             </p>
+            <p class="text-xl font-medium text-vibra-teal mb-1">
+              {siteData.location.complex}
+            </p>
             <p class="text-xl">{siteData.location.street}</p>
             <p class="text-xl text-gray-400">
               {siteData.location.zip}
@@ -59,7 +62,7 @@ const { t } = Astro.props;
       </div>
 
       <!-- Map -->
-      <div class="h-full min-h-[300px] w-full bg-gray-800 relative">
+      <div class="h-full min-h-75 w-full bg-gray-800 relative">
         <iframe
           src={siteData.integrations.googleMaps}
           width="100%"
