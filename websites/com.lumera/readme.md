@@ -1,4 +1,5 @@
 # Lumera
+
 Lumera ist ein AI Portrait Studio, aber kein klassisches Tech-Projekt
 und keine typische Fotografen-Website.
 
@@ -24,8 +25,8 @@ Die Website-Texte auf Polnisch und Englisch. Kein Deutsch.
 In einem späteren Schritt könnte Lumera zu einer Plattform erweitert werden,
 mit einer Galerie, einer Angebotssektion oder der Möglichkeit, künstlerische Stile auszuwählen.
 
-
 # Design- und Stilbeschreibung
+
 Lumera ist ein artistic AI portrait studio mit Fokus auf Emotion, Licht und weibliche Identität.
 Es geht nicht um Technologie, sondern um ein ästhetisches und emotionales Erlebnis.
 
@@ -35,6 +36,7 @@ Die Website soll sich anfühlen wie:
 – ein Editorial-Magazin
 
 Stilbegriffe:
+
 - minimalistisch
 - hochwertig
 - ruhig
@@ -56,6 +58,7 @@ Technisch:
 – vorbereitet für spätere Erweiterung, jetzt bewusst reduziert
 
 ## FARBPALETTE:
+
 – Off-White / warme Weißtöne HEX: #F6F5F2
 – Schwarz / Noir HEX: #111111
 – dezenter Akzent: olivgrün
@@ -64,6 +67,7 @@ HEX: #6E775F
 Nice feature: Akzentton nach saisonal automatisch anpassen. nutze date-dns für das Datum
 
 # Inhalt
+
 TEKSTE:
 
 HERO
@@ -134,7 +138,4 @@ It only changes form.
 
 Lumera — The Era of Light
 
-
-
 „Lumera — Opening Exhibition” starten 🙂
-

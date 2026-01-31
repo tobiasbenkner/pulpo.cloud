@@ -2,6 +2,16 @@
 import type { HomeTranslations } from "./home.i18n";
 import type { Language } from "@/lib/i18n";
 import { siteData } from "@/data/site";
+import { Image } from "astro:assets";
+
+import gallery01 from "@/assets/gallery/01.jpg";
+import gallery02 from "@/assets/gallery/02.jpg";
+import gallery03 from "@/assets/gallery/03.jpg";
+import gallery04 from "@/assets/gallery/04.jpg";
+import gallery05 from "@/assets/gallery/05.jpg";
+import gallery06 from "@/assets/gallery/06.jpg";
+
+const galleryImages = [gallery01, gallery02, gallery03, gallery04, gallery05, gallery06];
 
 interface Props {
   lang: Language;
@@ -64,20 +74,17 @@ const manifestLines = t.manifest.quote.split("\n");
       {t.gallery.heading}
     </h2>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-      {Array.from({ length: 6 }).map((_, i) => (
-        <div
-          class="aspect-[3/4] rounded-sm"
-          style={`background: linear-gradient(135deg, ${
-            [
-              "#D6D4CE, #C4C0B6",
-              "#C8C5BC, #B8B4AA",
-              "#D0CEC8, #C0BCB2",
-              "#C2BFB6, #ACA89E",
-              "#CDC9C0, #BAB6AC",
-              "#D4D1CA, #C6C2B8",
-            ][i]
-          });`}
-        />
+      {galleryImages.map((img, i) => (
+        <div class="aspect-[3/4] overflow-hidden rounded-sm">
+          <Image
+            src={img}
+            alt={`Portrait ${i + 1}`}
+            widths={[400, 600, 800]}
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            class="h-full w-full object-cover"
+            loading={i < 3 ? "eager" : "lazy"}
+          />
+        </div>
       ))}
     </div>
   </div>
