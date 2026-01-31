@@ -4,8 +4,6 @@ import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
 import { getNavbarItems } from "@/lib/navbar";
 import { getTranslatedPath } from "@/lib/registry";
 import type { Language } from "@/lib/i18n";
-import { Image } from "astro:assets";
-import logo from "../assets/logo.jpg";
 
 interface Props {
   lang: Language;
@@ -27,7 +25,7 @@ const homeHref = getTranslatedPath("home", lang);
         href={homeHref}
         class="relative z-50 flex items-center gap-2 md:gap-3 text-lg md:text-xl font-bold font-serif text-primary"
       >
-        <Image src={logo} alt="Logo" class="w-full h-12 md:h-16" />
+        LUMERA
       </a>
 
       <!-- Desktop Nav -->
@@ -65,13 +63,13 @@ const homeHref = getTranslatedPath("home", lang);
         class="relative z-50 flex flex-col justify-center gap-1.5 p-2 md:hidden group"
       >
         <span
-          class="h-0.5 w-5 md:w-6 bg-white transition-all duration-300 group-data-open:rotate-45 group-data-open:translate-y-2"
+          class="h-0.5 w-5 md:w-6 bg-primary transition-all duration-300 group-data-open:rotate-45 group-data-open:translate-y-2"
         ></span>
         <span
-          class="h-0.5 w-5 md:w-6 bg-white transition-all duration-300 group-data-open:opacity-0"
+          class="h-0.5 w-5 md:w-6 bg-primary transition-all duration-300 group-data-open:opacity-0"
         ></span>
         <span
-          class="h-0.5 w-5 md:w-6 bg-white transition-all duration-300 group-data-open:-rotate-45 group-data-open:-translate-y-2"
+          class="h-0.5 w-5 md:w-6 bg-primary transition-all duration-300 group-data-open:-rotate-45 group-data-open:-translate-y-2"
         ></span>
       </button>
     </div>
@@ -93,10 +91,10 @@ const homeHref = getTranslatedPath("home", lang);
           <a
             href={item.href}
             class:list={[
-              "text-2xl sm:text-3xl font-serif transition-colors duration-300 mobile-link w-full py-3 sm:py-4 border-b border-white/5",
+              "text-2xl sm:text-3xl font-serif transition-colors duration-300 mobile-link w-full py-3 sm:py-4 border-b border-border",
               item.isActive
                 ? "text-secondary"
-                : "text-text-muted hover:text-white",
+                : "text-text-muted hover:text-primary",
             ]}
           >
             {item.label}

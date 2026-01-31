@@ -10,9 +10,11 @@
     "deploy": "gh-pages -d dist --repo https://x-access-token:${GH_TOKEN}@github.com/tobiasbenkner/lumera --branch main --cname lumera.benkner-it.com --dotfiles --nojekyll"
   },
   "dependencies": {
-    "@pulpo/i18n": "workspace:*",
+    "@fontsource/cormorant-garamond": "^5.2.11",
+    "@fontsource/jost": "^5.2.8",
     "@iconify-json/circle-flags": "^1.2.10",
     "@iconify-json/lucide": "^1.2.86",
+    "@pulpo/i18n": "workspace:*",
     "@tailwindcss/vite": "^4.1.18",
     "astro": "^5.16.11",
     "astro-icon": "^1.1.5",
