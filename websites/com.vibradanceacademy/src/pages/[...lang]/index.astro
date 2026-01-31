@@ -13,20 +13,19 @@ import Footer from "../../components/Footer.astro";
 
 export function getStaticPaths() {
   return [
-    { params: { lang: "es" } },
+    { params: { lang: undefined } },
     { params: { lang: "en" } },
     { params: { lang: "de" } },
   ];
 }
 
 const { lang } = Astro.params;
-const t = ui[lang];
-
-if (!lang) return Astro.redirect("/es");
+const currentLang = lang || 'es';
+const t = ui[currentLang];
 ---
 
-<Layout title="VibraDance Academy | Maspalomas" lang={lang}>
-  <Navbar lang={lang} t={t} />
+<Layout title="VibraDance Academy | Maspalomas" lang={currentLang}>
+  <Navbar lang={currentLang} t={t} />
 
   <main>
     <Hero t={t} />

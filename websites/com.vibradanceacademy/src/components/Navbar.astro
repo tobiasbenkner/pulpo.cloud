@@ -1,4 +1,5 @@
 ---
+// src/components/Navbar.astro
 import { Image } from "astro:assets";
 import logoImage from "../assets/logo.png";
 
@@ -8,11 +9,15 @@ interface Props {
 }
 
 const { lang, t } = Astro.props;
+
+// Hilfsfunktion für Home-Link: Wenn wir nicht auf ES sind, fügen wir den Lang-Prefix hinzu
+const homeLink = lang === "es" ? "/" : `/${lang}`;
 ---
 
 <nav class="fixed w-full z-50 glass-panel-light transition-all duration-300">
   <div class="max-w-7xl mx-auto px-6 py-3 flex justify-between items-center">
-    <a href={`/${lang}`} class="block hover:opacity-80 transition-opacity">
+    <!-- Logo Link -->
+    <a href={homeLink} class="block hover:opacity-80 transition-opacity">
       <Image
         src={logoImage}
         alt="VibraDance Academy Logo"
@@ -21,34 +26,41 @@ const { lang, t } = Astro.props;
       />
     </a>
 
+    <!-- Main Menu -->
     <div
       class="hidden md:flex gap-10 text-xs font-medium tracking-widest uppercase text-vibra-text-main"
     >
+      <a href="#schedule" class="hover:text-vibra-teal transition-colors"
+        >{t.nav.schedule}</a
+      >
       <a href="#teachers" class="hover:text-vibra-teal transition-colors"
         >{t.nav.teachers}</a
       >
       <a href="#classes" class="hover:text-vibra-teal transition-colors"
         >{t.nav.classes}</a
       >
-      <a href="#schedule" class="hover:text-vibra-teal transition-colors"
-        >{t.nav.schedule}</a
-      >
       <a href="#contact" class="hover:text-vibra-teal transition-colors"
         >{t.nav.contact}</a
       >
     </div>
 
+    <!-- Language Switcher -->
     <div class="flex gap-4 text-xs font-bold tracking-widest">
+      <!-- Spanisch ist jetzt Root "/" -->
       <a
-        href="/es"
+        href="/"
         class={`transition-colors ${lang === "es" ? "text-vibra-pink" : "text-gray-400 hover:text-black"}`}
         >ES</a
       >
+
+      <!-- Englisch ist "/en" -->
       <a
         href="/en"
         class={`transition-colors ${lang === "en" ? "text-vibra-pink" : "text-gray-400 hover:text-black"}`}
         >EN</a
       >
+
+      <!-- Deutsch ist "/de" -->
       <a
         href="/de"
         class={`transition-colors ${lang === "de" ? "text-vibra-pink" : "text-gray-400 hover:text-black"}`}
