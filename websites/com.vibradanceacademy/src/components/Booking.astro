@@ -1,0 +1,32 @@
+---
+import siteData from "../data/site.json";
+
+interface Props {
+  t: any;
+}
+const { t } = Astro.props;
+---
+
+<section id="booking" class="py-32 px-6 bg-white">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-16">
+      <h2 class="text-4xl md:text-5xl mb-6 font-display italic text-vibra-pink">
+        {t.private.title}
+      </h2>
+      <p class="text-gray-500">{t.private.desc}</p>
+    </div>
+
+    <div class="border border-gray-100 shadow-luxury bg-white">
+      <div
+        class="calendly-inline-widget"
+        data-url={siteData.integrations.calendly}
+        style="min-width:320px;height:700px;"
+      >
+      </div>
+      <script
+        type="text/javascript"
+        src="https://assets.calendly.com/assets/external/widget.js"
+        async></script>
+    </div>
+  </div>
+</section>

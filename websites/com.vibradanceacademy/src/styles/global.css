@@ -1,0 +1,63 @@
+/* src/styles/global.css */
+@import "tailwindcss";
+
+@theme {
+    /* Light Luxury Palette */
+    --color-vibra-bg: #ffffff; /* Reines Weiß */
+    --color-vibra-surface: #f9fafb; /* Sehr helles Grau für Sektionen */
+    --color-vibra-surface-hover: #f3f4f6;
+
+    --color-vibra-text-main: #1a1a1a; /* Dunkles Anthrazit statt hartem Schwarz */
+    --color-vibra-text-muted: #6b7280; /* Elegantes Grau */
+
+    /* Markenfarben als Akzente */
+    --color-vibra-pink: #ec008c;
+    --color-vibra-teal: #00bfd6;
+
+    /* Fonts */
+    --font-display: "Playfair Display", serif;
+    --font-body: "Montserrat", sans-serif;
+
+    /* UI Elemente */
+    --radius-box: 0px; /* Ecken bleiben scharf für den "Editorial Look" */
+}
+
+/* Base Styles */
+html {
+    scroll-behavior: smooth;
+    font-family: var(--font-body);
+    color: var(--color-vibra-text-main);
+    background-color: var(--color-vibra-bg);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: -0.02em; /* Engerer Abstand wirkt modern */
+}
+
+/* Custom Utilities */
+
+/* Ein sehr feiner Farbverlauf für Text */
+.text-gradient-luxury {
+    background: linear-gradient(90deg, var(--color-vibra-pink), var(--color-vibra-teal));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Glassmorphism Light (Milchglas) */
+.glass-panel-light {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Elegante Schatten */
+.shadow-luxury {
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05);
+}

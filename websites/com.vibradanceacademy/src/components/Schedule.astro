@@ -1,0 +1,32 @@
+---
+import { Image } from "astro:assets";
+import scheduleImage from "../assets/schedule-2026.jpg";
+import siteData from "../data/site.json";
+
+interface Props {
+  t: any;
+}
+const { t } = Astro.props;
+---
+
+<section id="schedule" class="py-32 bg-vibra-surface">
+  <div class="max-w-6xl mx-auto px-6 text-center">
+    <h2 class="text-3xl md:text-4xl mb-12 uppercase tracking-widest font-light">
+      {t.schedule.title}
+    </h2>
+
+    <div class="bg-white p-4 shadow-luxury inline-block">
+      <Image
+        src={scheduleImage}
+        alt="Vibra Dance Stundenplan 2026"
+        class="w-full max-w-5xl h-auto block"
+        quality="high"
+      />
+    </div>
+    <!-- NOTE ÜBERSETZT -->
+    <p class="mt-8 text-sm text-gray-400">
+      {t.schedule.location_note}
+      {siteData.location.street}.
+    </p>
+  </div>
+</section>
