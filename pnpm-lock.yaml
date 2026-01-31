@@ -277,6 +277,46 @@ importers:
         specifier: ^6.3.0
         version: 6.3.0
 
+  websites/com.lumera:
+    dependencies:
+      '@iconify-json/circle-flags':
+        specifier: ^1.2.10
+        version: 1.2.10
+      '@iconify-json/lucide':
+        specifier: ^1.2.86
+        version: 1.2.86
+      '@pulpo/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
+      '@tailwindcss/vite':
+        specifier: ^4.1.18
+        version: 4.1.18(vite@6.4.1(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0))
+      astro:
+        specifier: ^5.16.11
+        version: 5.17.1(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.54.0)(tsx@4.21.0)(typescript@5.9.3)
+      astro-icon:
+        specifier: ^1.1.5
+        version: 1.1.5
+      dotenv:
+        specifier: ^17.2.3
+        version: 17.2.3
+      marked:
+        specifier: ^17.0.1
+        version: 17.0.1
+      sharp:
+        specifier: ^0.34.5
+        version: 0.34.5
+      tailwindcss:
+        specifier: ^4.1.18
+        version: 4.1.18
+    devDependencies:
+      '@tailwindcss/typography':
+        specifier: ^0.5.19
+        version: 0.5.19(tailwindcss@4.1.18)
+      gh-pages:
+        specifier: ^6.3.0
+        version: 6.3.0
+
   websites/com.vibradanceacademy:
     dependencies:
       '@tailwindcss/vite':

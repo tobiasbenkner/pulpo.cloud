@@ -1,0 +1,53 @@
+---
+import { languages, defaultLang } from "@/lib/i18n";
+import { routeSlugs, getView } from "@/lib/registry";
+import Layout from "@/layouts/Layout.astro";
+import { siteData } from "@/data/site";
+
+export async function getStaticPaths() {
+  const paths: any[] = [];
+  const allRouteKeys = Object.keys(routeSlugs).concat("home");
+
+  allRouteKeys.forEach((routeKey) => {
+    languages.forEach((lang) => {
+      let slugParam: string | undefined;
+      const isDefaultLang = lang === defaultLang;
+
+      if (routeKey === "home") {
+        slugParam = isDefaultLang ? undefined : lang;
+      } else {
+        const slugs = routeSlugs[routeKey];
+        if (!slugs) return;
+        const pageSlug = slugs[lang];
+        if (pageSlug) {
+          slugParam = isDefaultLang ? pageSlug : `${lang}/${pageSlug}`;
+        }
+      }
+
+      paths.push({
+        params: { slug: slugParam },
+        props: { lang, routeKey },
+      });
+    });
+  });
+
+  return paths;
+}
+
+const { lang, routeKey } = Astro.props;
+
+const view = getView(routeKey, lang);
+if (!view) {
+  return Astro.redirect("/404");
+}
+
+const { Component, t } = view;
+
+// SEO Daten vorbereiten
+let title = t.seo?.title || siteData.meta.name;
+let description = t.seo?.description || "";
+---
+
+<Layout title={title} description={description} lang={lang} routeKey={routeKey}>
+  <Component lang={lang} t={t} />
+</Layout>

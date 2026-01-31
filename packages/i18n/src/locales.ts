@@ -12,11 +12,14 @@ export const openGraphLocales: Record<string, string> = {
   it: "it_IT",
   pt: "pt_PT",
   "pt-br": "pt_BR",
+  pl: "pl_PL",
 };
 
 /**
  * Get OpenGraph locale for a language code
  */
 export function getOpenGraphLocale(lang: string): string {
-  return openGraphLocales[lang.toLowerCase()] ?? `${lang}_${lang.toUpperCase()}`;
+  return (
+    openGraphLocales[lang.toLowerCase()] ?? `${lang}_${lang.toUpperCase()}`
+  );
 }

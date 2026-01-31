@@ -1,0 +1,14 @@
+---
+import Container from "@/components/ui/Container.astro";
+import type { HomeTranslations } from "./home.i18n";
+import type { Language } from "@/lib/i18n";
+
+interface Props {
+  lang: Language;
+  t: HomeTranslations;
+}
+
+const { lang, t } = Astro.props;
+---
+
+<Container> <div class="text-center mt-32">Hello World</div> </Container>
