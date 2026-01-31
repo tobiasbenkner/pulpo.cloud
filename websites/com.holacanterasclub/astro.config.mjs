@@ -5,7 +5,7 @@ import icon from 'astro-icon';
 import svelte from '@astrojs/svelte';
 
 export default defineConfig({
-  site: 'https://holacanterasclub.pages.dev',
+  site: 'https://holacanterasclub.com',
   image: {
     domains: ['admin.pulpo.cloud'],
   },
