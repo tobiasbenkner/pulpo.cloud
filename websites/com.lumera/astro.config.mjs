@@ -4,8 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 import icon from 'astro-icon';
 
 export default defineConfig({
-  site: 'https://tobiasbenkner.github.io',
-  // base: '/lumera',
+  site: 'lumera.benkner-it.com',
   vite: {
     plugins: [tailwindcss()],
   },
