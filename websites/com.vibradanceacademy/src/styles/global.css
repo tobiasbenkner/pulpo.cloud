@@ -1,4 +1,6 @@
 /* src/styles/global.css */
+@import "@fontsource-variable/playfair-display";
+@import "@fontsource-variable/montserrat";
 @import "tailwindcss";
 
 @theme {
@@ -15,8 +17,8 @@
     --color-vibra-teal: #00bfd6;
 
     /* Fonts */
-    --font-display: "Playfair Display", serif;
-    --font-body: "Montserrat", sans-serif;
+    --font-display: "Playfair Display Variable", serif;
+    --font-body: "Montserrat Variable", sans-serif;
 
     /* UI Elemente */
     --radius-box: 0px; /* Ecken bleiben scharf für den "Editorial Look" */

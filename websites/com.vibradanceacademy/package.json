@@ -10,6 +10,8 @@
     "deploy": "gh-pages -d dist --repo https://x-access-token:${GH_TOKEN}@github.com/tobiasbenkner/com.vibradanceacademy --branch main --cname hektorysara.com --dotfiles --nojekyll"
   },
   "dependencies": {
+    "@fontsource-variable/montserrat": "^5.2.8",
+    "@fontsource-variable/playfair-display": "^5.2.8",
     "@tailwindcss/vite": "^4.1.18",
     "astro": "^5.17.1",
     "tailwindcss": "^4.1.18"
