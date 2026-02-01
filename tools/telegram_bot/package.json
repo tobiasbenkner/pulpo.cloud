@@ -1,0 +1,21 @@
+{
+  "name": "@pulpo/telegram-bot",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx --env-file=.env src/bot.ts",
+    "start": "node dist/bot.js",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@grammyjs/conversations": "^2.0.3",
+    "grammy": "^1.35.0",
+    "pocketbase": "^0.25.2"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.3",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
+  }
+}
