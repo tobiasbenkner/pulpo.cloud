@@ -13,41 +13,60 @@ export async function uploadEventConversation(
   conversation: UploadConversation,
   ctx: Context,
 ) {
+  const cancelData = "cancel";
+  const cancelledMsg = "Cancelled.";
+
   // Step 1: Event type
   const typeKeyboard = new InlineKeyboard();
   for (const type of eventTypes) {
     typeKeyboard.text(type, `type:${type.toLowerCase()}`);
   }
+  typeKeyboard.row().text("Cancel", cancelData);
   await ctx.reply("What type of event?", { reply_markup: typeKeyboard });
 
   const typeUpdate = await conversation.waitForCallbackQuery(
-    eventTypes.map((t) => `type:${t.toLowerCase()}`),
+    [...eventTypes.map((t) => `type:${t.toLowerCase()}`), cancelData],
     { otherwise: (ctx) => ctx.reply("Please select an event type.") },
   );
-  const eventType = typeUpdate.callbackQuery.data.replace("type:", "");
   await typeUpdate.answerCallbackQuery();
+  if (typeUpdate.callbackQuery.data === cancelData) {
+    await ctx.reply(cancelledMsg);
+    return;
+  }
+  const eventType = typeUpdate.callbackQuery.data.replace("type:", "");
 
   // Step 2: Weekday
   const dayKeyboard = new InlineKeyboard();
   for (const day of weekdays) {
     dayKeyboard.text(day, `day:${day.toLowerCase()}`);
   }
-  dayKeyboard.row();
+  dayKeyboard.row().text("Cancel", cancelData);
   await ctx.reply("Which day?", { reply_markup: dayKeyboard });
 
   const dayUpdate = await conversation.waitForCallbackQuery(
-    weekdays.map((d) => `day:${d.toLowerCase()}`),
+    [...weekdays.map((d) => `day:${d.toLowerCase()}`), cancelData],
     { otherwise: (ctx) => ctx.reply("Please select a weekday.") },
   );
-  const weekday = dayUpdate.callbackQuery.data.replace("day:", "");
   await dayUpdate.answerCallbackQuery();
+  if (dayUpdate.callbackQuery.data === cancelData) {
+    await ctx.reply(cancelledMsg);
+    return;
+  }
+  const weekday = dayUpdate.callbackQuery.data.replace("day:", "");
 
-  // Step 3: Image
-  await ctx.reply("Send me the event image.");
+  // Step 3: Image (accept photo or /cancel command)
+  await ctx.reply("Send me the event image. /cancel to abort.");
 
-  const photoUpdate = await conversation.waitFor("message:photo", {
-    otherwise: (ctx) => ctx.reply("Please send a photo."),
-  });
+  let photoUpdate: Context;
+  while (true) {
+    photoUpdate = await conversation.wait();
+    if (photoUpdate.hasCommand("cancel")) {
+      await ctx.reply(cancelledMsg);
+      return;
+    }
+    if (photoUpdate.has("message:photo")) break;
+    await photoUpdate.reply("Please send a photo or /cancel to abort.");
+  }
 
   const photos = photoUpdate.message!.photo!;
   const fileId = photos[photos.length - 1].file_id;
@@ -66,9 +85,7 @@ export async function uploadEventConversation(
   );
 
   if (result.success) {
-    await ctx.reply(
-      `Event uploaded!\n\nType: ${eventType}\nDay: ${weekday}`,
-    );
+    await ctx.reply(`Event uploaded!\n\nType: ${eventType}\nDay: ${weekday}`);
   } else {
     await ctx.reply(`Upload failed: ${result.error}`);
   }

@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx --env-file=.env src/bot.ts",
+    "dev": "docker compose up -d pocketbase && tsx --env-file=.env src/bot.ts",
+    "dev:stop": "docker compose down",
     "start": "node dist/bot.js",
     "build": "tsc"
   },

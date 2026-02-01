@@ -1,5 +1,12 @@
 services:
-  bot:
-    build: .
-    restart: unless-stopped
-    env_file: .env
+  pocketbase:
+    image: ghcr.io/muchobien/pocketbase:0.36.2
+    ports:
+      - "8090:8090"
+    volumes:
+      - pb_data:/pb_data
+    environment:
+      - PB_ADMIN_EMAIL=${POCKETBASE_EMAIL}
+      - PB_ADMIN_PASSWORD=${POCKETBASE_PASSWORD}
+volumes:
+  pb_data:

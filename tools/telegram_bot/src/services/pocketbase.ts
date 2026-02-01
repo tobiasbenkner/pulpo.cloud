@@ -7,11 +7,27 @@ let authenticated = false;
 
 async function ensureAuth() {
   if (authenticated && pb.authStore.isValid) return;
-  await pb.collection("_superusers").authWithPassword(
-    config.pocketbaseEmail,
-    config.pocketbasePassword,
-  );
+  await pb
+    .collection("users")
+    .authWithPassword(config.pocketbaseEmail, config.pocketbasePassword);
   authenticated = true;
+}
+
+export async function listEvents(): Promise<
+  { type: string; weekday: string; imageBuffer: Buffer }[]
+> {
+  await ensureAuth();
+  const records = await pb.collection("dancing_agenda").getFullList();
+  const events = await Promise.all(
+    records.map(async (record) => {
+      const url = pb.files.getURL(record, record.flyer);
+      console.log("url", url);
+      const res = await fetch(url);
+      const imageBuffer = Buffer.from(await res.arrayBuffer());
+      return { type: "flyer", weekday: record.day_of_the_week, imageBuffer };
+    }),
+  );
+  return events;
 }
 
 export async function uploadEvent(
