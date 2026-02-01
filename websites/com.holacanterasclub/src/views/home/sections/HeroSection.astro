@@ -1,5 +1,7 @@
 ---
 import Container from "@/components/ui/Container.astro";
+import poster from "@/assets/poster.png";
+import { getImage } from "astro:assets";
 
 interface Props {
   title: string;
@@ -7,6 +9,13 @@ interface Props {
 }
 
 const { title, subtitle } = Astro.props;
+
+const optimizedPoster = await getImage({
+  src: poster,
+  width: 1000,
+  format: "webp",
+  quality: 70,
+});
 ---
 
 <section class="relative h-screen w-full overflow-hidden -mt-16 md:-mt-20">
@@ -19,7 +28,7 @@ const { title, subtitle } = Astro.props;
       playsinline
       class="w-full h-full object-cover scale-105"
       id="hero-video"
-      poster="/poster.png"
+      poster={optimizedPoster.src}
       preload="metadata"
       aria-hidden="true"
     >
