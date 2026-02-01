@@ -32,7 +32,7 @@ function buildCaption(
 
 function buildDeleteLabel(event: EventEntry, otherIndex?: number) {
   if (event.type === "flyer") return "flyer";
-  return `other ${otherIndex}`;
+  return `${otherIndex}`;
 }
 
 export async function listEventsConversation(
@@ -92,7 +92,7 @@ export async function listEventsConversation(
     const deleteKeyboard = new InlineKeyboard();
     for (let i = 0; i < remaining.length; i++) {
       const label = buildDeleteLabel(remaining[i].event, remaining[i].label);
-      deleteKeyboard.text(`Delete ${label}`, `del:${i}`);
+      deleteKeyboard.text(label, `del:${i}`);
     }
     deleteKeyboard.row().text("Done", doneData);
     await ctx.reply("Delete an image?", { reply_markup: deleteKeyboard });

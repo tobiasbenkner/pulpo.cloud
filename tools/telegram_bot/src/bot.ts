@@ -18,6 +18,9 @@ const bot = new Bot<BotContext>(config.botToken);
 // Access control middleware
 bot.use(async (ctx, next) => {
   if (!ctx.from || !config.allowedUserIds.includes(ctx.from.id)) {
+    if (ctx.hasCommand("start")) {
+      await ctx.reply(`You are not authorized to use this bot.\nYour ID: ${ctx.from.id}`);
+    }
     return;
   }
   await next();

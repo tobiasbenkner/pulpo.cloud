@@ -33,10 +33,10 @@ export async function resetWeekConversation(
   await ctx.reply("Triggering reset...");
 
   try {
-    const res = await conversation.external(() =>
-      fetch(config.n8nWebhookUrl, { method: "POST" }),
-    );
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    await conversation.external(async () => {
+      const res = await fetch(config.n8nWebhookUrl, { method: "POST" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    });
     await ctx.reply("Week reset triggered successfully.", {
       reply_markup: mainMenu,
     });
