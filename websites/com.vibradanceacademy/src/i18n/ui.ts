@@ -21,6 +21,10 @@ export const ui = {
       award2_desc: "Campeones FIDS & CIDS",
       award3_desc: "Prestigio Internacional",
     },
+    video: {
+      title: "Héktor en Acción",
+      desc: "Años de dedicación condensados en cada movimiento. Así se siente el baile cuando se vive desde dentro.",
+    },
     classes: {
       title: "Clases para Todos",
       desc: "Desde niños hasta adultos. Si buscas diversión social o competir al más alto nivel.",
@@ -77,6 +81,10 @@ export const ui = {
       award2_desc: "FIDS & CIDS Champions",
       award3_desc: "International Prestige",
     },
+    video: {
+      title: "Héktor in Action",
+      desc: "Years of dedication distilled into every movement. This is what dance feels like when it comes from within.",
+    },
     classes: {
       title: "Classes for Everyone",
       desc: "From kids to seniors. Whether you just want to have fun or compete.",
@@ -132,6 +140,10 @@ export const ui = {
       award1_desc: "Nationale Meister",
       award2_desc: "FIDS & CIDS Meister",
       award3_desc: "Internationales Prestige",
+    },
+    video: {
+      title: "Héktor in Aktion",
+      desc: "Jahre der Hingabe in jeder Bewegung. So fühlt sich Tanz an, wenn er von innen kommt.",
     },
     classes: {
       title: "Kurse für Alle",
