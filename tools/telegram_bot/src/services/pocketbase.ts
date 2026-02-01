@@ -79,23 +79,24 @@ export async function deleteEventImage(
   }
 }
 
-export async function uploadEvent(
-  type: string,
-  weekday: string,
+export async function uploadAgendaImage(
+  dayOfTheWeek: number,
+  type: "flyer" | "other",
   imageBuffer: ArrayBuffer,
-): Promise<{ success: boolean; error?: string }> {
-  try {
-    await ensureAuth();
-
-    const form = new FormData();
-    form.append("type", type);
-    form.append("weekday", weekday);
-    form.append("image", new Blob([imageBuffer]), "event.jpg");
-
-    await pb.collection("events").create(form);
-    return { success: true };
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    return { success: false, error: message };
+): Promise<void> {
+  await ensureAuth();
+  const records = await pb.collection("dancing_agenda").getFullList({
+    filter: `day_of_the_week = ${dayOfTheWeek}`,
+  });
+  const record = records[0];
+  if (!record) {
+    throw new Error(`No record found for day ${dayOfTheWeek}`);
   }
+  const form = new FormData();
+  if (type === "flyer") {
+    form.append("flyer", new Blob([imageBuffer]), "flyer.jpg");
+  } else {
+    form.append("other_events+", new Blob([imageBuffer]), "event.jpg");
+  }
+  await pb.collection("dancing_agenda").update(record.id, form);
 }

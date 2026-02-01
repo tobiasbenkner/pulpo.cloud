@@ -7,9 +7,9 @@ import {
 import type { Context } from "grammy";
 import { config } from "./config.js";
 import { handleStart } from "./handlers/start.js";
-import { handleResetWeek } from "./handlers/resetWeek.js";
+import { resetWeekConversation } from "./handlers/resetWeek.js";
 import { listEventsConversation } from "./handlers/listEvents.js";
-import { uploadEventConversation } from "./handlers/uploadEvent.js";
+import { uploadAgendaConversation } from "./handlers/uploadAgenda.js";
 
 export type BotContext = ConversationFlavor<Context>;
 
@@ -25,30 +25,48 @@ bot.use(async (ctx, next) => {
 
 // Conversations plugin
 bot.use(conversations());
-bot.use(createConversation(uploadEventConversation));
+
+// Exit active conversations when a main menu button or /cancel is used
+const menuButtons = ["Reset Week", "List Events", "Upload Agenda"];
+bot.use(async (ctx, next) => {
+  const text = ctx.message?.text;
+  if (text && (menuButtons.includes(text) || text === "/cancel")) {
+    await ctx.conversation.exit("resetWeekConversation");
+    await ctx.conversation.exit("listEventsConversation");
+    await ctx.conversation.exit("uploadAgendaConversation");
+  }
+  await next();
+});
+bot.use(createConversation(resetWeekConversation));
 bot.use(createConversation(listEventsConversation));
+bot.use(createConversation(uploadAgendaConversation));
 
 // Commands
 bot.command("start", handleStart);
-bot.command("upload", async (ctx) => {
-  await ctx.conversation.enter("uploadEventConversation");
+bot.command("reset", async (ctx) => {
+  await ctx.conversation.enter("resetWeekConversation");
 });
-bot.command("reset", handleResetWeek);
 bot.command("list", async (ctx) => {
   await ctx.conversation.enter("listEventsConversation");
 });
+bot.command("agenda", async (ctx) => {
+  await ctx.conversation.enter("uploadAgendaConversation");
+});
 
 // Reply keyboard handlers
-bot.hears("Reset Week", handleResetWeek);
+bot.hears("Reset Week", async (ctx) => {
+  await ctx.conversation.enter("resetWeekConversation");
+});
 bot.hears("List Events", async (ctx) => {
   await ctx.conversation.enter("listEventsConversation");
 });
-bot.hears("Upload Event", async (ctx) => {
-  await ctx.conversation.enter("uploadEventConversation");
+bot.hears("Upload Agenda", async (ctx) => {
+  await ctx.conversation.enter("uploadAgendaConversation");
 });
 
 bot.command("cancel", async (ctx) => {
-  await ctx.conversation.exit("uploadEventConversation");
+  await ctx.conversation.exit("listEventsConversation");
+  await ctx.conversation.exit("uploadAgendaConversation");
   await ctx.reply("Cancelled.");
 });
 

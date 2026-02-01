@@ -1,10 +1,10 @@
 import { Keyboard } from "grammy";
 import type { Context } from "grammy";
 
-const mainMenu = new Keyboard()
+export const mainMenu = new Keyboard()
   .text("Reset Week")
-  .text("Upload Event")
   .text("List Events")
+  .text("Upload Agenda")
   .resized();
 
 export async function handleStart(ctx: Context) {

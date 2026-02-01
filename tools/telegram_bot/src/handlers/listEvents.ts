@@ -4,6 +4,7 @@ import type { Conversation } from "@grammyjs/conversations";
 import type { BotContext } from "../bot.js";
 import { listEvents, deleteEventImage } from "../services/pocketbase.js";
 import type { EventEntry } from "../services/pocketbase.js";
+import { mainMenu } from "./start.js";
 
 type ListConversation = Conversation<BotContext, Context>;
 
@@ -65,7 +66,9 @@ export async function listEventsConversation(
   const events = await conversation.external(() => listEvents(dayNumber));
 
   if (events.length === 0) {
-    await ctx.reply(`No events found for ${dayLabel}.`);
+    await ctx.reply(`No events found for ${dayLabel}.`, {
+      reply_markup: mainMenu,
+    });
     return;
   }
 
@@ -101,7 +104,7 @@ export async function listEventsConversation(
     await delUpdate.answerCallbackQuery();
 
     if (delUpdate.callbackQuery.data === doneData) {
-      await ctx.reply("Done.");
+      await ctx.reply("Done.", { reply_markup: mainMenu });
       return;
     }
 
@@ -120,5 +123,5 @@ export async function listEventsConversation(
     await ctx.reply(`Deleted ${deleteLabel}.`);
   }
 
-  await ctx.reply("No more images left.");
+  await ctx.reply("No more images left.", { reply_markup: mainMenu });
 }
