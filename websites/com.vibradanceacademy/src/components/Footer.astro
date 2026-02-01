@@ -9,18 +9,18 @@ interface Props {
 const { t } = Astro.props;
 ---
 
-<footer id="contact" class="bg-vibra-text-main text-white pt-24 pb-12">
+<footer id="contact" class="bg-[#08080f] text-white pt-24 pb-12">
   <div class="max-w-7xl mx-auto px-6">
     <div class="grid md:grid-cols-2 gap-20 mb-20">
       <!-- Info -->
       <div>
-        <div class="mb-12 brightness-0 invert opacity-80">
+        <div class="mb-12 opacity-80">
           <Image src={logoImage} alt="VibraDance" class="h-10 w-auto" />
         </div>
 
         <div class="space-y-10 font-light">
           <div>
-            <p class="text-xs uppercase tracking-widest text-gray-500 mb-4">
+            <p class="text-xs uppercase tracking-widest text-gray-600 mb-4">
               {t.footer.address}
             </p>
             <p class="text-xl font-medium text-vibra-teal mb-1">
@@ -34,7 +34,7 @@ const { t } = Astro.props;
           </div>
 
           <div>
-            <p class="text-xs uppercase tracking-widest text-gray-500 mb-4">
+            <p class="text-xs uppercase tracking-widest text-gray-600 mb-4">
               {t.footer.contact}
             </p>
             <a
@@ -115,7 +115,7 @@ const { t } = Astro.props;
       </div>
 
       <!-- Map -->
-      <div class="h-full min-h-75 w-full bg-gray-800 relative">
+      <div class="h-full min-h-75 w-full bg-[#0a0a18] relative">
         <iframe
           src={siteData.integrations.googleMaps}
           width="100%"
@@ -134,7 +134,7 @@ const { t } = Astro.props;
     </div>
 
     <div
-      class="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-gray-800 text-xs text-gray-500 tracking-wider uppercase"
+      class="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-white/5 text-xs text-gray-500 tracking-wider uppercase"
     >
       <p>&copy; {new Date().getFullYear()} {siteData.name}.</p>
       <p class="mt-4 md:mt-0">{t.footer.slogan}.</p>

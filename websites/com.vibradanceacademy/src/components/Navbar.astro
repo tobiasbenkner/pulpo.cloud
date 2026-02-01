@@ -14,7 +14,7 @@ const { lang, t } = Astro.props;
 const homeLink = lang === "es" ? "/" : `/${lang}`;
 ---
 
-<nav class="fixed w-full z-50 glass-panel-light transition-all duration-300">
+<nav class="fixed w-full z-50 glass-panel-dark transition-all duration-300">
   <div class="max-w-7xl mx-auto px-6 py-3 flex justify-between items-center">
     <!-- Logo Link -->
     <a href={homeLink} class="block hover:opacity-80 transition-opacity">
@@ -49,21 +49,21 @@ const homeLink = lang === "es" ? "/" : `/${lang}`;
       <!-- Spanisch ist jetzt Root "/" -->
       <a
         href="/"
-        class={`transition-colors ${lang === "es" ? "text-vibra-pink" : "text-gray-400 hover:text-black"}`}
+        class={`transition-colors ${lang === "es" ? "text-vibra-pink" : "text-gray-500 hover:text-white"}`}
         >ES</a
       >
 
       <!-- Englisch ist "/en" -->
       <a
         href="/en"
-        class={`transition-colors ${lang === "en" ? "text-vibra-pink" : "text-gray-400 hover:text-black"}`}
+        class={`transition-colors ${lang === "en" ? "text-vibra-pink" : "text-gray-500 hover:text-white"}`}
         >EN</a
       >
 
       <!-- Deutsch ist "/de" -->
       <a
         href="/de"
-        class={`transition-colors ${lang === "de" ? "text-vibra-pink" : "text-gray-400 hover:text-black"}`}
+        class={`transition-colors ${lang === "de" ? "text-vibra-pink" : "text-gray-500 hover:text-white"}`}
         >DE</a
       >
     </div>

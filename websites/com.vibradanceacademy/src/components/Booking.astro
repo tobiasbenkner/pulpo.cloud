@@ -7,19 +7,19 @@ interface Props {
 const { t } = Astro.props;
 ---
 
-<section id="booking" class="py-32 px-6 bg-white">
+<section id="booking" class="py-32 px-6 bg-vibra-bg">
   <div class="max-w-5xl mx-auto">
     <div class="text-center mb-16">
       <h2 class="text-4xl md:text-5xl mb-6 font-display italic text-vibra-pink">
         {t.private.title}
       </h2>
-      <p class="text-gray-500">{t.private.desc}</p>
+      <p class="text-gray-400">{t.private.desc}</p>
     </div>
 
-    <div class="border border-gray-100 shadow-luxury bg-white">
+    <div class="border border-white/10 shadow-luxury bg-[#14142a]">
       <div
         class="calendly-inline-widget"
-        data-url={siteData.integrations.calendly}
+        data-url={`${siteData.integrations.calendly}?background_color=14142a&text_color=f0eef2&primary_color=ec008c`}
         style="min-width:320px;height:700px;"
       >
       </div>

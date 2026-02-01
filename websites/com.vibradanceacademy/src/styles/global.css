@@ -2,13 +2,13 @@
 @import "tailwindcss";
 
 @theme {
-    /* Light Luxury Palette */
-    --color-vibra-bg: #ffffff; /* Reines Weiß */
-    --color-vibra-surface: #f9fafb; /* Sehr helles Grau für Sektionen */
-    --color-vibra-surface-hover: #f3f4f6;
+    /* Dark Luxury Palette */
+    --color-vibra-bg: #0d0d15; /* Tiefes Dunkelblau */
+    --color-vibra-surface: #1a1a2e; /* Abwechselnde Sektionen */
+    --color-vibra-surface-hover: #252540;
 
-    --color-vibra-text-main: #1a1a1a; /* Dunkles Anthrazit statt hartem Schwarz */
-    --color-vibra-text-muted: #6b7280; /* Elegantes Grau */
+    --color-vibra-text-main: #f0eef2; /* Off-White Primärtext */
+    --color-vibra-text-muted: #9ca3af; /* Sekundärtext */
 
     /* Markenfarben als Akzente */
     --color-vibra-pink: #ec008c;
@@ -50,14 +50,16 @@ h6 {
     -webkit-text-fill-color: transparent;
 }
 
-/* Glassmorphism Light (Milchglas) */
-.glass-panel-light {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+/* Glassmorphism Dark */
+.glass-panel-dark {
+    background: rgba(13, 13, 21, 0.75);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 /* Elegante Schatten */
 .shadow-luxury {
-    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05);
+    box-shadow:
+        0 20px 40px -15px rgba(0, 0, 0, 0.4),
+        0 0 0 1px rgba(255, 255, 255, 0.03);
 }
