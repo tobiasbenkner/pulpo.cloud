@@ -1,6 +1,7 @@
 ---
 // src/components/Navbar.astro
 import { Image } from "astro:assets";
+import { Icon } from "astro-icon/components";
 import logoImage from "../assets/logo.png";
 
 interface Props {
@@ -45,27 +46,16 @@ const homeLink = lang === "es" ? "/" : `/${lang}`;
     </div>
 
     <!-- Language Switcher -->
-    <div class="flex gap-4 text-xs font-bold tracking-widest">
-      <!-- Spanisch ist jetzt Root "/" -->
-      <a
-        href="/"
-        class={`transition-colors ${lang === "es" ? "text-vibra-pink" : "text-gray-500 hover:text-white"}`}
-        >ES</a
-      >
-
-      <!-- Englisch ist "/en" -->
-      <a
-        href="/en"
-        class={`transition-colors ${lang === "en" ? "text-vibra-pink" : "text-gray-500 hover:text-white"}`}
-        >EN</a
-      >
-
-      <!-- Deutsch ist "/de" -->
-      <a
-        href="/de"
-        class={`transition-colors ${lang === "de" ? "text-vibra-pink" : "text-gray-500 hover:text-white"}`}
-        >DE</a
-      >
+    <div class="flex gap-4 items-center">
+      <a href="/" aria-label="Español" class={`block rounded-full transition-opacity ${lang === "es" ? "ring-1 ring-vibra-teal ring-offset-2 ring-offset-transparent" : "opacity-40 hover:opacity-100"}`}>
+        <Icon name="circle-flags:es" size={28} />
+      </a>
+      <a href="/en" aria-label="English" class={`block rounded-full transition-opacity ${lang === "en" ? "ring-1 ring-vibra-teal ring-offset-2 ring-offset-transparent" : "opacity-40 hover:opacity-100"}`}>
+        <Icon name="circle-flags:gb" size={28} />
+      </a>
+      <a href="/de" aria-label="Deutsch" class={`block rounded-full transition-opacity ${lang === "de" ? "ring-1 ring-vibra-teal ring-offset-2 ring-offset-transparent" : "opacity-40 hover:opacity-100"}`}>
+        <Icon name="circle-flags:de" size={28} />
+      </a>
     </div>
   </div>
 </nav>
