@@ -8,7 +8,7 @@ import type { Context } from "grammy";
 import { config } from "./config.js";
 import { handleStart } from "./handlers/start.js";
 import { handleResetWeek } from "./handlers/resetWeek.js";
-import { handleListEvents } from "./handlers/listEvents.js";
+import { listEventsConversation } from "./handlers/listEvents.js";
 import { uploadEventConversation } from "./handlers/uploadEvent.js";
 
 export type BotContext = ConversationFlavor<Context>;
@@ -26,6 +26,7 @@ bot.use(async (ctx, next) => {
 // Conversations plugin
 bot.use(conversations());
 bot.use(createConversation(uploadEventConversation));
+bot.use(createConversation(listEventsConversation));
 
 // Commands
 bot.command("start", handleStart);
@@ -33,11 +34,15 @@ bot.command("upload", async (ctx) => {
   await ctx.conversation.enter("uploadEventConversation");
 });
 bot.command("reset", handleResetWeek);
-bot.command("list", handleListEvents);
+bot.command("list", async (ctx) => {
+  await ctx.conversation.enter("listEventsConversation");
+});
 
 // Reply keyboard handlers
 bot.hears("Reset Week", handleResetWeek);
-bot.hears("List Events", handleListEvents);
+bot.hears("List Events", async (ctx) => {
+  await ctx.conversation.enter("listEventsConversation");
+});
 bot.hears("Upload Event", async (ctx) => {
   await ctx.conversation.enter("uploadEventConversation");
 });
