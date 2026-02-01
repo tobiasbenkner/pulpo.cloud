@@ -18,11 +18,13 @@ export async function listEvents(): Promise<
 > {
   await ensureAuth();
   const records = await pb.collection("dancing_agenda").getFullList();
+  const withFlyer = records.filter((record) => record.flyer);
   const events = await Promise.all(
-    records.map(async (record) => {
+    withFlyer.map(async (record) => {
       const url = pb.files.getURL(record, record.flyer);
-      console.log("url", url);
-      const res = await fetch(url);
+      const res = await fetch(url, {
+        headers: { Authorization: `Bearer ${pb.authStore.token}` },
+      });
       const imageBuffer = Buffer.from(await res.arrayBuffer());
       return { type: "flyer", weekday: record.day_of_the_week, imageBuffer };
     }),
