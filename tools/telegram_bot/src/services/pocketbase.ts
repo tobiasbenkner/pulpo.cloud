@@ -24,14 +24,20 @@ async function downloadFile(
   return Buffer.from(await res.arrayBuffer());
 }
 
-export async function listEvents(
-  dayOfTheWeek: number,
-): Promise<{ type: string; weekday: number; imageBuffer: Buffer }[]> {
+export interface EventEntry {
+  type: string;
+  weekday: number;
+  imageBuffer: Buffer;
+  recordId: string;
+  filename: string;
+}
+
+export async function listEvents(dayOfTheWeek: number): Promise<EventEntry[]> {
   await ensureAuth();
   const records = await pb.collection("dancing_agenda").getFullList({
     filter: `day_of_the_week = ${dayOfTheWeek}`,
   });
-  const events: { type: string; weekday: number; imageBuffer: Buffer }[] = [];
+  const events: EventEntry[] = [];
   for (const record of records) {
     if (record.flyer) {
       const imageBuffer = await downloadFile(record, record.flyer);
@@ -39,6 +45,8 @@ export async function listEvents(
         type: "flyer",
         weekday: record.day_of_the_week,
         imageBuffer,
+        recordId: record.id,
+        filename: record.flyer,
       });
     }
     const otherEvents: string[] = record.other_events ?? [];
@@ -48,10 +56,27 @@ export async function listEvents(
         type: "other",
         weekday: record.day_of_the_week,
         imageBuffer,
+        recordId: record.id,
+        filename,
       });
     }
   }
   return events;
+}
+
+export async function deleteEventImage(
+  recordId: string,
+  filename: string,
+  type: string,
+): Promise<void> {
+  await ensureAuth();
+  if (type === "flyer") {
+    await pb.collection("dancing_agenda").update(recordId, { flyer: null });
+  } else {
+    await pb
+      .collection("dancing_agenda")
+      .update(recordId, { "other_events-": [filename] });
+  }
 }
 
 export async function uploadEvent(
