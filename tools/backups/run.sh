@@ -1,12 +1,32 @@
 #!/bin/bash
 set -euo pipefail
 
+# --- Load .env ---
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+if [ -f "$SCRIPT_DIR/.env" ]; then
+  set -a
+  source "$SCRIPT_DIR/.env"
+  set +a
+fi
+
 # --- Config ---
 BACKUP_DIR="/backups/$(date +%Y-%m-%d)"
 TELEGRAM_BOT_TOKEN="${TELEGRAM_BOT_TOKEN:?Env TELEGRAM_BOT_TOKEN is required}"
 TELEGRAM_CHAT_ID="${TELEGRAM_CHAT_ID:?Env TELEGRAM_CHAT_ID is required}"
+MINIO_ENDPOINT="${MINIO_ENDPOINT:?Env MINIO_ENDPOINT is required}"
+MINIO_ACCESS_KEY="${MINIO_ACCESS_KEY:?Env MINIO_ACCESS_KEY is required}"
+MINIO_SECRET_KEY="${MINIO_SECRET_KEY:?Env MINIO_SECRET_KEY is required}"
+MINIO_BUCKET="${MINIO_BUCKET:?Env MINIO_BUCKET is required}"
+MINIO_RETENTION_DAYS="${MINIO_RETENTION_DAYS:-30}"
 HOSTNAME=$(hostname)
 LOGFILE=$(mktemp)
+
+# --- Check prerequisites ---
+if ! command -v mc &> /dev/null; then
+  echo "ERROR: MinIO Client (mc) is not installed."
+  echo "Install: https://min.io/docs/minio/linux/reference/minio-mc.html"
+  exit 1
+fi
 
 # --- Telegram helpers ---
 send_telegram() {
@@ -24,6 +44,7 @@ cleanup() {
     echo "Starting containers again..."
     docker start $CONTAINERS || true
   fi
+  rm -rf "$BACKUP_DIR"
   rm -f "$LOGFILE"
 }
 trap cleanup EXIT
@@ -85,10 +106,35 @@ echo "=== Backup finished: $(date) ==="
 echo "Files:"
 ls -lh "$BACKUP_DIR"
 
+# --- Upload to MinIO ---
+echo "=== Uploading to MinIO ==="
+MINIO_ALIAS="backup_minio"
+mc alias set "$MINIO_ALIAS" "$MINIO_ENDPOINT" "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
+
+# Create bucket if it doesn't exist
+mc mb --ignore-existing "${MINIO_ALIAS}/${MINIO_BUCKET}"
+
+# Upload backup directory
+mc cp --recursive "$BACKUP_DIR/" "${MINIO_ALIAS}/${MINIO_BUCKET}/$(date +%Y-%m-%d)/"
+echo "Upload complete."
+
+# --- Retention: delete old backups on MinIO ---
+echo "=== Cleaning up backups older than ${MINIO_RETENTION_DAYS} days ==="
+CUTOFF_DATE=$(date -d "-${MINIO_RETENTION_DAYS} days" +%Y-%m-%d 2>/dev/null || date -v-${MINIO_RETENTION_DAYS}d +%Y-%m-%d)
+mc ls "${MINIO_ALIAS}/${MINIO_BUCKET}/" | awk '{print $NF}' | tr -d '/' | while read -r dir; do
+  if [[ "$dir" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] && [[ "$dir" < "$CUTOFF_DATE" ]]; then
+    echo "Deleting old backup: $dir"
+    mc rm --recursive --force "${MINIO_ALIAS}/${MINIO_BUCKET}/${dir}/"
+  fi
+done
+echo "Retention cleanup complete."
+
 # Success notification
 FILECOUNT=$(ls -1 "$BACKUP_DIR" | wc -l | tr -d ' ')
 TOTALSIZE=$(du -sh "$BACKUP_DIR" | cut -f1)
 send_telegram "*Backup erfolgreich* on \`${HOSTNAME}\`
 Files: ${FILECOUNT}
 Size: ${TOTALSIZE}
+MinIO: \`${MINIO_BUCKET}/$(date +%Y-%m-%d)\`
+Retention: ${MINIO_RETENTION_DAYS} Tage
 Date: $(date '+%Y-%m-%d %H:%M:%S')"
