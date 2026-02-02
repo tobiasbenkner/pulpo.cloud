@@ -5,7 +5,8 @@ import { getNavbarItems } from "@/lib/navbar";
 import { getTranslatedPath } from "@/lib/registry";
 import type { Language } from "@/lib/i18n";
 import { Image } from "astro:assets";
-import logo from "../assets/todo.png";
+import logo from "../assets/bib.png";
+import font from "../assets/becker-insurance-broker.png";
 
 interface Props {
   lang: Language;
@@ -22,18 +23,39 @@ const homeHref = getTranslatedPath("home", lang);
 >
   <Container>
     <div class="flex h-16 md:h-20 items-center justify-between">
-      <!-- Logo -->
+      <!-- 
+         LOGO BEREICH (Gestapelt)
+         Hier ist die Änderung für Logo oben / Text unten.
+      -->
       <a
         href={homeHref}
-        class="relative z-50 flex items-center gap-2 md:gap-3 text-lg md:text-xl font-bold font-serif text-primary"
+        class="relative z-50 flex flex-col items-center justify-center gap-0.5"
       >
-        <Image src={logo} alt="Logo" class="w-full h-12 md:h-16" />
+        <!-- 1. BIB Symbol (Oben) -->
+        <!-- lg:h-9 sorgt für Größe auf Desktop, h-6/7 auf Mobile/Tablet -->
+        <Image
+          src={logo}
+          alt="BIB Logo"
+          class="h-7 w-auto lg:h-9 object-contain mb-0.5"
+          loading="eager"
+        />
+
+        <!-- 2. Schriftzug (Unten) -->
+        <!-- w-32 auf Mobile/Tablet, w-48 auf Desktop (ab 1024px) -->
+        <Image
+          src={font}
+          alt="Becker Insurance Broker"
+          class="h-auto w-32 lg:w-48 object-contain"
+          loading="eager"
+        />
       </a>
 
-      <!-- Desktop Nav -->
-      <nav
-        class="hidden md:flex items-center gap-4 lg:gap-6 text-sm font-medium"
-      >
+      <!-- 
+         DESKTOP NAV
+         WICHTIG: "hidden lg:flex" statt "md:flex".
+         Das Menü erscheint erst ab 1024px Breite.
+      -->
+      <nav class="hidden lg:flex items-center gap-6 text-sm font-medium">
         {
           navItems.map((item) => {
             return (
@@ -53,47 +75,54 @@ const homeHref = getTranslatedPath("home", lang);
         }
       </nav>
 
-      <!-- Desktop Language Switcher -->
-      <div class="hidden md:flex items-center gap-4">
+      <!-- 
+         DESKTOP LANGUAGE SWITCHER 
+         Ebenfalls erst ab lg (1024px) sichtbar.
+      -->
+      <div class="hidden lg:flex items-center gap-4">
         <LanguageSwitcher lang={lang} routeKey={routeKey} />
       </div>
 
-      <!-- Mobile Menu Toggle Button -->
+      <!-- 
+         MOBILE/TABLET MENU BUTTON
+         WICHTIG: "lg:hidden" zeigt den Button auf Mobile UND Tablet an.
+         Erst ab Desktop verschwindet er.
+      -->
       <button
         id="menu-toggle"
         aria-label="Toggle Menu"
-        class="relative z-50 flex flex-col justify-center gap-1.5 p-2 md:hidden group"
+        class="relative z-50 flex flex-col justify-center gap-1.5 p-2 lg:hidden group"
       >
         <span
-          class="h-0.5 w-5 md:w-6 bg-white transition-all duration-300 group-data-open:rotate-45 group-data-open:translate-y-2"
+          class="h-0.5 w-6 bg-white transition-all duration-300 group-data-open:rotate-45 group-data-open:translate-y-2"
         ></span>
         <span
-          class="h-0.5 w-5 md:w-6 bg-white transition-all duration-300 group-data-open:opacity-0"
+          class="h-0.5 w-6 bg-white transition-all duration-300 group-data-open:opacity-0"
         ></span>
         <span
-          class="h-0.5 w-5 md:w-6 bg-white transition-all duration-300 group-data-open:-rotate-45 group-data-open:-translate-y-2"
+          class="h-0.5 w-6 bg-white transition-all duration-300 group-data-open:-rotate-45 group-data-open:-translate-y-2"
         ></span>
       </button>
     </div>
   </Container>
 
   <!--
-    Mobile Menu Overlay
+    MOBILE MENU OVERLAY
   -->
   <div
     id="mobile-menu"
-    class="fixed inset-0 z-40 flex flex-col items-center justify-start w-screen h-dvh bg-background transition-all duration-300 translate-x-full opacity-0 invisible md:hidden pt-24 sm:pt-28 overscroll-contain"
+    class="fixed inset-0 z-40 flex flex-col items-center justify-start w-screen h-dvh bg-background transition-all duration-300 translate-x-full opacity-0 invisible lg:hidden pt-24 sm:pt-28 overscroll-contain"
   >
-    <!-- Nav Container: Erlaubt Scrollen im Menü, falls das Handy sehr klein ist -->
+    <!-- Nav Container -->
     <nav
-      class="flex flex-col items-center gap-4 sm:gap-6 text-center w-full px-6 overflow-y-auto max-h-[70vh]"
+      class="flex flex-col items-center gap-6 text-center w-full px-6 overflow-y-auto max-h-[70vh]"
     >
       {
         navItems.map((item) => (
           <a
             href={item.href}
             class:list={[
-              "text-2xl sm:text-3xl font-serif transition-colors duration-300 mobile-link w-full py-3 sm:py-4 border-b border-white/5",
+              "text-2xl sm:text-3xl font-serif transition-colors duration-300 mobile-link w-full py-4 border-b border-white/5",
               item.isActive
                 ? "text-secondary"
                 : "text-text-muted hover:text-white",
@@ -106,9 +135,7 @@ const homeHref = getTranslatedPath("home", lang);
     </nav>
 
     <!-- Language Switcher Mobile -->
-    <div
-      class="mt-6 sm:mt-8 scale-110 sm:scale-125 p-3 sm:p-4 rounded-full bg-surface/50"
-    >
+    <div class="mt-8 scale-125 p-4 rounded-full bg-surface/50">
       <LanguageSwitcher lang={lang} routeKey={routeKey} />
     </div>
   </div>
@@ -136,7 +163,7 @@ const homeHref = getTranslatedPath("home", lang);
         mobileMenu?.classList.add("translate-x-0", "opacity-100");
       });
 
-      // Hardcore Scroll Lock (Body & HTML)
+      // Scroll Lock
       body.style.overflow = "hidden";
       html.style.overflow = "hidden";
     } else {
@@ -152,7 +179,6 @@ const homeHref = getTranslatedPath("home", lang);
     }
   }
 
-  // Warten bis Animation fertig ist, dann invisible setzen
   mobileMenu?.addEventListener("transitionend", () => {
     if (!isOpen) {
       mobileMenu.classList.add("invisible");
@@ -167,8 +193,9 @@ const homeHref = getTranslatedPath("home", lang);
     });
   });
 
+  // WICHTIG: Resize Event auf 1024px angepasst (lg breakpoint)
   window.addEventListener("resize", () => {
-    if (window.innerWidth >= 768 && isOpen) {
+    if (window.innerWidth >= 1024 && isOpen) {
       toggleMenu();
     }
   });
