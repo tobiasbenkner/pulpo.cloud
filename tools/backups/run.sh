@@ -89,6 +89,11 @@ fi
 # Backup all Docker volumes
 echo "=== Backing up Docker volumes ==="
 for VOLUME in $(docker volume ls -q); do
+  # Skip anonymous volumes (64-char hex hashes)
+  if [[ "$VOLUME" =~ ^[a-f0-9]{64}$ ]]; then
+    echo "Skipping anonymous volume: ${VOLUME:0:12}..."
+    continue
+  fi
   echo "Backing up volume: $VOLUME"
   docker run --rm \
     -v "$VOLUME":/data \

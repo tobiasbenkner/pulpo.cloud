@@ -31,5 +31,5 @@ MINIO_RETENTION_DAYS=30
 ## Cronjob (als Root)
 
 ```bash
-0 3 * * * /path/to/tools/backups/run.sh >> /var/log/backup.log 2>&1
+0 3 * * * /srv/backups/run.sh >> /var/log/backup.log 2>&1
 ```
