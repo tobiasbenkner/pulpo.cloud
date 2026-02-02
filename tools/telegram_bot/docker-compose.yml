@@ -8,5 +8,6 @@ services:
     environment:
       - PB_ADMIN_EMAIL=${POCKETBASE_EMAIL}
       - PB_ADMIN_PASSWORD=${POCKETBASE_PASSWORD}
+      - TZ=Europe/London
 volumes:
   pb_data:

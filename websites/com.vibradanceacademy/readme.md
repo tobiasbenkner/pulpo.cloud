@@ -6,3 +6,5 @@
 https://calendly.com/hektorysara
 
 <script defer src="https://analytics.pulpo.cloud/script.js" data-website-id="958cf32c-6440-45a8-b083-f18cacbbfcb5"></script>
+
+claude mcp add playwright npx @playwright/mcp@latest

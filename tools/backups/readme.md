@@ -1,0 +1,1 @@
+source .env && sudo -E ./backup.sh
