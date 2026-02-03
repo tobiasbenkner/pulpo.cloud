@@ -5,6 +5,13 @@ Sichert alle Docker Volumes und `/srv` als tar.gz Archive, lädt sie auf MinIO h
 ## Voraussetzungen
 
 - [MinIO Client (mc)](https://min.io/docs/minio/linux/reference/minio-mc.html)
+
+```bash
+wget https://dl.min.io/aistor/mc/release/linux-amd64/mc
+chmod +x mc
+mv mc /usr/local/bin/
+```
+
 - Docker
 
 ## Konfiguration
@@ -31,5 +38,7 @@ MINIO_RETENTION_DAYS=30
 ## Cronjob (als Root)
 
 ```bash
+PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin
+LD_LIBRARY_PATH=/usr/local/lib
 0 3 * * * /srv/backups/run.sh >> /var/log/backup.log 2>&1
 ```
