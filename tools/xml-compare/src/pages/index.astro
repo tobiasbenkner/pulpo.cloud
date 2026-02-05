@@ -2,7 +2,7 @@
 import '../styles/global.css';
 ---
 
-<html lang="de">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -16,7 +16,7 @@ import '../styles/global.css';
         <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent mb-2">
           XML Compare
         </h1>
-        <p class="text-slate-400 text-lg">Vergleiche XML-Dokumente strukturell und inhaltlich</p>
+        <p class="text-slate-400 text-lg">Compare XML documents structurally and semantically</p>
       </header>
 
       <!-- Hidden file inputs -->
@@ -24,7 +24,15 @@ import '../styles/global.css';
       <input type="file" id="file-input-right" class="hidden" accept=".xml,.xsd,.xslt,.svg,.html,.xhtml" />
 
       <!-- Toolbar -->
-      <div class="flex items-center justify-end mb-4">
+      <div class="flex items-center justify-end gap-6 mb-4">
+        <label class="flex items-center gap-2 cursor-pointer select-none" title="Match elements by content instead of position - detects reordered elements">
+          <span class="text-sm text-slate-400">Ignore Order</span>
+          <div class="relative">
+            <input type="checkbox" id="ignore-order-toggle" class="sr-only peer" />
+            <div class="w-10 h-5 bg-slate-700 rounded-full peer peer-checked:bg-amber-600 transition-colors"></div>
+            <div class="absolute left-0.5 top-0.5 w-4 h-4 bg-slate-300 rounded-full peer-checked:translate-x-5 transition-transform"></div>
+          </div>
+        </label>
         <label class="flex items-center gap-2 cursor-pointer select-none">
           <span class="text-sm text-slate-400">Sync Scroll</span>
           <div class="relative">
@@ -42,7 +50,7 @@ import '../styles/global.css';
           <div class="flex items-center justify-between px-3 py-2 bg-slate-800 border border-slate-700 border-b-0 rounded-t-xl">
             <div class="flex items-center gap-2">
               <span class="w-3 h-3 rounded-full bg-blue-500"></span>
-              <span id="filename-left" class="text-sm font-medium text-slate-300">Dokument A</span>
+              <span id="filename-left" class="text-sm font-medium text-slate-300">Document A</span>
             </div>
             <button
               id="load-file-left"
@@ -51,7 +59,7 @@ import '../styles/global.css';
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
               </svg>
-              Datei laden
+              Load File
             </button>
           </div>
           <div id="editor-left" class="h-96 border border-slate-700 rounded-b-xl overflow-hidden"></div>
@@ -62,7 +70,7 @@ import '../styles/global.css';
           <div class="flex items-center justify-between px-3 py-2 bg-slate-800 border border-slate-700 border-b-0 rounded-t-xl">
             <div class="flex items-center gap-2">
               <span class="w-3 h-3 rounded-full bg-cyan-500"></span>
-              <span id="filename-right" class="text-sm font-medium text-slate-300">Dokument B</span>
+              <span id="filename-right" class="text-sm font-medium text-slate-300">Document B</span>
             </div>
             <button
               id="load-file-right"
@@ -71,7 +79,7 @@ import '../styles/global.css';
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
               </svg>
-              Datei laden
+              Load File
             </button>
           </div>
           <div id="editor-right" class="h-96 border border-slate-700 rounded-b-xl overflow-hidden"></div>
@@ -87,13 +95,13 @@ import '../styles/global.css';
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
           </svg>
-          Vergleichen
+          Compare
         </button>
         <button
           id="clear-btn"
           class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl font-medium text-slate-300 transition-all duration-200"
         >
-          Zurücksetzen
+          Reset
         </button>
       </div>
 
@@ -107,22 +115,26 @@ import '../styles/global.css';
       <!-- Results Section -->
       <div id="results-container" class="hidden">
         <!-- Stats -->
-        <div id="stats" class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-          <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-4 text-center">
+        <div id="stats" class="flex flex-wrap justify-center gap-4 mb-6">
+          <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-4 text-center min-w-[120px]">
             <p class="text-3xl font-bold text-green-400" id="stat-equal">0</p>
-            <p class="text-xs text-slate-400 mt-1">Identisch</p>
+            <p class="text-xs text-slate-400 mt-1">Identical</p>
           </div>
-          <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-4 text-center">
+          <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-4 text-center min-w-[120px]">
             <p class="text-3xl font-bold text-amber-400" id="stat-different">0</p>
-            <p class="text-xs text-slate-400 mt-1">Unterschiedlich</p>
+            <p class="text-xs text-slate-400 mt-1">Different</p>
           </div>
-          <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-4 text-center">
+          <div id="stat-moved-container" class="hidden bg-slate-800/50 border border-slate-700 rounded-xl p-4 text-center min-w-[120px]">
+            <p class="text-3xl font-bold text-amber-400" id="stat-moved">0</p>
+            <p class="text-xs text-slate-400 mt-1">Moved</p>
+          </div>
+          <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-4 text-center min-w-[120px]">
             <p class="text-3xl font-bold text-blue-400" id="stat-missing-left">0</p>
-            <p class="text-xs text-slate-400 mt-1">Nur in B</p>
+            <p class="text-xs text-slate-400 mt-1">Only in B</p>
           </div>
-          <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-4 text-center">
+          <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-4 text-center min-w-[120px]">
             <p class="text-3xl font-bold text-cyan-400" id="stat-missing-right">0</p>
-            <p class="text-xs text-slate-400 mt-1">Nur in A</p>
+            <p class="text-xs text-slate-400 mt-1">Only in A</p>
           </div>
         </div>
 
@@ -132,7 +144,7 @@ import '../styles/global.css';
             <svg class="w-16 h-16 mx-auto text-green-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
-            <p class="text-green-400 text-lg font-semibold">Die XML-Dokumente sind identisch!</p>
+            <p class="text-green-400 text-lg font-semibold">The XML documents are identical!</p>
           </div>
         </div>
 
@@ -140,19 +152,19 @@ import '../styles/global.css';
         <div id="differences-container" class="hidden">
           <div class="bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden">
             <div class="px-4 py-3 border-b border-slate-700 bg-slate-800/50 flex items-center justify-between">
-              <h2 class="font-semibold text-slate-200">Gefundene Unterschiede</h2>
-              <span class="text-xs text-slate-500">Klicke auf eine Zeile um zur Stelle zu springen</span>
+              <h2 class="font-semibold text-slate-200">Differences Found</h2>
+              <span class="text-xs text-slate-500">Click a row to jump to location</span>
             </div>
             <div class="overflow-x-auto max-h-96">
               <table class="w-full text-sm">
                 <thead class="sticky top-0 bg-slate-800">
                   <tr class="border-b border-slate-700 text-left">
                     <th class="px-4 py-3 text-slate-400 font-medium">Status</th>
-                    <th class="px-4 py-3 text-slate-400 font-medium">Pfad</th>
-                    <th class="px-4 py-3 text-slate-400 font-medium text-center w-16">Zeile A</th>
-                    <th class="px-4 py-3 text-slate-400 font-medium text-center w-16">Zeile B</th>
-                    <th class="px-4 py-3 text-slate-400 font-medium">Wert A</th>
-                    <th class="px-4 py-3 text-slate-400 font-medium">Wert B</th>
+                    <th class="px-4 py-3 text-slate-400 font-medium">Path</th>
+                    <th class="px-4 py-3 text-slate-400 font-medium text-center w-16">Line A</th>
+                    <th class="px-4 py-3 text-slate-400 font-medium text-center w-16">Line B</th>
+                    <th class="px-4 py-3 text-slate-400 font-medium">Value A</th>
+                    <th class="px-4 py-3 text-slate-400 font-medium">Value B</th>
                   </tr>
                 </thead>
                 <tbody id="differences-tbody" class="divide-y divide-slate-700/50">
@@ -165,7 +177,7 @@ import '../styles/global.css';
 
       <!-- Footer -->
       <footer class="mt-16 text-center text-slate-500 text-sm">
-        <p>XML Compare Tool &bull; Alle Daten werden lokal im Browser verarbeitet</p>
+        <p>XML Compare Tool &bull; All data is processed locally in your browser</p>
       </footer>
     </div>
 
@@ -254,6 +266,7 @@ import '../styles/global.css';
       const loadFileRightBtn = document.getElementById('load-file-right') as HTMLButtonElement;
       const filenameLeft = document.getElementById('filename-left') as HTMLSpanElement;
       const filenameRight = document.getElementById('filename-right') as HTMLSpanElement;
+      const ignoreOrderToggle = document.getElementById('ignore-order-toggle') as HTMLInputElement;
 
       // Sample data
       const sampleXmlA = `<?xml version="1.0" encoding="UTF-8"?>
@@ -320,7 +333,7 @@ import '../styles/global.css';
           filenameEl.title = file.name;
         };
         reader.onerror = () => {
-          showError(`Fehler beim Laden der Datei: ${file.name}`);
+          showError(`Error loading file: ${file.name}`);
         };
         reader.readAsText(file);
       }
@@ -367,8 +380,8 @@ import '../styles/global.css';
       clearBtn.addEventListener('click', () => {
         editorLeft.setValue('');
         editorRight.setValue('');
-        filenameLeft.textContent = 'Dokument A';
-        filenameRight.textContent = 'Dokument B';
+        filenameLeft.textContent = 'Document A';
+        filenameRight.textContent = 'Document B';
         hideResults();
         hideError();
         // Clear decorations
@@ -387,14 +400,16 @@ import '../styles/global.css';
         const rightValue = editorRight.getValue().trim();
 
         if (!leftValue || !rightValue) {
-          showError('Bitte beide XML-Dokumente eingeben.');
+          showError('Please enter both XML documents.');
           return;
         }
 
         try {
           const leftParsed = parseXml(leftValue);
           const rightParsed = parseXml(rightValue);
-          const results = compareXml(leftParsed, rightParsed);
+          const results = compareXml(leftParsed, rightParsed, {
+            ignoreOrder: ignoreOrderToggle.checked
+          });
 
           displayResults(results);
           highlightDifferences(results);
@@ -430,16 +445,31 @@ import '../styles/global.css';
         const rightText = editorRight.getValue();
 
         for (const result of results) {
-          const leftLine = findLineInXml(leftText, result.path, result.leftValue) + 1;
-          const rightLine = findLineInXml(rightText, result.path, result.rightValue) + 1;
+          // For moved elements, use the stored indices
+          let leftLine: number;
+          let rightLine: number;
+
+          if (result.status === 'moved' && result.leftIndex && result.rightIndex) {
+            // Find the element at the specific index
+            leftLine = findLineInXmlByIndex(leftText, result.path, result.leftIndex);
+            rightLine = findLineInXmlByIndex(rightText, result.path, result.rightIndex);
+          } else {
+            leftLine = findLineInXml(leftText, result.path, result.leftValue) + 1;
+            rightLine = findLineInXml(rightText, result.path, result.rightValue) + 1;
+          }
 
           const getClassName = (status: string) => {
             switch (status) {
               case 'different': return 'line-highlight-different';
               case 'missing-left': return 'line-highlight-missing';
               case 'missing-right': return 'line-highlight-missing';
+              case 'moved': return 'line-highlight-moved';
               default: return 'line-highlight-different';
             }
+          };
+
+          const getGlyphClass = (status: string) => {
+            return status === 'moved' ? 'glyph-margin-moved' : 'glyph-margin-diff';
           };
 
           if (result.status !== 'missing-left' && leftLine > 0) {
@@ -448,7 +478,7 @@ import '../styles/global.css';
               options: {
                 isWholeLine: true,
                 className: getClassName(result.status),
-                glyphMarginClassName: 'glyph-margin-diff',
+                glyphMarginClassName: getGlyphClass(result.status),
               }
             });
           }
@@ -459,7 +489,7 @@ import '../styles/global.css';
               options: {
                 isWholeLine: true,
                 className: getClassName(result.status),
-                glyphMarginClassName: 'glyph-margin-diff',
+                glyphMarginClassName: getGlyphClass(result.status),
               }
             });
           }
@@ -469,18 +499,49 @@ import '../styles/global.css';
         rightDecorations = editorRight.deltaDecorations(rightDecorations, rightDecos);
       }
 
+      // Helper function to find line by element index
+      function findLineInXmlByIndex(xmlText: string, path: string, index: number): number {
+        const lines = xmlText.split('\n');
+        const elementName = path.split('/').pop()?.replace(/\[\d+\]/, '') || '';
+        const pattern = new RegExp(`<${elementName}[\\s>]`);
+
+        let count = 0;
+        for (let i = 0; i < lines.length; i++) {
+          if (pattern.test(lines[i])) {
+            count++;
+            if (count === index) {
+              return i + 1;
+            }
+          }
+        }
+        return 1;
+      }
+
       function displayResults(results: CompareResult[]) {
         const stats = getStats(results);
         resultsContainer.classList.remove('hidden');
 
+        // Check if only moved (no real content differences)
+        const onlyMoved = results.length > 0 && results.every(r => r.status === 'moved');
+
         (document.getElementById('stat-equal') as HTMLParagraphElement).textContent =
-          results.length === 0 ? '✓' : '0';
+          (results.length === 0 || onlyMoved) ? '✓' : '0';
         (document.getElementById('stat-different') as HTMLParagraphElement).textContent =
           stats.different.toString();
+        (document.getElementById('stat-moved') as HTMLParagraphElement).textContent =
+          stats.moved.toString();
         (document.getElementById('stat-missing-left') as HTMLParagraphElement).textContent =
           stats.missingLeft.toString();
         (document.getElementById('stat-missing-right') as HTMLParagraphElement).textContent =
           stats.missingRight.toString();
+
+        // Show/hide moved stat based on toggle
+        const movedContainer = document.getElementById('stat-moved-container');
+        if (ignoreOrderToggle.checked) {
+          movedContainer?.classList.remove('hidden');
+        } else {
+          movedContainer?.classList.add('hidden');
+        }
 
         if (results.length === 0) {
           successMessage.classList.remove('hidden');
@@ -573,10 +634,11 @@ import '../styles/global.css';
 
       function getStatusBadge(status: CompareResult['status']): string {
         const badges: Record<string, string> = {
-          'different': '<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-amber-500/20 text-amber-400">Unterschied</span>',
-          'missing-left': '<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-500/20 text-blue-400">Nur in B</span>',
-          'missing-right': '<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-cyan-500/20 text-cyan-400">Nur in A</span>',
-          'type-mismatch': '<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-red-500/20 text-red-400">Typ-Konflikt</span>',
+          'different': '<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-amber-500/20 text-amber-400">Different</span>',
+          'missing-left': '<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-500/20 text-blue-400">Only in B</span>',
+          'missing-right': '<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-cyan-500/20 text-cyan-400">Only in A</span>',
+          'type-mismatch': '<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-red-500/20 text-red-400">Type Mismatch</span>',
+          'moved': '<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-amber-500/20 text-amber-400">Moved</span>',
         };
         return badges[status] || status;
       }
@@ -586,7 +648,7 @@ import '../styles/global.css';
           return '<span class="text-slate-500 italic">—</span>';
         }
         if (value === null || value === undefined) {
-          return '<span class="text-slate-500 italic">leer</span>';
+          return '<span class="text-slate-500 italic">empty</span>';
         }
         const escaped = value.replace(/</g, '&lt;').replace(/>/g, '&gt;');
         return `<span class="text-slate-200">${escaped}</span>`;
@@ -602,7 +664,17 @@ import '../styles/global.css';
         background-color: rgba(96, 165, 250, 0.15) !important;
         border-left: 3px solid #60a5fa !important;
       }
+      .line-highlight-moved {
+        background-color: rgba(251, 191, 36, 0.15) !important;
+        border-left: 3px solid #fbbf24 !important;
+      }
       .glyph-margin-diff {
+        background-color: #fbbf24;
+        width: 4px !important;
+        margin-left: 3px;
+        border-radius: 2px;
+      }
+      .glyph-margin-moved {
         background-color: #fbbf24;
         width: 4px !important;
         margin-left: 3px;
