@@ -185,3 +185,116 @@ export function getStats(results: CompareResult[]): {
     missingRight: results.filter(r => r.status === 'missing-right').length
   };
 }
+
+/**
+ * Parse path segments with indices, e.g. "persons/person[5]/name" -> [{name: "persons", index: 1}, {name: "person", index: 5}, {name: "name", index: 1}]
+ */
+function parsePathSegments(path: string): Array<{ name: string; index: number; isAttribute?: boolean; attrName?: string }> {
+  const segments: Array<{ name: string; index: number; isAttribute?: boolean; attrName?: string }> = [];
+  const parts = path.split('/');
+
+  for (const part of parts) {
+    if (part === 'text()') continue;
+
+    // Check for attribute like [@category]
+    const attrMatch = part.match(/^(.+?)\[@(\w+)\]$/);
+    if (attrMatch) {
+      const [, baseName, attrName] = attrMatch;
+      const indexMatch = baseName.match(/^(.+?)\[(\d+)\]$/);
+      if (indexMatch) {
+        segments.push({ name: indexMatch[1], index: parseInt(indexMatch[2], 10), isAttribute: true, attrName });
+      } else {
+        segments.push({ name: baseName, index: 1, isAttribute: true, attrName });
+      }
+      continue;
+    }
+
+    // Check for index like [5]
+    const indexMatch = part.match(/^(.+?)\[(\d+)\]$/);
+    if (indexMatch) {
+      segments.push({ name: indexMatch[1], index: parseInt(indexMatch[2], 10) });
+    } else {
+      segments.push({ name: part, index: 1 });
+    }
+  }
+
+  return segments;
+}
+
+/**
+ * Find line number in XML text based on path - follows the path with correct indices
+ */
+export function findLineInXml(xmlText: string, path: string, _value?: string | null): number {
+  const lines = xmlText.split('\n');
+  const segments = parsePathSegments(path);
+
+  if (segments.length === 0) return 0;
+
+  let currentLine = 0;
+
+  for (let segIdx = 0; segIdx < segments.length; segIdx++) {
+    const segment = segments[segIdx];
+    const isLast = segIdx === segments.length - 1;
+    let occurrenceCount = 0;
+
+    // Search for the n-th occurrence of this element
+    for (let i = currentLine; i < lines.length; i++) {
+      const line = lines[i];
+
+      // Match opening tag: <elementName or <elementName> or <elementName ...
+      const openTagPattern = new RegExp(`<${escapeRegex(segment.name)}(?:\\s|>|/)`);
+
+      if (openTagPattern.test(line)) {
+        occurrenceCount++;
+
+        if (occurrenceCount === segment.index) {
+          // Found the right occurrence
+          if (isLast) {
+            // If looking for attribute, stay on this line (attributes are usually on the same line or nearby)
+            if (segment.isAttribute && segment.attrName) {
+              // Check if attribute is on this line
+              if (line.includes(segment.attrName)) {
+                return i;
+              }
+              // Check next few lines for multi-line tags
+              for (let j = i; j < Math.min(i + 5, lines.length); j++) {
+                if (lines[j].includes(segment.attrName!)) {
+                  return j;
+                }
+              }
+            }
+            return i;
+          }
+          // Move search position to after this line for next segment
+          currentLine = i + 1;
+          break;
+        }
+      }
+    }
+  }
+
+  // If path ends with text(), find the value line within the last found element
+  if (path.endsWith('/text()') && segments.length > 0) {
+    const lastSegment = segments[segments.length - 1];
+    let occurrenceCount = 0;
+
+    for (let i = 0; i < lines.length; i++) {
+      const openTagPattern = new RegExp(`<${escapeRegex(lastSegment.name)}(?:\\s|>|/)`);
+
+      if (openTagPattern.test(lines[i])) {
+        occurrenceCount++;
+
+        if (occurrenceCount === lastSegment.index) {
+          // Return this line (text content is often on same line or next line)
+          return i;
+        }
+      }
+    }
+  }
+
+  return Math.max(0, currentLine - 1);
+}
+
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}

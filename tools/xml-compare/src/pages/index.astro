@@ -12,55 +12,69 @@ import '../styles/global.css';
   <body class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
     <div class="container mx-auto px-4 py-8 max-w-7xl">
       <!-- Header -->
-      <header class="text-center mb-10">
+      <header class="text-center mb-8">
         <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent mb-2">
           XML Compare
         </h1>
         <p class="text-slate-400 text-lg">Vergleiche XML-Dokumente strukturell und inhaltlich</p>
       </header>
 
-      <!-- Input Section -->
-      <div class="grid lg:grid-cols-2 gap-6 mb-6">
-        <!-- Left XML -->
-        <div class="space-y-3">
-          <div class="flex items-center justify-between">
-            <label for="xml-left" class="text-sm font-medium text-slate-300 flex items-center gap-2">
+      <!-- Hidden file inputs -->
+      <input type="file" id="file-input-left" class="hidden" accept=".xml,.xsd,.xslt,.svg,.html,.xhtml" />
+      <input type="file" id="file-input-right" class="hidden" accept=".xml,.xsd,.xslt,.svg,.html,.xhtml" />
+
+      <!-- Toolbar -->
+      <div class="flex items-center justify-end mb-4">
+        <label class="flex items-center gap-2 cursor-pointer select-none">
+          <span class="text-sm text-slate-400">Sync Scroll</span>
+          <div class="relative">
+            <input type="checkbox" id="sync-scroll-toggle" class="sr-only peer" checked />
+            <div class="w-10 h-5 bg-slate-700 rounded-full peer peer-checked:bg-blue-600 transition-colors"></div>
+            <div class="absolute left-0.5 top-0.5 w-4 h-4 bg-slate-300 rounded-full peer-checked:translate-x-5 transition-transform"></div>
+          </div>
+        </label>
+      </div>
+
+      <!-- Editor Section -->
+      <div class="grid lg:grid-cols-2 gap-4 mb-6">
+        <!-- Left Editor -->
+        <div class="flex flex-col">
+          <div class="flex items-center justify-between px-3 py-2 bg-slate-800 border border-slate-700 border-b-0 rounded-t-xl">
+            <div class="flex items-center gap-2">
               <span class="w-3 h-3 rounded-full bg-blue-500"></span>
-              XML Dokument A
-            </label>
+              <span id="filename-left" class="text-sm font-medium text-slate-300">Dokument A</span>
+            </div>
             <button
-              id="load-sample-left"
-              class="text-xs text-slate-400 hover:text-slate-200 transition-colors"
+              id="load-file-left"
+              class="px-3 py-1 text-xs bg-slate-700 hover:bg-slate-600 rounded-md text-slate-300 transition-colors flex items-center gap-1.5"
             >
-              Beispiel laden
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+              </svg>
+              Datei laden
             </button>
           </div>
-          <textarea
-            id="xml-left"
-            class="w-full h-80 bg-slate-800/50 border border-slate-700 rounded-xl p-4 font-mono text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 resize-none transition-all"
-            placeholder="<?xml version='1.0'?>&#10;<root>&#10;  ...&#10;</root>"
-          ></textarea>
+          <div id="editor-left" class="h-96 border border-slate-700 rounded-b-xl overflow-hidden"></div>
         </div>
 
-        <!-- Right XML -->
-        <div class="space-y-3">
-          <div class="flex items-center justify-between">
-            <label for="xml-right" class="text-sm font-medium text-slate-300 flex items-center gap-2">
+        <!-- Right Editor -->
+        <div class="flex flex-col">
+          <div class="flex items-center justify-between px-3 py-2 bg-slate-800 border border-slate-700 border-b-0 rounded-t-xl">
+            <div class="flex items-center gap-2">
               <span class="w-3 h-3 rounded-full bg-cyan-500"></span>
-              XML Dokument B
-            </label>
+              <span id="filename-right" class="text-sm font-medium text-slate-300">Dokument B</span>
+            </div>
             <button
-              id="load-sample-right"
-              class="text-xs text-slate-400 hover:text-slate-200 transition-colors"
+              id="load-file-right"
+              class="px-3 py-1 text-xs bg-slate-700 hover:bg-slate-600 rounded-md text-slate-300 transition-colors flex items-center gap-1.5"
             >
-              Beispiel laden
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+              </svg>
+              Datei laden
             </button>
           </div>
-          <textarea
-            id="xml-right"
-            class="w-full h-80 bg-slate-800/50 border border-slate-700 rounded-xl p-4 font-mono text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 resize-none transition-all"
-            placeholder="<?xml version='1.0'?>&#10;<root>&#10;  ...&#10;</root>"
-          ></textarea>
+          <div id="editor-right" class="h-96 border border-slate-700 rounded-b-xl overflow-hidden"></div>
         </div>
       </div>
 
@@ -125,17 +139,20 @@ import '../styles/global.css';
         <!-- Differences Table -->
         <div id="differences-container" class="hidden">
           <div class="bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden">
-            <div class="px-4 py-3 border-b border-slate-700 bg-slate-800/50">
+            <div class="px-4 py-3 border-b border-slate-700 bg-slate-800/50 flex items-center justify-between">
               <h2 class="font-semibold text-slate-200">Gefundene Unterschiede</h2>
+              <span class="text-xs text-slate-500">Klicke auf eine Zeile um zur Stelle zu springen</span>
             </div>
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto max-h-96">
               <table class="w-full text-sm">
-                <thead>
+                <thead class="sticky top-0 bg-slate-800">
                   <tr class="border-b border-slate-700 text-left">
                     <th class="px-4 py-3 text-slate-400 font-medium">Status</th>
                     <th class="px-4 py-3 text-slate-400 font-medium">Pfad</th>
-                    <th class="px-4 py-3 text-slate-400 font-medium">Dokument A</th>
-                    <th class="px-4 py-3 text-slate-400 font-medium">Dokument B</th>
+                    <th class="px-4 py-3 text-slate-400 font-medium text-center w-16">Zeile A</th>
+                    <th class="px-4 py-3 text-slate-400 font-medium text-center w-16">Zeile B</th>
+                    <th class="px-4 py-3 text-slate-400 font-medium">Wert A</th>
+                    <th class="px-4 py-3 text-slate-400 font-medium">Wert B</th>
                   </tr>
                 </thead>
                 <tbody id="differences-tbody" class="divide-y divide-slate-700/50">
@@ -153,21 +170,92 @@ import '../styles/global.css';
     </div>
 
     <script>
-      import { parseXml, compareXml, getStats, type CompareResult } from '../lib/xml-compare';
+      import * as monaco from 'monaco-editor';
+      import { parseXml, compareXml, getStats, findLineInXml, type CompareResult } from '../lib/xml-compare';
 
-      const xmlLeft = document.getElementById('xml-left') as HTMLTextAreaElement;
-      const xmlRight = document.getElementById('xml-right') as HTMLTextAreaElement;
+      // Configure Monaco workers
+      self.MonacoEnvironment = {
+        getWorker: function (_moduleId: string, label: string) {
+          const getWorkerModule = (moduleUrl: string, label: string) => {
+            return new Worker(new URL(`monaco-editor/esm/vs/editor/editor.worker.js`, import.meta.url), {
+              type: 'module'
+            });
+          };
+          return getWorkerModule('', label);
+        }
+      };
+
+      // Editor theme
+      monaco.editor.defineTheme('xmlDark', {
+        base: 'vs-dark',
+        inherit: true,
+        rules: [
+          { token: 'tag', foreground: '60a5fa' },
+          { token: 'attribute.name', foreground: '22d3ee' },
+          { token: 'attribute.value', foreground: 'fbbf24' },
+          { token: 'comment', foreground: '6b7280' },
+          { token: 'string', foreground: 'a5f3fc' },
+        ],
+        colors: {
+          'editor.background': '#1e293b',
+          'editor.foreground': '#e2e8f0',
+          'editorLineNumber.foreground': '#64748b',
+          'editorLineNumber.activeForeground': '#94a3b8',
+          'editor.lineHighlightBackground': '#334155',
+          'editor.selectionBackground': '#3b82f680',
+          'editorCursor.foreground': '#3b82f6',
+        }
+      });
+
+      const editorOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
+        language: 'xml',
+        theme: 'xmlDark',
+        minimap: { enabled: false },
+        fontSize: 13,
+        fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace',
+        lineNumbers: 'on',
+        scrollBeyondLastLine: false,
+        automaticLayout: true,
+        wordWrap: 'on',
+        padding: { top: 12, bottom: 12 },
+        renderLineHighlight: 'line',
+        scrollbar: {
+          verticalScrollbarSize: 8,
+          horizontalScrollbarSize: 8,
+        },
+      };
+
+      // Create editors
+      const editorLeft = monaco.editor.create(
+        document.getElementById('editor-left')!,
+        { ...editorOptions, value: '' }
+      );
+
+      const editorRight = monaco.editor.create(
+        document.getElementById('editor-right')!,
+        { ...editorOptions, value: '' }
+      );
+
+      // DOM Elements
       const compareBtn = document.getElementById('compare-btn') as HTMLButtonElement;
       const clearBtn = document.getElementById('clear-btn') as HTMLButtonElement;
-      const loadSampleLeft = document.getElementById('load-sample-left') as HTMLButtonElement;
-      const loadSampleRight = document.getElementById('load-sample-right') as HTMLButtonElement;
       const errorContainer = document.getElementById('error-container') as HTMLDivElement;
       const errorMessage = document.getElementById('error-message') as HTMLParagraphElement;
       const resultsContainer = document.getElementById('results-container') as HTMLDivElement;
       const successMessage = document.getElementById('success-message') as HTMLDivElement;
       const differencesContainer = document.getElementById('differences-container') as HTMLDivElement;
       const differencesTbody = document.getElementById('differences-tbody') as HTMLTableSectionElement;
+      const syncScrollToggle = document.getElementById('sync-scroll-toggle') as HTMLInputElement;
 
+      // File loading elements
+      const fileInputLeft = document.getElementById('file-input-left') as HTMLInputElement;
+      const fileInputRight = document.getElementById('file-input-right') as HTMLInputElement;
+      const loadFileLeftBtn = document.getElementById('load-file-left') as HTMLButtonElement;
+      const loadFileRightBtn = document.getElementById('load-file-right') as HTMLButtonElement;
+      const filenameLeft = document.getElementById('filename-left') as HTMLSpanElement;
+      const filenameRight = document.getElementById('filename-right') as HTMLSpanElement;
+
+      // Sample data
       const sampleXmlA = `<?xml version="1.0" encoding="UTF-8"?>
 <bookstore>
   <book category="fiction">
@@ -201,27 +289,102 @@ import '../styles/global.css';
   </book>
 </bookstore>`;
 
-      loadSampleLeft.addEventListener('click', () => {
-        xmlLeft.value = sampleXmlA;
-      });
+      // Sync scroll
+      let isSyncing = false;
 
-      loadSampleRight.addEventListener('click', () => {
-        xmlRight.value = sampleXmlB;
-      });
+      function syncScroll(source: monaco.editor.IStandaloneCodeEditor, target: monaco.editor.IStandaloneCodeEditor) {
+        if (!syncScrollToggle.checked || isSyncing) return;
+        isSyncing = true;
 
+        const sourceScrollTop = source.getScrollTop();
+        target.setScrollTop(sourceScrollTop);
+
+        requestAnimationFrame(() => {
+          isSyncing = false;
+        });
+      }
+
+      editorLeft.onDidScrollChange(() => syncScroll(editorLeft, editorRight));
+      editorRight.onDidScrollChange(() => syncScroll(editorRight, editorLeft));
+
+      // File loading
+      function loadFile(input: HTMLInputElement, editor: monaco.editor.IStandaloneCodeEditor, filenameEl: HTMLSpanElement) {
+        const file = input.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const content = e.target?.result as string;
+          editor.setValue(content);
+          filenameEl.textContent = file.name;
+          filenameEl.title = file.name;
+        };
+        reader.onerror = () => {
+          showError(`Fehler beim Laden der Datei: ${file.name}`);
+        };
+        reader.readAsText(file);
+      }
+
+      loadFileLeftBtn.addEventListener('click', () => fileInputLeft.click());
+      loadFileRightBtn.addEventListener('click', () => fileInputRight.click());
+
+      fileInputLeft.addEventListener('change', () => loadFile(fileInputLeft, editorLeft, filenameLeft));
+      fileInputRight.addEventListener('change', () => loadFile(fileInputRight, editorRight, filenameRight));
+
+      // Drag and drop support
+      function setupDropZone(container: HTMLElement, editor: monaco.editor.IStandaloneCodeEditor, filenameEl: HTMLSpanElement) {
+        container.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          container.classList.add('ring-2', 'ring-blue-500');
+        });
+
+        container.addEventListener('dragleave', () => {
+          container.classList.remove('ring-2', 'ring-blue-500');
+        });
+
+        container.addEventListener('drop', (e) => {
+          e.preventDefault();
+          container.classList.remove('ring-2', 'ring-blue-500');
+
+          const file = e.dataTransfer?.files[0];
+          if (!file) return;
+
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            const content = ev.target?.result as string;
+            editor.setValue(content);
+            filenameEl.textContent = file.name;
+            filenameEl.title = file.name;
+          };
+          reader.readAsText(file);
+        });
+      }
+
+      setupDropZone(document.getElementById('editor-left')!, editorLeft, filenameLeft);
+      setupDropZone(document.getElementById('editor-right')!, editorRight, filenameRight);
+
+      // Clear button
       clearBtn.addEventListener('click', () => {
-        xmlLeft.value = '';
-        xmlRight.value = '';
+        editorLeft.setValue('');
+        editorRight.setValue('');
+        filenameLeft.textContent = 'Dokument A';
+        filenameRight.textContent = 'Dokument B';
         hideResults();
         hideError();
+        // Clear decorations
+        editorLeft.deltaDecorations(editorLeft.getModel()?.getAllDecorations().map(d => d.id) || [], []);
+        editorRight.deltaDecorations(editorRight.getModel()?.getAllDecorations().map(d => d.id) || [], []);
+        // Reset file inputs
+        fileInputLeft.value = '';
+        fileInputRight.value = '';
       });
 
       compareBtn.addEventListener('click', () => {
         hideError();
         hideResults();
 
-        const leftValue = xmlLeft.value.trim();
-        const rightValue = xmlRight.value.trim();
+        const leftValue = editorLeft.getValue().trim();
+        const rightValue = editorRight.getValue().trim();
 
         if (!leftValue || !rightValue) {
           showError('Bitte beide XML-Dokumente eingeben.');
@@ -234,6 +397,7 @@ import '../styles/global.css';
           const results = compareXml(leftParsed, rightParsed);
 
           displayResults(results);
+          highlightDifferences(results);
         } catch (e) {
           showError(`XML Parse-Fehler: ${(e as Error).message}`);
         }
@@ -254,11 +418,61 @@ import '../styles/global.css';
         differencesContainer.classList.add('hidden');
       }
 
+      // Store decoration IDs for cleanup
+      let leftDecorations: string[] = [];
+      let rightDecorations: string[] = [];
+
+      function highlightDifferences(results: CompareResult[]) {
+        const leftDecos: monaco.editor.IModelDeltaDecoration[] = [];
+        const rightDecos: monaco.editor.IModelDeltaDecoration[] = [];
+
+        const leftText = editorLeft.getValue();
+        const rightText = editorRight.getValue();
+
+        for (const result of results) {
+          const leftLine = findLineInXml(leftText, result.path, result.leftValue) + 1;
+          const rightLine = findLineInXml(rightText, result.path, result.rightValue) + 1;
+
+          const getClassName = (status: string) => {
+            switch (status) {
+              case 'different': return 'line-highlight-different';
+              case 'missing-left': return 'line-highlight-missing';
+              case 'missing-right': return 'line-highlight-missing';
+              default: return 'line-highlight-different';
+            }
+          };
+
+          if (result.status !== 'missing-left' && leftLine > 0) {
+            leftDecos.push({
+              range: new monaco.Range(leftLine, 1, leftLine, 1),
+              options: {
+                isWholeLine: true,
+                className: getClassName(result.status),
+                glyphMarginClassName: 'glyph-margin-diff',
+              }
+            });
+          }
+
+          if (result.status !== 'missing-right' && rightLine > 0) {
+            rightDecos.push({
+              range: new monaco.Range(rightLine, 1, rightLine, 1),
+              options: {
+                isWholeLine: true,
+                className: getClassName(result.status),
+                glyphMarginClassName: 'glyph-margin-diff',
+              }
+            });
+          }
+        }
+
+        leftDecorations = editorLeft.deltaDecorations(leftDecorations, leftDecos);
+        rightDecorations = editorRight.deltaDecorations(rightDecorations, rightDecos);
+      }
+
       function displayResults(results: CompareResult[]) {
         const stats = getStats(results);
         resultsContainer.classList.remove('hidden');
 
-        // Update stats
         (document.getElementById('stat-equal') as HTMLParagraphElement).textContent =
           results.length === 0 ? '✓' : '0';
         (document.getElementById('stat-different') as HTMLParagraphElement).textContent =
@@ -281,9 +495,38 @@ import '../styles/global.css';
       function renderDifferences(results: CompareResult[]) {
         differencesTbody.innerHTML = '';
 
+        const leftText = editorLeft.getValue();
+        const rightText = editorRight.getValue();
+
         for (const result of results) {
           const row = document.createElement('tr');
-          row.className = 'hover:bg-slate-700/30 transition-colors';
+          row.className = 'hover:bg-slate-700/30 transition-colors cursor-pointer';
+
+          const leftLine = findLineInXml(leftText, result.path, result.leftValue);
+          const rightLine = findLineInXml(rightText, result.path, result.rightValue);
+
+          row.addEventListener('click', () => {
+            // Temporarily disable sync scroll
+            const wasSyncEnabled = syncScrollToggle.checked;
+            syncScrollToggle.checked = false;
+
+            // Reveal lines in editors
+            if (result.status !== 'missing-left') {
+              editorLeft.revealLineInCenter(leftLine + 1);
+              editorLeft.setPosition({ lineNumber: leftLine + 1, column: 1 });
+            }
+
+            setTimeout(() => {
+              if (result.status !== 'missing-right') {
+                editorRight.revealLineInCenter(rightLine + 1);
+                editorRight.setPosition({ lineNumber: rightLine + 1, column: 1 });
+              }
+
+              setTimeout(() => {
+                syncScrollToggle.checked = wasSyncEnabled;
+              }, 100);
+            }, 50);
+          });
 
           const statusCell = document.createElement('td');
           statusCell.className = 'px-4 py-3';
@@ -293,18 +536,36 @@ import '../styles/global.css';
           pathCell.className = 'px-4 py-3 font-mono text-xs text-slate-300';
           pathCell.textContent = result.path;
 
-          const leftCell = document.createElement('td');
-          leftCell.className = 'px-4 py-3 font-mono text-xs';
-          leftCell.innerHTML = formatValue(result.leftValue, result.status === 'missing-left');
+          const leftLineCell = document.createElement('td');
+          leftLineCell.className = 'px-4 py-3 font-mono text-xs text-center';
+          if (result.status === 'missing-left') {
+            leftLineCell.innerHTML = '<span class="text-slate-500">—</span>';
+          } else {
+            leftLineCell.innerHTML = `<span class="text-blue-400 font-medium">${leftLine + 1}</span>`;
+          }
 
-          const rightCell = document.createElement('td');
-          rightCell.className = 'px-4 py-3 font-mono text-xs';
-          rightCell.innerHTML = formatValue(result.rightValue, result.status === 'missing-right');
+          const rightLineCell = document.createElement('td');
+          rightLineCell.className = 'px-4 py-3 font-mono text-xs text-center';
+          if (result.status === 'missing-right') {
+            rightLineCell.innerHTML = '<span class="text-slate-500">—</span>';
+          } else {
+            rightLineCell.innerHTML = `<span class="text-cyan-400 font-medium">${rightLine + 1}</span>`;
+          }
+
+          const leftValueCell = document.createElement('td');
+          leftValueCell.className = 'px-4 py-3 font-mono text-xs';
+          leftValueCell.innerHTML = formatValue(result.leftValue, result.status === 'missing-left');
+
+          const rightValueCell = document.createElement('td');
+          rightValueCell.className = 'px-4 py-3 font-mono text-xs';
+          rightValueCell.innerHTML = formatValue(result.rightValue, result.status === 'missing-right');
 
           row.appendChild(statusCell);
           row.appendChild(pathCell);
-          row.appendChild(leftCell);
-          row.appendChild(rightCell);
+          row.appendChild(leftLineCell);
+          row.appendChild(rightLineCell);
+          row.appendChild(leftValueCell);
+          row.appendChild(rightValueCell);
 
           differencesTbody.appendChild(row);
         }
@@ -331,5 +592,22 @@ import '../styles/global.css';
         return `<span class="text-slate-200">${escaped}</span>`;
       }
     </script>
+
+    <style is:global>
+      .line-highlight-different {
+        background-color: rgba(251, 191, 36, 0.15) !important;
+        border-left: 3px solid #fbbf24 !important;
+      }
+      .line-highlight-missing {
+        background-color: rgba(96, 165, 250, 0.15) !important;
+        border-left: 3px solid #60a5fa !important;
+      }
+      .glyph-margin-diff {
+        background-color: #fbbf24;
+        width: 4px !important;
+        margin-left: 3px;
+        border-radius: 2px;
+      }
+    </style>
   </body>
 </html>
