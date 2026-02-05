@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<books>
+    <book isbn="978-0-123456-78-9" format="hardcover">
+        <title lang="en">The Great Adventure</title>
+        <author country="US">John Writer</author>
+        <year>2020</year>
+    </book>
+    <book isbn="978-0-987654-32-1" format="paperback">
+        <title lang="de">Das Geheimnis</title>
+        <author country="DE">Hans Autor</author>
+        <year>2019</year>
+    </book>
+</books>

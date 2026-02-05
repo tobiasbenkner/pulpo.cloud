@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<team>
+    <member>
+        <id>1</id>
+        <name>Alice</name>
+        <role>Developer</role>
+    </member>
+    <member>
+        <id>2</id>
+        <name>Bob</name>
+        <role>Designer</role>
+    </member>
+    <member>
+        <id>3</id>
+        <name>Charlie</name>
+        <role>Manager</role>
+    </member>
+    <member>
+        <id>4</id>
+        <name>Diana</name>
+        <role>QA</role>
+    </member>
+</team>

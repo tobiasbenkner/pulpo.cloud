@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<books>
+    <book isbn="978-0-123456-78-9" format="ebook">
+        <title lang="en">The Great Adventure</title>
+        <author country="UK">John Writer</author>
+        <year>2020</year>
+    </book>
+    <book isbn="978-0-987654-32-1" format="paperback" edition="2nd">
+        <title lang="en">The Secret</title>
+        <author country="DE">Hans Autor</author>
+        <year>2021</year>
+    </book>
+</books>

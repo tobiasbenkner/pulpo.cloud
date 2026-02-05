@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<company>
+    <departments>
+        <department id="D001" active="true">
+            <name>Engineering</name>
+            <budget>500000</budget>
+            <employees>
+                <employee id="E001">
+                    <name>Alice Johnson</name>
+                    <position>Senior Developer</position>
+                    <salary>85000</salary>
+                </employee>
+                <employee id="E002">
+                    <name>Bob Smith</name>
+                    <position>Junior Developer</position>
+                    <salary>55000</salary>
+                </employee>
+                <employee id="E003">
+                    <name>Carol White</name>
+                    <position>Tech Lead</position>
+                    <salary>95000</salary>
+                </employee>
+            </employees>
+        </department>
+        <department id="D002" active="true">
+            <name>Marketing</name>
+            <budget>300000</budget>
+            <employees>
+                <employee id="E004">
+                    <name>David Brown</name>
+                    <position>Marketing Manager</position>
+                    <salary>75000</salary>
+                </employee>
+            </employees>
+        </department>
+    </departments>
+</company>
