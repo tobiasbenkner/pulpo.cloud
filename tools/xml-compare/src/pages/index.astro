@@ -1,0 +1,335 @@
+---
+import '../styles/global.css';
+---
+
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>XML Compare Tool</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+      <!-- Header -->
+      <header class="text-center mb-10">
+        <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent mb-2">
+          XML Compare
+        </h1>
+        <p class="text-slate-400 text-lg">Vergleiche XML-Dokumente strukturell und inhaltlich</p>
+      </header>
+
+      <!-- Input Section -->
+      <div class="grid lg:grid-cols-2 gap-6 mb-6">
+        <!-- Left XML -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <label for="xml-left" class="text-sm font-medium text-slate-300 flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-blue-500"></span>
+              XML Dokument A
+            </label>
+            <button
+              id="load-sample-left"
+              class="text-xs text-slate-400 hover:text-slate-200 transition-colors"
+            >
+              Beispiel laden
+            </button>
+          </div>
+          <textarea
+            id="xml-left"
+            class="w-full h-80 bg-slate-800/50 border border-slate-700 rounded-xl p-4 font-mono text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 resize-none transition-all"
+            placeholder="<?xml version='1.0'?>&#10;<root>&#10;  ...&#10;</root>"
+          ></textarea>
+        </div>
+
+        <!-- Right XML -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <label for="xml-right" class="text-sm font-medium text-slate-300 flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-cyan-500"></span>
+              XML Dokument B
+            </label>
+            <button
+              id="load-sample-right"
+              class="text-xs text-slate-400 hover:text-slate-200 transition-colors"
+            >
+              Beispiel laden
+            </button>
+          </div>
+          <textarea
+            id="xml-right"
+            class="w-full h-80 bg-slate-800/50 border border-slate-700 rounded-xl p-4 font-mono text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 resize-none transition-all"
+            placeholder="<?xml version='1.0'?>&#10;<root>&#10;  ...&#10;</root>"
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex justify-center gap-4 mb-8">
+        <button
+          id="compare-btn"
+          class="px-8 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 rounded-xl font-semibold text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-200 flex items-center gap-2"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+          Vergleichen
+        </button>
+        <button
+          id="clear-btn"
+          class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl font-medium text-slate-300 transition-all duration-200"
+        >
+          Zurücksetzen
+        </button>
+      </div>
+
+      <!-- Error Display -->
+      <div id="error-container" class="hidden mb-6">
+        <div class="bg-red-500/10 border border-red-500/30 rounded-xl p-4">
+          <p id="error-message" class="text-red-400 text-sm font-medium"></p>
+        </div>
+      </div>
+
+      <!-- Results Section -->
+      <div id="results-container" class="hidden">
+        <!-- Stats -->
+        <div id="stats" class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+          <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-4 text-center">
+            <p class="text-3xl font-bold text-green-400" id="stat-equal">0</p>
+            <p class="text-xs text-slate-400 mt-1">Identisch</p>
+          </div>
+          <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-4 text-center">
+            <p class="text-3xl font-bold text-amber-400" id="stat-different">0</p>
+            <p class="text-xs text-slate-400 mt-1">Unterschiedlich</p>
+          </div>
+          <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-4 text-center">
+            <p class="text-3xl font-bold text-blue-400" id="stat-missing-left">0</p>
+            <p class="text-xs text-slate-400 mt-1">Nur in B</p>
+          </div>
+          <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-4 text-center">
+            <p class="text-3xl font-bold text-cyan-400" id="stat-missing-right">0</p>
+            <p class="text-xs text-slate-400 mt-1">Nur in A</p>
+          </div>
+        </div>
+
+        <!-- Success Message -->
+        <div id="success-message" class="hidden mb-6">
+          <div class="bg-green-500/10 border border-green-500/30 rounded-xl p-6 text-center">
+            <svg class="w-16 h-16 mx-auto text-green-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <p class="text-green-400 text-lg font-semibold">Die XML-Dokumente sind identisch!</p>
+          </div>
+        </div>
+
+        <!-- Differences Table -->
+        <div id="differences-container" class="hidden">
+          <div class="bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden">
+            <div class="px-4 py-3 border-b border-slate-700 bg-slate-800/50">
+              <h2 class="font-semibold text-slate-200">Gefundene Unterschiede</h2>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="border-b border-slate-700 text-left">
+                    <th class="px-4 py-3 text-slate-400 font-medium">Status</th>
+                    <th class="px-4 py-3 text-slate-400 font-medium">Pfad</th>
+                    <th class="px-4 py-3 text-slate-400 font-medium">Dokument A</th>
+                    <th class="px-4 py-3 text-slate-400 font-medium">Dokument B</th>
+                  </tr>
+                </thead>
+                <tbody id="differences-tbody" class="divide-y divide-slate-700/50">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <footer class="mt-16 text-center text-slate-500 text-sm">
+        <p>XML Compare Tool &bull; Alle Daten werden lokal im Browser verarbeitet</p>
+      </footer>
+    </div>
+
+    <script>
+      import { parseXml, compareXml, getStats, type CompareResult } from '../lib/xml-compare';
+
+      const xmlLeft = document.getElementById('xml-left') as HTMLTextAreaElement;
+      const xmlRight = document.getElementById('xml-right') as HTMLTextAreaElement;
+      const compareBtn = document.getElementById('compare-btn') as HTMLButtonElement;
+      const clearBtn = document.getElementById('clear-btn') as HTMLButtonElement;
+      const loadSampleLeft = document.getElementById('load-sample-left') as HTMLButtonElement;
+      const loadSampleRight = document.getElementById('load-sample-right') as HTMLButtonElement;
+      const errorContainer = document.getElementById('error-container') as HTMLDivElement;
+      const errorMessage = document.getElementById('error-message') as HTMLParagraphElement;
+      const resultsContainer = document.getElementById('results-container') as HTMLDivElement;
+      const successMessage = document.getElementById('success-message') as HTMLDivElement;
+      const differencesContainer = document.getElementById('differences-container') as HTMLDivElement;
+      const differencesTbody = document.getElementById('differences-tbody') as HTMLTableSectionElement;
+
+      const sampleXmlA = `<?xml version="1.0" encoding="UTF-8"?>
+<bookstore>
+  <book category="fiction">
+    <title lang="de">Der Prozess</title>
+    <author>Franz Kafka</author>
+    <year>1925</year>
+    <price>12.99</price>
+  </book>
+  <book category="science">
+    <title lang="en">A Brief History of Time</title>
+    <author>Stephen Hawking</author>
+    <year>1988</year>
+    <price>15.99</price>
+  </book>
+</bookstore>`;
+
+      const sampleXmlB = `<?xml version="1.0" encoding="UTF-8"?>
+<bookstore>
+  <book category="fiction">
+    <title lang="de">Der Prozess</title>
+    <author>Franz Kafka</author>
+    <year>1926</year>
+    <price>14.99</price>
+  </book>
+  <book category="non-fiction">
+    <title lang="en">A Brief History of Time</title>
+    <author>Stephen Hawking</author>
+    <year>1988</year>
+    <price>15.99</price>
+    <isbn>978-0553380163</isbn>
+  </book>
+</bookstore>`;
+
+      loadSampleLeft.addEventListener('click', () => {
+        xmlLeft.value = sampleXmlA;
+      });
+
+      loadSampleRight.addEventListener('click', () => {
+        xmlRight.value = sampleXmlB;
+      });
+
+      clearBtn.addEventListener('click', () => {
+        xmlLeft.value = '';
+        xmlRight.value = '';
+        hideResults();
+        hideError();
+      });
+
+      compareBtn.addEventListener('click', () => {
+        hideError();
+        hideResults();
+
+        const leftValue = xmlLeft.value.trim();
+        const rightValue = xmlRight.value.trim();
+
+        if (!leftValue || !rightValue) {
+          showError('Bitte beide XML-Dokumente eingeben.');
+          return;
+        }
+
+        try {
+          const leftParsed = parseXml(leftValue);
+          const rightParsed = parseXml(rightValue);
+          const results = compareXml(leftParsed, rightParsed);
+
+          displayResults(results);
+        } catch (e) {
+          showError(`XML Parse-Fehler: ${(e as Error).message}`);
+        }
+      });
+
+      function showError(message: string) {
+        errorMessage.textContent = message;
+        errorContainer.classList.remove('hidden');
+      }
+
+      function hideError() {
+        errorContainer.classList.add('hidden');
+      }
+
+      function hideResults() {
+        resultsContainer.classList.add('hidden');
+        successMessage.classList.add('hidden');
+        differencesContainer.classList.add('hidden');
+      }
+
+      function displayResults(results: CompareResult[]) {
+        const stats = getStats(results);
+        resultsContainer.classList.remove('hidden');
+
+        // Update stats
+        (document.getElementById('stat-equal') as HTMLParagraphElement).textContent =
+          results.length === 0 ? '✓' : '0';
+        (document.getElementById('stat-different') as HTMLParagraphElement).textContent =
+          stats.different.toString();
+        (document.getElementById('stat-missing-left') as HTMLParagraphElement).textContent =
+          stats.missingLeft.toString();
+        (document.getElementById('stat-missing-right') as HTMLParagraphElement).textContent =
+          stats.missingRight.toString();
+
+        if (results.length === 0) {
+          successMessage.classList.remove('hidden');
+          differencesContainer.classList.add('hidden');
+        } else {
+          successMessage.classList.add('hidden');
+          differencesContainer.classList.remove('hidden');
+          renderDifferences(results);
+        }
+      }
+
+      function renderDifferences(results: CompareResult[]) {
+        differencesTbody.innerHTML = '';
+
+        for (const result of results) {
+          const row = document.createElement('tr');
+          row.className = 'hover:bg-slate-700/30 transition-colors';
+
+          const statusCell = document.createElement('td');
+          statusCell.className = 'px-4 py-3';
+          statusCell.innerHTML = getStatusBadge(result.status);
+
+          const pathCell = document.createElement('td');
+          pathCell.className = 'px-4 py-3 font-mono text-xs text-slate-300';
+          pathCell.textContent = result.path;
+
+          const leftCell = document.createElement('td');
+          leftCell.className = 'px-4 py-3 font-mono text-xs';
+          leftCell.innerHTML = formatValue(result.leftValue, result.status === 'missing-left');
+
+          const rightCell = document.createElement('td');
+          rightCell.className = 'px-4 py-3 font-mono text-xs';
+          rightCell.innerHTML = formatValue(result.rightValue, result.status === 'missing-right');
+
+          row.appendChild(statusCell);
+          row.appendChild(pathCell);
+          row.appendChild(leftCell);
+          row.appendChild(rightCell);
+
+          differencesTbody.appendChild(row);
+        }
+      }
+
+      function getStatusBadge(status: CompareResult['status']): string {
+        const badges: Record<string, string> = {
+          'different': '<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-amber-500/20 text-amber-400">Unterschied</span>',
+          'missing-left': '<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-500/20 text-blue-400">Nur in B</span>',
+          'missing-right': '<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-cyan-500/20 text-cyan-400">Nur in A</span>',
+          'type-mismatch': '<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-red-500/20 text-red-400">Typ-Konflikt</span>',
+        };
+        return badges[status] || status;
+      }
+
+      function formatValue(value: string | null | undefined, isMissing: boolean): string {
+        if (isMissing) {
+          return '<span class="text-slate-500 italic">—</span>';
+        }
+        if (value === null || value === undefined) {
+          return '<span class="text-slate-500 italic">leer</span>';
+        }
+        const escaped = value.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return `<span class="text-slate-200">${escaped}</span>`;
+      }
+    </script>
+  </body>
+</html>

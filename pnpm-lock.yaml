@@ -204,6 +204,22 @@ importers:
         specifier: ^5.8.3
         version: 5.9.3
 
+  tools/xml-compare:
+    dependencies:
+      '@tailwindcss/vite':
+        specifier: ^4.1.18
+        version: 4.1.18(vite@6.4.1(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0))
+      astro:
+        specifier: ^5.16.6
+        version: 5.17.1(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(rollup@4.54.0)(tsx@4.21.0)(typescript@5.9.3)
+      tailwindcss:
+        specifier: ^4.1.18
+        version: 4.1.18
+    devDependencies:
+      wrangler:
+        specifier: ^4.60.0
+        version: 4.60.0
+
   websites/com.elbuhotuerto:
     dependencies:
       '@directus/sdk':
