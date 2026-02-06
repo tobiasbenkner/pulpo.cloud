@@ -149,7 +149,7 @@
         readItems("reservations", {
           filter: { date: { _eq: currentDate } },
           sort: ["time", "name"],
-          fields: ["*", "user_created.*", "user_created.avatar.*"],
+          fields: ["*", "user.*", "user.avatar.*"],
         }),
       );
 

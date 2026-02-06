@@ -93,18 +93,18 @@
           </div>
 
           <!-- Avatar -->
-          {#if typeof res.user_created === "object" && res.user_created?.avatar}
-            {@const avatarId = typeof res.user_created.avatar === "object" ? res.user_created.avatar.id : res.user_created.avatar}
+          {#if typeof res.user === "object" && res.user?.avatar}
+            {@const avatarId = typeof res.user.avatar === "object" ? res.user.avatar.id : res.user.avatar}
             <img
               src={`https://admin.pulpo.cloud/assets/${avatarId}?width=56&height=56&fit=cover`}
               alt=""
               class="size-7 aspect-square rounded-full border border-gray-200 object-cover shrink-0"
             />
-          {:else if typeof res.user_created === "object"}
+          {:else if typeof res.user === "object"}
             <div
               class="size-7 aspect-square rounded-full bg-gray-100 flex items-center justify-center text-[10px] text-gray-500 border border-gray-200 font-medium shrink-0"
             >
-              {res.user_created?.first_name?.[0]?.toUpperCase() || "?"}
+              {res.user?.first_name?.[0]?.toUpperCase() || "?"}
             </div>
           {/if}
 
@@ -178,8 +178,8 @@
                 </td>
                 <td class="px-4 py-2 w-12">
                   <div class="flex justify-end">
-                    {#if typeof res.user_created === "object" && res.user_created?.avatar}
-                      {@const avatarId = typeof res.user_created.avatar === "object" ? res.user_created.avatar.id : res.user_created.avatar}
+                    {#if typeof res.user === "object" && res.user?.avatar}
+                      {@const avatarId = typeof res.user.avatar === "object" ? res.user.avatar.id : res.user.avatar}
                       <div class="w-6 h-6 shrink-0">
                         <img
                           src={`https://admin.pulpo.cloud/assets/${avatarId}?width=48&height=48&fit=cover`}
@@ -187,11 +187,11 @@
                           class="w-full h-full rounded-full border border-gray-200 object-cover"
                         />
                       </div>
-                    {:else if typeof res.user_created === "object"}
+                    {:else if typeof res.user === "object"}
                       <div
                         class="w-6 h-6 shrink-0 rounded-full bg-gray-100 flex items-center justify-center text-[10px] text-gray-500 border border-gray-200 font-medium"
                       >
-                        {res.user_created?.first_name?.[0]?.toUpperCase() || "?"}
+                        {res.user?.first_name?.[0]?.toUpperCase() || "?"}
                       </div>
                     {/if}
                   </div>
