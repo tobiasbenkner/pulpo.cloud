@@ -65,7 +65,11 @@
           contact: res.contact || "",
           person_count: res.person_count || 2,
           notes: res.notes || "",
-          user: res.user ? (typeof res.user === "object" ? res.user.id : res.user) : "",
+          user: res.user
+            ? typeof res.user === "object"
+              ? res.user.id
+              : res.user
+            : "",
         };
         originalDate = res.date;
       } catch (e) {
@@ -81,10 +85,16 @@
     isLoading = false;
 
     // Optional: Turns, Users und Profil laden (unabhängig voneinander)
-    listReservationTurns(directus).then((t) => (turns = t)).catch(() => {});
-    listUsers(directus).then((u) => (users = u)).catch(() => {});
+    listReservationTurns(directus)
+      .then((t) => (turns = t))
+      .catch(() => {});
+    listUsers(directus)
+      .then((u) => (users = u))
+      .catch(() => {});
     if (!formData.user) {
-      getProfile(directus).then((p) => (formData.user = p.id)).catch(() => {});
+      getProfile(directus)
+        .then((p) => (formData.user = p.id))
+        .catch(() => {});
     }
   });
 
@@ -262,13 +272,16 @@
               {#each users as u}
                 <button
                   type="button"
-                  on:click={() => (formData.user = u.id)}
-                  class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs rounded-md border transition-colors {formData.user === u.id
+                  on:click={() =>
+                    (formData.user = formData.user === u.id ? "" : u.id)}
+                  class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs rounded-md border transition-colors {formData.user ===
+                  u.id
                     ? 'border-primary bg-primary text-white'
                     : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300 hover:bg-gray-100'}"
                 >
                   {#if u.avatar}
-                    {@const avatarId = typeof u.avatar === "object" ? u.avatar.id : u.avatar}
+                    {@const avatarId =
+                      typeof u.avatar === "object" ? u.avatar.id : u.avatar}
                     <img
                       src={`https://admin.pulpo.cloud/assets/${avatarId}?width=36&height=36&fit=cover`}
                       alt=""
@@ -349,16 +362,21 @@
     on:click|self={() => (showDeleteConfirm = false)}
     on:keydown={(e) => e.key === "Escape" && (showDeleteConfirm = false)}
   >
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-sm p-6 animate-fade-in">
+    <div
+      class="bg-white rounded-lg shadow-xl w-full max-w-sm p-6 animate-fade-in"
+    >
       <div class="flex items-center gap-3 mb-3">
         <div class="p-2 bg-red-50 rounded-full">
           <AlertTriangle size={20} class="text-red-600" />
         </div>
-        <h2 class="text-base font-semibold text-primary">Reservierung löschen</h2>
+        <h2 class="text-base font-semibold text-primary">
+          Reservierung löschen
+        </h2>
       </div>
 
       <p class="text-sm text-gray-500 mb-6">
-        Soll diese Reservierung wirklich gelöscht werden? Diese Aktion kann nicht rückgängig gemacht werden.
+        Soll diese Reservierung wirklich gelöscht werden? Diese Aktion kann
+        nicht rückgängig gemacht werden.
       </p>
 
       <div class="flex justify-end gap-2">
