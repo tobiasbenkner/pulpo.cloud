@@ -37,11 +37,21 @@ Client-side Directus auth with JSON tokens stored in `localStorage` under the ke
 ### Directus Client (`src/lib/directus.ts`)
 
 Single shared client instance configured with:
-- **authentication** (JSON mode with localStorage persistence)
+
+- **authentication** (JSON mode with localStorage persistence, autoRefresh)
 - **rest** (for CRUD operations)
 - **realtime** (WebSocket with handshake auth)
 
 Hardcoded backend URL: `https://admin.pulpo.cloud` (in `src/config.ts`).
+
+### Two-Layer API Pattern
+
+API calls are split across two modules:
+
+- **`src/lib/cms.ts`** — Wraps `@pulpo/cms` shared package functions by injecting the local directus client. Use this for operations that are shared across multiple apps (e.g., `listReservations`, `readReservation`, `listReservationTurns`).
+- **`src/lib/api.ts`** — Direct `@directus/sdk` calls for app-specific operations (e.g., `getProfile`, `toggleArrived`, `deleteReservation`).
+
+When adding new API functions: if the operation is reusable across apps, add it to `@pulpo/cms` and wrap it in `cms.ts`. If it's agenda-specific, add it to `api.ts`.
 
 ### Realtime Hook (`src/hooks/useDirectusRealtime.ts`)
 
@@ -56,15 +66,27 @@ Hardcoded backend URL: `https://admin.pulpo.cloud` (in `src/config.ts`).
 ### Styling
 
 Tailwind CSS v4 with a custom theme defined in `src/styles/global.css`:
+
 - `--color-primary`: #1a202c (dark navy)
 - `--color-secondary`: #c2b280 (muted gold)
 - Fonts: Playfair Display (serif headings), Inter (sans body)
 - Icons: `lucide-svelte` / `@lucide/astro`
 
+### Key Runtime Patterns
+
+- **Optimistic updates**: `AgendaTable` toggles "arrived" status immediately in the UI, with rollback on REST API error.
+- **Race condition prevention**: REST fetches use `AbortController` to cancel stale requests when the date changes.
+- **Query string state**: Date and reservation ID are passed via URL query params (`?date=`, `?id=`), making views shareable/bookmarkable.
+- **Responsive layout**: Mobile renders a compact list; desktop renders a full table. Breakpoint-driven via Tailwind.
+
 ### Data Model
 
-The app manages a single `reservations` collection with fields: `id`, `date`, `time`, `name`, `contact`, `person_count`, `notes`, `arrived`, `user`.
+The app manages `reservations` with fields: `id`, `date`, `time`, `name`, `contact`, `person_count`, `notes`, `arrived`, `user`. Related collections: `reservation_turns` (predefined time slots like "Lunch · 12:00") and `directus_users`.
 
 ### UI Language
 
-The app UI is mixed Spanish (user-facing labels, buttons) and German (some form labels, error messages). Date formatting uses the Spanish (`es`) locale from `date-fns`.
+The app UI is primarily Spanish (user-facing labels, buttons) with some German (form labels, console messages). Date formatting uses the Spanish (`es`) locale from `date-fns`.
+
+### Dev Server
+
+The dev server binds to `0.0.0.0:4321` with `local.pulpo.cloud` as an allowed host. Use this hostname for local development if needed.
