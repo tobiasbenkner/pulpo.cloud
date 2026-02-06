@@ -61,7 +61,7 @@ When adding new API functions: if the operation is reusable across apps, add it 
 
 - **Svelte stores** (`writable`/`derived`) for component-local state
 - **nanostores** (`map`) for `authStore` — shared auth state across components
-- `localStorage` persists: auth tokens (`directus_auth`) and UI preferences (`pulpo_agenda_show_arrived`)
+- `localStorage` persists: auth tokens (`directus_auth`), UI preferences (`pulpo_agenda_show_arrived`), and cached turns data (`pulpo_agenda_turns`)
 
 ### Styling
 
@@ -78,14 +78,17 @@ Tailwind CSS v4 with a custom theme defined in `src/styles/global.css`:
 - **Race condition prevention**: REST fetches use `AbortController` to cancel stale requests when the date changes.
 - **Query string state**: Date and reservation ID are passed via URL query params (`?date=`, `?id=`), making views shareable/bookmarkable.
 - **Responsive layout**: Mobile renders a compact list; desktop renders a full table. Breakpoint-driven via Tailwind.
+- **Double-click/tap to toggle arrived**: Both mobile and desktop use a unified `handleRowClick` handler with a 300ms timer — single click/tap navigates to edit, double click/tap toggles the arrived status. No `<a>` links on rows; navigation is programmatic.
+- **Turns cache** (`src/lib/turnsCache.ts`): Reservation turns are cached in `localStorage` with a 24h TTL. Both `AgendaView` and `ReservationForm` read from the same cache. A manual "Actualizar turnos" button in the agenda footer invalidates the cache and re-fetches.
+- **Turn color dots**: Each reservation row shows a small colored dot matching its turn's color (matched by time). Falls back to gray if no turn matches.
 
 ### Data Model
 
-The app manages `reservations` with fields: `id`, `date`, `time`, `name`, `contact`, `person_count`, `notes`, `arrived`, `user`. Related collections: `reservation_turns` (predefined time slots like "Lunch · 12:00") and `directus_users`.
+The app manages `reservations` with fields: `id`, `date`, `time`, `name`, `contact`, `person_count`, `notes`, `arrived`, `user`. Related collections: `reservation_turns` (predefined time slots with `id`, `label`, `start`, `color`) and `directus_users`.
 
 ### UI Language
 
-The app UI is primarily Spanish (user-facing labels, buttons) with some German (form labels, console messages). Date formatting uses the Spanish (`es`) locale from `date-fns`.
+The entire app UI is in **Spanish**. All labels, buttons, error messages, placeholders, and aria-labels use Spanish. Date formatting uses the Spanish (`es`) locale from `date-fns`. New UI text must be written in Spanish.
 
 ### Dev Server
 
