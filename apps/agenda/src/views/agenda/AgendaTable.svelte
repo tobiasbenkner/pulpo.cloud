@@ -13,6 +13,7 @@
 
   export let onToggleFilter: () => void = () => {};
   export let onToggleArrived: (res: Reservation) => void = () => {};
+  export let onRefreshTurns: () => void = () => {};
 
   // --- Turn-Farbe ermitteln ---
   function getTurnColor(time: string): string | null {
@@ -302,6 +303,16 @@
         {reservations.length} reservas
       {/if}
     </span>
-    <span>Doble clic para marcar llegada</span>
+    <span class="flex items-center gap-2">
+      <span>Doble clic para marcar llegada</span>
+      <button
+        on:click={onRefreshTurns}
+        class="text-gray-300 hover:text-gray-500 transition-colors p-0.5"
+        aria-label="Turns aktualisieren"
+        title="Turns aktualisieren"
+      >
+        <RefreshCw size={10} />
+      </button>
+    </span>
   </div>
 </div>

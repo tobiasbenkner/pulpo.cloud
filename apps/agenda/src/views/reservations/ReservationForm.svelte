@@ -6,10 +6,10 @@
     createReservation,
     updatedReservation,
     deleteReservation,
-    listReservationTurns,
     listUsers,
     getProfile,
   } from "@pulpo/cms";
+  import { loadTurns } from "../../lib/turnsCache";
   import type { ReservationTurn, User as CmsUser } from "@pulpo/cms";
   import {
     ArrowLeft,
@@ -84,10 +84,13 @@
     }
     isLoading = false;
 
-    // Optional: Turns, Users und Profil laden (unabhängig voneinander)
-    listReservationTurns(directus)
-      .then((t) => (turns = t))
-      .catch(() => {});
+    // Turns aus Cache laden, Users und Profil parallel
+    const { cached, fresh } = loadTurns();
+    if (cached) {
+      turns = cached;
+    } else if (fresh) {
+      fresh.then((t) => (turns = t)).catch(() => {});
+    }
     listUsers(directus)
       .then((u) => (users = u))
       .catch(() => {});

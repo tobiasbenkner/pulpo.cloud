@@ -4,8 +4,8 @@
   import { format } from "date-fns";
   import { directus } from "../../lib/directus";
   import { readItems, updateItem } from "@directus/sdk";
-  import { listReservationTurns } from "@pulpo/cms";
   import { useDirectusRealtime } from "../../hooks/useDirectusRealtime";
+  import { loadTurns as loadCachedTurns, fetchTurns, invalidateTurns } from "../../lib/turnsCache";
   import type { Reservation, ReservationTurn } from "../../lib/types";
   import AgendaHeader from "./AgendaHeader.svelte";
   import AgendaTable from "./AgendaTable.svelte";
@@ -58,6 +58,23 @@
   // --- INTERNAL STATE ---
   let abortController: AbortController | null = null;
   let turns: ReservationTurn[] = [];
+
+  // --- TURNS (cached) ---
+  function initTurns() {
+    const { cached, fresh } = loadCachedTurns();
+    if (cached) {
+      turns = cached;
+    } else if (fresh) {
+      fresh.then((t) => (turns = t)).catch(() => {});
+    }
+  }
+
+  function refreshTurns() {
+    invalidateTurns();
+    fetchTurns()
+      .then((t) => (turns = t))
+      .catch(() => {});
+  }
 
   // --- REALTIME HOOK ---
   const realtime = useDirectusRealtime<Reservation>({
@@ -246,10 +263,8 @@
     // Initial fetch
     fetchData();
 
-    // Turns laden
-    listReservationTurns(directus)
-      .then((t) => (turns = t))
-      .catch(() => {});
+    // Turns laden (mit localStorage Cache)
+    initTurns();
 
     // Browser Events (popstate für URL-History, online/offline für UI-State)
     // Visibility und Reconnect-Fetches werden vom Hook via onResume gehandhabt
@@ -335,6 +350,7 @@
       showArrived={$showArrived}
       dateStr={$date}
       {turns}
+      onRefreshTurns={refreshTurns}
       onToggleFilter={() => ($showArrived = !$showArrived)}
       onToggleArrived={(res) => toggleArrived(res)}
     />
