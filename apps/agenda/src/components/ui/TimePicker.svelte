@@ -105,7 +105,7 @@
 
     <div
       transition:slide={{ duration: 150 }}
-      class="fixed bottom-0 left-0 right-0 z-50 md:absolute md:bottom-auto md:left-auto md:right-auto md:mt-2 w-full md:w-[300px] bg-gray-950 md:border md:border-gray-800 rounded-t-xl md:rounded-xl shadow-2xl p-4 text-white"
+      class="fixed bottom-0 left-0 right-0 z-50 md:absolute md:bottom-auto md:left-auto md:right-auto md:mt-2 w-full max-w-sm mx-auto md:w-[300px] md:max-w-none bg-gray-950 md:border md:border-gray-800 rounded-t-xl md:rounded-xl shadow-2xl p-4 text-white"
     >
       <!-- Stunden -->
       <div class="mb-3">

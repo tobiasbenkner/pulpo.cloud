@@ -143,16 +143,11 @@
   class="max-w-2xl mx-auto animate-fade-in px-3 py-4 md:pb-12 md:pt-8 md:px-0"
 >
   {#if isLoading}
-    <div
-      class="bg-white p-12 rounded-lg border border-gray-200 shadow-sm flex justify-center items-center"
-    >
+    <div class="flex justify-center items-center py-12">
       <Loader2 class="animate-spin text-primary" size={32} />
     </div>
   {:else}
-    <!-- Form Card -->
-    <div
-      class="bg-white p-4 md:p-8 rounded-lg border border-gray-200 shadow-sm relative"
-    >
+    <div>
       <!-- Header -->
       <div class="flex items-center gap-2.5 mb-4">
         <button
