@@ -1,16 +1,58 @@
 <script lang="ts">
-  import { CircleCheck, User as UserIcon, RefreshCw, ChevronRight } from "lucide-svelte";
-  import type { Reservation } from "../../lib/types";
+  import { Check, RefreshCw, ChevronRight } from "lucide-svelte";
+  import type { Reservation, ReservationTurn } from "../../lib/types";
   import { clsx } from "clsx";
+  import { onDestroy } from "svelte";
 
   export let reservations: Reservation[];
   export let loading: boolean;
   export let isRefetching: boolean;
   export let showArrived: boolean;
   export let dateStr: string;
+  export let turns: ReservationTurn[] = [];
 
   export let onToggleFilter: () => void = () => {};
   export let onToggleArrived: (res: Reservation) => void = () => {};
+
+  // --- Turn-Farbe ermitteln ---
+  function getTurnColor(time: string): string | null {
+    if (!turns.length || !time) return null;
+    const t = time.substring(0, 5);
+    const exact = turns.find((turn) => turn.start.substring(0, 5) === t);
+    if (exact) return exact.color;
+    const sorted = [...turns].sort((a, b) => a.start.localeCompare(b.start));
+    for (let i = sorted.length - 1; i >= 0; i--) {
+      if (sorted[i].start.substring(0, 5) <= t) return sorted[i].color;
+    }
+    return null;
+  }
+
+  // --- Double-Tap / Double-Click Handler (mobile + desktop) ---
+  let tapTimer: ReturnType<typeof setTimeout> | null = null;
+  let lastTappedId: string | null = null;
+
+  function handleRowClick(res: Reservation) {
+    if (lastTappedId === res.id && tapTimer) {
+      // Doppelklick/-tap → arrived toggle
+      clearTimeout(tapTimer);
+      tapTimer = null;
+      lastTappedId = null;
+      onToggleArrived(res);
+    } else {
+      // Erster Klick/Tap → warten ob Doppelklick kommt
+      if (tapTimer) clearTimeout(tapTimer);
+      lastTappedId = res.id;
+      tapTimer = setTimeout(() => {
+        tapTimer = null;
+        lastTappedId = null;
+        window.location.href = `/edit?id=${res.id}`;
+      }, 300);
+    }
+  }
+
+  onDestroy(() => {
+    if (tapTimer) clearTimeout(tapTimer);
+  });
 </script>
 
 <div
@@ -48,14 +90,25 @@
     <!-- Mobile: Compact List -->
     <div class="flex-1 min-h-0 overflow-y-auto md:hidden">
       {#each reservations as res (res.id)}
-        <a
-          href={`/edit?id=${res.id}`}
-          on:dblclick|preventDefault={() => onToggleArrived(res)}
+        {@const turnColor = getTurnColor(res.time)}
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <div
+          on:click={() => handleRowClick(res)}
+          on:keydown={() => {}}
           class={clsx(
-            "flex items-center gap-2.5 px-3 py-2 border-b border-gray-100 active:bg-gray-50",
-            res.arrived && "bg-green-50/30",
+            "flex items-center gap-2.5 px-3 py-2 border-b border-gray-100 active:bg-gray-50 cursor-pointer select-none",
+            res.arrived && "bg-green-50/60",
           )}
         >
+          <!-- Turn Color Dot -->
+          <div
+            class={clsx(
+              "shrink-0 size-2.5 rounded-full",
+              !turnColor && "bg-gray-300",
+            )}
+            style={turnColor ? `background-color: ${turnColor}` : ""}
+          ></div>
+
           <!-- Time Badge -->
           <div
             class={clsx(
@@ -74,27 +127,38 @@
               <span
                 class={clsx(
                   "font-medium text-sm truncate",
-                  res.arrived ? "text-green-800 line-through" : "text-gray-900",
+                  res.arrived ? "text-green-800" : "text-gray-900",
                 )}
               >
                 {res.name}
               </span>
-              <span class="text-xs text-gray-400">({res.person_count || "-"})</span>
               {#if res.arrived}
-                <CircleCheck size={12} class="text-green-600 shrink-0" />
+                <Check
+                  size={14}
+                  class="text-green-600 shrink-0"
+                  strokeWidth={3}
+                />
               {/if}
+              <span class="text-xs text-gray-400"
+                >({res.person_count || "-"})</span
+              >
             </div>
             {#if res.contact}
               <p class="text-xs text-gray-500 truncate">{res.contact}</p>
             {/if}
             {#if res.notes}
-              <p class="text-xs text-gray-400 italic leading-snug">{res.notes}</p>
+              <p class="text-xs text-gray-400 italic leading-snug">
+                {res.notes}
+              </p>
             {/if}
           </div>
 
           <!-- Avatar -->
           {#if typeof res.user === "object" && res.user?.avatar}
-            {@const avatarId = typeof res.user.avatar === "object" ? res.user.avatar.id : res.user.avatar}
+            {@const avatarId =
+              typeof res.user.avatar === "object"
+                ? res.user.avatar.id
+                : res.user.avatar}
             <img
               src={`https://admin.pulpo.cloud/assets/${avatarId}?width=56&height=56&fit=cover`}
               alt=""
@@ -110,7 +174,7 @@
 
           <!-- Chevron -->
           <ChevronRight size={14} class="text-gray-300 shrink-0" />
-        </a>
+        </div>
       {/each}
     </div>
 
@@ -120,8 +184,11 @@
       <div class="shrink-0 bg-gray-50 border-b border-gray-200">
         <table class="w-full text-left text-sm">
           <thead>
-            <tr class="text-gray-500 uppercase tracking-wider text-[11px] font-medium">
-              <th class="px-4 py-2.5 font-normal w-16">Hora</th>
+            <tr
+              class="text-gray-500 uppercase tracking-wider text-[11px] font-medium"
+            >
+              <th class="pl-4 pr-1 py-2.5 font-normal w-8"></th>
+              <th class="px-3 py-2.5 font-normal w-16">Hora</th>
               <th class="px-3 py-2.5 font-normal w-12 text-center">Pax</th>
               <th class="px-4 py-2.5 font-normal">Nombre</th>
               <th class="px-4 py-2.5 font-normal">Contacto</th>
@@ -137,17 +204,29 @@
         <table class="w-full text-left text-sm">
           <tbody class="divide-y divide-gray-100">
             {#each reservations as res (res.id)}
+              {@const turnColor = getTurnColor(res.time)}
+              <!-- svelte-ignore a11y_no_static_element_interactions -->
               <tr
-                on:dblclick={() => onToggleArrived(res)}
+                on:click={() => handleRowClick(res)}
+                on:keydown={() => {}}
                 class={clsx(
                   "group transition-colors cursor-pointer select-none",
                   res.arrived
-                    ? "bg-green-50/40 hover:bg-green-50/70"
+                    ? "bg-green-50/60 hover:bg-green-100/60"
                     : "hover:bg-gray-50",
                 )}
               >
+                <td class="pl-4 pr-1 py-2 w-8">
+                  <div
+                    class={clsx(
+                      "size-2.5 rounded-full",
+                      !turnColor && "bg-gray-300",
+                    )}
+                    style={turnColor ? `background-color: ${turnColor}` : ""}
+                  ></div>
+                </td>
                 <td
-                  class="px-4 py-2 whitespace-nowrap font-medium font-serif text-gray-900 w-16"
+                  class="px-3 py-2 whitespace-nowrap font-medium font-serif text-gray-900 w-16"
                 >
                   {res.time.substring(0, 5)}
                 </td>
@@ -155,31 +234,37 @@
                   {res.person_count || "-"}
                 </td>
                 <td class="px-4 py-2">
-                  <div class="flex items-center gap-2">
-                    {#if res.arrived}
-                      <CircleCheck size={14} class="text-green-700 shrink-0" />
-                    {/if}
-                    <a
-                      href={`/edit?id=${res.id}`}
+                  <span class="inline-flex items-center gap-1.5">
+                    <span
                       class={clsx(
-                        "font-medium text-sm transition-colors hover:underline decoration-primary/30 underline-offset-4",
-                        res.arrived
-                          ? "text-green-900 line-through decoration-green-900/30"
-                          : "text-gray-900",
+                        "font-medium text-sm",
+                        res.arrived ? "text-green-900" : "text-gray-900",
                       )}
                     >
                       {res.name}
-                    </a>
-                  </div>
+                    </span>
+                    {#if res.arrived}
+                      <Check
+                        size={14}
+                        class="text-green-700 shrink-0"
+                        strokeWidth={3}
+                      />
+                    {/if}
+                  </span>
                 </td>
-                <td class="px-4 py-2 text-gray-500 text-sm">{res.contact || "-"}</td>
+                <td class="px-4 py-2 text-gray-500 text-sm"
+                  >{res.contact || "-"}</td
+                >
                 <td class="px-4 py-2 text-gray-400 text-xs italic leading-snug">
                   {res.notes || "-"}
                 </td>
                 <td class="px-4 py-2 w-12">
                   <div class="flex justify-end">
                     {#if typeof res.user === "object" && res.user?.avatar}
-                      {@const avatarId = typeof res.user.avatar === "object" ? res.user.avatar.id : res.user.avatar}
+                      {@const avatarId =
+                        typeof res.user.avatar === "object"
+                          ? res.user.avatar.id
+                          : res.user.avatar}
                       <div class="w-6 h-6 shrink-0">
                         <img
                           src={`https://admin.pulpo.cloud/assets/${avatarId}?width=48&height=48&fit=cover`}
@@ -217,6 +302,6 @@
         {reservations.length} reservas
       {/if}
     </span>
-    <span class="hidden md:inline">Doble clic para marcar llegada</span>
+    <span>Doble clic para marcar llegada</span>
   </div>
 </div>

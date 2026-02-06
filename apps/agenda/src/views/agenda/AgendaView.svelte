@@ -4,8 +4,9 @@
   import { format } from "date-fns";
   import { directus } from "../../lib/directus";
   import { readItems, updateItem } from "@directus/sdk";
+  import { listReservationTurns } from "@pulpo/cms";
   import { useDirectusRealtime } from "../../hooks/useDirectusRealtime";
-  import type { Reservation } from "../../lib/types";
+  import type { Reservation, ReservationTurn } from "../../lib/types";
   import AgendaHeader from "./AgendaHeader.svelte";
   import AgendaTable from "./AgendaTable.svelte";
   import { slide } from "svelte/transition";
@@ -56,6 +57,7 @@
 
   // --- INTERNAL STATE ---
   let abortController: AbortController | null = null;
+  let turns: ReservationTurn[] = [];
 
   // --- REALTIME HOOK ---
   const realtime = useDirectusRealtime<Reservation>({
@@ -244,6 +246,11 @@
     // Initial fetch
     fetchData();
 
+    // Turns laden
+    listReservationTurns(directus)
+      .then((t) => (turns = t))
+      .catch(() => {});
+
     // Browser Events (popstate für URL-History, online/offline für UI-State)
     // Visibility und Reconnect-Fetches werden vom Hook via onResume gehandhabt
     window.addEventListener("popstate", handlePopState);
@@ -263,7 +270,9 @@
 
 <div class="flex flex-col h-full animate-fade-in">
   <!-- Sticky Header Section -->
-  <div class="shrink-0 bg-white px-3 md:px-8 pt-4 md:pt-8 pb-3 md:pb-4 space-y-3 md:space-y-4">
+  <div
+    class="shrink-0 bg-white px-3 md:px-8 pt-4 md:pt-8 pb-3 md:pb-4 space-y-3 md:space-y-4"
+  >
     <AgendaHeader
       dateStr={$date}
       onDateChange={(newDate) => setDate(newDate)}
@@ -325,6 +334,7 @@
       isRefetching={$isRefetching}
       showArrived={$showArrived}
       dateStr={$date}
+      {turns}
       onToggleFilter={() => ($showArrived = !$showArrived)}
       onToggleArrived={(res) => toggleArrived(res)}
     />
