@@ -6,12 +6,13 @@
     createReservation,
     updatedReservation,
     deleteReservation,
+    listReservationTurns,
   } from "@pulpo/cms";
+  import type { ReservationTurn } from "@pulpo/cms";
   import {
     ArrowLeft,
     Save,
     Loader2,
-    Clock,
     User,
     Phone,
     AlignLeft,
@@ -36,6 +37,7 @@
   let isDeleting = false;
   let error: string | null = null;
   let showDeleteConfirm = false;
+  let turns: ReservationTurn[] = [];
 
   let formData = {
     date: new Date().toISOString().split("T")[0],
@@ -49,8 +51,13 @@
   let originalDate = "";
 
   onMount(async () => {
+    try {
+      turns = await listReservationTurns(directus);
+    } catch (e) {
+      // Turns sind optional, kein Fehler anzeigen
+    }
+
     if (isEditMode && id) {
-      // Edit mode: load existing data
       try {
         const res = await readReservation(directus, id);
         formData = {
@@ -66,7 +73,6 @@
         error = "Die Reservierung konnte nicht geladen werden.";
       }
     } else {
-      // Create mode: check for date in URL
       const params = new URLSearchParams(window.location.search);
       const dateParam = params.get("date");
       if (dateParam) {
@@ -117,28 +123,9 @@
   }
 </script>
 
-<div class="max-w-2xl mx-auto animate-fade-in pb-12">
-  <!-- Header -->
-  <div class="flex items-center gap-4 mb-8">
-    <button
-      on:click={goBack}
-      class="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500"
-      aria-label="Zurück"
-    >
-      <ArrowLeft size={20} />
-    </button>
-    <div>
-      <h1 class="text-2xl font-serif text-primary">
-        {isEditMode ? "Reservierung bearbeiten" : "Neue Reservierung"}
-      </h1>
-      <p class="text-sm text-gray-500">
-        {isEditMode
-          ? "Details aktualisieren oder stornieren."
-          : "Neue Reservierung erstellen."}
-      </p>
-    </div>
-  </div>
-
+<div
+  class="max-w-2xl mx-auto animate-fade-in px-3 py-4 md:pb-12 md:pt-8 md:px-0"
+>
   {#if isLoading}
     <div
       class="bg-white p-12 rounded-lg border border-gray-200 shadow-sm flex justify-center items-center"
@@ -148,20 +135,34 @@
   {:else}
     <!-- Form Card -->
     <div
-      class="bg-white p-8 rounded-lg border border-gray-200 shadow-sm relative overflow-hidden"
+      class="bg-white p-4 md:p-8 rounded-lg border border-gray-200 shadow-sm relative"
     >
+      <!-- Header -->
+      <div class="flex items-center gap-2.5 mb-4">
+        <button
+          on:click={goBack}
+          class="p-1 hover:bg-gray-100 rounded-full transition-colors text-gray-400"
+          aria-label="Zurück"
+        >
+          <ArrowLeft size={16} />
+        </button>
+        <h1 class="text-sm font-medium text-gray-500">
+          {isEditMode ? "Reservierung bearbeiten" : "Neue Reservierung"}
+        </h1>
+      </div>
+
       {#if error}
         <div
-          class="mb-6 p-4 bg-red-50 border border-red-100 text-red-800 text-sm rounded-md flex items-start gap-2"
+          class="mb-4 p-3 bg-red-50 border border-red-100 text-red-800 text-sm rounded-md flex items-start gap-2"
         >
           <AlertTriangle size={16} class="mt-0.5 shrink-0" />
           <span>{error}</span>
         </div>
       {/if}
 
-      <form on:submit|preventDefault={handleSubmit} class="space-y-6">
+      <form on:submit|preventDefault={handleSubmit} class="space-y-4">
         <!-- Date & Time -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-2 gap-3 md:gap-6">
           <DatePicker
             label="Datum"
             bind:value={formData.date}
@@ -172,9 +173,26 @@
           <TimePicker label="Uhrzeit" bind:value={formData.time} />
         </div>
 
+        {#if turns.length > 0}
+          <div class="flex flex-wrap justify-center gap-1.5">
+            {#each turns as turn}
+              <button
+                type="button"
+                on:click={() => (formData.time = turn.start.substring(0, 5))}
+                class="px-2.5 py-1 text-xs rounded-md border transition-colors {formData.time ===
+                turn.start.substring(0, 5)
+                  ? 'border-primary bg-primary text-white'
+                  : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300 hover:bg-gray-100'}"
+              >
+                {turn.label} · {turn.start.substring(0, 5)}
+              </button>
+            {/each}
+          </div>
+        {/if}
+
         <!-- Name & Person Count -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div class="md:col-span-2 space-y-1.5">
+        <div class="grid grid-cols-3 gap-3 md:gap-6">
+          <div class="col-span-2 space-y-1">
             <label
               for="name"
               class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-500"
@@ -187,16 +205,16 @@
               required
               bind:value={formData.name}
               placeholder="Name des Gastes"
-              class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-sm text-primary placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary focus:bg-white transition-all"
+              class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-sm text-sm text-primary placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary focus:bg-white transition-all"
             />
           </div>
 
-          <div class="space-y-1.5">
+          <div class="space-y-1">
             <label
               for="person_count"
               class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-500"
             >
-              <Users size={14} /> Personen
+              <Users size={14} /> Pax
             </label>
             <input
               id="person_count"
@@ -204,13 +222,13 @@
               min="1"
               max="99"
               bind:value={formData.person_count}
-              class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-sm text-primary focus:outline-none focus:ring-1 focus:ring-primary focus:bg-white transition-all"
+              class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-sm text-sm text-primary focus:outline-none focus:ring-1 focus:ring-primary focus:bg-white transition-all"
             />
           </div>
         </div>
 
         <!-- Contact -->
-        <div class="space-y-1.5">
+        <div class="space-y-1">
           <label
             for="contact"
             class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-500"
@@ -222,12 +240,12 @@
             type="text"
             bind:value={formData.contact}
             placeholder="Telefon oder E-Mail"
-            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-sm text-primary placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary focus:bg-white transition-all"
+            class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-sm text-sm text-primary placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary focus:bg-white transition-all"
           />
         </div>
 
         <!-- Notes -->
-        <div class="space-y-1.5">
+        <div class="space-y-1">
           <label
             for="notes"
             class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-500"
@@ -236,16 +254,16 @@
           </label>
           <textarea
             id="notes"
-            rows="3"
+            rows="2"
             bind:value={formData.notes}
             placeholder="Besondere Wünsche, Allergien, etc."
-            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-sm text-primary placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary focus:bg-white transition-all resize-none"
+            class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-sm text-sm text-primary placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary focus:bg-white transition-all resize-none"
           ></textarea>
         </div>
 
         <!-- Action Bar -->
         <div
-          class="pt-6 border-t border-gray-100 flex items-center justify-between"
+          class="pt-4 border-t border-gray-100 flex items-center justify-between"
         >
           <!-- Delete Button (Left) - Only in Edit Mode -->
           <div>

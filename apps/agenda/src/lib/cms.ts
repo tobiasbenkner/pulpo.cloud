@@ -1,4 +1,3 @@
-import { createDirectus, realtime, rest } from "@directus/sdk";
 import {
   listReservations as _listReservations,
   listReservationTurns as _listReservationTurns,

@@ -6,7 +6,7 @@
   export let value = "";
 
   const hours = Array.from({ length: 24 }, (_, i) =>
-    i.toString().padStart(2, "0")
+    i.toString().padStart(2, "0"),
   );
   const minutes = [
     "00",
@@ -96,17 +96,24 @@
   />
 
   {#if isOpen}
+    <!-- Backdrop (mobile) -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div
+      class="fixed inset-0 bg-black/40 z-40 md:hidden"
+      on:click|stopPropagation={close}
+    ></div>
+
     <div
       transition:slide={{ duration: 150 }}
-      class="absolute z-50 mt-2 w-[300px] bg-gray-950 border border-gray-800 rounded-xl shadow-2xl p-4 text-white"
+      class="fixed bottom-0 left-0 right-0 z-50 md:absolute md:bottom-auto md:left-auto md:right-auto md:mt-2 w-full md:w-[300px] bg-gray-950 md:border md:border-gray-800 rounded-t-xl md:rounded-xl shadow-2xl p-4 text-white"
     >
       <!-- Stunden -->
-      <div class="mb-4">
+      <div class="mb-3">
         <span
-          class="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-2"
+          class="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1.5"
           >Stunden</span
         >
-        <div class="grid grid-cols-6 gap-2">
+        <div class="grid grid-cols-6 gap-1.5">
           {#each hours as h}
             <button
               type="button"
@@ -123,12 +130,12 @@
       </div>
 
       <!-- Minuten -->
-      <div class="mb-6">
+      <div class="mb-4">
         <span
-          class="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-2"
+          class="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1.5"
           >Minuten</span
         >
-        <div class="grid grid-cols-6 gap-2">
+        <div class="grid grid-cols-6 gap-1.5">
           {#each minutes as m}
             <button
               type="button"
@@ -148,7 +155,7 @@
       <button
         type="button"
         on:click|stopPropagation={close}
-        class="w-full bg-white text-black font-bold py-2 rounded-lg hover:bg-gray-200 transition-colors text-sm"
+        class="w-full bg-white text-black font-bold py-2.5 rounded-lg hover:bg-gray-200 transition-colors text-sm"
       >
         Ok
       </button>
