@@ -1,4 +1,4 @@
-import { Reservation, ReservationSetting } from "./reservation";
+import { Reservation, ReservationTurn } from "./agenda";
 import { Language } from "./language";
 import { User } from "./user";
 
@@ -13,7 +13,7 @@ export interface Schema {
   tenants: any[];
 
   reservations: Reservation[];
-  reservations_settings: ReservationSetting[];
+  reservations_turns: ReservationTurn[];
   directus_users: User[];
   languages: Language[];
 }

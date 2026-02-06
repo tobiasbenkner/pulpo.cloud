@@ -10,6 +10,7 @@
     "deploy": "wrangler pages deploy dist --project-name=pulpo-agenda --branch=main"
   },
   "dependencies": {
+    "@pulpo/cms": "workspace:*",
     "@astrojs/svelte": "^7.2.4",
     "@directus/sdk": "^20.3.0",
     "@lucide/astro": "^0.562.0",

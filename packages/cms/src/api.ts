@@ -3,3 +3,5 @@ export * from "./api/blog";
 export * from "./api/event";
 export * from "./api/products";
 export * from "./api/tenant";
+export * from "./api/auth";
+export * from "./api/agenda";
