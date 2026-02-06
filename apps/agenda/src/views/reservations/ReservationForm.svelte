@@ -254,7 +254,7 @@
           </label>
           <textarea
             id="notes"
-            rows="2"
+            rows="4"
             bind:value={formData.notes}
             placeholder="Besondere Wünsche, Allergien, etc."
             class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-sm text-sm text-primary placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary focus:bg-white transition-all resize-none"
@@ -268,36 +268,13 @@
           <!-- Delete Button (Left) - Only in Edit Mode -->
           <div>
             {#if isEditMode}
-              {#if !showDeleteConfirm}
-                <button
-                  type="button"
-                  on:click={() => (showDeleteConfirm = true)}
-                  class="text-red-600 hover:text-red-800 text-sm font-medium flex items-center gap-1.5 px-2 py-2 -ml-2 rounded hover:bg-red-50 transition-colors"
-                >
-                  <Trash2 size={16} /> <span>Löschen</span>
-                </button>
-              {:else}
-                <div
-                  class="flex items-center gap-3 bg-red-50 px-3 py-1.5 rounded-md animate-fade-in border border-red-100"
-                >
-                  <span class="text-xs text-red-800 font-medium">Sicher?</span>
-                  <button
-                    type="button"
-                    on:click={handleDelete}
-                    disabled={isDeleting}
-                    class="text-xs font-bold text-red-700 hover:text-red-900 underline"
-                  >
-                    {isDeleting ? "..." : "Ja, löschen"}
-                  </button>
-                  <button
-                    type="button"
-                    on:click={() => (showDeleteConfirm = false)}
-                    class="text-xs text-gray-500 hover:text-gray-700"
-                  >
-                    Abbruch
-                  </button>
-                </div>
-              {/if}
+              <button
+                type="button"
+                on:click={() => (showDeleteConfirm = true)}
+                class="text-red-600 hover:text-red-800 text-sm font-medium flex items-center gap-1.5 px-2 py-2 -ml-2 rounded hover:bg-red-50 transition-colors"
+              >
+                <Trash2 size={16} /> <span>Löschen</span>
+              </button>
             {/if}
           </div>
 
@@ -325,3 +302,49 @@
     </div>
   {/if}
 </div>
+
+<!-- Delete Confirmation Dialog -->
+{#if showDeleteConfirm}
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+    on:click|self={() => (showDeleteConfirm = false)}
+    on:keydown={(e) => e.key === "Escape" && (showDeleteConfirm = false)}
+  >
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-sm p-6 animate-fade-in">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="p-2 bg-red-50 rounded-full">
+          <AlertTriangle size={20} class="text-red-600" />
+        </div>
+        <h2 class="text-base font-semibold text-primary">Reservierung löschen</h2>
+      </div>
+
+      <p class="text-sm text-gray-500 mb-6">
+        Soll diese Reservierung wirklich gelöscht werden? Diese Aktion kann nicht rückgängig gemacht werden.
+      </p>
+
+      <div class="flex justify-end gap-2">
+        <button
+          type="button"
+          on:click={() => (showDeleteConfirm = false)}
+          class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-primary rounded-md hover:bg-gray-50 transition-colors"
+        >
+          Abbrechen
+        </button>
+        <button
+          type="button"
+          on:click={handleDelete}
+          disabled={isDeleting}
+          class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2"
+        >
+          {#if isDeleting}
+            <Loader2 class="animate-spin" size={14} />
+            Löschen...
+          {:else}
+            Löschen
+          {/if}
+        </button>
+      </div>
+    </div>
+  </div>
+{/if}
