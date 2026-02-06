@@ -303,16 +303,16 @@
         {reservations.length} reservas
       {/if}
     </span>
-    <span class="flex items-center gap-2">
-      <span>Doble clic para marcar llegada</span>
+    <span class="flex items-center gap-3">
       <button
         on:click={onRefreshTurns}
-        class="text-gray-300 hover:text-gray-500 transition-colors p-0.5"
-        aria-label="Turns aktualisieren"
-        title="Turns aktualisieren"
+        class="text-gray-300 hover:text-gray-500 transition-colors flex items-center gap-1"
+        aria-label="Actualizar turnos"
       >
         <RefreshCw size={10} />
+        <span>Actualizar turnos</span>
       </button>
+      <span>Doble clic para marcar llegada</span>
     </span>
   </div>
 </div>
