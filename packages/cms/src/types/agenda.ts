@@ -5,7 +5,7 @@ export type Reservation = {
   date: string;
   time: string;
   name: string;
-  person_count: string;
+  person_count: number;
   contact: string;
   notes: string;
   arrived: boolean;

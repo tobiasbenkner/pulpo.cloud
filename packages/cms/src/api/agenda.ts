@@ -5,6 +5,7 @@ import {
   RestClient,
   updateItem,
   readItems,
+  readItem,
 } from "@directus/sdk";
 import {
   Schema,
@@ -13,14 +14,21 @@ import {
   ReservationCreate,
 } from "../types";
 
-const reservations = "reservations";
-const reservations_turns = "reservations_turns";
+const _reservations = "reservations";
+const _reservations_turns = "reservations_turns";
 
 export async function createReservation(
   client: DirectusClient<Schema> & RestClient<Schema>,
   reservation: ReservationCreate,
 ) {
-  await client.request(createItem(reservations, reservation));
+  await client.request(createItem(_reservations, reservation));
+}
+
+export async function updatedReservation(
+  client: DirectusClient<Schema> & RestClient<Schema>,
+  reservation: Reservation,
+) {
+  await client.request(updateItem(_reservations, reservation.id, reservation));
 }
 
 export async function toggleArrived(
@@ -30,7 +38,7 @@ export async function toggleArrived(
   try {
     console.log("Sende Update via REST API für:", reservation.id);
     const updatedReservation = await client.request(
-      updateItem(reservations, reservation.id, {
+      updateItem(_reservations, reservation.id, {
         arrived: !reservation.arrived,
       }),
     );
@@ -47,21 +55,28 @@ export async function deleteReservation(
 ) {
   try {
     console.log("Lösche via REST API:", id);
-    await client.request(deleteItem(reservations, id));
+    await client.request(deleteItem(_reservations, id));
     console.log("✅ REST API Delete erfolgreich");
   } catch (error) {
     console.error("❌ Fehler beim REST API Delete:", error);
   }
 }
 
+export async function readReservation(
+  client: DirectusClient<Schema> & RestClient<Schema>,
+  id: string,
+): Promise<Reservation> {
+  return await client.request(readItem(_reservations, id));
+}
+
 export async function listReservations(
   client: DirectusClient<Schema> & RestClient<Schema>,
 ): Promise<Reservation[]> {
-  return await client.request(readItems(reservations));
+  return await client.request(readItems(_reservations));
 }
 
 export async function listReservationTurns(
   client: DirectusClient<Schema> & RestClient<Schema>,
 ): Promise<ReservationTurn[]> {
-  return await client.request(readItems(reservations_turns));
+  return await client.request(readItems(_reservations_turns));
 }

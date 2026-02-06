@@ -1,7 +1,12 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { createItem, readItem, updateItem, deleteItem } from "@directus/sdk";
   import { directus } from "../../lib/directus";
+  import {
+    readReservation,
+    createReservation,
+    updatedReservation,
+    deleteReservation,
+  } from "@pulpo/cms";
   import {
     ArrowLeft,
     Save,
@@ -47,7 +52,7 @@
     if (isEditMode && id) {
       // Edit mode: load existing data
       try {
-        const res = await directus.request(readItem("reservations", id));
+        const res = await readReservation(directus, id);
         formData = {
           date: res.date,
           time: res.time ? res.time.substring(0, 5) : "",
@@ -77,11 +82,9 @@
 
     try {
       if (isEditMode && id) {
-        // Update existing
-        await directus.request(updateItem("reservations", id, formData));
+        await updatedReservation(directus, { id, ...formData } as any);
       } else {
-        // Create new
-        await directus.request(createItem("reservations", formData));
+        await createReservation(directus, formData as any);
       }
       window.location.href = `/?date=${formData.date}`;
     } catch (e) {
@@ -98,7 +101,7 @@
 
     isDeleting = true;
     try {
-      await directus.request(deleteItem("reservations", id));
+      await deleteReservation(directus, id);
       window.location.href = `/?date=${formData.date}`;
     } catch (e) {
       error = "Fehler beim Löschen.";
@@ -166,10 +169,7 @@
             placeholder="Datum wählen"
           />
 
-          <TimePicker
-            label="Uhrzeit"
-            bind:value={formData.time}
-          />
+          <TimePicker label="Uhrzeit" bind:value={formData.time} />
         </div>
 
         <!-- Name & Person Count -->
