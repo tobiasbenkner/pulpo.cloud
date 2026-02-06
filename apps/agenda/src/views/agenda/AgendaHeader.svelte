@@ -73,7 +73,7 @@
   <!-- Date Navigation -->
   <div
     class={clsx(
-      "flex items-center gap-1 md:gap-4 bg-white px-2 md:px-4 py-1.5 md:py-2 rounded-lg shadow-sm relative transition-all duration-300 border",
+      "flex items-center gap-1 md:gap-2 bg-white px-2 md:px-3 py-1.5 md:py-2 rounded-lg shadow-sm relative transition-all duration-300 border",
       isRefetching ? "border-primary/30 shadow-primary/10" : "border-gray-100",
     )}
   >
@@ -119,21 +119,23 @@
     >
       <ChevronRight size={18} class="md:w-5 md:h-5" />
     </button>
-  </div>
 
-  <!-- Actions -->
-  <div class="flex items-center gap-1 md:gap-3">
+    <div class="w-px h-5 bg-gray-200 mx-0.5 md:mx-1"></div>
+
     <button
       on:click={() => changeDate(format(new Date(), "yyyy-MM-dd"))}
-      class="text-xs md:text-sm font-medium text-gray-500 hover:text-primary px-2 py-1.5 md:py-2"
+      class="px-2 md:px-3 py-1 md:py-1.5 rounded-md text-xs md:text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-primary transition-colors whitespace-nowrap"
     >
       Hoy
     </button>
+  </div>
 
+  <!-- Actions -->
+  <div class="flex items-center gap-1.5 md:gap-2 shrink-0">
     <button
       on:click={onToggleFilter}
       class={clsx(
-        "p-2 md:px-4 md:py-2 rounded-md border text-sm transition-all",
+        "inline-flex items-center justify-center gap-2 h-9 md:h-10 px-2.5 md:px-4 rounded-md border text-sm transition-colors whitespace-nowrap",
         showArrived
           ? "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
           : "border-secondary/30 bg-secondary/5 text-secondary-dark font-medium",
@@ -141,19 +143,19 @@
     >
       {#if showArrived}
         <Eye size={16} />
-        <span class="hidden md:inline ml-2">Ocultar llegadas</span>
+        <span class="hidden md:inline">Ocultar llegadas</span>
       {:else}
         <EyeOff size={16} />
-        <span class="hidden md:inline ml-2">Mostrar todas</span>
+        <span class="hidden md:inline">Mostrar todas</span>
       {/if}
     </button>
 
     <a
       href="/new?date={dateStr}"
-      class="p-2 md:px-5 md:py-2.5 bg-primary text-white rounded-sm hover:bg-gray-800 transition-all shadow-md shadow-gray-200 text-sm font-medium"
+      class="inline-flex items-center justify-center gap-2 h-9 md:h-10 px-2.5 md:px-5 bg-primary text-white rounded-md hover:bg-gray-800 transition-colors shadow-sm text-sm font-medium whitespace-nowrap"
     >
       <Plus size={18} />
-      <span class="hidden md:inline ml-2">Nueva Reserva</span>
+      <span class="hidden md:inline">Nueva Reserva</span>
     </a>
   </div>
 </header>
