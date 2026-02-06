@@ -7,8 +7,10 @@
     updatedReservation,
     deleteReservation,
     listReservationTurns,
+    listUsers,
+    getProfile,
   } from "@pulpo/cms";
-  import type { ReservationTurn } from "@pulpo/cms";
+  import type { ReservationTurn, User as CmsUser } from "@pulpo/cms";
   import {
     ArrowLeft,
     Save,
@@ -38,6 +40,7 @@
   let error: string | null = null;
   let showDeleteConfirm = false;
   let turns: ReservationTurn[] = [];
+  let users: CmsUser[] = [];
 
   let formData = {
     date: new Date().toISOString().split("T")[0],
@@ -46,17 +49,12 @@
     contact: "",
     person_count: 2,
     notes: "",
+    user: "",
   };
 
   let originalDate = "";
 
   onMount(async () => {
-    try {
-      turns = await listReservationTurns(directus);
-    } catch (e) {
-      // Turns sind optional, kein Fehler anzeigen
-    }
-
     if (isEditMode && id) {
       try {
         const res = await readReservation(directus, id);
@@ -67,6 +65,7 @@
           contact: res.contact || "",
           person_count: res.person_count || 2,
           notes: res.notes || "",
+          user: res.user ? (typeof res.user === "object" ? res.user.id : res.user) : "",
         };
         originalDate = res.date;
       } catch (e) {
@@ -80,6 +79,13 @@
       }
     }
     isLoading = false;
+
+    // Optional: Turns, Users und Profil laden (unabhängig voneinander)
+    listReservationTurns(directus).then((t) => (turns = t)).catch(() => {});
+    listUsers(directus).then((u) => (users = u)).catch(() => {});
+    if (!formData.user) {
+      getProfile(directus).then((p) => (formData.user = p.id)).catch(() => {});
+    }
   });
 
   async function handleSubmit() {
@@ -243,6 +249,38 @@
             class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-sm text-sm text-primary placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary focus:bg-white transition-all"
           />
         </div>
+
+        <!-- User -->
+        {#if users.length > 0}
+          <div class="space-y-1">
+            <label
+              class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-500"
+            >
+              <User size={14} /> Erstellt von
+            </label>
+            <div class="flex flex-wrap gap-1.5">
+              {#each users as u}
+                <button
+                  type="button"
+                  on:click={() => (formData.user = u.id)}
+                  class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs rounded-md border transition-colors {formData.user === u.id
+                    ? 'border-primary bg-primary text-white'
+                    : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300 hover:bg-gray-100'}"
+                >
+                  {#if u.avatar}
+                    {@const avatarId = typeof u.avatar === "object" ? u.avatar.id : u.avatar}
+                    <img
+                      src={`https://admin.pulpo.cloud/assets/${avatarId}?width=36&height=36&fit=cover`}
+                      alt=""
+                      class="size-4 rounded-full object-cover"
+                    />
+                  {/if}
+                  {u.first_name || "?"}
+                </button>
+              {/each}
+            </div>
+          </div>
+        {/if}
 
         <!-- Notes -->
         <div class="space-y-1">

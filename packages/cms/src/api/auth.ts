@@ -1,4 +1,4 @@
-import { DirectusClient, readMe, RestClient } from "@directus/sdk";
+import { DirectusClient, readMe, readUsers, RestClient } from "@directus/sdk";
 import { Schema, User } from "../types";
 
 export async function getProfile(
@@ -10,4 +10,14 @@ export async function getProfile(
     }),
   )) as User;
   return user;
+}
+
+export async function listUsers(
+  client: DirectusClient<Schema> & RestClient<Schema>,
+): Promise<User[]> {
+  return (await client.request(
+    readUsers({
+      fields: ["id", "first_name", "avatar"],
+    }),
+  )) as User[];
 }
