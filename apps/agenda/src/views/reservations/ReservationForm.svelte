@@ -302,14 +302,7 @@
           </div>
 
           <!-- Save Button (Right) -->
-          <div class="flex items-center gap-3">
-            <button
-              type="button"
-              on:click={goBack}
-              class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-primary transition-colors"
-            >
-              Abbrechen
-            </button>
+          <div>
             <button
               type="submit"
               disabled={isSaving}
