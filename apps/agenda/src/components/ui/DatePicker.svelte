@@ -1,14 +1,14 @@
 <script>
   import { slide } from "svelte/transition";
   import { format, parse } from "date-fns";
-  import { de } from "date-fns/locale";
+  import { es } from "date-fns/locale";
   import Calendar from "./Calendar.svelte";
 
   export let id = "datepicker";
-  export let label = "Datum auswählen";
+  export let label = "Seleccionar fecha";
   export let value = ""; // Format: yyyy-MM-dd
-  export let placeholder = "Datum wählen";
-  export let locale = de;
+  export let placeholder = "Seleccionar fecha";
+  export let locale = es;
   export let weekStartsOn = 1; // 0 = Sonntag, 1 = Montag
 
   let isOpen = false;

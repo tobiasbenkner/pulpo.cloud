@@ -35,7 +35,7 @@
     <div class="flex flex-col items-center gap-4">
       <Loader class="animate-spin text-primary" size={48} />
       <span class="text-xs font-medium text-gray-400 tracking-widest uppercase">
-        Authentifizierung...
+        Autenticando...
       </span>
     </div>
   </div>

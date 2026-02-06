@@ -73,7 +73,7 @@
         };
         originalDate = res.date;
       } catch (e) {
-        error = "Die Reservierung konnte nicht geladen werden.";
+        error = "No se pudo cargar la reserva.";
       }
     } else {
       const params = new URLSearchParams(window.location.search);
@@ -115,8 +115,8 @@
     } catch (e) {
       console.error(e);
       error = isEditMode
-        ? "Fehler beim Speichern der Änderungen."
-        : "Fehler beim Erstellen der Reservierung.";
+        ? "Error al guardar los cambios."
+        : "Error al crear la reserva.";
       isSaving = false;
     }
   }
@@ -129,7 +129,7 @@
       await deleteReservation(directus, id);
       window.location.href = `/?date=${formData.date}`;
     } catch (e) {
-      error = "Fehler beim Löschen.";
+      error = "Error al eliminar.";
       isDeleting = false;
       showDeleteConfirm = false;
     }
@@ -156,12 +156,12 @@
         <button
           on:click={goBack}
           class="p-1 hover:bg-gray-100 rounded-full transition-colors text-gray-400"
-          aria-label="Zurück"
+          aria-label="Volver"
         >
           <ArrowLeft size={16} />
         </button>
         <h1 class="text-sm font-medium text-gray-500">
-          {isEditMode ? "Reservierung bearbeiten" : "Neue Reservierung"}
+          {isEditMode ? "Editar reserva" : "Nueva reserva"}
         </h1>
       </div>
 
@@ -178,13 +178,13 @@
         <!-- Date & Time -->
         <div class="grid grid-cols-2 gap-3 md:gap-6">
           <DatePicker
-            label="Datum"
+            label="Fecha"
             bind:value={formData.date}
             locale={es}
-            placeholder="Datum wählen"
+            placeholder="Seleccionar fecha"
           />
 
-          <TimePicker label="Uhrzeit" bind:value={formData.time} />
+          <TimePicker label="Hora" bind:value={formData.time} />
         </div>
 
         {#if turns.length > 0}
@@ -211,14 +211,14 @@
               for="name"
               class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-500"
             >
-              <User size={14} /> Name
+              <User size={14} /> Nombre
             </label>
             <input
               id="name"
               type="text"
               required
               bind:value={formData.name}
-              placeholder="Name des Gastes"
+              placeholder="Nombre del cliente"
               class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-sm text-sm text-primary placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary focus:bg-white transition-all"
             />
           </div>
@@ -247,13 +247,13 @@
             for="contact"
             class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-500"
           >
-            <Phone size={14} /> Kontakt
+            <Phone size={14} /> Contacto
           </label>
           <input
             id="contact"
             type="text"
             bind:value={formData.contact}
-            placeholder="Telefon oder E-Mail"
+            placeholder="Teléfono o correo electrónico"
             class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-sm text-sm text-primary placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary focus:bg-white transition-all"
           />
         </div>
@@ -264,7 +264,7 @@
             <label
               class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-500"
             >
-              <User size={14} /> Erstellt von
+              <User size={14} /> Creado por
             </label>
             <div class="flex flex-wrap gap-1.5">
               {#each users as u}
@@ -299,13 +299,13 @@
             for="notes"
             class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-500"
           >
-            <AlignLeft size={14} /> Anmerkungen
+            <AlignLeft size={14} /> Notas
           </label>
           <textarea
             id="notes"
             rows="4"
             bind:value={formData.notes}
-            placeholder="Besondere Wünsche, Allergien, etc."
+            placeholder="Peticiones especiales, alergias, etc."
             class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-sm text-sm text-primary placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary focus:bg-white transition-all resize-none"
           ></textarea>
         </div>
@@ -322,7 +322,7 @@
                 on:click={() => (showDeleteConfirm = true)}
                 class="text-red-600 hover:text-red-800 text-sm font-medium flex items-center gap-1.5 px-2 py-2 -ml-2 rounded hover:bg-red-50 transition-colors"
               >
-                <Trash2 size={16} /> <span>Löschen</span>
+                <Trash2 size={16} /> <span>Eliminar</span>
               </button>
             {/if}
           </div>
@@ -336,13 +336,13 @@
             >
               {#if isSaving}
                 <Loader2 class="animate-spin" size={18} />
-                <span>Speichern...</span>
+                <span>Guardando...</span>
               {:else if isEditMode}
                 <Save size={18} />
-                <span>Aktualisieren</span>
+                <span>Actualizar</span>
               {:else}
                 <Plus size={18} />
-                <span>Erstellen</span>
+                <span>Crear</span>
               {/if}
             </button>
           </div>
@@ -368,13 +368,13 @@
           <AlertTriangle size={20} class="text-red-600" />
         </div>
         <h2 class="text-base font-semibold text-primary">
-          Reservierung löschen
+          Eliminar reserva
         </h2>
       </div>
 
       <p class="text-sm text-gray-500 mb-6">
-        Soll diese Reservierung wirklich gelöscht werden? Diese Aktion kann
-        nicht rückgängig gemacht werden.
+        ¿Seguro que quieres eliminar esta reserva? Esta acción no se puede
+        deshacer.
       </p>
 
       <div class="flex justify-end gap-2">
@@ -383,7 +383,7 @@
           on:click={() => (showDeleteConfirm = false)}
           class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-primary rounded-md hover:bg-gray-50 transition-colors"
         >
-          Abbrechen
+          Cancelar
         </button>
         <button
           type="button"
@@ -393,9 +393,9 @@
         >
           {#if isDeleting}
             <Loader2 class="animate-spin" size={14} />
-            Löschen...
+            Eliminando...
           {:else}
-            Löschen
+            Eliminar
           {/if}
         </button>
       </div>

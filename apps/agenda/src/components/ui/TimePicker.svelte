@@ -2,7 +2,7 @@
   import { slide } from "svelte/transition";
 
   export let id = "timepicker";
-  export let label = "Zeit auswählen";
+  export let label = "Seleccionar hora";
   export let value = "";
 
   const hours = Array.from({ length: 24 }, (_, i) =>
@@ -111,7 +111,7 @@
       <div class="mb-3">
         <span
           class="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1.5"
-          >Stunden</span
+          >Horas</span
         >
         <div class="grid grid-cols-6 gap-1.5">
           {#each hours as h}
@@ -133,7 +133,7 @@
       <div class="mb-4">
         <span
           class="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1.5"
-          >Minuten</span
+          >Minutos</span
         >
         <div class="grid grid-cols-6 gap-1.5">
           {#each minutes as m}

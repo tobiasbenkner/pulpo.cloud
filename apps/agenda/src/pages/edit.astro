@@ -4,7 +4,7 @@ import AuthGuard from "../components/AuthGuard.svelte";
 import ReservationEditWrapper from "../views/reservations/ReservationEditWrapper.svelte";
 ---
 
-<Layout title="Reservierung bearbeiten | Pulpo">
+<Layout title="Editar reserva | Pulpo">
   <AuthGuard client:only="svelte" protect={true}>
     <main class="min-h-screen bg-surface">
       <ReservationEditWrapper client:only="svelte" />

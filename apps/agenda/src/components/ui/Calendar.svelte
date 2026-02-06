@@ -84,7 +84,7 @@
       type="button"
       on:click|stopPropagation={prevMonth}
       class="p-2 rounded-lg border border-gray-800 text-gray-300 hover:bg-gray-800 hover:border-gray-600 transition-colors"
-      aria-label="Vorheriger Monat"
+      aria-label="Mes anterior"
     >
       <ChevronLeft size={18} />
     </button>
@@ -97,7 +97,7 @@
       type="button"
       on:click|stopPropagation={nextMonth}
       class="p-2 rounded-lg border border-gray-800 text-gray-300 hover:bg-gray-800 hover:border-gray-600 transition-colors"
-      aria-label="Nächster Monat"
+      aria-label="Mes siguiente"
     >
       <ChevronRight size={18} />
     </button>

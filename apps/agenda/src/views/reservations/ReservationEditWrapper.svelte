@@ -10,7 +10,7 @@
     id = params.get("id");
 
     if (!id) {
-      error = "Keine Reservierungs-ID angegeben.";
+      error = "No se ha indicado un ID de reserva.";
     }
   });
 </script>
@@ -20,7 +20,7 @@
     <div class="bg-red-50 border border-red-100 text-red-800 p-6 rounded-lg">
       <p>{error}</p>
       <a href="/" class="text-red-700 underline mt-2 inline-block">
-        Zurück zur Agenda
+        Volver a la agenda
       </a>
     </div>
   </div>

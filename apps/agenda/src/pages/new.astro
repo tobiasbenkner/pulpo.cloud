@@ -4,7 +4,7 @@ import AuthGuard from "../components/AuthGuard.svelte";
 import ReservationForm from "../views/reservations/ReservationForm.svelte";
 ---
 
-<Layout title="Neue Reservierung | Pulpo">
+<Layout title="Nueva reserva | Pulpo">
   <AuthGuard client:only="svelte" protect={true}>
     <main class="min-h-screen bg-surface">
       <ReservationForm client:only="svelte" />

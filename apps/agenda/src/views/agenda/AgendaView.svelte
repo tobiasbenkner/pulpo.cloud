@@ -180,7 +180,7 @@
 
       console.error(e);
       if (!navigator.onLine) isOnline.set(false);
-      else error.set("Daten konnten nicht geladen werden.");
+      else error.set("No se pudieron cargar los datos.");
     } finally {
       if (!signal.aborted) {
         loading.set(false);
@@ -208,7 +208,7 @@
 
   async function toggleArrived(reservation: Reservation) {
     if (!get(isOnline)) {
-      error.set("Offline: Änderung nicht möglich.");
+      error.set("Sin conexión: no se puede realizar el cambio.");
       setTimeout(() => error.set(null), 3000);
       return;
     }
@@ -233,7 +233,7 @@
           r.id === reservation.id ? { ...r, arrived: !newState } : r,
         ),
       );
-      error.set("Status konnte nicht gespeichert werden.");
+      error.set("No se pudo guardar el estado.");
       setTimeout(() => error.set(null), 3000);
     }
   }
@@ -324,7 +324,7 @@
       >
         <CircleAlert size={20} class="text-red-800 shrink-0 mt-0.5" />
         <div class="flex-1">
-          <h3 class="text-sm font-medium text-red-900">Hinweis</h3>
+          <h3 class="text-sm font-medium text-red-900">Aviso</h3>
           <p class="text-sm text-red-800/90 mt-0.5 leading-relaxed">
             {$error}
           </p>
@@ -333,7 +333,7 @@
         <button
           on:click={() => ($error = null)}
           class="text-red-700 hover:text-red-900 transition-colors p-1"
-          aria-label="Schließen"
+          aria-label="Cerrar"
         >
           <X size={16} />
         </button>
