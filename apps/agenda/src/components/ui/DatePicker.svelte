@@ -64,13 +64,27 @@
   />
 
   {#if isOpen}
-    <div transition:slide={{ duration: 150 }} class="absolute z-50 mt-2">
-      <Calendar
-        value={selectedDate}
-        {locale}
-        {weekStartsOn}
-        onSelect={handleSelect}
-      />
+    <!-- Backdrop (mobile) -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div
+      class="fixed inset-0 bg-black/40 z-40 md:hidden"
+      on:click|stopPropagation={() => (isOpen = false)}
+    ></div>
+
+    <div
+      transition:slide={{ duration: 150 }}
+      class="fixed bottom-0 left-0 right-0 z-50 md:absolute md:bottom-auto md:left-0 md:right-auto md:top-auto md:mt-2"
+    >
+      <div
+        class="mx-auto max-w-sm md:max-w-none [&>div]:w-full [&>div]:rounded-t-xl [&>div]:rounded-b-none [&>div]:border-0 md:[&>div]:w-75 md:[&>div]:rounded-xl md:[&>div]:border md:[&>div]:border-picker-border"
+      >
+        <Calendar
+          value={selectedDate}
+          {locale}
+          {weekStartsOn}
+          onSelect={handleSelect}
+        />
+      </div>
     </div>
   {/if}
 </div>
