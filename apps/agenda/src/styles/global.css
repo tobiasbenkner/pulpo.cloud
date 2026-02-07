@@ -191,11 +191,12 @@
     touch-action: manipulation;
   }
 
-  /* Prevent iOS input zoom (requires >= 16px) */
-  input,
-  select,
-  textarea {
-    font-size: 16px;
+}
+
+/* Prevent iOS input zoom (unlayered to override Tailwind utilities) */
+@supports (-webkit-touch-callout: none) {
+  input, select, textarea {
+    font-size: 16px !important;
   }
 }
 

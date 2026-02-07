@@ -51,7 +51,8 @@ jobs:
                   DIRECTUS_TOKEN: ${{ secrets.DIRECTUS_TOKEN }}
               run: npx turbo run build --filter=...[${{ steps.last_success.outputs.commit }}]
 
-            - run: |
+            - name: Deploy
+              run: |
                   git config --global user.email "info@pulpo.cloud"
                   git config --global user.name "Pulpo Bot"
                   npx turbo run deploy --filter=...[${{ steps.last_success.outputs.commit }}]
