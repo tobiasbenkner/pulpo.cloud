@@ -3,6 +3,12 @@ import { onMount, onDestroy } from "svelte";
 import { writable, get } from "svelte/store";
 import type { Writable } from "svelte/store";
 import { directus } from "../lib/directus";
+export class SessionExpiredError extends Error {
+  constructor() {
+    super("Session expired");
+    this.name = "SessionExpiredError";
+  }
+}
 
 interface DirectusRealtimeMessage<T = any> {
   type: "subscription" | "items" | "auth" | "ping" | "pong";
@@ -81,6 +87,7 @@ export function useDirectusRealtime<T = any>(
   let subscription: AsyncGenerator<any> | null = null;
   let eventHandlersRegistered = false;
   let isReconnecting = false;
+  let isDestroyed = false;
 
   function setupWebSocketEventHandlers() {
     // Nur einmal registrieren
@@ -127,11 +134,23 @@ export function useDirectusRealtime<T = any>(
           console.log("[Realtime] Authentifizierung erfolgreich");
           state.update((s) => ({ ...s, authenticated: true, error: null }));
         } else if (message.status === "expired") {
-          console.log("[Realtime] Token abgelaufen, reconnect...");
+          console.log("[Realtime] Token abgelaufen, refresh + reconnect...");
           state.update((s) => ({ ...s, authenticated: false }));
-          // Bei handshake-mode mit Cookie: komplett neu verbinden
-          // Das SDK refresht den Token automatisch über die REST-Auth
-          scheduleReconnect();
+          // Token über REST refreshen, dann WebSocket komplett neu verbinden
+          directus
+            .refresh()
+            .then(() => {
+              console.log(
+                "[Realtime] Token refreshed, reconnecting WebSocket...",
+              );
+              reconnect();
+            })
+            .catch((err) => {
+              console.error("[Realtime] Token refresh fehlgeschlagen:", err);
+              // Refresh-Token auch abgelaufen — sauber trennen
+              disconnect();
+              onError?.(new SessionExpiredError());
+            });
         } else if (message.status === "error") {
           console.error("[Realtime] Auth-Fehler:", message.error);
           state.update((s) => ({
@@ -168,8 +187,22 @@ export function useDirectusRealtime<T = any>(
       // Event Handlers nur einmal registrieren
       setupWebSocketEventHandlers();
 
-      // Verbinde WebSocket - Auth erfolgt automatisch via handshake-mode
-      // Der Token wird aus dem HTTP-only Cookie gelesen
+      // Bei Reconnect: Token über REST refreshen bevor der WS-Handshake startet
+      const currentAttempts = get(state).reconnectAttempts;
+      if (currentAttempts > 0) {
+        try {
+          await directus.refresh();
+          console.log("[Realtime] Token vor Reconnect refreshed");
+        } catch (e) {
+          console.warn(
+            "[Realtime] Token refresh vor Reconnect fehlgeschlagen:",
+            e,
+          );
+          // Weiter versuchen — vielleicht ist der Token noch gültig
+        }
+      }
+
+      // Verbinde WebSocket - Auth erfolgt via handshake-mode
       await directus.connect();
 
       state.update((s) => ({
@@ -321,15 +354,20 @@ export function useDirectusRealtime<T = any>(
   }
 
   async function reconnect() {
+    if (isDestroyed) return;
     console.log("[Realtime] Reconnecting...");
 
-    // Disconnect ohne isIntentionallyClosed zu setzen
+    // Flag setzen damit der close-Handler keinen konkurrierenden scheduleReconnect auslöst
+    isIntentionallyClosed = true;
     performDisconnect();
 
     // Kurz warten bis WebSocket wirklich geschlossen ist
     await new Promise((resolve) => setTimeout(resolve, 100));
 
-    // Flags zurücksetzen
+    // Abbrechen wenn Component zwischenzeitlich destroyed wurde
+    if (isDestroyed) return;
+
+    // Flags zurücksetzen für neue Verbindung
     isIntentionallyClosed = false;
     isReconnecting = false;
 
@@ -385,22 +423,38 @@ export function useDirectusRealtime<T = any>(
     }, currentReconnectDelay);
   }
 
-  function handleVisibilityChange() {
-    if (document.visibilityState === "visible") {
-      console.log("[Realtime] Tab wieder aktiv");
-      const currentState = get(state);
+  async function handleVisibilityChange() {
+    if (document.visibilityState !== "visible" || isIntentionallyClosed) return;
 
-      if (!currentState.connected && !isIntentionallyClosed) {
-        // Reset bei Rückkehr zum Tab (User könnte sich neu eingeloggt haben)
-        currentReconnectDelay = reconnectInterval;
-        state.update((s) => ({ ...s, reconnectAttempts: 0, error: null }));
-        connect();
-      }
+    console.log("[Realtime] Tab wieder aktiv");
 
-      // Daten könnten veraltet sein - View informieren
-      if (navigator.onLine) {
-        onResume?.();
-      }
+    // Token proaktiv refreshen — nach langer Inaktivität ist er garantiert abgelaufen
+    try {
+      await directus.refresh();
+      console.log("[Realtime] Token nach Tab-Rückkehr refreshed");
+    } catch (e) {
+      console.error(
+        "[Realtime] Token refresh nach Tab-Rückkehr fehlgeschlagen:",
+        e,
+      );
+      // Refresh-Token auch abgelaufen — Session ist tot
+      disconnect();
+      onError?.(new SessionExpiredError());
+      return;
+    }
+
+    // Abbrechen wenn Component zwischenzeitlich destroyed wurde
+    if (isDestroyed) return;
+
+    // WebSocket immer neu aufbauen — selbst wenn `connected` true ist,
+    // kann der Browser den WS im Hintergrund still beendet haben
+    currentReconnectDelay = reconnectInterval;
+    state.update((s) => ({ ...s, reconnectAttempts: 0, error: null }));
+    await reconnect();
+
+    // Daten könnten veraltet sein - View informieren
+    if (navigator.onLine) {
+      onResume?.();
     }
   }
 
@@ -444,6 +498,7 @@ export function useDirectusRealtime<T = any>(
   });
 
   onDestroy(() => {
+    isDestroyed = true;
     disconnect();
 
     if (visibilityHandler) {

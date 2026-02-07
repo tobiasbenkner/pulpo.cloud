@@ -4,7 +4,7 @@
   import { format } from "date-fns";
   import { directus } from "../../lib/directus";
   import { readItems, updateItem } from "@directus/sdk";
-  import { useDirectusRealtime } from "../../hooks/useDirectusRealtime";
+  import { useDirectusRealtime, SessionExpiredError } from "../../hooks/useDirectusRealtime";
   import {
     loadTurns as loadCachedTurns,
     fetchTurns,
@@ -166,6 +166,9 @@
     },
     onError: (err) => {
       console.error("[Agenda] Realtime Fehler:", err);
+      if (err instanceof SessionExpiredError) {
+        window.location.href = "/login";
+      }
     },
     onResume: () => {
       // Daten synchronisieren bei: Tab-Rückkehr, Internet zurück
