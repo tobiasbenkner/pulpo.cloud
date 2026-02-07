@@ -195,7 +195,7 @@
                 on:click={() => (formData.time = turn.start.substring(0, 5))}
                 class="px-2.5 py-1 text-xs rounded-md border transition-colors {formData.time ===
                 turn.start.substring(0, 5)
-                  ? 'border-primary bg-primary text-white'
+                  ? 'border-btn-active-border bg-btn-active-bg text-btn-active-text'
                   : 'border-border-default bg-input-bg text-fg-secondary hover:border-fg-muted hover:bg-surface-hover'}"
               >
                 {turn.label} · {turn.start.substring(0, 5)}
@@ -274,7 +274,7 @@
                     (formData.user = formData.user === u.id ? "" : u.id)}
                   class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs rounded-md border transition-colors {formData.user ===
                   u.id
-                    ? 'border-primary bg-primary text-white'
+                    ? 'border-btn-active-border bg-btn-active-bg text-btn-active-text'
                     : 'border-border-default bg-input-bg text-fg-secondary hover:border-fg-muted hover:bg-surface-hover'}"
                 >
                   {#if u.avatar}
@@ -332,7 +332,7 @@
             <button
               type="submit"
               disabled={isSaving}
-              class="bg-primary text-white px-6 py-2.5 rounded-sm hover:bg-primary/85 transition-all flex items-center gap-2 shadow-md shadow-[var(--shadow-color)] disabled:opacity-70 disabled:cursor-not-allowed font-medium tracking-wide"
+              class="bg-btn-primary-bg text-btn-primary-text px-6 py-2.5 rounded-sm hover:bg-btn-primary-hover transition-all flex items-center gap-2 shadow-md shadow-[var(--shadow-color)] disabled:opacity-70 disabled:cursor-not-allowed font-medium tracking-wide"
             >
               {#if isSaving}
                 <Loader2 class="animate-spin" size={18} />
@@ -367,9 +367,7 @@
         <div class="p-2 bg-error-bg rounded-full">
           <AlertTriangle size={20} class="text-error-icon" />
         </div>
-        <h2 class="text-base font-semibold text-fg">
-          Eliminar reserva
-        </h2>
+        <h2 class="text-base font-semibold text-fg">Eliminar reserva</h2>
       </div>
 
       <p class="text-sm text-fg-muted mb-6">

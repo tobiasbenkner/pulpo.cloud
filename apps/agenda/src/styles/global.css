@@ -43,6 +43,13 @@
   --picker-outside: #d1d5db;
   --picker-today-border: #3b82f6;
   --picker-today-text: #3b82f6;
+  /* Buttons */
+  --btn-primary-bg: #1a202c;
+  --btn-primary-text: #ffffff;
+  --btn-primary-hover: #374151;
+  --btn-active-bg: #1a202c;
+  --btn-active-text: #ffffff;
+  --btn-active-border: #1a202c;
 }
 
 /* ─── Dark Theme ─── */
@@ -88,6 +95,13 @@
   --picker-outside: #4b5563;
   --picker-today-border: #3b82f6;
   --picker-today-text: #60a5fa;
+  /* Buttons */
+  --btn-primary-bg: #e2e8f0;
+  --btn-primary-text: #0f172a;
+  --btn-primary-hover: #cbd5e1;
+  --btn-active-bg: #e2e8f0;
+  --btn-active-text: #0f172a;
+  --btn-active-border: #e2e8f0;
 }
 
 @theme {
@@ -134,6 +148,14 @@
   --color-picker-outside: var(--picker-outside);
   --color-picker-today-border: var(--picker-today-border);
   --color-picker-today-text: var(--picker-today-text);
+
+  /* Button colors */
+  --color-btn-primary-bg: var(--btn-primary-bg);
+  --color-btn-primary-text: var(--btn-primary-text);
+  --color-btn-primary-hover: var(--btn-primary-hover);
+  --color-btn-active-bg: var(--btn-active-bg);
+  --color-btn-active-text: var(--btn-active-text);
+  --color-btn-active-border: var(--btn-active-border);
 
   /* Static status colors (used for buttons, not theme-dependent) */
   --color-success: #166534;

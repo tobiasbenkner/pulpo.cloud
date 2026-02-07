@@ -87,7 +87,7 @@
     <button
       type="submit"
       disabled={isLoading}
-      class="w-full bg-primary text-white py-3.5 px-4 rounded-sm hover:bg-primary/85 transition-all flex items-center justify-center gap-2 font-medium tracking-wide disabled:opacity-70 disabled:cursor-not-allowed shadow-md shadow-[var(--shadow-color)]"
+      class="w-full bg-btn-primary-bg text-btn-primary-text py-3.5 px-4 rounded-sm hover:bg-btn-primary-hover transition-all flex items-center justify-center gap-2 font-medium tracking-wide disabled:opacity-70 disabled:cursor-not-allowed shadow-md shadow-[var(--shadow-color)]"
     >
       {#if isLoading}
         <Loader2 class="animate-spin" size={20} />

@@ -60,7 +60,7 @@
     {placeholder}
     value={displayValue}
     on:click={openPicker}
-    class="cursor-pointer w-full rounded-md border border-border-default px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary bg-surface text-fg shadow-sm"
+    class="cursor-pointer w-full px-3 py-2.5 bg-input-bg border border-border-default rounded-sm text-sm text-fg placeholder-fg-muted focus:outline-none focus:ring-1 focus:ring-primary focus:bg-surface transition-all"
   />
 
   {#if isOpen}

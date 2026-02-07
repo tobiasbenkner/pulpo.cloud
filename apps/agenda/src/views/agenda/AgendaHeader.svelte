@@ -152,7 +152,7 @@
 
     <a
       href="/new?date={dateStr}"
-      class="inline-flex items-center justify-center gap-2 h-9 md:h-10 px-2.5 md:px-5 bg-primary text-white rounded-md hover:bg-primary/85 transition-colors shadow-sm text-sm font-medium whitespace-nowrap"
+      class="inline-flex items-center justify-center gap-2 h-9 md:h-10 px-2.5 md:px-5 bg-btn-primary-bg text-btn-primary-text rounded-md hover:bg-btn-primary-hover transition-colors shadow-sm text-sm font-medium whitespace-nowrap"
     >
       <Plus size={18} />
       <span class="hidden md:inline">Nueva Reserva</span>
