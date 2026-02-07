@@ -74,7 +74,9 @@
   <div
     class={clsx(
       "flex items-center gap-1 md:gap-2 bg-surface px-2 md:px-3 py-1.5 md:py-2 rounded-lg shadow-sm relative transition-all duration-300 border",
-      isRefetching ? "border-primary/30 shadow-primary/10" : "border-border-light",
+      isRefetching
+        ? "border-primary/30 shadow-primary/10"
+        : "border-border-light",
     )}
   >
     <button
@@ -91,7 +93,7 @@
         class="text-center cursor-pointer focus:outline-none px-1 md:px-2"
       >
         <h2
-          class="text-sm md:text-xl font-serif text-fg capitalize whitespace-nowrap"
+          class="text-sm md:text-xl font-serif text-fg capitalize whitespace-nowrap min-w-28 md:min-w-64"
         >
           <span class="md:hidden">{displayDateShort}</span>
           <span class="hidden md:inline">{displayDateFull}</span>
@@ -99,16 +101,28 @@
       </button>
 
       {#if isCalendarOpen}
+        <!-- Backdrop (mobile) -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <div
+          class="fixed inset-0 bg-black/40 z-40 md:hidden"
+          on:click|stopPropagation={() => (isCalendarOpen = false)}
+        ></div>
+
+        <!-- Mobile: bottom-sheet, Desktop: absolute dropdown -->
         <div
           transition:slide={{ duration: 150 }}
-          class="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-50"
+          class="fixed bottom-0 left-0 right-0 z-50 md:absolute md:bottom-auto md:left-1/2 md:right-auto md:-translate-x-1/2 md:top-full md:mt-2"
         >
-          <Calendar
-            value={selectedDate}
-            locale={es}
-            showTodayButton={false}
-            onSelect={handleCalendarSelect}
-          />
+          <div
+            class="mx-auto max-w-sm md:max-w-none [&>div]:w-full [&>div]:rounded-t-xl [&>div]:rounded-b-none [&>div]:border-0 md:[&>div]:w-75 md:[&>div]:rounded-xl md:[&>div]:border md:[&>div]:border-picker-border"
+          >
+            <Calendar
+              value={selectedDate}
+              locale={es}
+              showTodayButton={false}
+              onSelect={handleCalendarSelect}
+            />
+          </div>
         </div>
       {/if}
     </div>
@@ -135,18 +149,17 @@
     <button
       on:click={onToggleFilter}
       class={clsx(
-        "inline-flex items-center justify-center gap-2 h-9 md:h-10 px-2.5 md:px-4 rounded-md border text-sm transition-colors whitespace-nowrap",
+        "inline-flex items-center justify-center h-9 md:h-10 px-2.5 rounded-md border text-sm transition-colors",
         showArrived
           ? "border-border-default bg-surface text-fg-secondary hover:border-fg-muted"
           : "border-secondary/30 bg-secondary/5 text-secondary font-medium",
       )}
+      aria-label={showArrived ? "Ocultar llegadas" : "Mostrar todas"}
     >
       {#if showArrived}
         <Eye size={16} />
-        <span class="hidden md:inline">Ocultar llegadas</span>
       {:else}
         <EyeOff size={16} />
-        <span class="hidden md:inline">Mostrar todas</span>
       {/if}
     </button>
 
@@ -155,7 +168,7 @@
       class="inline-flex items-center justify-center gap-2 h-9 md:h-10 px-2.5 md:px-5 bg-btn-primary-bg text-btn-primary-text rounded-md hover:bg-btn-primary-hover transition-colors shadow-sm text-sm font-medium whitespace-nowrap"
     >
       <Plus size={18} />
-      <span class="hidden md:inline">Nueva Reserva</span>
+      <span class="hidden md:inline">Reserva</span>
     </a>
   </div>
 </header>
