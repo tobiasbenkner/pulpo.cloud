@@ -6,7 +6,7 @@ import AgendaView from "../views/agenda/AgendaView.svelte";
 
 <Layout title="Agenda | Pulpo">
   <AuthGuard client:only="svelte" protect={true}>
-    <main class="h-screen flex flex-col">
+    <main class="h-screen-safe flex flex-col">
       <AgendaView client:only="svelte" />
     </main>
   </AuthGuard>

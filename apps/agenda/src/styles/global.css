@@ -199,6 +199,16 @@
   }
 }
 
+/* Mobile-safe viewport height (dvh with vh fallback) */
+.h-screen-safe {
+  height: 100vh;
+  height: 100dvh;
+}
+.min-h-screen-safe {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;

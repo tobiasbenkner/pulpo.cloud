@@ -6,7 +6,7 @@ import ReservationEditWrapper from "../views/reservations/ReservationEditWrapper
 
 <Layout title="Editar reserva | Pulpo">
   <AuthGuard client:only="svelte" protect={true}>
-    <main class="min-h-screen bg-surface">
+    <main class="min-h-screen-safe bg-surface">
       <ReservationEditWrapper client:only="svelte" />
     </main>
   </AuthGuard>

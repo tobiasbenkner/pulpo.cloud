@@ -6,7 +6,7 @@ import ReservationForm from "../views/reservations/ReservationForm.svelte";
 
 <Layout title="Nueva reserva | Pulpo">
   <AuthGuard client:only="svelte" protect={true}>
-    <main class="min-h-screen bg-surface">
+    <main class="min-h-screen-safe bg-surface">
       <ReservationForm client:only="svelte" />
     </main>
   </AuthGuard>
