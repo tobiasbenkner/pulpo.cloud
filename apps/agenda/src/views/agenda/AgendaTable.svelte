@@ -1,5 +1,14 @@
 <script lang="ts">
-  import { Check, RefreshCw, ChevronRight, Sun, Moon } from "lucide-svelte";
+  import {
+    Check,
+    RefreshCw,
+    ChevronRight,
+    Sun,
+    Moon,
+    LayoutList,
+    Columns3,
+    Settings,
+  } from "lucide-svelte";
   import type { Reservation, ReservationTurn } from "../../lib/types";
   import { clsx } from "clsx";
   import { onDestroy } from "svelte";
@@ -12,9 +21,17 @@
   export let dateStr: string;
   export let turns: ReservationTurn[] = [];
 
+  export let viewMode: "all" | "tabs" = "all";
+  export let selectedTurn: string | null = null;
+  export let onSelectTurn: (turnId: string | null) => void = () => {};
+  export let onToggleViewMode: () => void = () => {};
+
   export let onToggleFilter: () => void = () => {};
   export let onToggleArrived: (res: Reservation) => void = () => {};
   export let onRefreshTurns: () => void = () => {};
+
+  // Turns sortiert nach Startzeit für Tab-Reihenfolge
+  $: sortedTurns = [...turns].sort((a, b) => a.start.localeCompare(b.start));
 
   // --- Turn-Farbe ermitteln ---
   function getTurnColor(time: string): string | null {
@@ -55,11 +72,66 @@
   onDestroy(() => {
     if (tapTimer) clearTimeout(tapTimer);
   });
+
+  // --- Settings Dropdown ---
+  let settingsOpen = false;
+  let settingsRef: HTMLDivElement;
+
+  function handleClickOutside(e: MouseEvent) {
+    if (
+      settingsOpen &&
+      settingsRef &&
+      !settingsRef.contains(e.target as Node)
+    ) {
+      settingsOpen = false;
+    }
+  }
 </script>
+
+<svelte:window on:click={handleClickOutside} />
 
 <div
   class="bg-surface md:rounded-lg md:border border-border-default md:shadow-sm flex flex-col h-full max-w-7xl mx-auto"
 >
+  <!-- Tab Bar (nur im Tabs-Modus) -->
+  {#if viewMode === "tabs" && turns.length > 0}
+    <div
+      class="shrink-0 flex items-center gap-1.5 px-3 md:px-4 py-2 bg-surface border-b border-border-default overflow-x-auto no-scrollbar"
+    >
+      <button
+        on:click={() => onSelectTurn(null)}
+        class={clsx(
+          "shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors",
+          selectedTurn === null
+            ? "bg-primary text-white"
+            : "bg-surface-alt text-fg-muted hover:text-fg-secondary hover:bg-surface-hover",
+        )}
+      >
+        Todos
+      </button>
+      {#each sortedTurns as turn (turn.id)}
+        <button
+          on:click={() => onSelectTurn(turn.id)}
+          class={clsx(
+            "shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors",
+            selectedTurn === turn.id
+              ? "text-white"
+              : "bg-surface-alt text-fg-muted hover:text-fg-secondary hover:bg-surface-hover",
+          )}
+          style={selectedTurn === turn.id
+            ? `background-color: ${turn.color}`
+            : ""}
+        >
+          <span
+            class="size-2 rounded-full shrink-0"
+            style={`background-color: ${turn.color}`}
+          ></span>
+          {turn.label}
+        </button>
+      {/each}
+    </div>
+  {/if}
+
   {#if loading && !isRefetching}
     <div
       class="flex flex-col items-center justify-center flex-1 gap-3 text-fg-muted"
@@ -232,7 +304,9 @@
                 >
                   {res.time.substring(0, 5)}
                 </td>
-                <td class="px-3 py-2 w-12 text-center text-fg-secondary text-xs">
+                <td
+                  class="px-3 py-2 w-12 text-center text-fg-secondary text-xs"
+                >
                   {res.person_count || "-"}
                 </td>
                 <td class="px-4 py-2">
@@ -305,28 +379,70 @@
       {/if}
     </span>
     <span class="flex items-center gap-3">
-      <button
-        on:click={toggleTheme}
-        class="text-fg-muted hover:text-fg-secondary transition-colors flex items-center gap-1"
-        aria-label="Cambiar tema"
-      >
-        {#if $theme === "dark"}
-          <Sun size={10} />
-          <span>Modo claro</span>
-        {:else}
-          <Moon size={10} />
-          <span>Modo oscuro</span>
+      <span class="hidden md:inline">Doble clic para marcar llegada</span>
+      <!-- Settings Dropdown -->
+      <div class="relative" bind:this={settingsRef}>
+        <button
+          on:click={() => (settingsOpen = !settingsOpen)}
+          class={clsx(
+            "p-1.5 rounded-md transition-colors",
+            settingsOpen
+              ? "text-fg-secondary bg-surface-hover"
+              : "text-fg-muted hover:text-fg-secondary",
+          )}
+          aria-label="Ajustes"
+          aria-expanded={settingsOpen}
+        >
+          <Settings size={14} />
+        </button>
+        {#if settingsOpen}
+          <div
+            class="absolute bottom-full right-0 mb-1.5 w-48 bg-surface border border-border-default rounded-lg shadow-lg py-1 z-50"
+          >
+            <button
+              on:click={() => {
+                onToggleViewMode();
+                settingsOpen = false;
+              }}
+              class="w-full flex items-center gap-2.5 px-3 py-2 text-left text-xs text-fg-secondary hover:bg-surface-hover transition-colors"
+            >
+              {#if viewMode === "tabs"}
+                <LayoutList size={13} class="shrink-0 text-fg-muted" />
+                <span>Vista general</span>
+              {:else}
+                <Columns3 size={13} class="shrink-0 text-fg-muted" />
+                <span>Vista por turnos</span>
+              {/if}
+            </button>
+            <button
+              on:click={() => {
+                toggleTheme();
+                settingsOpen = false;
+              }}
+              class="w-full flex items-center gap-2.5 px-3 py-2 text-left text-xs text-fg-secondary hover:bg-surface-hover transition-colors"
+            >
+              {#if $theme === "dark"}
+                <Sun size={13} class="shrink-0 text-fg-muted" />
+                <span>Modo claro</span>
+              {:else}
+                <Moon size={13} class="shrink-0 text-fg-muted" />
+                <span>Modo oscuro</span>
+              {/if}
+            </button>
+            <div class="border-t border-border-light my-1"></div>
+            <button
+              on:click={() => {
+                onRefreshTurns();
+                settingsOpen = false;
+              }}
+              class="w-full flex items-center gap-2.5 px-3 py-2 text-left text-xs text-fg-secondary hover:bg-surface-hover transition-colors"
+            >
+              <RefreshCw size={13} class="shrink-0 text-fg-muted" />
+              <span>Actualizar turnos</span>
+            </button>
+          </div>
         {/if}
-      </button>
-      <button
-        on:click={onRefreshTurns}
-        class="text-fg-muted hover:text-fg-secondary transition-colors flex items-center gap-1"
-        aria-label="Actualizar turnos"
-      >
-        <RefreshCw size={10} />
-        <span>Actualizar turnos</span>
-      </button>
-      <span>Doble clic para marcar llegada</span>
+      </div>
     </span>
   </div>
 </div>

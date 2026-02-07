@@ -5,7 +5,11 @@
   import { directus } from "../../lib/directus";
   import { readItems, updateItem } from "@directus/sdk";
   import { useDirectusRealtime } from "../../hooks/useDirectusRealtime";
-  import { loadTurns as loadCachedTurns, fetchTurns, invalidateTurns } from "../../lib/turnsCache";
+  import {
+    loadTurns as loadCachedTurns,
+    fetchTurns,
+    invalidateTurns,
+  } from "../../lib/turnsCache";
   import type { Reservation, ReservationTurn } from "../../lib/types";
   import AgendaHeader from "./AgendaHeader.svelte";
   import AgendaTable from "./AgendaTable.svelte";
@@ -14,6 +18,7 @@
 
   // --- CONSTANTS ---
   const STORAGE_KEY_SHOW_ARRIVED = "pulpo_agenda_show_arrived";
+  const STORAGE_KEY_VIEW_MODE = "pulpo_agenda_view_mode";
 
   // --- URL PARAMS ---
   const urlParams = new URLSearchParams(window.location.search);
@@ -27,7 +32,7 @@
   const error = writable<string | null>(null);
   const isOnline = writable(navigator.onLine);
 
-  // Settings Store mit LocalStorage Persistenz
+  // Settings Stores mit LocalStorage Persistenz
   const showArrived = writable(true);
   try {
     const saved = localStorage.getItem(STORAGE_KEY_SHOW_ARRIVED);
@@ -41,12 +46,50 @@
     } catch (e) {}
   });
 
+  // View Mode: "all" (flat list) oder "tabs" (grouped by turn)
+  const viewMode = writable<"all" | "tabs">("all");
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY_VIEW_MODE);
+    if (saved === "all" || saved === "tabs") viewMode.set(saved);
+  } catch (e) {}
+  const unsubViewMode = viewMode.subscribe((val) => {
+    try {
+      localStorage.setItem(STORAGE_KEY_VIEW_MODE, val);
+    } catch (e) {}
+  });
+
+  // Selected turn for tab filtering (not persisted)
+  const selectedTurn = writable<string | null>(null);
+
+  // --- TURN MATCHING ---
+  function getTurnForTime(
+    time: string,
+    turnsList: ReservationTurn[],
+  ): ReservationTurn | null {
+    if (!turnsList.length || !time) return null;
+    const t = time.substring(0, 5);
+    const exact = turnsList.find((turn) => turn.start.substring(0, 5) === t);
+    if (exact) return exact;
+    const sorted = [...turnsList].sort((a, b) =>
+      a.start.localeCompare(b.start),
+    );
+    for (let i = sorted.length - 1; i >= 0; i--) {
+      if (sorted[i].start.substring(0, 5) <= t) return sorted[i];
+    }
+    return null;
+  }
+
   // Derived Store für gefilterte & sortierte Reservierungen
   const filteredReservations = derived(
-    [reservations, showArrived],
-    ([$reservations, $showArrived]) => {
+    [reservations, showArrived, viewMode, selectedTurn],
+    ([$reservations, $showArrived, $viewMode, $selectedTurn]) => {
       return $reservations
         .filter((r) => ($showArrived ? true : !r.arrived))
+        .filter((r) => {
+          if ($viewMode !== "tabs" || $selectedTurn === null) return true;
+          const turn = getTurnForTime(r.time, turns);
+          return turn?.id === $selectedTurn;
+        })
         .sort((a, b) => {
           const timeCompare = a.time.localeCompare(b.time);
           if (timeCompare !== 0) return timeCompare;
@@ -276,6 +319,7 @@
   onDestroy(() => {
     if (abortController) abortController.abort();
     unsubShowArrived();
+    unsubViewMode();
 
     window.removeEventListener("popstate", handlePopState);
     window.removeEventListener("online", handleOnlineStatus);
@@ -350,6 +394,11 @@
       showArrived={$showArrived}
       dateStr={$date}
       {turns}
+      viewMode={$viewMode}
+      selectedTurn={$selectedTurn}
+      onSelectTurn={(turnId) => ($selectedTurn = turnId)}
+      onToggleViewMode={() =>
+        ($viewMode = $viewMode === "all" ? "tabs" : "all")}
       onRefreshTurns={refreshTurns}
       onToggleFilter={() => ($showArrived = !$showArrived)}
       onToggleArrived={(res) => toggleArrived(res)}
