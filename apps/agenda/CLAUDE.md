@@ -61,7 +61,7 @@ When adding new API functions: if the operation is reusable across apps, add it 
 
 - **Svelte stores** (`writable`/`derived`) for component-local state
 - **nanostores** (`map`) for `authStore` — shared auth state across components
-- `localStorage` persists: auth tokens (`directus_auth`), UI preferences (`pulpo_agenda_show_arrived`), and cached turns data (`pulpo_agenda_turns`)
+- `localStorage` persists: auth tokens (`directus_auth`), UI preferences (`pulpo_agenda_show_arrived`, `pulpo_agenda_view_mode`), theme (`pulpo_agenda_theme`), and cached turns data (`pulpo_agenda_turns`)
 
 ### Styling
 
@@ -69,8 +69,17 @@ Tailwind CSS v4 with a custom theme defined in `src/styles/global.css`:
 
 - `--color-primary`: #1a202c (dark navy)
 - `--color-secondary`: #c2b280 (muted gold)
+- Light/dark theme support via CSS variables, toggled with `.dark` class on `<html>`
+- Muted, desaturated status colors: sage green (#5B8C6B / #8ABB9A) for arrived, brick/coral (#B85C50 / #D4897E) for overdue
 - Fonts: Playfair Display (serif headings), Inter (sans body)
 - Icons: `lucide-svelte` / `@lucide/astro`
+
+### iOS Mobile Optimizations
+
+- `touch-action: manipulation` globally to prevent double-tap zoom
+- `font-size: 16px !important` on inputs (via `@supports (-webkit-touch-callout: none)`) to prevent iOS auto-zoom on focus
+- `100dvh` with `100vh` fallback (`.h-screen-safe` / `.min-h-screen-safe` utilities) for correct viewport height accounting for browser chrome
+- Pickers (DatePicker, TimePicker, Calendar) open as bottom-sheets on mobile with dark backdrop, absolute dropdowns on desktop
 
 ### Key Runtime Patterns
 
@@ -78,8 +87,13 @@ Tailwind CSS v4 with a custom theme defined in `src/styles/global.css`:
 - **Race condition prevention**: REST fetches use `AbortController` to cancel stale requests when the date changes.
 - **Query string state**: Date and reservation ID are passed via URL query params (`?date=`, `?id=`), making views shareable/bookmarkable.
 - **Responsive layout**: Mobile renders a compact list; desktop renders a full table. Breakpoint-driven via Tailwind.
-- **Double-click/tap to toggle arrived**: Both mobile and desktop use a unified `handleRowClick` handler with a 300ms timer — single click/tap navigates to edit, double click/tap toggles the arrived status. No `<a>` links on rows; navigation is programmatic.
-- **Turns cache** (`src/lib/turnsCache.ts`): Reservation turns are cached in `localStorage` with a 24h TTL. Both `AgendaView` and `ReservationForm` read from the same cache. A manual "Actualizar turnos" button in the agenda footer invalidates the cache and re-fetches.
+- **Double-click/tap to toggle arrived**: Both mobile and desktop use a unified `handleRowClick` handler with a 300ms timer — double click/tap toggles the arrived status. A separate pencil icon (`Pencil` from lucide) navigates to the edit page via `stopPropagation`.
+- **No-show detection**: A `now` timer updates every 60s. Reservations whose time has passed without `arrived=true` show a red X icon and red name text. Only visual — no DB changes.
+- **View modes**: `AgendaView` supports two modes toggled via a settings dropdown in the footer:
+  - `"all"` (default) — flat list of all reservations
+  - `"tabs"` — tab bar with turn-based filtering (pill buttons with turn color dots). Persisted in `localStorage` under `pulpo_agenda_view_mode`.
+- **Settings dropdown**: Footer contains a gear icon that opens a dropdown with: view mode toggle, theme toggle (light/dark), and refresh turns.
+- **Turns cache** (`src/lib/turnsCache.ts`): Reservation turns are cached in `localStorage` with a 24h TTL. Both `AgendaView` and `ReservationForm` read from the same cache. "Actualizar turnos" in the settings dropdown invalidates the cache and re-fetches.
 - **Turn color dots**: Each reservation row shows a small colored dot matching its turn's color (matched by time). Falls back to gray if no turn matches.
 
 ### Data Model
@@ -93,6 +107,3 @@ The entire app UI is in **Spanish**. All labels, buttons, error messages, placeh
 ### Dev Server
 
 The dev server binds to `0.0.0.0:4321` with `local.pulpo.cloud` as an allowed host. Use this hostname for local development if needed.
-
-
-claude --resume 53242975-d532-413f-a0b9-66cd60e309ec
