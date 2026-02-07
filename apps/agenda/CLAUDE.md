@@ -57,15 +57,19 @@ When adding new API functions: if the operation is reusable across apps, add it 
 
 `useDirectusRealtime<T>()` is a Svelte lifecycle hook that manages WebSocket subscriptions to Directus collections. It handles auto-reconnect with exponential backoff, browser visibility/online state changes, and exposes a `state` store with connection status. The `AgendaView` uses this to get live updates, then re-fetches via REST when relevant changes are detected.
 
+### Auth Module (`src/lib/auth.ts`)
+
+Provides `checkAuthentication()` (validates/refreshes stored token) and `logout()` (clears token and localStorage). Used by `AuthGuard` and `LogoutView`.
+
 ### State Management
 
 - **Svelte stores** (`writable`/`derived`) for component-local state
-- **nanostores** (`map`) for `authStore` — shared auth state across components
+- **Dedicated stores** in `src/stores/`: `userStore.ts` (nanostores `map` with `isAuthenticated`/`loading`), `themeStore.ts` (writable with localStorage persistence)
 - `localStorage` persists: auth tokens (`directus_auth`), UI preferences (`pulpo_agenda_show_arrived`, `pulpo_agenda_view_mode`), theme (`pulpo_agenda_theme`), and cached turns data (`pulpo_agenda_turns`)
 
 ### Styling
 
-Tailwind CSS v4 with a custom theme defined in `src/styles/global.css`:
+Tailwind CSS v4 via `@tailwindcss/vite` plugin (no `tailwind.config.js` — all theme config lives in `src/styles/global.css`):
 
 - `--color-primary`: #1a202c (dark navy)
 - `--color-secondary`: #c2b280 (muted gold)
