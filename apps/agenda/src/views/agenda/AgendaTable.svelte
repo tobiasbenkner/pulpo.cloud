@@ -2,8 +2,8 @@
   import {
     Check,
     X,
+    Pencil,
     RefreshCw,
-    ChevronRight,
     Sun,
     Moon,
     LayoutList,
@@ -59,27 +59,30 @@
     return null;
   }
 
-  // --- Double-Tap / Double-Click Handler (mobile + desktop) ---
+  // --- Double-Tap / Double-Click → arrived toggle ---
   let tapTimer: ReturnType<typeof setTimeout> | null = null;
   let lastTappedId: string | null = null;
 
   function handleRowClick(res: Reservation) {
     if (lastTappedId === res.id && tapTimer) {
-      // Doppelklick/-tap → arrived toggle
       clearTimeout(tapTimer);
       tapTimer = null;
       lastTappedId = null;
       onToggleArrived(res);
     } else {
-      // Erster Klick/Tap → warten ob Doppelklick kommt
       if (tapTimer) clearTimeout(tapTimer);
       lastTappedId = res.id;
       tapTimer = setTimeout(() => {
         tapTimer = null;
         lastTappedId = null;
-        window.location.href = `/edit?id=${res.id}`;
       }, 300);
     }
+  }
+
+  // --- Edit Button → Bearbeiten ---
+  function handleEdit(e: Event, res: Reservation) {
+    e.stopPropagation();
+    window.location.href = `/edit?id=${res.id}`;
   }
 
   onDestroy(() => {
@@ -259,8 +262,16 @@
             </div>
           {/if}
 
-          <!-- Chevron -->
-          <ChevronRight size={14} class="text-fg-muted shrink-0" />
+          <!-- Edit Button -->
+          <!-- svelte-ignore a11y_no_static_element_interactions -->
+          <div
+            on:click={(e) => handleEdit(e, res)}
+            on:keydown={() => {}}
+            class="shrink-0 p-1.5 rounded-md text-fg-muted hover:text-fg-secondary hover:bg-surface-hover active:bg-surface-alt transition-colors"
+            aria-label="Editar reserva"
+          >
+            <Pencil size={14} />
+          </div>
         </div>
       {/each}
     </div>
@@ -281,7 +292,8 @@
               <th class="px-4 py-2.5 font-normal">Nombre</th>
               <th class="px-4 py-2.5 font-normal">Contacto</th>
               <th class="px-4 py-2.5 font-normal">Notas</th>
-              <th class="px-4 py-2.5 font-normal w-12"></th>
+              <th class="px-2 py-2.5 font-normal w-10"></th>
+              <th class="px-2 py-2.5 font-normal w-10"></th>
             </tr>
           </thead>
         </table>
@@ -354,27 +366,40 @@
                 <td class="px-4 py-2 text-fg-muted text-xs italic leading-snug">
                   {res.notes || "-"}
                 </td>
-                <td class="px-4 py-2 w-12">
-                  <div class="flex justify-end">
+                <td class="px-2 py-2 w-10">
+                  <div class="flex justify-center">
                     {#if typeof res.user === "object" && res.user?.avatar}
                       {@const avatarId =
                         typeof res.user.avatar === "object"
                           ? res.user.avatar.id
                           : res.user.avatar}
-                      <div class="w-6 h-6 shrink-0">
-                        <img
-                          src={`https://admin.pulpo.cloud/assets/${avatarId}?width=48&height=48&fit=cover`}
-                          alt=""
-                          class="w-full h-full rounded-full border border-border-default object-cover"
-                        />
-                      </div>
+                      <img
+                        src={`https://admin.pulpo.cloud/assets/${avatarId}?width=48&height=48&fit=cover`}
+                        alt=""
+                        class="w-6 h-6 rounded-full border border-border-default object-cover"
+                      />
                     {:else if typeof res.user === "object"}
                       <div
-                        class="w-6 h-6 shrink-0 rounded-full bg-surface-alt flex items-center justify-center text-[10px] text-fg-muted border border-border-default font-medium"
+                        class="w-6 h-6 rounded-full bg-surface-alt flex items-center justify-center text-[10px] text-fg-muted border border-border-default font-medium"
                       >
                         {res.user?.first_name?.[0]?.toUpperCase() || "?"}
                       </div>
                     {/if}
+                  </div>
+                </td>
+                <td class="px-2 py-2 w-10">
+                  <!-- svelte-ignore a11y_no_static_element_interactions -->
+                  <div
+                    on:click={(e) => handleEdit(e, res)}
+                    on:keydown={() => {}}
+                    class="flex justify-center"
+                  >
+                    <div
+                      class="p-1.5 rounded-md text-fg-muted hover:text-fg-secondary hover:bg-surface-hover transition-colors cursor-pointer"
+                      aria-label="Editar reserva"
+                    >
+                      <Pencil size={14} />
+                    </div>
                   </div>
                 </td>
               </tr>
