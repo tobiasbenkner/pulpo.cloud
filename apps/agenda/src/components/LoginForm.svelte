@@ -31,17 +31,17 @@
 </script>
 
 <div
-  class="w-full max-w-md bg-white p-8 md:p-12 shadow-sm border border-gray-100 rounded-lg"
+  class="w-full max-w-md bg-surface p-8 md:p-12 shadow-sm border border-border-light rounded-lg"
 >
   <div class="text-center mb-10">
-    <h1 class="text-3xl font-serif text-primary mb-2">Bienvenido</h1>
-    <p class="text-gray-500 font-light">Ingrese a su cuenta Pulpo</p>
+    <h1 class="text-3xl font-serif text-fg mb-2">Bienvenido</h1>
+    <p class="text-fg-muted font-light">Ingrese a su cuenta Pulpo</p>
   </div>
 
   <form on:submit|preventDefault={handleLogin} class="space-y-6">
     {#if error}
       <div
-        class="bg-red-50 text-error px-4 py-3 rounded-sm text-sm flex items-start gap-3 border border-red-100 animate-fade-in"
+        class="bg-error-bg text-error-text px-4 py-3 rounded-sm text-sm flex items-start gap-3 border border-error-border animate-fade-in"
       >
         <AlertCircle size={18} class="mt-0.5 shrink-0" />
         <p>{error}</p>
@@ -51,7 +51,7 @@
     <div class="space-y-2">
       <label
         for="email"
-        class="block text-sm font-medium text-gray-700 uppercase tracking-wide text-xs"
+        class="block text-sm font-medium text-fg-secondary uppercase tracking-wide text-xs"
       >
         Email Corporativo
       </label>
@@ -62,14 +62,14 @@
         required
         autocomplete="email"
         placeholder="nombre@pulpo.cloud"
-        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-sm text-primary placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all hover:bg-white"
+        class="w-full px-4 py-3 bg-input-bg border border-border-default rounded-sm text-fg placeholder-fg-muted focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all hover:bg-surface"
       />
     </div>
 
     <div class="space-y-2">
       <label
         for="password"
-        class="block text-sm font-medium text-gray-700 uppercase tracking-wide text-xs"
+        class="block text-sm font-medium text-fg-secondary uppercase tracking-wide text-xs"
       >
         Contraseña
       </label>
@@ -80,14 +80,14 @@
         required
         autocomplete="current-password"
         placeholder="••••••••"
-        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-sm text-primary placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all hover:bg-white"
+        class="w-full px-4 py-3 bg-input-bg border border-border-default rounded-sm text-fg placeholder-fg-muted focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all hover:bg-surface"
       />
     </div>
 
     <button
       type="submit"
       disabled={isLoading}
-      class="w-full bg-primary text-white py-3.5 px-4 rounded-sm hover:bg-gray-800 transition-all flex items-center justify-center gap-2 font-medium tracking-wide disabled:opacity-70 disabled:cursor-not-allowed shadow-md shadow-gray-200"
+      class="w-full bg-primary text-white py-3.5 px-4 rounded-sm hover:bg-primary/85 transition-all flex items-center justify-center gap-2 font-medium tracking-wide disabled:opacity-70 disabled:cursor-not-allowed shadow-md shadow-[var(--shadow-color)]"
     >
       {#if isLoading}
         <Loader2 class="animate-spin" size={20} />
@@ -99,8 +99,8 @@
     </button>
   </form>
 
-  <div class="mt-8 text-center border-t border-gray-100 pt-6">
-    <p class="text-sm text-gray-400">
+  <div class="mt-8 text-center border-t border-border-light pt-6">
+    <p class="text-sm text-fg-muted">
       ¿Olvidó su contraseña?
       <a
         href="#"

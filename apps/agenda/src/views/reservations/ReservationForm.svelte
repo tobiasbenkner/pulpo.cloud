@@ -155,19 +155,19 @@
       <div class="flex items-center gap-2.5 mb-4">
         <button
           on:click={goBack}
-          class="p-1 hover:bg-gray-100 rounded-full transition-colors text-gray-400"
+          class="p-1 hover:bg-surface-hover rounded-full transition-colors text-fg-muted"
           aria-label="Volver"
         >
           <ArrowLeft size={16} />
         </button>
-        <h1 class="text-sm font-medium text-gray-500">
+        <h1 class="text-sm font-medium text-fg-muted">
           {isEditMode ? "Editar reserva" : "Nueva reserva"}
         </h1>
       </div>
 
       {#if error}
         <div
-          class="mb-4 p-3 bg-red-50 border border-red-100 text-red-800 text-sm rounded-md flex items-start gap-2"
+          class="mb-4 p-3 bg-error-bg border border-error-border text-error-text text-sm rounded-md flex items-start gap-2"
         >
           <AlertTriangle size={16} class="mt-0.5 shrink-0" />
           <span>{error}</span>
@@ -196,7 +196,7 @@
                 class="px-2.5 py-1 text-xs rounded-md border transition-colors {formData.time ===
                 turn.start.substring(0, 5)
                   ? 'border-primary bg-primary text-white'
-                  : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300 hover:bg-gray-100'}"
+                  : 'border-border-default bg-input-bg text-fg-secondary hover:border-fg-muted hover:bg-surface-hover'}"
               >
                 {turn.label} · {turn.start.substring(0, 5)}
               </button>
@@ -209,7 +209,7 @@
           <div class="col-span-2 space-y-1">
             <label
               for="name"
-              class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-500"
+              class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-fg-muted"
             >
               <User size={14} /> Nombre
             </label>
@@ -219,14 +219,14 @@
               required
               bind:value={formData.name}
               placeholder="Nombre del cliente"
-              class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-sm text-sm text-primary placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary focus:bg-white transition-all"
+              class="w-full px-3 py-2.5 bg-input-bg border border-border-default rounded-sm text-sm text-fg placeholder-fg-muted focus:outline-none focus:ring-1 focus:ring-primary focus:bg-surface transition-all"
             />
           </div>
 
           <div class="space-y-1">
             <label
               for="person_count"
-              class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-500"
+              class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-fg-muted"
             >
               <Users size={14} /> Pax
             </label>
@@ -236,7 +236,7 @@
               min="1"
               max="99"
               bind:value={formData.person_count}
-              class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-sm text-sm text-primary focus:outline-none focus:ring-1 focus:ring-primary focus:bg-white transition-all"
+              class="w-full px-3 py-2.5 bg-input-bg border border-border-default rounded-sm text-sm text-fg focus:outline-none focus:ring-1 focus:ring-primary focus:bg-surface transition-all"
             />
           </div>
         </div>
@@ -245,7 +245,7 @@
         <div class="space-y-1">
           <label
             for="contact"
-            class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-500"
+            class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-fg-muted"
           >
             <Phone size={14} /> Contacto
           </label>
@@ -254,7 +254,7 @@
             type="text"
             bind:value={formData.contact}
             placeholder="Teléfono o correo electrónico"
-            class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-sm text-sm text-primary placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary focus:bg-white transition-all"
+            class="w-full px-3 py-2.5 bg-input-bg border border-border-default rounded-sm text-sm text-fg placeholder-fg-muted focus:outline-none focus:ring-1 focus:ring-primary focus:bg-surface transition-all"
           />
         </div>
 
@@ -262,7 +262,7 @@
         {#if users.length > 0}
           <div class="space-y-1">
             <label
-              class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-500"
+              class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-fg-muted"
             >
               <User size={14} /> Creado por
             </label>
@@ -275,7 +275,7 @@
                   class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs rounded-md border transition-colors {formData.user ===
                   u.id
                     ? 'border-primary bg-primary text-white'
-                    : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300 hover:bg-gray-100'}"
+                    : 'border-border-default bg-input-bg text-fg-secondary hover:border-fg-muted hover:bg-surface-hover'}"
                 >
                   {#if u.avatar}
                     {@const avatarId =
@@ -297,7 +297,7 @@
         <div class="space-y-1">
           <label
             for="notes"
-            class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-500"
+            class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-fg-muted"
           >
             <AlignLeft size={14} /> Notas
           </label>
@@ -306,13 +306,13 @@
             rows="4"
             bind:value={formData.notes}
             placeholder="Peticiones especiales, alergias, etc."
-            class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-sm text-sm text-primary placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary focus:bg-white transition-all resize-none"
+            class="w-full px-3 py-2.5 bg-input-bg border border-border-default rounded-sm text-sm text-fg placeholder-fg-muted focus:outline-none focus:ring-1 focus:ring-primary focus:bg-surface transition-all resize-none"
           ></textarea>
         </div>
 
         <!-- Action Bar -->
         <div
-          class="pt-4 border-t border-gray-100 flex items-center justify-between"
+          class="pt-4 border-t border-border-light flex items-center justify-between"
         >
           <!-- Delete Button (Left) - Only in Edit Mode -->
           <div>
@@ -320,7 +320,7 @@
               <button
                 type="button"
                 on:click={() => (showDeleteConfirm = true)}
-                class="text-red-600 hover:text-red-800 text-sm font-medium flex items-center gap-1.5 px-2 py-2 -ml-2 rounded hover:bg-red-50 transition-colors"
+                class="text-delete hover:text-delete-hover text-sm font-medium flex items-center gap-1.5 px-2 py-2 -ml-2 rounded hover:bg-error-bg transition-colors"
               >
                 <Trash2 size={16} /> <span>Eliminar</span>
               </button>
@@ -332,7 +332,7 @@
             <button
               type="submit"
               disabled={isSaving}
-              class="bg-primary text-white px-6 py-2.5 rounded-sm hover:bg-gray-800 transition-all flex items-center gap-2 shadow-md shadow-gray-200 disabled:opacity-70 disabled:cursor-not-allowed font-medium tracking-wide"
+              class="bg-primary text-white px-6 py-2.5 rounded-sm hover:bg-primary/85 transition-all flex items-center gap-2 shadow-md shadow-[var(--shadow-color)] disabled:opacity-70 disabled:cursor-not-allowed font-medium tracking-wide"
             >
               {#if isSaving}
                 <Loader2 class="animate-spin" size={18} />
@@ -361,18 +361,18 @@
     on:keydown={(e) => e.key === "Escape" && (showDeleteConfirm = false)}
   >
     <div
-      class="bg-white rounded-lg shadow-xl w-full max-w-sm p-6 animate-fade-in"
+      class="bg-surface rounded-lg shadow-xl w-full max-w-sm p-6 animate-fade-in"
     >
       <div class="flex items-center gap-3 mb-3">
-        <div class="p-2 bg-red-50 rounded-full">
-          <AlertTriangle size={20} class="text-red-600" />
+        <div class="p-2 bg-error-bg rounded-full">
+          <AlertTriangle size={20} class="text-error-icon" />
         </div>
-        <h2 class="text-base font-semibold text-primary">
+        <h2 class="text-base font-semibold text-fg">
           Eliminar reserva
         </h2>
       </div>
 
-      <p class="text-sm text-gray-500 mb-6">
+      <p class="text-sm text-fg-muted mb-6">
         ¿Seguro que quieres eliminar esta reserva? Esta acción no se puede
         deshacer.
       </p>
@@ -381,7 +381,7 @@
         <button
           type="button"
           on:click={() => (showDeleteConfirm = false)}
-          class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-primary rounded-md hover:bg-gray-50 transition-colors"
+          class="px-4 py-2 text-sm font-medium text-fg-secondary hover:text-fg rounded-md hover:bg-surface-hover transition-colors"
         >
           Cancelar
         </button>
@@ -389,7 +389,7 @@
           type="button"
           on:click={handleDelete}
           disabled={isDeleting}
-          class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2"
+          class="px-4 py-2 text-sm font-medium text-white bg-delete hover:bg-delete-hover rounded-md transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2"
         >
           {#if isDeleting}
             <Loader2 class="animate-spin" size={14} />

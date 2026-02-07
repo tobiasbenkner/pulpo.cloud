@@ -48,7 +48,7 @@
 
 <div class="relative w-full max-w-xs" bind:this={wrapperRef}>
   {#if label}
-    <label for={id} class="block text-sm font-medium text-gray-700 mb-1">
+    <label for={id} class="block text-sm font-medium text-fg-secondary mb-1">
       {label}
     </label>
   {/if}
@@ -60,7 +60,7 @@
     {placeholder}
     value={displayValue}
     on:click={openPicker}
-    class="cursor-pointer w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 shadow-sm"
+    class="cursor-pointer w-full rounded-md border border-border-default px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary bg-surface text-fg shadow-sm"
   />
 
   {#if isOpen}

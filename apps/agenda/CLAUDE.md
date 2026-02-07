@@ -93,3 +93,6 @@ The entire app UI is in **Spanish**. All labels, buttons, error messages, placeh
 ### Dev Server
 
 The dev server binds to `0.0.0.0:4321` with `local.pulpo.cloud` as an allowed host. Use this hostname for local development if needed.
+
+
+claude --resume 53242975-d532-413f-a0b9-66cd60e309ec

@@ -17,9 +17,9 @@
 
 {#if error}
   <div class="max-w-2xl mx-auto py-12">
-    <div class="bg-red-50 border border-red-100 text-red-800 p-6 rounded-lg">
+    <div class="bg-error-bg border border-error-border text-error-text p-6 rounded-lg">
       <p>{error}</p>
-      <a href="/" class="text-red-700 underline mt-2 inline-block">
+      <a href="/" class="text-error-text underline mt-2 inline-block">
         Volver a la agenda
       </a>
     </div>

@@ -3,16 +3,16 @@ import Layout from '../layouts/Layout.astro';
 import LoginForm from '../components/LoginForm.svelte';
 import AuthGuard from '../components/AuthGuard.svelte';
 
-// Wir nutzen den AuthGuard hier mit protect={false}, nur um zu prüfen, 
+// Wir nutzen den AuthGuard hier mit protect={false}, nur um zu prüfen,
 // ob der User vielleicht schon eingeloggt ist (optionales Redirect Feature),
 // oder wir lassen es einfach plain rendern.
 ---
 
 <Layout title="Login | Pulpo Agenda">
   <div class="min-h-screen flex flex-col justify-center items-center relative bg-surface overflow-hidden">
-    
+
     <!-- Dekorativer Hintergrund (Subtil) -->
-    <div class="absolute top-0 left-0 w-full h-64 bg-gradient-to-b from-gray-100 to-transparent opacity-50 pointer-events-none"></div>
+    <div class="absolute top-0 left-0 w-full h-64 bg-gradient-to-b from-surface-alt to-transparent opacity-50 pointer-events-none"></div>
 
     <!-- Logo Area -->
     <div class="mb-8 z-10">
@@ -29,7 +29,7 @@ import AuthGuard from '../components/AuthGuard.svelte';
     </div>
 
     <!-- Footer -->
-    <footer class="mt-12 text-center text-xs text-gray-400">
+    <footer class="mt-12 text-center text-xs text-fg-muted">
       <p>&copy; {new Date().getFullYear()} Pulpo Cloud. Todos los derechos reservados.</p>
     </footer>
 

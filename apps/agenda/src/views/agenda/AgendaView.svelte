@@ -286,7 +286,7 @@
 <div class="flex flex-col h-full animate-fade-in">
   <!-- Sticky Header Section -->
   <div
-    class="shrink-0 bg-white px-3 md:px-8 pt-4 md:pt-8 pb-3 md:pb-4 space-y-3 md:space-y-4"
+    class="shrink-0 bg-surface px-3 md:px-8 pt-4 md:pt-8 pb-3 md:pb-4 space-y-3 md:space-y-4"
   >
     <AgendaHeader
       dateStr={$date}
@@ -299,17 +299,17 @@
     {#if !$isOnline}
       <div
         transition:slide={{ axis: "y", duration: 300 }}
-        class="rounded-md border border-amber-200 bg-amber-50 p-4 flex items-center gap-3 shadow-sm max-w-7xl mx-auto"
+        class="rounded-md border border-warning-border bg-warning-bg p-4 flex items-center gap-3 shadow-sm max-w-7xl mx-auto"
         role="alert"
       >
-        <div class="bg-amber-100 p-2 rounded-full text-amber-600">
+        <div class="bg-warning-icon-bg p-2 rounded-full text-warning-icon">
           <WifiOff size={18} />
         </div>
         <div class="flex-1">
-          <h3 class="text-sm font-semibold text-amber-900">
+          <h3 class="text-sm font-semibold text-warning-text">
             Sin conexión a Internet
           </h3>
-          <p class="text-sm text-amber-800/80 leading-snug">
+          <p class="text-sm text-warning-text/80 leading-snug">
             La agenda está en modo sin conexión. Los cambios no se guardarán. La
             conexión se restablecerá automáticamente.
           </p>
@@ -320,19 +320,19 @@
     {#if $error}
       <div
         transition:slide={{ axis: "y", duration: 300 }}
-        class="rounded-md border border-red-100 bg-red-50/80 p-4 flex items-start gap-3 shadow-sm backdrop-blur-sm max-w-7xl mx-auto"
+        class="rounded-md border border-error-border bg-error-bg p-4 flex items-start gap-3 shadow-sm backdrop-blur-sm max-w-7xl mx-auto"
       >
-        <CircleAlert size={20} class="text-red-800 shrink-0 mt-0.5" />
+        <CircleAlert size={20} class="text-error-icon shrink-0 mt-0.5" />
         <div class="flex-1">
-          <h3 class="text-sm font-medium text-red-900">Aviso</h3>
-          <p class="text-sm text-red-800/90 mt-0.5 leading-relaxed">
+          <h3 class="text-sm font-medium text-error-text">Aviso</h3>
+          <p class="text-sm text-error-text/90 mt-0.5 leading-relaxed">
             {$error}
           </p>
         </div>
 
         <button
           on:click={() => ($error = null)}
-          class="text-red-700 hover:text-red-900 transition-colors p-1"
+          class="text-error-text hover:text-error-icon transition-colors p-1"
           aria-label="Cerrar"
         >
           <X size={16} />

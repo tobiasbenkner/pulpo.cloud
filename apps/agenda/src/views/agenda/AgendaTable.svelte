@@ -1,8 +1,9 @@
 <script lang="ts">
-  import { Check, RefreshCw, ChevronRight } from "lucide-svelte";
+  import { Check, RefreshCw, ChevronRight, Sun, Moon } from "lucide-svelte";
   import type { Reservation, ReservationTurn } from "../../lib/types";
   import { clsx } from "clsx";
   import { onDestroy } from "svelte";
+  import { theme, toggleTheme } from "../../stores/themeStore";
 
   export let reservations: Reservation[];
   export let loading: boolean;
@@ -57,18 +58,18 @@
 </script>
 
 <div
-  class="bg-white md:rounded-lg md:border border-gray-200 md:shadow-sm flex flex-col h-full max-w-7xl mx-auto"
+  class="bg-surface md:rounded-lg md:border border-border-default md:shadow-sm flex flex-col h-full max-w-7xl mx-auto"
 >
   {#if loading && !isRefetching}
     <div
-      class="flex flex-col items-center justify-center flex-1 gap-3 text-gray-400"
+      class="flex flex-col items-center justify-center flex-1 gap-3 text-fg-muted"
     >
       <RefreshCw size={24} class="animate-spin" />
       <span class="text-sm tracking-wide uppercase">Cargando Agenda...</span>
     </div>
   {:else if reservations.length === 0}
     <div class="flex flex-col items-center justify-center flex-1">
-      <p class="text-gray-500 mb-2 font-serif text-lg">
+      <p class="text-fg-muted mb-2 font-serif text-lg">
         No hay reservas visibles.
       </p>
       {#if !showArrived}
@@ -97,15 +98,15 @@
           on:click={() => handleRowClick(res)}
           on:keydown={() => {}}
           class={clsx(
-            "flex items-center gap-2.5 px-3 py-2 border-b border-gray-100 active:bg-gray-50 cursor-pointer select-none",
-            res.arrived && "bg-green-50/60",
+            "flex items-center gap-2.5 px-3 py-2 border-b border-border-light active:bg-surface-alt cursor-pointer select-none",
+            res.arrived && "bg-arrived-bg",
           )}
         >
           <!-- Turn Color Dot -->
           <div
             class={clsx(
               "shrink-0 size-2.5 rounded-full",
-              !turnColor && "bg-gray-300",
+              !turnColor && "bg-fg-muted",
             )}
             style={turnColor ? `background-color: ${turnColor}` : ""}
           ></div>
@@ -115,8 +116,8 @@
             class={clsx(
               "shrink-0 w-12 text-center py-1 rounded text-xs font-bold",
               res.arrived
-                ? "bg-green-100 text-green-700"
-                : "bg-gray-100 text-gray-700",
+                ? "bg-arrived-badge-bg text-arrived-badge-text"
+                : "bg-surface-alt text-fg-secondary",
             )}
           >
             {res.time.substring(0, 5)}
@@ -128,7 +129,7 @@
               <span
                 class={clsx(
                   "font-medium text-sm truncate",
-                  res.arrived ? "text-green-800" : "text-gray-900",
+                  res.arrived ? "text-arrived-text" : "text-fg",
                 )}
               >
                 {res.name}
@@ -136,19 +137,19 @@
               {#if res.arrived}
                 <Check
                   size={14}
-                  class="text-green-600 shrink-0"
+                  class="text-arrived-check shrink-0"
                   strokeWidth={3}
                 />
               {/if}
-              <span class="text-xs text-gray-400"
+              <span class="text-xs text-fg-muted"
                 >({res.person_count || "-"})</span
               >
             </div>
             {#if res.contact}
-              <p class="text-xs text-gray-500 truncate">{res.contact}</p>
+              <p class="text-xs text-fg-muted truncate">{res.contact}</p>
             {/if}
             {#if res.notes}
-              <p class="text-xs text-gray-400 italic leading-snug">
+              <p class="text-xs text-fg-muted italic leading-snug">
                 {res.notes}
               </p>
             {/if}
@@ -163,18 +164,18 @@
             <img
               src={`https://admin.pulpo.cloud/assets/${avatarId}?width=56&height=56&fit=cover`}
               alt=""
-              class="size-7 aspect-square rounded-full border border-gray-200 object-cover shrink-0"
+              class="size-7 aspect-square rounded-full border border-border-default object-cover shrink-0"
             />
           {:else if typeof res.user === "object"}
             <div
-              class="size-7 aspect-square rounded-full bg-gray-100 flex items-center justify-center text-[10px] text-gray-500 border border-gray-200 font-medium shrink-0"
+              class="size-7 aspect-square rounded-full bg-surface-alt flex items-center justify-center text-[10px] text-fg-muted border border-border-default font-medium shrink-0"
             >
               {res.user?.first_name?.[0]?.toUpperCase() || "?"}
             </div>
           {/if}
 
           <!-- Chevron -->
-          <ChevronRight size={14} class="text-gray-300 shrink-0" />
+          <ChevronRight size={14} class="text-fg-muted shrink-0" />
         </div>
       {/each}
     </div>
@@ -182,11 +183,11 @@
     <!-- Desktop: Table Layout -->
     <div class="hidden md:flex md:flex-col md:flex-1 md:min-h-0">
       <!-- Sticky Header -->
-      <div class="shrink-0 bg-gray-50 border-b border-gray-200">
+      <div class="shrink-0 bg-surface-alt border-b border-border-default">
         <table class="w-full text-left text-sm">
           <thead>
             <tr
-              class="text-gray-500 uppercase tracking-wider text-[11px] font-medium"
+              class="text-fg-muted uppercase tracking-wider text-[11px] font-medium"
             >
               <th class="pl-4 pr-1 py-2.5 font-normal w-8"></th>
               <th class="px-3 py-2.5 font-normal w-16">Hora</th>
@@ -203,7 +204,7 @@
       <!-- Scrollable Body -->
       <div class="flex-1 min-h-0 overflow-y-auto">
         <table class="w-full text-left text-sm">
-          <tbody class="divide-y divide-gray-100">
+          <tbody class="divide-y divide-border-light">
             {#each reservations as res (res.id)}
               {@const turnColor = getTurnColor(res.time)}
               <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -213,25 +214,25 @@
                 class={clsx(
                   "group transition-colors cursor-pointer select-none",
                   res.arrived
-                    ? "bg-green-50/60 hover:bg-green-100/60"
-                    : "hover:bg-gray-50",
+                    ? "bg-arrived-bg hover:bg-arrived-bg-hover"
+                    : "hover:bg-surface-hover",
                 )}
               >
                 <td class="pl-4 pr-1 py-2 w-8">
                   <div
                     class={clsx(
                       "size-2.5 rounded-full",
-                      !turnColor && "bg-gray-300",
+                      !turnColor && "bg-fg-muted",
                     )}
                     style={turnColor ? `background-color: ${turnColor}` : ""}
                   ></div>
                 </td>
                 <td
-                  class="px-3 py-2 whitespace-nowrap font-medium font-serif text-gray-900 w-16"
+                  class="px-3 py-2 whitespace-nowrap font-medium font-serif text-fg w-16"
                 >
                   {res.time.substring(0, 5)}
                 </td>
-                <td class="px-3 py-2 w-12 text-center text-gray-600 text-xs">
+                <td class="px-3 py-2 w-12 text-center text-fg-secondary text-xs">
                   {res.person_count || "-"}
                 </td>
                 <td class="px-4 py-2">
@@ -239,7 +240,7 @@
                     <span
                       class={clsx(
                         "font-medium text-sm",
-                        res.arrived ? "text-green-900" : "text-gray-900",
+                        res.arrived ? "text-arrived-text" : "text-fg",
                       )}
                     >
                       {res.name}
@@ -247,16 +248,16 @@
                     {#if res.arrived}
                       <Check
                         size={14}
-                        class="text-green-700 shrink-0"
+                        class="text-arrived-check shrink-0"
                         strokeWidth={3}
                       />
                     {/if}
                   </span>
                 </td>
-                <td class="px-4 py-2 text-gray-500 text-sm"
+                <td class="px-4 py-2 text-fg-muted text-sm"
                   >{res.contact || "-"}</td
                 >
-                <td class="px-4 py-2 text-gray-400 text-xs italic leading-snug">
+                <td class="px-4 py-2 text-fg-muted text-xs italic leading-snug">
                   {res.notes || "-"}
                 </td>
                 <td class="px-4 py-2 w-12">
@@ -270,12 +271,12 @@
                         <img
                           src={`https://admin.pulpo.cloud/assets/${avatarId}?width=48&height=48&fit=cover`}
                           alt=""
-                          class="w-full h-full rounded-full border border-gray-200 object-cover"
+                          class="w-full h-full rounded-full border border-border-default object-cover"
                         />
                       </div>
                     {:else if typeof res.user === "object"}
                       <div
-                        class="w-6 h-6 shrink-0 rounded-full bg-gray-100 flex items-center justify-center text-[10px] text-gray-500 border border-gray-200 font-medium"
+                        class="w-6 h-6 shrink-0 rounded-full bg-surface-alt flex items-center justify-center text-[10px] text-fg-muted border border-border-default font-medium"
                       >
                         {res.user?.first_name?.[0]?.toUpperCase() || "?"}
                       </div>
@@ -292,7 +293,7 @@
 
   <!-- Sticky Footer -->
   <div
-    class="shrink-0 px-3 md:px-6 py-2 md:py-3 bg-gray-50 border-t border-gray-200 text-xs text-gray-400 flex justify-between items-center"
+    class="shrink-0 px-3 md:px-6 py-2 md:py-3 bg-surface-alt border-t border-border-default text-xs text-fg-muted flex justify-between items-center"
   >
     <span>
       {#if isRefetching}
@@ -305,8 +306,21 @@
     </span>
     <span class="flex items-center gap-3">
       <button
+        on:click={toggleTheme}
+        class="text-fg-muted hover:text-fg-secondary transition-colors flex items-center gap-1"
+        aria-label="Cambiar tema"
+      >
+        {#if $theme === "dark"}
+          <Sun size={10} />
+          <span>Modo claro</span>
+        {:else}
+          <Moon size={10} />
+          <span>Modo oscuro</span>
+        {/if}
+      </button>
+      <button
         on:click={onRefreshTurns}
-        class="text-gray-300 hover:text-gray-500 transition-colors flex items-center gap-1"
+        class="text-fg-muted hover:text-fg-secondary transition-colors flex items-center gap-1"
         aria-label="Actualizar turnos"
       >
         <RefreshCw size={10} />

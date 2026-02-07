@@ -76,27 +76,27 @@
 </script>
 
 <div
-  class="w-75 bg-gray-950 border border-gray-800 rounded-xl shadow-2xl p-4 text-white"
+  class="w-75 bg-picker-bg border border-picker-border rounded-xl shadow-2xl p-4 text-picker-text"
 >
   <!-- Header mit Monat/Jahr und Navigation -->
   <div class="flex items-center justify-between mb-4">
     <button
       type="button"
       on:click|stopPropagation={prevMonth}
-      class="p-2 rounded-lg border border-gray-800 text-gray-300 hover:bg-gray-800 hover:border-gray-600 transition-colors"
+      class="p-2 rounded-lg border border-picker-btn-border text-picker-btn-text hover:bg-picker-btn-hover hover:border-picker-muted transition-colors"
       aria-label="Mes anterior"
     >
       <ChevronLeft size={18} />
     </button>
 
-    <span class="text-base font-semibold text-white capitalize">
+    <span class="text-base font-semibold text-picker-text capitalize">
       {format(viewDate, "MMMM yyyy", { locale })}
     </span>
 
     <button
       type="button"
       on:click|stopPropagation={nextMonth}
-      class="p-2 rounded-lg border border-gray-800 text-gray-300 hover:bg-gray-800 hover:border-gray-600 transition-colors"
+      class="p-2 rounded-lg border border-picker-btn-border text-picker-btn-text hover:bg-picker-btn-hover hover:border-picker-muted transition-colors"
       aria-label="Mes siguiente"
     >
       <ChevronRight size={18} />
@@ -107,7 +107,7 @@
   <div class="grid grid-cols-7 gap-1 mb-2">
     {#each weekdays as day}
       <div
-        class="text-center text-xs font-semibold text-gray-500 uppercase py-1"
+        class="text-center text-xs font-semibold text-picker-muted uppercase py-1"
       >
         {day}
       </div>
@@ -126,12 +126,12 @@
         on:click|stopPropagation={() => selectDate(day)}
         class="aspect-square flex items-center justify-center text-sm rounded-lg border transition-colors duration-100
           {isSelected
-          ? 'bg-white text-black border-white font-bold shadow-[0_0_10px_rgba(255,255,255,0.3)]'
+          ? 'bg-picker-selected-bg text-picker-selected-text border-picker-selected-bg font-bold shadow-[0_0_10px_var(--picker-selected-shadow)]'
           : isTodayDate && isCurrentMonth
-            ? 'border-blue-500 text-blue-400 hover:bg-gray-800'
+            ? 'border-picker-today-border text-picker-today-text hover:bg-picker-btn-hover'
             : isCurrentMonth
-              ? 'border-gray-800 text-gray-300 hover:bg-gray-800 hover:border-gray-600'
-              : 'border-transparent text-gray-600 hover:bg-gray-900 hover:text-gray-400'}"
+              ? 'border-picker-btn-border text-picker-btn-text hover:bg-picker-btn-hover hover:border-picker-muted'
+              : 'border-transparent text-picker-outside hover:bg-picker-btn-hover/50 hover:text-picker-muted'}"
       >
         {format(day, "d")}
       </button>
@@ -140,11 +140,11 @@
 
   <!-- Footer mit Heute-Button -->
   {#if showTodayButton}
-    <div class="mt-4 pt-3 border-t border-gray-800">
+    <div class="mt-4 pt-3 border-t border-picker-border">
       <button
         type="button"
         on:click|stopPropagation={goToToday}
-        class="w-full bg-white text-black font-bold py-2 rounded-lg hover:bg-gray-200 transition-colors text-sm"
+        class="w-full bg-picker-selected-bg text-picker-selected-text font-bold py-2 rounded-lg hover:opacity-85 transition-colors text-sm"
       >
         Hoy
       </button>
