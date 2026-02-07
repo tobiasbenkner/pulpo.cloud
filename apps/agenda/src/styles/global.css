@@ -14,14 +14,14 @@
   --shadow-color: rgb(0 0 0 / 5%);
   --arrived-bg: rgba(91, 140, 107, 0.08);
   --arrived-bg-hover: rgba(91, 140, 107, 0.14);
-  --arrived-text: #5B8C6B;
+  --arrived-text: #5b8c6b;
   --arrived-badge-bg: rgba(91, 140, 107, 0.12);
-  --arrived-badge-text: #5B8C6B;
-  --arrived-check: #5B8C6B;
+  --arrived-badge-text: #5b8c6b;
+  --arrived-check: #5b8c6b;
   --error-bg: rgba(184, 92, 80, 0.08);
-  --error-text: #B85C50;
+  --error-text: #b85c50;
   --error-border: rgba(184, 92, 80, 0.15);
-  --error-icon: #B85C50;
+  --error-icon: #b85c50;
   --warning-bg: #fffbeb;
   --warning-text: #92400e;
   --warning-border: #fde68a;
@@ -66,14 +66,14 @@
   --shadow-color: rgb(0 0 0 / 30%);
   --arrived-bg: rgba(138, 187, 154, 0.08);
   --arrived-bg-hover: rgba(138, 187, 154, 0.14);
-  --arrived-text: #8ABB9A;
+  --arrived-text: #8abb9a;
   --arrived-badge-bg: rgba(138, 187, 154, 0.12);
-  --arrived-badge-text: #8ABB9A;
-  --arrived-check: #8ABB9A;
+  --arrived-badge-text: #8abb9a;
+  --arrived-check: #8abb9a;
   --error-bg: rgba(212, 137, 126, 0.1);
-  --error-text: #D4897E;
+  --error-text: #d4897e;
   --error-border: rgba(212, 137, 126, 0.18);
-  --error-icon: #D4897E;
+  --error-icon: #d4897e;
   --warning-bg: rgba(245, 158, 11, 0.1);
   --warning-text: #fbbf24;
   --warning-border: rgba(245, 158, 11, 0.2);
@@ -179,15 +179,35 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  h1, h2, h3 {
+  h1,
+  h2,
+  h3 {
     font-family: var(--font-serif);
     letter-spacing: -0.025em;
+  }
+
+  /* Prevent iOS double-tap zoom */
+  * {
+    touch-action: manipulation;
+  }
+
+  /* Prevent iOS input zoom (requires >= 16px) */
+  input,
+  select,
+  textarea {
+    font-size: 16px;
   }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(5px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Hide scrollbar but keep scroll */

@@ -12,13 +12,13 @@ const { title } = Astro.props;
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
     <script is:inline>
-      (function() {
-        if (localStorage.getItem('pulpo_agenda_theme') === 'dark') {
-          document.documentElement.classList.add('dark');
+      (function () {
+        if (localStorage.getItem("pulpo_agenda_theme") === "dark") {
+          document.documentElement.classList.add("dark");
         }
       })();
     </script>
