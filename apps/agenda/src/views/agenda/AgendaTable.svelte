@@ -1,6 +1,7 @@
 <script lang="ts">
   import {
     Check,
+    X,
     RefreshCw,
     ChevronRight,
     Sun,
@@ -32,6 +33,18 @@
 
   // Turns sortiert nach Startzeit für Tab-Reihenfolge
   $: sortedTurns = [...turns].sort((a, b) => a.start.localeCompare(b.start));
+
+  // --- Aktuelle Uhrzeit (für No-Show Erkennung) ---
+  let now = new Date();
+  const nowInterval = setInterval(() => (now = new Date()), 60_000);
+
+  function isOverdue(res: Reservation): boolean {
+    if (res.arrived) return false;
+    const today = now.toISOString().substring(0, 10);
+    if (dateStr > today) return false;
+    if (dateStr < today) return true;
+    return res.time.substring(0, 5) < now.toTimeString().substring(0, 5);
+  }
 
   // --- Turn-Farbe ermitteln ---
   function getTurnColor(time: string): string | null {
@@ -71,6 +84,7 @@
 
   onDestroy(() => {
     if (tapTimer) clearTimeout(tapTimer);
+    clearInterval(nowInterval);
   });
 
   // --- Settings Dropdown ---
@@ -165,14 +179,12 @@
     <div class="flex-1 min-h-0 overflow-y-auto md:hidden">
       {#each reservations as res (res.id)}
         {@const turnColor = getTurnColor(res.time)}
+        {@const overdue = isOverdue(res)}
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div
           on:click={() => handleRowClick(res)}
           on:keydown={() => {}}
-          class={clsx(
-            "flex items-center gap-2.5 px-3 py-2 border-b border-border-light active:bg-surface-alt cursor-pointer select-none",
-            res.arrived && "bg-arrived-bg",
-          )}
+          class="flex items-center gap-2.5 px-3 py-2 border-b border-border-light active:bg-surface-alt cursor-pointer select-none"
         >
           <!-- Turn Color Dot -->
           <div
@@ -185,14 +197,18 @@
 
           <!-- Time Badge -->
           <div
-            class={clsx(
-              "shrink-0 w-12 text-center py-1 rounded text-xs font-bold",
-              res.arrived
-                ? "bg-arrived-badge-bg text-arrived-badge-text"
-                : "bg-surface-alt text-fg-secondary",
-            )}
+            class="shrink-0 w-12 text-center py-1 rounded text-xs font-bold bg-surface-alt text-fg-secondary"
           >
             {res.time.substring(0, 5)}
+          </div>
+
+          <!-- Status Icon -->
+          <div class="shrink-0 w-4 flex items-center justify-center">
+            {#if res.arrived}
+              <Check size={14} class="text-arrived-check" strokeWidth={3} />
+            {:else if overdue}
+              <X size={14} class="text-error-icon" strokeWidth={3} />
+            {/if}
           </div>
 
           <!-- Main Content -->
@@ -201,18 +217,15 @@
               <span
                 class={clsx(
                   "font-medium text-sm truncate",
-                  res.arrived ? "text-arrived-text" : "text-fg",
+                  res.arrived
+                    ? "text-arrived-text"
+                    : overdue
+                      ? "text-error-icon"
+                      : "text-fg",
                 )}
               >
                 {res.name}
               </span>
-              {#if res.arrived}
-                <Check
-                  size={14}
-                  class="text-arrived-check shrink-0"
-                  strokeWidth={3}
-                />
-              {/if}
               <span class="text-xs text-fg-muted"
                 >({res.person_count || "-"})</span
               >
@@ -264,6 +277,7 @@
               <th class="pl-4 pr-1 py-2.5 font-normal w-8"></th>
               <th class="px-3 py-2.5 font-normal w-16">Hora</th>
               <th class="px-3 py-2.5 font-normal w-12 text-center">Pax</th>
+              <th class="px-1 py-2.5 font-normal w-8"></th>
               <th class="px-4 py-2.5 font-normal">Nombre</th>
               <th class="px-4 py-2.5 font-normal">Contacto</th>
               <th class="px-4 py-2.5 font-normal">Notas</th>
@@ -279,16 +293,12 @@
           <tbody class="divide-y divide-border-light">
             {#each reservations as res (res.id)}
               {@const turnColor = getTurnColor(res.time)}
+              {@const overdue = isOverdue(res)}
               <!-- svelte-ignore a11y_no_static_element_interactions -->
               <tr
                 on:click={() => handleRowClick(res)}
                 on:keydown={() => {}}
-                class={clsx(
-                  "group transition-colors cursor-pointer select-none",
-                  res.arrived
-                    ? "bg-arrived-bg hover:bg-arrived-bg-hover"
-                    : "hover:bg-surface-hover",
-                )}
+                class="group transition-colors cursor-pointer select-none hover:bg-surface-hover"
               >
                 <td class="pl-4 pr-1 py-2 w-8">
                   <div
@@ -309,23 +319,33 @@
                 >
                   {res.person_count || "-"}
                 </td>
+                <td class="px-1 py-2 w-8 text-center">
+                  {#if res.arrived}
+                    <Check
+                      size={14}
+                      class="text-arrived-check inline-block"
+                      strokeWidth={3}
+                    />
+                  {:else if overdue}
+                    <X
+                      size={14}
+                      class="text-error-icon inline-block"
+                      strokeWidth={3}
+                    />
+                  {/if}
+                </td>
                 <td class="px-4 py-2">
-                  <span class="inline-flex items-center gap-1.5">
-                    <span
-                      class={clsx(
-                        "font-medium text-sm",
-                        res.arrived ? "text-arrived-text" : "text-fg",
-                      )}
-                    >
-                      {res.name}
-                    </span>
-                    {#if res.arrived}
-                      <Check
-                        size={14}
-                        class="text-arrived-check shrink-0"
-                        strokeWidth={3}
-                      />
-                    {/if}
+                  <span
+                    class={clsx(
+                      "font-medium text-sm",
+                      res.arrived
+                        ? "text-arrived-text"
+                        : overdue
+                          ? "text-error-icon"
+                          : "text-fg",
+                    )}
+                  >
+                    {res.name}
                   </span>
                 </td>
                 <td class="px-4 py-2 text-fg-muted text-sm"
