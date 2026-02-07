@@ -41,8 +41,8 @@
   --picker-selected-text: #ffffff;
   --picker-selected-shadow: rgba(26, 32, 44, 0.25);
   --picker-outside: #d1d5db;
-  --picker-today-border: #3b82f6;
-  --picker-today-text: #3b82f6;
+  --picker-today-border: #c2b280;
+  --picker-today-text: #c2b280;
   /* Buttons */
   --btn-primary-bg: #1a202c;
   --btn-primary-text: #ffffff;
@@ -93,8 +93,8 @@
   --picker-selected-text: #000000;
   --picker-selected-shadow: rgba(255, 255, 255, 0.3);
   --picker-outside: #4b5563;
-  --picker-today-border: #3b82f6;
-  --picker-today-text: #60a5fa;
+  --picker-today-border: #c2b280;
+  --picker-today-text: #d4c694;
   /* Buttons */
   --btn-primary-bg: #e2e8f0;
   --btn-primary-text: #0f172a;
