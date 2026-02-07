@@ -188,7 +188,9 @@
         </div>
 
         {#if turns.length > 0}
-          <div class="flex flex-wrap justify-center gap-1.5">
+          <div
+            class="grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] gap-1.5"
+          >
             {#each turns as turn}
               <button
                 type="button"
