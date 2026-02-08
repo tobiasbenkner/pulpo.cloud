@@ -1,10 +1,8 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
-  import { writable, derived, get } from "svelte/store";
   import { format } from "date-fns";
   import { directus } from "../../lib/directus";
   import { readItems, updateItem } from "@directus/sdk";
-  import { useDirectusRealtime, SessionExpiredError } from "../../hooks/useDirectusRealtime";
   import {
     loadTurns as loadCachedTurns,
     fetchTurns,
@@ -16,50 +14,45 @@
   import { slide } from "svelte/transition";
   import { CircleAlert, WifiOff, X } from "lucide-svelte";
 
-  // --- CONSTANTS ---
+  const POLL_INTERVAL = 3000;
   const STORAGE_KEY_SHOW_ARRIVED = "pulpo_agenda_show_arrived";
   const STORAGE_KEY_VIEW_MODE = "pulpo_agenda_view_mode";
 
   // --- URL PARAMS ---
   const urlParams = new URLSearchParams(window.location.search);
-  const initialDate = urlParams.get("date") || format(new Date(), "yyyy-MM-dd");
 
-  // --- STORES ---
-  const date = writable(initialDate);
-  const reservations = writable<Reservation[]>([]);
-  const loading = writable(true);
-  const isRefetching = writable(false);
-  const error = writable<string | null>(null);
-  const isOnline = writable(navigator.onLine);
+  // --- STATE ---
+  let date = urlParams.get("date") || format(new Date(), "yyyy-MM-dd");
+  let reservations: Reservation[] = [];
+  let loading = true;
+  let isRefetching = false;
+  let error: string | null = null;
+  let isOnline = navigator.onLine;
+  let turns: ReservationTurn[] = [];
+  let selectedTurn: string | null = null;
+  let abortController: AbortController | null = null;
+  let pollInterval: ReturnType<typeof setInterval> | null = null;
 
-  // Settings Stores mit LocalStorage Persistenz
-  const showArrived = writable(true);
+  // Settings with localStorage persistence
+  let showArrived = true;
   try {
     const saved = localStorage.getItem(STORAGE_KEY_SHOW_ARRIVED);
-    if (saved !== null) showArrived.set(saved === "true");
-  } catch (e) {
-    console.warn("LocalStorage nicht verfügbar", e);
-  }
-  const unsubShowArrived = showArrived.subscribe((val) => {
-    try {
-      localStorage.setItem(STORAGE_KEY_SHOW_ARRIVED, String(val));
-    } catch (e) {}
-  });
+    if (saved !== null) showArrived = saved === "true";
+  } catch {}
 
-  // View Mode: "all" (flat list) oder "tabs" (grouped by turn)
-  const viewMode = writable<"all" | "tabs">("all");
+  let viewMode: "all" | "tabs" = "all";
   try {
     const saved = localStorage.getItem(STORAGE_KEY_VIEW_MODE);
-    if (saved === "all" || saved === "tabs") viewMode.set(saved);
-  } catch (e) {}
-  const unsubViewMode = viewMode.subscribe((val) => {
-    try {
-      localStorage.setItem(STORAGE_KEY_VIEW_MODE, val);
-    } catch (e) {}
-  });
+    if (saved === "all" || saved === "tabs") viewMode = saved;
+  } catch {}
 
-  // Selected turn for tab filtering (not persisted)
-  const selectedTurn = writable<string | null>(null);
+  // Persist settings on change
+  $: try {
+    localStorage.setItem(STORAGE_KEY_SHOW_ARRIVED, String(showArrived));
+  } catch {}
+  $: try {
+    localStorage.setItem(STORAGE_KEY_VIEW_MODE, viewMode);
+  } catch {}
 
   // --- TURN MATCHING ---
   function getTurnForTime(
@@ -79,28 +72,19 @@
     return null;
   }
 
-  // Derived Store für gefilterte & sortierte Reservierungen
-  const filteredReservations = derived(
-    [reservations, showArrived, viewMode, selectedTurn],
-    ([$reservations, $showArrived, $viewMode, $selectedTurn]) => {
-      return $reservations
-        .filter((r) => ($showArrived ? true : !r.arrived))
-        .filter((r) => {
-          if ($viewMode !== "tabs" || $selectedTurn === null) return true;
-          const turn = getTurnForTime(r.time, turns);
-          return turn?.id === $selectedTurn;
-        })
-        .sort((a, b) => {
-          const timeCompare = a.time.localeCompare(b.time);
-          if (timeCompare !== 0) return timeCompare;
-          return a.name.localeCompare(b.name);
-        });
-    },
-  );
-
-  // --- INTERNAL STATE ---
-  let abortController: AbortController | null = null;
-  let turns: ReservationTurn[] = [];
+  // Filtered & sorted reservations (reactive)
+  $: filteredReservations = reservations
+    .filter((r) => (showArrived ? true : !r.arrived))
+    .filter((r) => {
+      if (viewMode !== "tabs" || selectedTurn === null) return true;
+      const turn = getTurnForTime(r.time, turns);
+      return turn?.id === selectedTurn;
+    })
+    .sort((a, b) => {
+      const timeCompare = a.time.localeCompare(b.time);
+      if (timeCompare !== 0) return timeCompare;
+      return a.name.localeCompare(b.name);
+    });
 
   // --- TURNS (cached) ---
   function initTurns() {
@@ -119,153 +103,86 @@
       .catch(() => {});
   }
 
-  // --- REALTIME HOOK ---
-  const realtime = useDirectusRealtime<Reservation>({
-    collection: "reservations",
-    onMessage: (message) => {
-      if (!message.event || !message.data) {
-        return;
-      }
+  // --- POLLING ---
+  function startPolling() {
+    stopPolling();
+    pollInterval = setInterval(() => fetchData(true), POLL_INTERVAL);
+  }
 
-      if (
-        message.event !== "create" &&
-        message.event !== "update" &&
-        message.event !== "delete"
-      ) {
-        return;
-      }
-
-      const items = Array.isArray(message.data) ? message.data : [message.data];
-      const currentDate = get(date);
-      const currentReservations = get(reservations);
-
-      console.log("[Agenda] Event:", message.event, "Items:", items);
-
-      const isRelevant = items.some((item) => {
-        if (!item) return false;
-        const isDelete = message.event === "delete";
-
-        const itemId = isDelete ? item : item.id;
-        const itemDate = isDelete ? null : item.date;
-
-        const wasInList = currentReservations.some((r) => r.id === itemId);
-        const matchesDate = itemDate === currentDate;
-
-        return matchesDate || wasInList;
-      });
-
-      if (isRelevant) {
-        fetchData(true);
-      }
-    },
-    onConnect: () => {
-      console.log("[Agenda] Realtime verbunden");
-    },
-    onDisconnect: () => {
-      console.log("[Agenda] Realtime getrennt");
-    },
-    onError: (err) => {
-      console.error("[Agenda] Realtime Fehler:", err);
-      if (err instanceof SessionExpiredError) {
-        window.location.href = "/login";
-      }
-    },
-    onResume: () => {
-      // Daten synchronisieren bei: Tab-Rückkehr, Internet zurück
-      fetchData(true);
-    },
-    autoReconnect: true,
-    reconnectInterval: 2000,
-    maxReconnectAttempts: 20,
-  });
-
-  // Realtime State Store extrahieren
-  const realtimeState = realtime.state;
-
-  // Verbindungsstatus aus Realtime-State ableiten
-  $: if (!$realtimeState.connected && $realtimeState.error) {
-    // Nur Offline setzen wenn es ein Netzwerkproblem ist
-    if (!navigator.onLine) {
-      isOnline.set(false);
+  function stopPolling() {
+    if (pollInterval) {
+      clearInterval(pollInterval);
+      pollInterval = null;
     }
   }
 
-  // --- DATA FETCHING (REST) ---
+  // --- DATA FETCHING ---
   async function fetchData(silent = false) {
-    if (!get(isOnline)) {
-      if (!silent) loading.set(false);
+    if (!isOnline) {
+      if (!silent) loading = false;
       return;
     }
 
-    const currentDate = get(date);
-
-    // Race Condition Prevention
     if (abortController) abortController.abort();
     abortController = new AbortController();
     const signal = abortController.signal;
 
-    if (!silent) loading.set(true);
-    else isRefetching.set(true);
+    if (!silent) loading = true;
+    else isRefetching = true;
 
-    error.set(null);
+    error = null;
 
     try {
       const result = await directus.request(
         readItems("reservations", {
-          filter: { date: { _eq: currentDate } },
+          filter: { date: { _eq: date } },
           sort: ["time", "name"],
           fields: ["*", "user.*", "user.avatar.*"],
         }),
       );
 
       if (signal.aborted) return;
-
-      reservations.set(result as Reservation[]);
+      reservations = result as Reservation[];
     } catch (e: any) {
       if (signal.aborted) return;
-
       console.error(e);
-      if (!navigator.onLine) isOnline.set(false);
-      else error.set("No se pudieron cargar los datos.");
+      if (!navigator.onLine) isOnline = false;
+      else error = "No se pudieron cargar los datos.";
     } finally {
       if (!signal.aborted) {
-        loading.set(false);
-        isRefetching.set(false);
+        loading = false;
+        isRefetching = false;
       }
     }
   }
 
   // --- ACTIONS ---
   function setDate(newDate: string) {
-    if (newDate === get(date)) return;
+    if (newDate === date) return;
 
-    date.set(newDate);
-    reservations.set([]);
-    loading.set(true);
+    date = newDate;
+    reservations = [];
+    loading = true;
 
-    // URL im Browser ändern
     const url = new URL(window.location.href);
     url.searchParams.set("date", newDate);
     window.history.pushState({}, "", url);
 
-    // Daten für neues Datum laden
     fetchData();
   }
 
   async function toggleArrived(reservation: Reservation) {
-    if (!get(isOnline)) {
-      error.set("Sin conexión: no se puede realizar el cambio.");
-      setTimeout(() => error.set(null), 3000);
+    if (!isOnline) {
+      error = "Sin conexión: no se puede realizar el cambio.";
+      setTimeout(() => (error = null), 3000);
       return;
     }
 
     const newState = !reservation.arrived;
 
     // Optimistic Update
-    reservations.update((all) =>
-      all.map((r) =>
-        r.id === reservation.id ? { ...r, arrived: newState } : r,
-      ),
+    reservations = reservations.map((r) =>
+      r.id === reservation.id ? { ...r, arrived: newState } : r,
     );
 
     try {
@@ -273,60 +190,61 @@
         updateItem("reservations", reservation.id, { arrived: newState }),
       );
     } catch (e) {
-      // Rollback bei Fehler
-      reservations.update((all) =>
-        all.map((r) =>
-          r.id === reservation.id ? { ...r, arrived: !newState } : r,
-        ),
+      // Rollback
+      reservations = reservations.map((r) =>
+        r.id === reservation.id ? { ...r, arrived: !newState } : r,
       );
-      error.set("No se pudo guardar el estado.");
-      setTimeout(() => error.set(null), 3000);
+      error = "No se pudo guardar el estado.";
+      setTimeout(() => (error = null), 3000);
     }
   }
 
   // --- EVENT HANDLERS ---
   function handlePopState() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const urlDate = urlParams.get("date");
-    if (urlDate && urlDate !== get(date)) {
-      date.set(urlDate);
-      reservations.set([]);
-      loading.set(true);
+    const params = new URLSearchParams(window.location.search);
+    const urlDate = params.get("date");
+    if (urlDate && urlDate !== date) {
+      date = urlDate;
+      reservations = [];
+      loading = true;
       fetchData();
     }
   }
 
   function handleOnlineStatus() {
-    const online = navigator.onLine;
-    isOnline.set(online);
-    if (online) {
-      error.set(null);
+    isOnline = navigator.onLine;
+    if (isOnline) error = null;
+  }
+
+  function handleVisibilityChange() {
+    if (document.visibilityState === "visible") {
+      fetchData(true);
+      startPolling();
+    } else {
+      stopPolling();
     }
   }
 
   // --- LIFECYCLE ---
   onMount(() => {
-    // Initial fetch
     fetchData();
-
-    // Turns laden (mit localStorage Cache)
     initTurns();
+    startPolling();
 
-    // Browser Events (popstate für URL-History, online/offline für UI-State)
-    // Visibility und Reconnect-Fetches werden vom Hook via onResume gehandhabt
     window.addEventListener("popstate", handlePopState);
     window.addEventListener("online", handleOnlineStatus);
     window.addEventListener("offline", handleOnlineStatus);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
   });
 
   onDestroy(() => {
+    stopPolling();
     if (abortController) abortController.abort();
-    unsubShowArrived();
-    unsubViewMode();
 
     window.removeEventListener("popstate", handlePopState);
     window.removeEventListener("online", handleOnlineStatus);
     window.removeEventListener("offline", handleOnlineStatus);
+    document.removeEventListener("visibilitychange", handleVisibilityChange);
   });
 </script>
 
@@ -336,14 +254,14 @@
     class="shrink-0 bg-surface px-3 md:px-8 pt-4 md:pt-8 pb-3 md:pb-4 space-y-3 md:space-y-4"
   >
     <AgendaHeader
-      dateStr={$date}
+      dateStr={date}
       onDateChange={(newDate) => setDate(newDate)}
-      showArrived={$showArrived}
-      isRefetching={$isRefetching}
-      onToggleFilter={() => ($showArrived = !$showArrived)}
+      {showArrived}
+      {isRefetching}
+      onToggleFilter={() => (showArrived = !showArrived)}
     />
 
-    {#if !$isOnline}
+    {#if !isOnline}
       <div
         transition:slide={{ axis: "y", duration: 300 }}
         class="rounded-md border border-warning-border bg-warning-bg p-4 flex items-center gap-3 shadow-sm max-w-7xl mx-auto"
@@ -364,7 +282,7 @@
       </div>
     {/if}
 
-    {#if $error}
+    {#if error}
       <div
         transition:slide={{ axis: "y", duration: 300 }}
         class="rounded-md border border-error-border bg-error-bg p-4 flex items-start gap-3 shadow-sm backdrop-blur-sm max-w-7xl mx-auto"
@@ -373,12 +291,12 @@
         <div class="flex-1">
           <h3 class="text-sm font-medium text-error-text">Aviso</h3>
           <p class="text-sm text-error-text/90 mt-0.5 leading-relaxed">
-            {$error}
+            {error}
           </p>
         </div>
 
         <button
-          on:click={() => ($error = null)}
+          on:click={() => (error = null)}
           class="text-error-text hover:text-error-icon transition-colors p-1"
           aria-label="Cerrar"
         >
@@ -391,19 +309,18 @@
   <!-- Scrollable Table Section -->
   <div class="flex-1 min-h-0 px-0 md:px-8 pb-0 md:pb-4">
     <AgendaTable
-      reservations={$filteredReservations}
-      loading={$loading}
-      isRefetching={$isRefetching}
-      showArrived={$showArrived}
-      dateStr={$date}
+      reservations={filteredReservations}
+      {loading}
+      {isRefetching}
+      {showArrived}
+      dateStr={date}
       {turns}
-      viewMode={$viewMode}
-      selectedTurn={$selectedTurn}
-      onSelectTurn={(turnId) => ($selectedTurn = turnId)}
-      onToggleViewMode={() =>
-        ($viewMode = $viewMode === "all" ? "tabs" : "all")}
+      {viewMode}
+      {selectedTurn}
+      onSelectTurn={(turnId) => (selectedTurn = turnId)}
+      onToggleViewMode={() => (viewMode = viewMode === "all" ? "tabs" : "all")}
       onRefreshTurns={refreshTurns}
-      onToggleFilter={() => ($showArrived = !$showArrived)}
+      onToggleFilter={() => (showArrived = !showArrived)}
       onToggleArrived={(res) => toggleArrived(res)}
     />
   </div>

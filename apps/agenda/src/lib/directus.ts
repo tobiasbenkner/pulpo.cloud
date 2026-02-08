@@ -1,7 +1,6 @@
 import {
   createDirectus,
   rest,
-  realtime,
   authentication,
   type AuthenticationData,
 } from "@directus/sdk";
@@ -45,10 +44,5 @@ export const directus = createDirectus(DIRECTUS_URL)
   .with(
     rest({
       credentials: "include",
-    }),
-  )
-  .with(
-    realtime({
-      authMode: "handshake",
     }),
   );
