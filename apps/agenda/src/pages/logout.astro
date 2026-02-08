@@ -1,6 +1,8 @@
 ---
+import { Image } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
 import LogoutView from '../components/LogoutView.svelte';
+import logo from '../assets/logo.webp';
 ---
 
 <Layout title="Cerrar sesión | Pulpo Agenda">
@@ -11,9 +13,7 @@ import LogoutView from '../components/LogoutView.svelte';
 
     <!-- Logo -->
     <div class="mb-8 z-10">
-       <div class="w-12 h-12 bg-primary text-white flex items-center justify-center font-serif text-2xl rounded-sm shadow-lg">
-         P
-       </div>
+      <Image src={logo} alt="Pulpo" width={96} height={96} class="rounded-2xl shadow-lg ring-4 ring-border-light" />
     </div>
 
     <!-- Logout Komponente -->

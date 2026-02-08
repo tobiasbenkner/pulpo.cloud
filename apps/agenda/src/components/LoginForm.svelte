@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { directus, isTokenExpired } from "../lib/directus";
+  import { directus, getStoredToken, isTokenExpired } from "../lib/directus";
   import { authStore } from "../stores/userStore";
   import { AlertCircle, ArrowRight, Loader2 } from "lucide-svelte";
 
@@ -11,6 +11,12 @@
   let checking = true;
 
   onMount(async () => {
+    const stored = getStoredToken();
+    if (!stored?.refresh_token) {
+      checking = false;
+      return;
+    }
+
     if (!isTokenExpired()) {
       window.location.href = "/";
       return;
@@ -53,14 +59,14 @@
   </div>
 {:else}
 <div
-  class="w-full max-w-md bg-surface p-8 md:p-12 shadow-sm border border-border-light rounded-lg"
+  class="w-full max-w-md bg-surface p-6 md:p-12 shadow-sm border border-border-light rounded-lg"
 >
-  <div class="text-center mb-10">
-    <h1 class="text-3xl font-serif text-fg mb-2">Bienvenido</h1>
-    <p class="text-fg-muted font-light">Ingrese a su cuenta Pulpo</p>
+  <div class="text-center mb-6 md:mb-10">
+    <h1 class="text-2xl md:text-3xl font-serif text-fg mb-1">Bienvenido</h1>
+    <p class="text-fg-muted font-light text-sm">Ingrese a su cuenta Pulpo</p>
   </div>
 
-  <form on:submit|preventDefault={handleLogin} class="space-y-6">
+  <form on:submit|preventDefault={handleLogin} class="space-y-4 md:space-y-6">
     {#if error}
       <div
         class="bg-error-bg text-error-text px-4 py-3 rounded-sm text-sm flex items-start gap-3 border border-error-border animate-fade-in"
@@ -75,7 +81,7 @@
         for="email"
         class="block text-sm font-medium text-fg-secondary uppercase tracking-wide text-xs"
       >
-        Email Corporativo
+        E-Mail
       </label>
       <input
         id="email"
@@ -83,7 +89,7 @@
         bind:value={email}
         required
         autocomplete="email"
-        placeholder="nombre@pulpo.cloud"
+        placeholder=""
         class="w-full px-4 py-3 bg-input-bg border border-border-default rounded-sm text-fg placeholder-fg-muted focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all hover:bg-surface"
       />
     </div>
@@ -101,7 +107,7 @@
         bind:value={password}
         required
         autocomplete="current-password"
-        placeholder="••••••••"
+        placeholder=""
         class="w-full px-4 py-3 bg-input-bg border border-border-default rounded-sm text-fg placeholder-fg-muted focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all hover:bg-surface"
       />
     </div>
@@ -121,12 +127,19 @@
     </button>
   </form>
 
-  <div class="mt-8 text-center border-t border-border-light pt-6">
+  <div class="mt-6 md:mt-8 text-center border-t border-border-light pt-4 md:pt-6 space-y-2">
     <p class="text-sm text-fg-muted">
-      ¿Olvidó su contraseña?
       <a
-        href="#"
+        href="/forgot-password"
         class="text-secondary hover:underline decoration-secondary underline-offset-4"
+      >
+        ¿Olvidó su contraseña?
+      </a>
+    </p>
+    <p class="text-sm text-fg-muted">
+      <a
+        href="/support"
+        class="text-fg-muted hover:text-fg-secondary hover:underline underline-offset-4 transition-colors"
       >
         Contactar Soporte
       </a>
