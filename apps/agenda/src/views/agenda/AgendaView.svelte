@@ -2,7 +2,7 @@
   import { onMount, onDestroy } from "svelte";
   import { format } from "date-fns";
   import { directus } from "../../lib/directus";
-  import { readItems, updateItem } from "@directus/sdk";
+  import { readItems, updateItem, withOptions } from "@directus/sdk";
   import {
     loadTurns as loadCachedTurns,
     fetchTurns,
@@ -25,13 +25,14 @@
   let date = urlParams.get("date") || format(new Date(), "yyyy-MM-dd");
   let reservations: Reservation[] = [];
   let loading = true;
-  let isRefetching = false;
+  let isRefetching = true;
   let error: string | null = null;
   let isOnline = navigator.onLine;
   let turns: ReservationTurn[] = [];
   let selectedTurn: string | null = null;
   let abortController: AbortController | null = null;
-  let pollInterval: ReturnType<typeof setInterval> | null = null;
+  let pollTimeout: ReturnType<typeof setTimeout> | null = null;
+  let polling = false;
 
   // Settings with localStorage persistence
   let showArrived = true;
@@ -105,15 +106,24 @@
 
   // --- POLLING ---
   function startPolling() {
-    stopPolling();
-    pollInterval = setInterval(() => fetchData(true), POLL_INTERVAL);
+    polling = true;
+    scheduleNext();
   }
 
   function stopPolling() {
-    if (pollInterval) {
-      clearInterval(pollInterval);
-      pollInterval = null;
+    polling = false;
+    if (pollTimeout) {
+      clearTimeout(pollTimeout);
+      pollTimeout = null;
     }
+  }
+
+  function scheduleNext() {
+    if (!polling) return;
+    pollTimeout = setTimeout(async () => {
+      await fetchData(true);
+      scheduleNext();
+    }, POLL_INTERVAL);
   }
 
   // --- DATA FETCHING ---
@@ -128,21 +138,26 @@
     const signal = abortController.signal;
 
     if (!silent) loading = true;
-    else isRefetching = true;
 
     error = null;
 
     try {
       const result = await directus.request(
-        readItems("reservations", {
-          filter: { date: { _eq: date } },
-          sort: ["time", "name"],
-          fields: ["*", "user.*", "user.avatar.*"],
-        }),
+        withOptions(
+          readItems("reservations", {
+            filter: { date: { _eq: date } },
+            sort: ["time", "name"],
+            fields: ["*", "user.*", "user.avatar.*"],
+          }),
+          { signal },
+        ),
       );
 
       if (signal.aborted) return;
-      reservations = result as Reservation[];
+      const newData = result as Reservation[];
+      if (JSON.stringify(newData) !== JSON.stringify(reservations)) {
+        reservations = newData;
+      }
     } catch (e: any) {
       if (signal.aborted) return;
       console.error(e);
@@ -239,7 +254,7 @@
 
   onDestroy(() => {
     stopPolling();
-    if (abortController) abortController.abort();
+    abortController?.abort();
 
     window.removeEventListener("popstate", handlePopState);
     window.removeEventListener("online", handleOnlineStatus);
