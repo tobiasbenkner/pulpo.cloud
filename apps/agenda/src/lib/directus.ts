@@ -6,7 +6,7 @@ import {
 } from "@directus/sdk";
 import { DIRECTUS_URL, TOKEN_KEY } from "../config";
 
-function getStoredToken() {
+export function getStoredToken() {
   if (typeof window === "undefined") return null;
   try {
     const stored = localStorage.getItem(TOKEN_KEY);
@@ -30,19 +30,20 @@ function storeToken(data: AuthenticationData | null) {
   }
 }
 
+export function isTokenExpired(bufferMs = 30_000) {
+  const auth = getStoredToken();
+  if (!auth?.expires_at) return true;
+  return auth.expires_at < Date.now() + bufferMs;
+}
+
 export const directus = createDirectus(DIRECTUS_URL)
   .with(
     authentication("json", {
       autoRefresh: true,
-      credentials: "include",
       storage: {
         get: () => getStoredToken(),
         set: (data) => storeToken(data),
       },
     }),
   )
-  .with(
-    rest({
-      credentials: "include",
-    }),
-  );
+  .with(rest());

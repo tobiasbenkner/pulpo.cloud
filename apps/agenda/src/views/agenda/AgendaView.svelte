@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
   import { format } from "date-fns";
-  import { directus } from "../../lib/directus";
+  import { directus, isTokenExpired } from "../../lib/directus";
   import { readItems, updateItem, withOptions } from "@directus/sdk";
   import {
     loadTurns as loadCachedTurns,
@@ -245,8 +245,19 @@
     if (isOnline) error = null;
   }
 
-  function handleVisibilityChange() {
+  async function handleVisibilityChange() {
     if (document.visibilityState === "visible") {
+      if (abortController) abortController.abort();
+
+      if (isTokenExpired()) {
+        try {
+          await directus.refresh();
+        } catch {
+          // Network error or invalid token — don't redirect,
+          // let fetchData handle it and show error to user
+        }
+      }
+
       fetchData(true);
       startPolling();
     } else {

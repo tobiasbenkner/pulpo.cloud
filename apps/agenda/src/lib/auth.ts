@@ -1,14 +1,16 @@
-import { directus } from "./directus";
-
-const TOKEN_KEY = "directus_auth";
+import { directus, getStoredToken, isTokenExpired } from "./directus";
+import { TOKEN_KEY } from "../config";
 
 export async function checkAuthentication(): Promise<{
   isAuthenticated: boolean;
 }> {
-  // Prüfe ob Token vorhanden ist
-  const stored = localStorage.getItem(TOKEN_KEY);
+  const stored = getStoredToken();
   if (!stored) {
     throw new Error("Not authenticated");
+  }
+
+  if (!isTokenExpired()) {
+    return { isAuthenticated: true };
   }
 
   // Erster Versuch
