@@ -122,11 +122,6 @@
   // --- REALTIME HOOK ---
   const realtime = useDirectusRealtime<Reservation>({
     collection: "reservations",
-    query: {
-      // Nur IDs im init-Event laden — die echten Daten kommen per REST
-      fields: ["id"],
-      limit: 1,
-    },
     onMessage: (message) => {
       if (!message.event || !message.data) {
         return;
