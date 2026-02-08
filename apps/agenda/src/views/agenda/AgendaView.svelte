@@ -33,6 +33,7 @@
   let abortController: AbortController | null = null;
   let pollTimeout: ReturnType<typeof setTimeout> | null = null;
   let polling = false;
+  let pollGeneration = 0;
 
   // Settings with localStorage persistence
   let showArrived = true;
@@ -118,11 +119,20 @@
     }
   }
 
+  function resetPolling() {
+    if (!polling) return;
+    pollGeneration++;
+    if (pollTimeout) clearTimeout(pollTimeout);
+    if (abortController) abortController.abort();
+    scheduleNext();
+  }
+
   function scheduleNext() {
     if (!polling) return;
+    const gen = pollGeneration;
     pollTimeout = setTimeout(async () => {
       await fetchData(true);
-      scheduleNext();
+      if (gen === pollGeneration) scheduleNext();
     }, POLL_INTERVAL);
   }
 
@@ -195,6 +205,9 @@
     }
 
     const newState = !reservation.arrived;
+
+    // Reset polling to prevent stale data from overwriting optimistic update
+    resetPolling();
 
     // Optimistic Update
     reservations = reservations.map((r) =>
