@@ -1,0 +1,9 @@
+{
+  "name": "@pulpo/directus",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@timio23/directus-group-tabs": "latest",
+    "@directus-labs/seo-plugin": "latest"
+  }
+}
