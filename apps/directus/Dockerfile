@@ -5,8 +5,8 @@ COPY package.json /directus/extensions/package.json
 RUN cd /directus/extensions && pnpm install --prod
 
 # Copy custom extension (pre-built)
-COPY extensions/image-compression/dist/ /directus/extensions/image-compression/dist/
-COPY extensions/image-compression/package.json /directus/extensions/image-compression/package.json
+# COPY extensions/image-compression/dist/ /directus/extensions/image-compression/dist/
+# COPY extensions/image-compression/package.json /directus/extensions/image-compression/package.json
 
 # Copy migrations
 COPY migrations/ /directus/extensions/migrations/

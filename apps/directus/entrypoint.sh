@@ -5,9 +5,9 @@ set -e
 npx directus bootstrap
 
 # Apply schema snapshot if present
-if [ -f /directus/snapshot/snapshot.yaml ]; then
+if [ -f /directus/snapshot/snapshot.json ]; then
   echo "Applying schema snapshot..."
-  npx directus schema apply --yes /directus/snapshot/snapshot.yaml
+  npx directus schema apply --yes /directus/snapshot/snapshot.json
 fi
 
 # Start Directus

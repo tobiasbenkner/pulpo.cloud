@@ -18,5 +18,6 @@ if [ -z "${DIRECTUS_URL:-}" ] || [ -z "${DIRECTUS_TOKEN:-}" ]; then
 fi
 
 echo "Pulling schema snapshot from $DIRECTUS_URL ..."
-curl -sf "$DIRECTUS_URL/schema/snapshot?access_token=$DIRECTUS_TOKEN" -o "$SNAPSHOT_DIR/snapshot.yaml"
-echo "Snapshot saved to snapshot/snapshot.yaml"
+curl -sf "$DIRECTUS_URL/schema/snapshot?access_token=$DIRECTUS_TOKEN" \
+  | jq '.data' > "$SNAPSHOT_DIR/snapshot.json"
+echo "Snapshot saved to snapshot/snapshot.json"
