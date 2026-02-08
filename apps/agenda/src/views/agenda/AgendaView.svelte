@@ -33,6 +33,8 @@
   let abortController: AbortController | null = null;
   let pollTimeout: ReturnType<typeof setTimeout> | null = null;
   let polling = false;
+  let changedIds: Set<string> = new Set();
+  let localIds: Set<string> = new Set();
 
   // Settings with localStorage persistence
   let showArrived = true;
@@ -155,7 +157,27 @@
 
       if (signal.aborted) return;
       const newData = result as Reservation[];
-      if (JSON.stringify(newData) !== JSON.stringify(reservations)) {
+      if (silent && reservations.length > 0) {
+        const oldMap = new Map(
+          reservations.map((r) => [r.id, JSON.stringify(r)]),
+        );
+        const ids = new Set<string>();
+        for (const r of newData) {
+          const old = oldMap.get(r.id);
+          if (
+            !localIds.has(r.id) &&
+            (old === undefined || old !== JSON.stringify(r))
+          )
+            ids.add(r.id);
+        }
+        if (ids.size > 0) {
+          changedIds = ids;
+          setTimeout(() => (changedIds = new Set()), 2000);
+        }
+        if (JSON.stringify(newData) !== JSON.stringify(reservations)) {
+          reservations = newData;
+        }
+      } else {
         reservations = newData;
       }
     } catch (e: any) {
@@ -194,6 +216,12 @@
     }
 
     const newState = !reservation.arrived;
+
+    localIds.add(reservation.id);
+    setTimeout(() => {
+      localIds.delete(reservation.id);
+      localIds = localIds;
+    }, POLL_INTERVAL + 1000);
 
     // Optimistic Update
     reservations = reservations.map((r) =>
@@ -332,6 +360,7 @@
       {turns}
       {viewMode}
       {selectedTurn}
+      {changedIds}
       onSelectTurn={(turnId) => (selectedTurn = turnId)}
       onToggleViewMode={() => (viewMode = viewMode === "all" ? "tabs" : "all")}
       onRefreshTurns={refreshTurns}

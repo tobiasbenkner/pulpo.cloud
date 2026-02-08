@@ -221,6 +221,15 @@
   }
 }
 
+@keyframes highlight {
+  0% {
+    background-color: color-mix(in srgb, var(--color-secondary) 25%, transparent);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
 /* Hide scrollbar but keep scroll */
 .no-scrollbar {
   -ms-overflow-style: none;

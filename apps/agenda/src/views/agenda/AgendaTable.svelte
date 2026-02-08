@@ -13,6 +13,7 @@
   import type { Reservation, ReservationTurn } from "../../lib/types";
   import { clsx } from "clsx";
   import { onDestroy } from "svelte";
+  import { fade } from "svelte/transition";
   import { theme, toggleTheme } from "../../stores/themeStore";
 
   export let reservations: Reservation[];
@@ -22,6 +23,7 @@
   export let dateStr: string;
   export let turns: ReservationTurn[] = [];
 
+  export let changedIds: Set<string> = new Set();
   export let viewMode: "all" | "tabs" = "all";
   export let selectedTurn: string | null = null;
   export let onSelectTurn: (turnId: string | null) => void = () => {};
@@ -33,6 +35,19 @@
 
   // Turns sortiert nach Startzeit für Tab-Reihenfolge
   $: sortedTurns = [...turns].sort((a, b) => a.start.localeCompare(b.start));
+
+  // Fade bei Turn-/Viewmode-Wechsel unterdrücken
+  let skipFade = false;
+  let prevTurn = selectedTurn;
+  let prevViewMode = viewMode;
+  $: {
+    if (selectedTurn !== prevTurn || viewMode !== prevViewMode) {
+      skipFade = true;
+      prevTurn = selectedTurn;
+      prevViewMode = viewMode;
+      setTimeout(() => (skipFade = false), 50);
+    }
+  }
 
   // --- Aktuelle Uhrzeit (für No-Show Erkennung) ---
   let now = new Date();
@@ -185,9 +200,13 @@
         {@const overdue = isOverdue(res)}
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div
+          out:fade={{ duration: skipFade ? 0 : 2000 }}
           on:click={() => handleRowClick(res)}
           on:keydown={() => {}}
           class="flex items-center gap-2.5 px-3 py-2 border-b border-border-light active:bg-surface-alt cursor-pointer select-none"
+          style={changedIds.has(res.id)
+            ? "animation: highlight 2s ease-out"
+            : ""}
         >
           <!-- Turn Color Dot -->
           <div
@@ -308,9 +327,13 @@
               {@const overdue = isOverdue(res)}
               <!-- svelte-ignore a11y_no_static_element_interactions -->
               <tr
+                out:fade={{ duration: skipFade ? 0 : 2000 }}
                 on:click={() => handleRowClick(res)}
                 on:keydown={() => {}}
                 class="group transition-colors cursor-pointer select-none hover:bg-surface-hover"
+                style={changedIds.has(res.id)
+                  ? "animation: highlight 2s ease-out"
+                  : ""}
               >
                 <td class="pl-4 pr-1 py-2 w-8">
                   <div
