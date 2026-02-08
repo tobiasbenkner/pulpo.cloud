@@ -9,6 +9,7 @@
     LayoutList,
     Columns3,
     Settings,
+    LogOut,
   } from "lucide-svelte";
   import type { Reservation, ReservationTurn } from "../../lib/types";
   import { clsx } from "clsx";
@@ -484,6 +485,17 @@
             >
               <RefreshCw size={13} class="shrink-0 text-fg-muted" />
               <span>Actualizar turnos</span>
+            </button>
+            <div class="border-t border-border-light my-1"></div>
+            <button
+              on:click={() => {
+                settingsOpen = false;
+                window.location.href = "/logout";
+              }}
+              class="w-full flex items-center gap-2.5 px-3 py-2 text-left text-xs text-error-text hover:bg-surface-hover transition-colors"
+            >
+              <LogOut size={13} class="shrink-0" />
+              <span>Cerrar sesión</span>
             </button>
           </div>
         {/if}

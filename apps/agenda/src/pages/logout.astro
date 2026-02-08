@@ -1,7 +1,30 @@
 ---
-import LogoutView from "../components/LogoutView.svelte";
+import Layout from '../layouts/Layout.astro';
+import LogoutView from '../components/LogoutView.svelte';
 ---
 
-<div>
-  <LogoutView client:only="svelte" />
-</div>
+<Layout title="Cerrar sesión | Pulpo Agenda">
+  <div class="min-h-screen-safe flex flex-col justify-center items-center relative bg-surface overflow-hidden">
+
+    <!-- Dekorativer Hintergrund -->
+    <div class="absolute top-0 left-0 w-full h-64 bg-gradient-to-b from-surface-alt to-transparent opacity-50 pointer-events-none"></div>
+
+    <!-- Logo -->
+    <div class="mb-8 z-10">
+       <div class="w-12 h-12 bg-primary text-white flex items-center justify-center font-serif text-2xl rounded-sm shadow-lg">
+         P
+       </div>
+    </div>
+
+    <!-- Logout Komponente -->
+    <div class="w-full flex justify-center z-10 px-4">
+      <LogoutView client:only="svelte" />
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-12 text-center text-xs text-fg-muted">
+      <p>&copy; {new Date().getFullYear()} Pulpo Cloud. Todos los derechos reservados.</p>
+    </footer>
+
+  </div>
+</Layout>
