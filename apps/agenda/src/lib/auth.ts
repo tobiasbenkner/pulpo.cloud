@@ -11,12 +11,23 @@ export async function checkAuthentication(): Promise<{
     throw new Error("Not authenticated");
   }
 
+  // Erster Versuch
   try {
-    // Versuche Token zu refreshen
     await directus.refresh();
     return { isAuthenticated: true };
   } catch (e) {
-    // Token ungültig, aufräumen
+    // Könnte ein Netzwerkfehler sein (Mobile Browser brauchen nach
+    // App-Wechsel Zeit zum Reconnect) — einmal mit Delay retrying
+    console.warn("Token refresh fehlgeschlagen, retry in 1.5s...", e);
+  }
+
+  await new Promise((resolve) => setTimeout(resolve, 1500));
+
+  try {
+    await directus.refresh();
+    return { isAuthenticated: true };
+  } catch (e) {
+    // Zweiter Versuch auch fehlgeschlagen — Token ist wirklich ungültig
     localStorage.removeItem(TOKEN_KEY);
     throw new Error("Not authenticated");
   }
