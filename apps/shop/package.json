@@ -6,7 +6,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "deploy": "wrangler pages deploy dist --project-name=pulpo-shop --branch=main"
   },
   "dependencies": {
     "@astrojs/svelte": "^7.2.5",
@@ -21,6 +22,8 @@
     "typescript": "^5.9.3"
   },
   "devDependencies": {
-    "@tailwindcss/typography": "^0.5.19"
+    "@tailwindcss/typography": "^0.5.19",
+    "sharp": "^0.34.5",
+    "wrangler": "^4.60.0"
   }
 }
