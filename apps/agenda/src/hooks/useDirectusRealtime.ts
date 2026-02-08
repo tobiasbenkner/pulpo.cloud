@@ -428,19 +428,22 @@ export function useDirectusRealtime<T = any>(
 
     console.log("[Realtime] Tab wieder aktiv");
 
-    // Token proaktiv refreshen — nach langer Inaktivität ist er garantiert abgelaufen
+    // Token proaktiv refreshen — nach langer Inaktivität ist er wahrscheinlich abgelaufen
     try {
       await directus.refresh();
       console.log("[Realtime] Token nach Tab-Rückkehr refreshed");
     } catch (e) {
-      console.error(
+      console.warn(
         "[Realtime] Token refresh nach Tab-Rückkehr fehlgeschlagen:",
         e,
       );
-      // Refresh-Token auch abgelaufen — Session ist tot
-      disconnect();
-      onError?.(new SessionExpiredError());
-      return;
+      // Nicht sofort als SessionExpired behandeln — könnte ein Netzwerkfehler sein
+      // (Mobile Browser brauchen nach App-Wechsel Zeit zum Reconnect).
+      // Stattdessen weiter versuchen: der WS-Handshake sendet auth.expired
+      // wenn die Session wirklich tot ist, und DER Handler redirectet dann.
+      if (!navigator.onLine) {
+        return;
+      }
     }
 
     // Abbrechen wenn Component zwischenzeitlich destroyed wurde
