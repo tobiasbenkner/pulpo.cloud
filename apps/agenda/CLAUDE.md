@@ -16,7 +16,7 @@ There are no tests or linting configured for this package.
 
 ## Architecture
 
-**Astro (static) + Svelte 5 (client-only) + Directus CMS (REST + WebSocket realtime)**
+**Astro (static) + Svelte 4 (client-only) + Directus CMS (REST polling)**
 
 This is a reservation/agenda management app. Astro handles page routing and layout, but all interactive logic runs client-side via `client:only="svelte"` — there is no SSR data fetching.
 
@@ -24,7 +24,7 @@ This is a reservation/agenda management app. Astro handles page routing and layo
 
 All pages follow the same pattern: Astro page → `Layout.astro` → `AuthGuard.svelte` (client:only) → View component (client:only).
 
-- `/` — `AgendaView` — main table of reservations for a selected date, with realtime updates
+- `/` — `AgendaView` — main table of reservations for a selected date, with polling updates
 - `/new` — `ReservationForm` — create a new reservation (date passed via `?date=` query param)
 - `/edit` — `ReservationEditWrapper` → `ReservationForm` — edit/delete reservation (`?id=` query param)
 - `/login` — `LoginForm` — Directus email/password auth
@@ -32,7 +32,7 @@ All pages follow the same pattern: Astro page → `Layout.astro` → `AuthGuard.
 
 ### Authentication
 
-Client-side Directus auth with JSON tokens stored in `localStorage` under the key `directus_auth`. The `AuthGuard` component wraps protected pages — it attempts a token refresh on mount and redirects to `/login` if unauthenticated.
+Client-side Directus auth with JSON tokens stored in `localStorage` under the key `directus_auth`. The `AuthGuard` component wraps protected pages — it attempts a token refresh on mount (with a 1.5s retry for mobile resilience) and redirects to `/login` if unauthenticated.
 
 ### Directus Client (`src/lib/directus.ts`)
 
@@ -40,7 +40,6 @@ Single shared client instance configured with:
 
 - **authentication** (JSON mode with localStorage persistence, autoRefresh)
 - **rest** (for CRUD operations)
-- **realtime** (WebSocket with handshake auth)
 
 Hardcoded backend URL: `https://admin.pulpo.cloud` (in `src/config.ts`).
 
@@ -53,17 +52,13 @@ API calls are split across two modules:
 
 When adding new API functions: if the operation is reusable across apps, add it to `@pulpo/cms` and wrap it in `cms.ts`. If it's agenda-specific, add it to `api.ts`.
 
-### Realtime Hook (`src/hooks/useDirectusRealtime.ts`)
-
-`useDirectusRealtime<T>()` is a Svelte lifecycle hook that manages WebSocket subscriptions to Directus collections. It handles auto-reconnect with exponential backoff, browser visibility/online state changes, and exposes a `state` store with connection status. The `AgendaView` uses this to get live updates, then re-fetches via REST when relevant changes are detected.
-
 ### Auth Module (`src/lib/auth.ts`)
 
-Provides `checkAuthentication()` (validates/refreshes stored token) and `logout()` (clears token and localStorage). Used by `AuthGuard` and `LogoutView`.
+Provides `checkAuthentication()` (validates/refreshes stored token with retry) and `logout()` (clears token and localStorage). Used by `AuthGuard` and `LogoutView`. The retry (1.5s delay) prevents false logouts on mobile when the network stack isn't immediately ready after app-switching.
 
 ### State Management
 
-- **Svelte stores** (`writable`/`derived`) for component-local state
+- **Plain `let` variables** with `$:` reactive statements for component-local state in `AgendaView` (no Svelte stores needed)
 - **Dedicated stores** in `src/stores/`: `userStore.ts` (nanostores `map` with `isAuthenticated`/`loading`), `themeStore.ts` (writable with localStorage persistence)
 - `localStorage` persists: auth tokens (`directus_auth`), UI preferences (`pulpo_agenda_show_arrived`, `pulpo_agenda_view_mode`), theme (`pulpo_agenda_theme`), and cached turns data (`pulpo_agenda_turns`)
 
@@ -87,8 +82,12 @@ Tailwind CSS v4 via `@tailwindcss/vite` plugin (no `tailwind.config.js` — all 
 
 ### Key Runtime Patterns
 
-- **Optimistic updates**: `AgendaTable` toggles "arrived" status immediately in the UI, with rollback on REST API error.
-- **Race condition prevention**: REST fetches use `AbortController` to cancel stale requests when the date changes.
+- **Polling**: `AgendaView` polls the REST API every 3 seconds using chained `setTimeout` (not `setInterval`) to prevent request overlap. Polling pauses when the tab is hidden (`visibilitychange`) and resumes on return. Requests use `withOptions()` from `@directus/sdk` to pass an `AbortSignal` for proper cancellation.
+- **Silent updates**: Polling fetches are completely invisible (no loading/refetching indicators). Only the initial page load shows a loading state. Data is compared via `JSON.stringify` per-reservation to avoid unnecessary re-renders.
+- **Change highlighting**: When polling detects changed reservations, the affected rows get a subtle gold highlight animation (`@keyframes highlight`, 2s fade-out at 25% opacity of `--color-secondary`). Changes made by the current user (via `localIds` tracking) are excluded from highlighting.
+- **Fade-out on removal**: Reservations that disappear (remote deletion, filter change) use Svelte's `out:fade` transition (2s). This is suppressed (`duration: 0`) during turn/view-mode switches via a `skipFade` flag.
+- **Optimistic updates**: `AgendaView` toggles "arrived" status immediately in the UI, with rollback on REST API error.
+- **Race condition prevention**: REST fetches use `AbortController` with the signal passed to fetch via `withOptions()`, enabling actual network-level cancellation visible in the browser's Network tab.
 - **Query string state**: Date and reservation ID are passed via URL query params (`?date=`, `?id=`), making views shareable/bookmarkable.
 - **Responsive layout**: Mobile renders a compact list; desktop renders a full table. Breakpoint-driven via Tailwind.
 - **Double-click/tap to toggle arrived**: Both mobile and desktop use a unified `handleRowClick` handler with a 300ms timer — double click/tap toggles the arrived status. A separate pencil icon (`Pencil` from lucide) navigates to the edit page via `stopPropagation`.
