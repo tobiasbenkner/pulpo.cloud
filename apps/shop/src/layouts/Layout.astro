@@ -1,0 +1,21 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title?: string;
+}
+
+const { title = "POS Pulpo" } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es" class="antialiased bg-zinc-50">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+  </head>
+  <body class="h-dvh w-dvw overflow-hidden">
+    <slot />
+  </body>
+</html>
