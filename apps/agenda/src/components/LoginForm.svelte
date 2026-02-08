@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { directus } from "../lib/directus";
+  import { onMount } from "svelte";
+  import { directus, isTokenExpired } from "../lib/directus";
   import { authStore } from "../stores/userStore";
   import { AlertCircle, ArrowRight, Loader2 } from "lucide-svelte";
 
@@ -7,6 +8,22 @@
   let password = "";
   let isLoading = false;
   let error: string | null = null;
+  let checking = true;
+
+  onMount(async () => {
+    if (!isTokenExpired()) {
+      window.location.href = "/";
+      return;
+    }
+
+    try {
+      await directus.refresh();
+      window.location.href = "/";
+      return;
+    } catch {}
+
+    checking = false;
+  });
 
   async function handleLogin() {
     isLoading = true;
@@ -30,6 +47,11 @@
   }
 </script>
 
+{#if checking}
+  <div class="flex items-center justify-center py-12">
+    <Loader2 class="animate-spin text-fg-muted" size={32} />
+  </div>
+{:else}
 <div
   class="w-full max-w-md bg-surface p-8 md:p-12 shadow-sm border border-border-light rounded-lg"
 >
@@ -111,3 +133,4 @@
     </p>
   </div>
 </div>
+{/if}

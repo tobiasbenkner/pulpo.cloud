@@ -107,7 +107,9 @@
 
   // --- POLLING ---
   function startPolling() {
+    if (pollTimeout) clearTimeout(pollTimeout);
     polling = true;
+    pollGeneration++;
     scheduleNext();
   }
 
