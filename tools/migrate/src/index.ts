@@ -171,14 +171,14 @@ async function runMigration() {
         } else if (lang === "en") {
           translations.push({
             languages_id: "ce4f5188-2ac6-494f-a8f3-3f9e008c154d",
-            name: cat.name?.translations["en"] ?? cat.name.value ?? "",
-            description: cat.description?.translations["en"] ?? undefined,
+            name: cat.name?.translations?.["en"] ?? cat.name.value ?? "",
+            description: cat.description?.translations?.["en"] ?? undefined,
           });
         } else if (lang === "de") {
           translations.push({
             languages_id: "76b2da22-8005-4880-83b7-ca8797bb16f8",
-            name: cat.name?.translations[lang] ?? cat.name?.value ?? "",
-            description: cat.description?.translations[lang] ?? undefined,
+            name: cat.name?.translations?.[lang] ?? cat.name?.value ?? "",
+            description: cat.description?.translations?.[lang] ?? undefined,
           });
         }
       }
