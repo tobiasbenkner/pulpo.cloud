@@ -6,7 +6,6 @@ import {
   rest,
   createItem,
   uploadFiles,
-  updateFile,
 } from "@directus/sdk";
 import axios from "axios";
 
@@ -19,41 +18,53 @@ type I18N = {
   value: string;
 };
 
-interface PbPost extends RecordModel {
-  image?: string;
-  tenant: string;
-  slug: I18N;
-  title: I18N;
-  description: I18N;
-  article: I18N;
-  created: string;
+interface PBCategory extends RecordModel {
+  name: I18N;
+  description?: I18N;
+  photo?: string;
+}
+
+interface PBProduct extends RecordModel {
+  name: I18N;
+  description?: I18N;
+  price: number;
+  category: string;
+  photo?: string;
+  allergies: string[];
+  note: I18N;
 }
 
 interface TranslationItem {
   languages_id: string;
-  title: string;
-  slug: string;
-  content: string;
-  seo: {
-    title: string;
-    meta_description: string;
-  };
+  name: string;
+  description?: string;
+  note?: string;
 }
 
 // Directus Schema (Ziel)
-interface DirectusPosts {
+interface DirectusCategory {
   id: string;
   tenant: string;
   translations: TranslationItem[];
   image: string | null;
-  category: string;
-  title: string;
-  status: "published";
-  date: string;
+}
+
+interface DirectusProduct {
+  id: string;
+  translations: TranslationItem[];
+  price: number;
+  category: string | null;
+  image: string | null;
+  tenant: string;
+  sort: number;
+  allergies: string[];
+  tax_class: string;
+  price_gross: number;
 }
 
 interface MyDirectusSchema {
-  posts: DirectusPosts[];
+  categories: DirectusCategory[];
+  products: DirectusProduct[];
 }
 
 // ==========================================
@@ -89,11 +100,14 @@ const directus = createDirectus<MyDirectusSchema>(CONFIG.directus.url)
   .with(staticToken(CONFIG.directus.token))
   .with(rest());
 
+// Map speichert: "Alte PB ID" -> "Neue Directus UUID"
+const categoryIdMap = new Map<string, string>();
+
 // ==========================================
 // 4. HAUPTFUNKTION
 // ==========================================
 
-const languages = ["es", "de", "en"];
+const languages = ["es", "en", "de"];
 
 async function runMigration() {
   console.log("🚀 Starte Migration...");
@@ -110,17 +124,17 @@ async function runMigration() {
     // -------------------------------------------------------
     console.log("\n📦 Migriere Kategorien...");
 
-    const pbPost = await pb.collection("articles").getFullList<PbPost>();
+    const pbCats = await pb.collection("categories").getFullList<PBCategory>();
 
-    for (const post of pbPost) {
-      console.log(`   > Verarbeite: ${post.title.value}`);
+    for (const cat of pbCats) {
+      console.log(`   > Verarbeite: ${cat.name.value}`);
 
       let directusImageId: string | null = null;
 
       // 1. Bild Handling
-      if (post.image) {
+      if (cat.photo) {
         try {
-          const imgUrl = `${CONFIG.pb.url}/api/files/articles/${post.id}/${post.image}`;
+          const imgUrl = `${CONFIG.pb.url}/api/files/categories/${cat.id}/${cat.photo}`;
 
           const response = await axios.get(imgUrl, {
             responseType: "arraybuffer",
@@ -134,21 +148,14 @@ async function runMigration() {
             type: "image/webp",
           });
 
-          formData.append("folder", "8b3b3d7a-a11b-4d1c-b557-cb979918ab90");
-          formData.append("file", blob, post.image);
-          formData.append("tenant", CONFIG.directus.tenant);
+          formData.append("folder", "f1a07a0c-3452-4194-9997-b364e350fd42");
+          formData.append("file", blob, cat.photo);
 
           const fileResult = await directus.request(uploadFiles(formData));
           directusImageId = fileResult.id;
-
-          await directus.request(
-            updateFile(fileResult.id, {
-              tenant: CONFIG.directus.tenant,
-            } as any),
-          );
         } catch (err: any) {
           console.error(
-            `     ⚠️ Bild-Upload fehlgeschlagen für ${post.title.value}: ${err.message}`,
+            `     ⚠️ Bild-Upload fehlgeschlagen für ${cat.name.value}: ${err.message}`,
           );
         }
       }
@@ -157,62 +164,144 @@ async function runMigration() {
       for (const lang of languages) {
         if (lang === "es") {
           translations.push({
-            languages_id: "b15b2463-bc03-449e-9ee9-9e185d557b11",
-            title: post.title.value ?? null,
-            content: post.article?.value ?? undefined,
-            slug: post.slug.value ?? "",
-            seo: {
-              title: post.title.value ?? null,
-              meta_description: post.description.value ?? null,
-            },
+            languages_id: "d3d8db1e-8247-4b82-bea9-6c00318d61be",
+            name: cat.name.value ?? null,
+            description: cat.description?.value ?? undefined,
           });
         } else if (lang === "en") {
           translations.push({
-            languages_id: "cdb27c31-1890-4340-ae0f-1a96ff628dec",
-            title: post.title?.translations["en"] ?? post.title.value ?? "",
-            content: post.article?.translations["en"] ?? undefined,
-            slug: post.slug?.translations["en"] ?? post.slug.value ?? "",
-            seo: {
-              title: post.title.value ?? null,
-              meta_description: post.description?.translations["en"] ?? undefined,
-            },
+            languages_id: "ce4f5188-2ac6-494f-a8f3-3f9e008c154d",
+            name: cat.name?.translations["en"] ?? cat.name.value ?? "",
+            description: cat.description?.translations["en"] ?? undefined,
           });
         } else if (lang === "de") {
           translations.push({
-            languages_id: "a2368b05-3d11-48eb-bf42-d369f2bbe4d8",
-            title: post.title?.translations["de"] ?? post.title?.value ?? "",
-            content: post.article?.translations["de"] ?? undefined,
-            slug: post.slug?.translations["de"] ?? post.slug.value ?? "",
-            seo: {
-              title: post.title?.translations["de"] ?? post.title?.value ?? "",
-              meta_description: post.description?.translations["de"] ?? undefined,
-            },
+            languages_id: "76b2da22-8005-4880-83b7-ca8797bb16f8",
+            name: cat.name?.translations[lang] ?? cat.name?.value ?? "",
+            description: cat.description?.translations[lang] ?? undefined,
           });
         }
       }
 
-      const realstate = "2441ed0b-b857-408c-b01d-a837a016fac4"
-      // const insurance = "f95fc509-8304-409e-bcce-e79ea7cc6752"
-
       try {
-        await directus.request(
-          createItem("posts", {
+        const newCat = await directus.request(
+          createItem("categories", {
             image: directusImageId,
             tenant: CONFIG.directus.tenant,
             translations: translations,
-            category: realstate,
-            title: translations[0]?.title ?? "",
-            status: "published",
-            date: new Date(post.created).toISOString().substring(0, 10),
           }),
         );
+
+        if (newCat && newCat.id) {
+          categoryIdMap.set(cat.id, newCat.id);
+        }
       } catch (err: any) {
         console.error(
-          `     ❌ Fehler beim Erstellen von Kategorie ${post.title.value}:`,
+          `     ❌ Fehler beim Erstellen von Kategorie ${cat.name}:`,
           err.message,
         );
       }
     }
+    console.log(`✅ ${categoryIdMap.size} Kategorien migriert.`);
+
+    // -------------------------------------------------------
+    // SCHRITT B: PRODUKTE
+    // -------------------------------------------------------
+    console.log("\n🍔 Migriere Produkte...");
+
+    const pbProds = await pb.collection("products").getFullList<PBProduct>();
+
+    let count = 0;
+    for (const prod of pbProds) {
+      console.log(`   > Verarbeite: ${prod.name.value}`);
+
+      let directusImageId: string | null = null;
+
+      // 1. Bild Handling
+      if (prod.photo) {
+        try {
+          const imgUrl = `${CONFIG.pb.url}/api/files/products/${prod.id}/${prod.photo}`;
+
+          const response = await axios.get(imgUrl, {
+            responseType: "arraybuffer",
+          });
+
+          const buffer = Buffer.from(response.data);
+
+          const formData = new FormData();
+          const blob = new Blob([buffer], {
+            type: "image/webp",
+          });
+
+          formData.append("folder", "5e9aae86-772e-4b2c-99cd-7c1c404544dc");
+          formData.append("file", blob, prod.photo);
+
+          const fileResult = await directus.request(uploadFiles(formData));
+          directusImageId = fileResult.id;
+        } catch (err: any) {
+          console.error(
+            `     ⚠️ Bild-Upload fehlgeschlagen für ${prod.name.value}: ${err.message}`,
+          );
+        }
+      }
+
+      // 2. Kategorie Zuordnung
+      const newCategoryId = categoryIdMap.get(prod.category);
+      if (!newCategoryId) {
+        console.warn(
+          `     ⚠️ Keine neue Kategorie für PB-ID "${prod.category}" gefunden. Produkt wird ohne Kategorie angelegt.`,
+        );
+      }
+
+      const translations: TranslationItem[] = [];
+      for (const lang of languages) {
+        if (lang === "es") {
+          translations.push({
+            languages_id: "d3d8db1e-8247-4b82-bea9-6c00318d61be",
+            name: prod.name?.value ?? "",
+            description: prod.description?.value ?? undefined,
+            note: prod.note?.value ?? "",
+          });
+        } else if (lang === "en") {
+          translations.push({
+            languages_id: "ce4f5188-2ac6-494f-a8f3-3f9e008c154d",
+            name: prod.name?.translations?.["en"] ?? prod.name.value ?? "",
+            description: prod.description?.translations?.["en"] ?? undefined,
+            note: prod.note?.translations?.["en"] ?? undefined,
+          });
+        } else if (lang === "de") {
+          translations.push({
+            languages_id: "76b2da22-8005-4880-83b7-ca8797bb16f8",
+            name: prod.name?.translations?.[lang] ?? prod.name.value ?? "",
+            description: prod.description?.translations?.[lang] ?? undefined,
+            note: prod.note?.translations?.[lang] ?? undefined,
+          });
+        }
+      }
+
+      // 3. Produkt erstellen
+      try {
+        await directus.request(
+          createItem("products", {
+            translations: translations,
+            price: prod.price,
+            category: newCategoryId || null,
+            image: directusImageId,
+            tenant: CONFIG.directus.tenant,
+            sort: count++,
+            allergies: prod.allergies ?? [],
+            price_gross: prod.price / 100,
+            tax_class: "90c06073-3bda-4e50-8dbd-ec2ba49c35bb",
+          } as DirectusProduct),
+        );
+      } catch (err: any) {
+        console.error(
+          `     ❌ Fehler beim Speichern von Produkt ${prod.name}:`,
+          err.message,
+        );
+      }
+    }
+
     console.log("\n🎉 Migration abgeschlossen!");
   } catch (err: any) {
     console.error("\n❌ FATALER FEHLER:", err);
