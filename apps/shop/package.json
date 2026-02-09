@@ -13,6 +13,7 @@
     "@astrojs/svelte": "^7.2.5",
     "@directus/sdk": "^20.3.0",
     "@nanostores/persistent": "^1.2.0",
+    "@pulpo/auth": "workspace:*",
     "@pulpo/cms": "workspace:*",
     "@tailwindcss/vite": "^4.1.18",
     "astro": "^5.16.6",

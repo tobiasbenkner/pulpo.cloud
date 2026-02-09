@@ -1,0 +1,10 @@
+---
+import Layout from "../layouts/Layout.astro";
+import LoginForm from "@pulpo/auth/components/LoginForm.svelte";
+---
+
+<Layout title="Login — POS Pulpo">
+  <div class="h-full flex items-center justify-center bg-zinc-100">
+    <LoginForm client:only="svelte" />
+  </div>
+</Layout>

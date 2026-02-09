@@ -7,10 +7,13 @@ import CustomAmountModal from "../components/CustomAmountModal.astro";
 import CustomerModal from "../components/CustomerModal.astro";
 import DiscountModal from "../components/DiscountModal.astro";
 import QuantityModal from "../components/QuantityModal.astro";
+import AuthGuard from "@pulpo/auth/components/AuthGuard.svelte";
 import { categories, products } from "../data/data";
 ---
 
 <Layout title="POS Pulpo">
+  <AuthGuard client:only="svelte" />
+
   <div class="grid grid-cols-[1fr_340px] h-full">
     <!-- Linker Bereich -->
     <main class="h-full flex flex-col relative overflow-hidden bg-zinc-50">

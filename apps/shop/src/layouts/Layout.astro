@@ -17,5 +17,11 @@ const { title = "POS Pulpo" } = Astro.props;
   </head>
   <body class="h-dvh w-dvw overflow-hidden">
     <slot />
+
+    <script>
+      import { initAuthClient } from "@pulpo/auth";
+      import { DIRECTUS_URL } from "@pulpo/cms";
+      initAuthClient(DIRECTUS_URL);
+    </script>
   </body>
 </html>

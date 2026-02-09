@@ -1,0 +1,10 @@
+---
+import Layout from "../layouts/Layout.astro";
+import LogoutView from "@pulpo/auth/components/LogoutView.svelte";
+---
+
+<Layout title="Logout — POS Pulpo">
+  <div class="h-full flex items-center justify-center bg-zinc-100">
+    <LogoutView client:only="svelte" />
+  </div>
+</Layout>
