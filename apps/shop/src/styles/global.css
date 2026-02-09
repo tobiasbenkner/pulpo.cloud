@@ -1,1 +1,65 @@
 @import "tailwindcss";
+@source "../../../../packages/auth/src/";
+
+/* ─── Theme Variables ─── */
+:root {
+  --surface: #ffffff;
+  --surface-alt: #f8f9fa;
+  --surface-hover: #f1f5f9;
+  --fg: #1a202c;
+  --fg-secondary: #4b5563;
+  --fg-muted: #9ca3af;
+  --border-default: #e2e8f0;
+  --border-light: #f1f5f9;
+  --input-bg: #f8f9fa;
+  --shadow-color: rgb(0 0 0 / 5%);
+  --error-bg: rgba(184, 92, 80, 0.08);
+  --error-text: #b85c50;
+  --error-border: rgba(184, 92, 80, 0.15);
+  --arrived-bg: rgba(91, 140, 107, 0.08);
+  --arrived-text: #5b8c6b;
+  --arrived-border: rgba(91, 140, 107, 0.15);
+  --btn-primary-bg: #1a202c;
+  --btn-primary-text: #ffffff;
+  --btn-primary-hover: #374151;
+}
+
+@theme {
+  --color-primary: #1a202c;
+  --color-secondary: #c2b280;
+
+  --color-surface: var(--surface);
+  --color-surface-alt: var(--surface-alt);
+  --color-surface-hover: var(--surface-hover);
+  --color-fg: var(--fg);
+  --color-fg-secondary: var(--fg-secondary);
+  --color-fg-muted: var(--fg-muted);
+  --color-border-default: var(--border-default);
+  --color-border-light: var(--border-light);
+  --color-input-bg: var(--input-bg);
+  --color-error-bg: var(--error-bg);
+  --color-error-text: var(--error-text);
+  --color-error-border: var(--error-border);
+  --color-arrived-bg: var(--arrived-bg);
+  --color-arrived-text: var(--arrived-text);
+  --color-arrived-border: var(--arrived-border);
+  --color-btn-primary-bg: var(--btn-primary-bg);
+  --color-btn-primary-text: var(--btn-primary-text);
+  --color-btn-primary-hover: var(--btn-primary-hover);
+
+  --font-serif: "Playfair Display", serif;
+  --font-sans: "Inter", sans-serif;
+
+  --animate-fade-in: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
