@@ -40,6 +40,8 @@ export async function getCategoriesWithProducts(
         description: reduceTranslations(product.translations, "description"),
         note: reduceTranslations(product.translations, "note"),
         category: product.category,
+        stock: product.stock ?? null,
+        tax_class: product.tax_class ?? null,
       } as Product;
     });
 

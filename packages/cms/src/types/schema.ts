@@ -9,6 +9,7 @@ export interface Schema {
 
   categories: any[];
   products: any[];
+  tax_classes: any[];
   opening_hours: any[];
   tenants: any[];
 
