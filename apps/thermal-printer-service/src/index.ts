@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import express from "express";
 import { listPrinter } from "./list-printer";
 import { print } from "./print";
