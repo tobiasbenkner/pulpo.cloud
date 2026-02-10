@@ -189,3 +189,105 @@ sudo udevadm control --reload-rules
 sudo udevadm trigger
 sudo systemctl restart pulpo-printer
 ```
+
+
+
+# App Wechsel
+```bash
+sudo apt-get install xdotool
+```
+nano ~/.config/openbox/rc.xml
+<keyboard>
+  <!-- F1 wechselt den Tab (Deine gewünschte Funktion) -->
+  <keybind key="F1">
+    <action name="Execute">
+      <command>xdotool key Control_L+Tab</command>
+    </action>
+  </keybind>
+
+  <!-- SICHERHEIT: Verbieten, Tabs oder Fenster zu schließen -->
+  <keybind key="C-w"><action name="Execute"><command>true</command></action></keybind>
+  <keybind key="A-F4"><action name="Execute"><command>true</command></action></keybind>
+  <keybind key="C-t"><action name="Execute"><command>true</command></action></keybind>
+</keyboard>
+
+
+# GUI Manager
+
+mkdir -p ~/.config/openbox
+nano ~/.config/openbox/autostart
+
+
+```bash
+#!/bin/bash
+
+### -------------------------------
+### Grundeinstellungen X11
+### -------------------------------
+xset s off
+xset s noblank
+xset -dpms
+
+# Mauszeiger ausblenden
+unclutter -idle 0 &
+
+### -------------------------------
+### Splash Screen anzeigen
+### -------------------------------
+LOGO="/home/kiosk/logo.png"
+
+feh --fullscreen --auto-zoom --hide-pointer "$LOGO" &
+SPLASH_PID=$!
+
+### -------------------------------
+### Warten bis Internet wirklich da ist
+### -------------------------------
+echo "Warte auf Internet..."
+until ping -c1 8.8.8.8 >/dev/null 2>&1; do
+    sleep 1
+done
+echo "Internet ist da."
+
+# Splash schließen
+kill "$SPLASH_PID"
+
+### -------------------------------
+### Chromium Kiosk Loop
+### -------------------------------
+PROFILE="/home/kiosk/chromium-kiosk"
+
+mkdir -p "$PROFILE"
+
+while true; do
+    # Crash-Status zurücksetzen (verhindert Restore-Popup)
+    PREFS="$PROFILE/Default/Preferences"
+    if [ -f "$PREFS" ]; then
+        sed -i 's/"exited_cleanly":false/"exited_cleanly":true/' "$PREFS"
+        sed -i 's/"exit_type":"Crashed"/"exit_type":"Normal"/' "$PREFS"
+    fi
+
+    chromium \
+      --no-first-run \
+      --kiosk \
+      --user-data-dir="$PROFILE" \
+      --disable-translate \
+      --disable-features=TranslateUI \
+      --disable-infobars \
+      --disable-session-crashed-bubble \
+      --disable-sync \
+      --overscroll-history-navigation=0 \
+      "https://pulpo.cloud/shop" \
+      "https://admin.pulpo.cloud" \
+      "https://shop.pulpo.cloud"
+
+    # kleine Pause, falls Chromium sofort crasht
+    sleep 1
+done &
+```
+
+sudo chown -R kiosk:kiosk /home/kiosk/.config
+sudo reboot
+
+
+sudo apt update
+sudo apt install feh
