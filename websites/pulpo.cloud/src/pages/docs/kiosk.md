@@ -21,21 +21,21 @@ Damit die Node-App im Hintergrund startet (noch vor dem Browser) und bei Abstür
 1.  Installiere Node.js (falls noch nicht geschehen).
 2.  Erstelle eine Service-Datei:
     ```bash
-    sudo nano /etc/systemd/system/meine-app.service
+    sudo nano /etc/systemd/system/pulpo-printer.service
     ```
 3.  Füge folgenden Inhalt ein (Pfade anpassen!):
     ```ini
     [Unit]
-    Description=Meine Node.js Anwendung
+    Description=Pulpo Thermal Printer Service
     After=network.target
 
     [Service]
     # Ersetze 'deinuser' mit deinem Benutzernamen
-    User=deinuser
+    User=kiosk
     # Pfad zum Arbeitsverzeichnis der App
-    WorkingDirectory=/home/deinuser/meine-app
+    WorkingDirectory=/home/kiosk
     # Befehl zum Starten (z.B. node server.js oder npm start)
-    ExecStart=/usr/bin/node /home/deinuser/meine-app/index.js
+    ExecStart=pulpo-printer
     Restart=always
     RestartSec=10
     # Wichtig für Node Apps in Production
@@ -150,3 +150,42 @@ Da wir Ubuntu Server/Debian nutzen, ist der Boot schon schnell. Um es noch schne
 6.  Chromium lädt `localhost:3000` (wo deine Node App bereits wartet).
 
 **Ergebnis:** Ein extrem schnelles, robustes System, das nach Stromverlust einfach wieder hochfährt und funktioniert.
+
+```node
+sudo apt install -y curl
+curl -fsSL https://deb.nodesource.com/setup_24.x | sudo bash -
+sudo apt install -y nodejs
+```
+
+Printer Service
+sudo nano /etc/systemd/system/pulpo-printer.service
+```ini
+[Unit]
+Description=Pulpo Thermal Printer Service
+After=network.target
+
+[Service]
+User=kiosk
+WorkingDirectory=/home/kiosk
+ExecStart=/usr/bin/pulpo-printer
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```bash
+sudo systemctl enable pulpo-printer
+sudo systemctl start pulpo-printer
+```
+
+Printer Permissions
+```bash
+sudo apt install libusb-1.0-0-dev libudev-dev
+sudo usermod -aG plugdev kiosk
+echo 'SUBSYSTEM=="usb", MODE="0666"' | sudo tee /etc/udev/rules.d/99-usb-all.rules
+sudo udevadm control --reload-rules
+sudo udevadm trigger
+sudo systemctl restart pulpo-printer
+```
