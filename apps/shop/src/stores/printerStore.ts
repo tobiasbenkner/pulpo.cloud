@@ -129,7 +129,7 @@ function buildReceipt(receiptData: {
     lines.push(textLine(`${t.postcode} ${t.city}`, { align: "CT" }));
   }
 
-  lines.push(separatorLine());
+  lines.push(emptyLine());
 
   // Ticket info
   const now = new Date();
@@ -147,10 +147,10 @@ function buildReceipt(receiptData: {
 
   lines.push(textLine(`Ticket: #${invoiceNumber}`));
   lines.push(textLine(`Fecha:  ${fecha}`));
-
-  lines.push(separatorLine());
+  lines.push(emptyLine());
 
   // Items
+  lines.push(separatorLine());
   for (const item of totals.items) {
     const prefix = `${String(item.quantity).padStart(2)}x `;
     lines.push(twoColTable(`${prefix}${item.productName}`, item.rowTotalGross));
@@ -165,12 +165,11 @@ function buildReceipt(receiptData: {
 
   // Total
   lines.push(twoColTable("TOTAL", `${totals.gross} EUR`, "B", "B"));
+  lines.push(emptyLine());
 
   if (parseFloat(totals.discountTotal) > 0) {
     lines.push(twoColTable("Descuento", `-${totals.discountTotal}`));
   }
-
-  lines.push(separatorLine());
 
   // Tax breakdown: group net by rate from items
   const netByRate = new Map<string, number>();
@@ -184,17 +183,36 @@ function buildReceipt(receiptData: {
     const pct = (parseFloat(entry.rate) * 100).toFixed(0);
     const rateSnapshot = (parseFloat(entry.rate) * 100).toFixed(2);
     const base = netByRate.get(rateSnapshot) ?? parseFloat(totals.net);
-    lines.push(twoColTable(`Base ${pct}%`, base.toFixed(2)));
-    lines.push(twoColTable(`IGIC ${pct}%`, entry.amount));
+    lines.push(
+      tableLine([
+        {
+          text: `IGIC ${pct.padStart(4)}%`,
+          align: "LEFT",
+          width: 0.3,
+          style: "NORMAL",
+        },
+        {
+          text: `Base ${base.toFixed(2).padStart(7)}`,
+          align: "RIGHT",
+          width: 0.35,
+          style: "NORMAL",
+        },
+        {
+          text: `Imp. ${entry.amount.padStart(7)}`,
+          align: "RIGHT",
+          width: 0.35,
+          style: "NORMAL",
+        },
+      ]),
+    );
   }
 
   if (totals.taxBreakdown.length === 0) {
     lines.push(twoColTable("Base", totals.net));
   }
 
-  lines.push(separatorLine());
-
   // Payment
+  lines.push(separatorLine());
   if (method === "cash") {
     lines.push(twoColTable("Efectivo", tendered));
     if (parseFloat(change) > 0) {
@@ -203,8 +221,6 @@ function buildReceipt(receiptData: {
   } else {
     lines.push(twoColTable("Tarjeta", total));
   }
-
-  lines.push(separatorLine());
 
   // Footer
   lines.push(emptyLine());
