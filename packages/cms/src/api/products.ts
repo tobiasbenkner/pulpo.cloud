@@ -20,6 +20,7 @@ export async function getCategoriesWithProducts(
         "translations.*",
         "translations.languages_id.*",
         "products.*",
+        "products.tax_class.*",
         "products.translations.*",
         "products.translations.languages_id.*",
         "products.image.*",
