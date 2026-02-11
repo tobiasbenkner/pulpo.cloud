@@ -4,7 +4,7 @@ import { atom, computed } from "nanostores";
 import { persistentMap, persistentAtom } from "@nanostores/persistent";
 import Big from "big.js";
 import { getAuthClient } from "@pulpo/auth";
-import { createInvoice } from "@pulpo/cms";
+import { createInvoice, getInvoice } from "@pulpo/cms";
 import type {
   Product,
   CartItem,
@@ -292,6 +292,26 @@ export const completeTransaction = async (
     return; // Cart NICHT leeren bei Fehler
   }
 
+  // Invoice-Nummer pollen (wird async vom Directus Flow gesetzt)
+  const invoiceId = invoice?.id;
+  let invoiceNumber = invoice?.invoice_number ?? "";
+
+  if (invoiceId && !invoiceNumber) {
+    const client = getAuthClient();
+    for (let i = 0; i < 10; i++) {
+      await new Promise((r) => setTimeout(r, 300));
+      try {
+        const fetched = await getInvoice(client, invoiceId);
+        if (fetched.invoice_number) {
+          invoiceNumber = fetched.invoice_number;
+          break;
+        }
+      } catch {
+        break;
+      }
+    }
+  }
+
   // Erfolg: lokale Transaktion speichern + Cart leeren
   const txData: TransactionResult = {
     total,
@@ -301,6 +321,7 @@ export const completeTransaction = async (
     timestamp: Date.now(),
     customer: customer || undefined,
     type,
+    invoiceNumber,
   };
 
   lastTransaction.set(txData);
@@ -309,7 +330,7 @@ export const completeTransaction = async (
     // Fire-and-forget: nicht awaiten, damit UI nicht blockiert
     printReceipt({
       totals: totalsSnapshot,
-      invoiceNumber: invoice?.invoice_number ?? "",
+      invoiceNumber,
       method,
       total,
       tendered,

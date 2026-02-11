@@ -57,10 +57,7 @@ const DEFAULTS: Pick<PrintLine, "fontSize" | "font" | "align" | "style"> = {
   style: "NORMAL",
 };
 
-function textLine(
-  text: string,
-  overrides?: Partial<PrintLine>,
-): PrintLine {
+function textLine(text: string, overrides?: Partial<PrintLine>): PrintLine {
   return { ...DEFAULTS, type: "text", text, ...overrides };
 }
 
@@ -76,7 +73,12 @@ function tableLine(cols: Col[]): PrintLine {
   return { ...DEFAULTS, type: "table", text: cols };
 }
 
-function twoColTable(left: string, right: string, leftStyle: Style = "NORMAL", rightStyle: Style = "NORMAL"): PrintLine {
+function twoColTable(
+  left: string,
+  right: string,
+  leftStyle: Style = "NORMAL",
+  rightStyle: Style = "NORMAL",
+): PrintLine {
   return tableLine([
     { text: left, align: "LEFT", width: 0.6, style: leftStyle },
     { text: right, align: "RIGHT", width: 0.4, style: rightStyle },
@@ -90,7 +92,6 @@ export async function loadTenant(): Promise<void> {
     const client = getAuthClient();
     const user = await getProfile(client as any);
     const t = await getTenant(client as any, user.tenant);
-    console.log(t);
     tenant.set(t);
   } catch (e) {
     console.error("Failed to load tenant:", e);
@@ -107,28 +108,34 @@ function buildReceipt(receiptData: {
   tendered: string;
   change: string;
 }): PrintLine[] {
-  const { totals, invoiceNumber, method, total, tendered, change } = receiptData;
+  const { totals, invoiceNumber, method, total, tendered, change } =
+    receiptData;
   const t = tenant.get();
   const lines: PrintLine[] = [];
 
   // Header: Business name
   if (t) {
     lines.push(textLine(t.name, { align: "CT", fontSize: "big", style: "B" }));
-    lines.push(textLine(`${t.street}, ${t.postcode} ${t.city}`, { align: "CT" }));
+    lines.push(
+      textLine(`${t.street}, ${t.postcode} ${t.city}`, { align: "CT" }),
+    );
   }
 
   lines.push(separatorLine());
 
   // Ticket info
   const now = new Date();
-  const fecha = now.toLocaleDateString("es-ES", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }) + " " + now.toLocaleTimeString("es-ES", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  const fecha =
+    now.toLocaleDateString("es-ES", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    }) +
+    " " +
+    now.toLocaleTimeString("es-ES", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
 
   lines.push(twoColTable("Ticket:", `#${invoiceNumber}`));
   lines.push(twoColTable("Fecha:", fecha));
@@ -138,16 +145,13 @@ function buildReceipt(receiptData: {
   // Items
   for (const item of totals.items) {
     const qty = item.quantity > 1 ? `${item.quantity}x ` : "";
-    lines.push(twoColTable(
-      `${qty}${item.productName}`,
-      item.rowTotalGross,
-    ));
+    lines.push(twoColTable(`${qty}${item.productName}`, item.rowTotalGross));
   }
 
   lines.push(separatorLine());
 
-  // Subtotal & discount
-  lines.push(twoColTable("Subtotal", totals.subtotal));
+  // Total
+  lines.push(twoColTable("TOTAL", `${totals.gross} EUR`, "B", "B"));
 
   if (parseFloat(totals.discountTotal) > 0) {
     lines.push(twoColTable("Descuento", `-${totals.discountTotal}`));
@@ -174,11 +178,6 @@ function buildReceipt(receiptData: {
   if (totals.taxBreakdown.length === 0) {
     lines.push(twoColTable("Base", totals.net));
   }
-
-  lines.push(separatorLine());
-
-  // Total
-  lines.push(twoColTable("TOTAL", `${totals.gross} EUR`, "B", "B"));
 
   lines.push(separatorLine());
 

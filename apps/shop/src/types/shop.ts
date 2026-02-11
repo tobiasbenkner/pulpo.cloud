@@ -70,4 +70,5 @@ export interface TransactionResult {
   method: "cash" | "card";
   customer?: Customer;
   type: "ticket" | "invoice";
+  invoiceNumber: string;
 }
