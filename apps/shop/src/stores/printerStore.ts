@@ -80,8 +80,8 @@ function twoColTable(
   rightStyle: Style = "NORMAL",
 ): PrintLine {
   return tableLine([
-    { text: left, align: "LEFT", width: 0.6, style: leftStyle },
-    { text: right, align: "RIGHT", width: 0.4, style: rightStyle },
+    { text: left, align: "LEFT", width: 0.75, style: leftStyle },
+    { text: right, align: "RIGHT", width: 0.25, style: rightStyle },
   ]);
 }
 
@@ -144,10 +144,12 @@ function buildReceipt(receiptData: {
 
   // Items
   for (const item of totals.items) {
-    const qty = item.quantity > 1 ? `${item.quantity}x ` : "";
-    lines.push(twoColTable(`${qty}${item.productName}`, item.rowTotalGross));
+    const prefix = `${String(item.quantity).padStart(2)}x `;
+    lines.push(twoColTable(`${prefix}${item.productName}`, item.rowTotalGross));
     if (item.quantity > 1) {
-      lines.push(twoColTable(`  á ${parseFloat(item.priceGrossUnit).toFixed(2)}`, ""));
+      lines.push(
+        twoColTable(`    @ ${parseFloat(item.priceGrossUnit).toFixed(2)}`, ""),
+      );
     }
   }
 

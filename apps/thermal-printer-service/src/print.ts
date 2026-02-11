@@ -5,6 +5,24 @@ import { Col, PrintJobElectron } from "./types";
 import axios from "axios";
 import sharp from "sharp";
 
+function formatTableLine(cols: Col[], totalWidth: number): string {
+  let line = "";
+  for (const col of cols) {
+    const colWidth = Math.floor(totalWidth * col.width);
+    const text = col.text.length > colWidth ? col.text.slice(0, colWidth) : col.text;
+    const pad = colWidth - text.length;
+    if (col.align === "RIGHT") {
+      line += " ".repeat(pad) + text;
+    } else if (col.align === "CENTER") {
+      const left = Math.floor(pad / 2);
+      line += " ".repeat(left) + text + " ".repeat(pad - left);
+    } else {
+      line += text + " ".repeat(pad);
+    }
+  }
+  return line;
+}
+
 export async function print(printJob: PrintJobElectron) {
   const printerSettings = printJob.printer;
   let device;
@@ -59,10 +77,14 @@ export async function print(printJob: PrintJobElectron) {
             });
           } else if (line.type === "table") {
             const size = line.fontSize === "small" ? 1 : 2;
+            const baseWidth = Math.floor(printerSettings.width / size);
+            const cols = line.text as Col[];
+            const formatted = formatTableLine(cols, baseWidth);
             printer
               .font(line.font)
               .size(size, size)
-              .tableCustom(line.text as Col[]);
+              .style(cols[0]?.style || "NORMAL")
+              .text(formatted, printerSettings.encoding);
           } else if (line.type === "image") {
             try {
               printer.align("CT");
