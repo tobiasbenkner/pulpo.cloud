@@ -14,7 +14,7 @@ export interface Product {
   sort: number;
   stock: number | null;
   tax_class: TaxClass | null;
-  price_gross: number;
+  price_gross: string;
 }
 
 export interface ProductCategory {

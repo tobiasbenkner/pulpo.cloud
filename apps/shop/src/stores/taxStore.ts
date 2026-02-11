@@ -14,7 +14,7 @@ export async function loadTaxRates(postcode: string) {
     if (rules.length > 0) {
       const rates: Record<string, number> = {};
       for (const rule of rules) {
-        rates[rule.classCode] = rule.rate / 100;
+        rates[rule.classCode] = Number(rule.rate) / 100;
       }
       taxRates.set(rates);
     }

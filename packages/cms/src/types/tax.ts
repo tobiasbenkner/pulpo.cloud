@@ -18,6 +18,6 @@ export interface TaxRule {
   name: string | null;
   tax_zone_id: string | TaxZone;
   tax_class_id: string | TaxClass;
-  rate: number | null;
-  surcharge: number | null;
+  rate: string | null;
+  surcharge: string | null;
 }

@@ -5,8 +5,8 @@ type Client = DirectusClient<Schema> & RestClient<Schema>;
 
 export interface TaxRuleResult {
   classCode: string;
-  rate: number;
-  surcharge: number;
+  rate: string;
+  surcharge: string;
 }
 
 export async function getTaxRulesForPostcode(
@@ -37,8 +37,8 @@ export async function getTaxRulesForPostcode(
     const taxClass = rule.tax_class_id as TaxClass;
     return {
       classCode: taxClass.code,
-      rate: rule.rate ?? 0,
-      surcharge: rule.surcharge ?? 0,
+      rate: rule.rate ?? "0",
+      surcharge: rule.surcharge ?? "0",
     };
   });
 }

@@ -4,9 +4,9 @@ export interface Invoice {
   invoice_number: string;
   tenant: string;
   status: "draft" | "paid" | "cancelled";
-  total_net: number;
-  total_tax: number;
-  total_gross: number;
+  total_net: string;
+  total_tax: string;
+  total_gross: string;
   // VeriFactu
   previous_record_hash: string | null;
   chain_hash: string | null;
@@ -22,11 +22,11 @@ export interface InvoiceItem {
   invoice_id: string;
   product_name: string;
   quantity: number;
-  tax_rate_snapshot: number;
-  price_gross_unit: number;
-  price_net_unit_precise: number;
-  row_total_net_precise: number;
-  row_total_gross: number;
+  tax_rate_snapshot: string;
+  price_gross_unit: string;
+  price_net_unit_precise: string;
+  row_total_net_precise: string;
+  row_total_gross: string;
 }
 
 export interface InvoicePayment {
@@ -34,8 +34,8 @@ export interface InvoicePayment {
   date_created: string | null;
   invoice_id: string;
   method: "cash" | "card";
-  amount: number;
-  tendered: number | null;
-  change: number | null;
-  tip: number | null;
+  amount: string;
+  tendered: string | null;
+  change: string | null;
+  tip: string | null;
 }
