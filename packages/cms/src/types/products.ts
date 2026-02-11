@@ -1,11 +1,6 @@
 import { DirectusFile } from "@directus/sdk";
 import { ReducedTranslations } from "../types";
-
-export interface TaxClass {
-  id: string;
-  code: string;
-  name: string;
-}
+import { TaxClass } from "./tax";
 
 export interface Product {
   id: string;

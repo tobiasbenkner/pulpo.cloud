@@ -5,4 +5,5 @@ export * from "./types/user";
 export * from "./types/schema";
 export * from "./types/event";
 export * from "./types/products";
+export * from "./types/tax";
 export * from "./types/invoice";
