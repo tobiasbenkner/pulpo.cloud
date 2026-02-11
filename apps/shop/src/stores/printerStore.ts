@@ -116,9 +116,8 @@ function buildReceipt(receiptData: {
   // Header: Business name
   if (t) {
     lines.push(textLine(t.name, { align: "CT", fontSize: "big", style: "B" }));
-    lines.push(
-      textLine(`${t.street}, ${t.postcode} ${t.city}`, { align: "CT" }),
-    );
+    lines.push(textLine(t.street, { align: "CT" }));
+    lines.push(textLine(`${t.postcode} ${t.city}`, { align: "CT" }));
   }
 
   lines.push(separatorLine());
@@ -137,8 +136,8 @@ function buildReceipt(receiptData: {
       minute: "2-digit",
     });
 
-  lines.push(twoColTable("Ticket:", `#${invoiceNumber}`));
-  lines.push(twoColTable("Fecha:", fecha));
+  lines.push(textLine(`Ticket: #${invoiceNumber}`));
+  lines.push(textLine(`Fecha:  ${fecha}`));
 
   lines.push(separatorLine());
 
