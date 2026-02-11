@@ -153,19 +153,8 @@ import LastChangeWidget from "./LastChangeWidget.astro";
         <span id="val-discount">-0.00 €</span>
       </div>
 
-      <!-- Netto / Steuer -->
-      <div
-        class="flex justify-between text-zinc-400 text-[10px] uppercase tracking-wide"
-      >
-        <span>Netto</span>
-        <span id="total-net" class="font-mono">0.00 €</span>
-      </div>
-      <div
-        class="flex justify-between text-zinc-400 text-[10px] uppercase tracking-wide"
-      >
-        <span>Steuer</span>
-        <span id="total-tax" class="font-mono">0.00 €</span>
-      </div>
+      <!-- Steuer-Aufschlüsselung -->
+      <div id="tax-breakdown" class="space-y-0.5"></div>
 
       <!-- TOTAL GROSS -->
       <div
@@ -270,12 +259,11 @@ import LastChangeWidget from "./LastChangeWidget.astro";
   // --- DOM ELEMENTE ---
   const listEl = document.getElementById("cart-list")!;
   const btnCheckout = document.getElementById(
-    "checkout-btn"
+    "checkout-btn",
   ) as HTMLButtonElement;
   const countEl = document.getElementById("cart-count")!;
 
-  const netEl = document.getElementById("total-net")!;
-  const taxEl = document.getElementById("total-tax")!;
+  const taxBreakdownEl = document.getElementById("tax-breakdown")!;
   const grossEl = document.getElementById("total-gross")!;
 
   const rowSubtotal = document.getElementById("row-subtotal")!;
@@ -320,8 +308,21 @@ import LastChangeWidget from "./LastChangeWidget.astro";
 
   // --- LOGIC: TOTALS ---
   cartTotals.subscribe((totals) => {
-    if (netEl) netEl.innerText = `${totals.net} €`;
-    if (taxEl) taxEl.innerText = `${totals.tax} €`;
+    if (taxBreakdownEl) {
+      if (totals.taxBreakdown.length > 0) {
+        taxBreakdownEl.innerHTML = totals.taxBreakdown
+          .map(
+            (entry) =>
+              `<div class="flex justify-between text-zinc-400 text-[10px] uppercase tracking-wide">
+                <span>IGIC ${(entry.rate * 100).toFixed(1).replace(".0", "")}%</span>
+                <span class="font-mono">${entry.amount} €</span>
+              </div>`,
+          )
+          .join("");
+      } else {
+        taxBreakdownEl.innerHTML = "";
+      }
+    }
     if (grossEl) grossEl.innerText = `${totals.gross} €`;
     if (countEl) countEl.innerText = totals.count.toString();
     if (btnCheckout) btnCheckout.disabled = totals.count === 0;
@@ -351,13 +352,13 @@ import LastChangeWidget from "./LastChangeWidget.astro";
         btnGlobalDiscount.classList.remove(
           "border-dashed",
           "border-zinc-300",
-          "text-zinc-500"
+          "text-zinc-500",
         );
         btnGlobalDiscount.classList.add(
           "border-solid",
           "border-orange-200",
           "bg-orange-50",
-          "text-orange-700"
+          "text-orange-700",
         );
         btnGlobalDiscount.querySelector("span")!.innerText =
           "Rabatt bearbeiten";
@@ -374,13 +375,13 @@ import LastChangeWidget from "./LastChangeWidget.astro";
         btnGlobalDiscount.classList.add(
           "border-dashed",
           "border-zinc-300",
-          "text-zinc-500"
+          "text-zinc-500",
         );
         btnGlobalDiscount.classList.remove(
           "border-solid",
           "border-orange-200",
           "bg-orange-50",
-          "text-orange-700"
+          "text-orange-700",
         );
         btnGlobalDiscount.querySelector("span")!.innerText = "Rabatt";
       }
@@ -448,7 +449,7 @@ import LastChangeWidget from "./LastChangeWidget.astro";
           discountLabel = `-${item.discount.value.toFixed(2)}€`;
           finalPriceTotal = Math.max(
             0,
-            originalPriceTotal - item.discount.value
+            originalPriceTotal - item.discount.value,
           );
         }
       }

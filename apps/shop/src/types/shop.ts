@@ -20,12 +20,18 @@ export interface CartItem extends Product {
   };
 }
 
+export interface TaxBreakdownEntry {
+  rate: number;
+  amount: string;
+}
+
 export interface CartTotals {
-  subtotal: string; // NEU: Zwischensumme vor Global-Rabatt
-  discountTotal: string; // NEU: Globaler Rabatt in Euro
-  gross: string; // Endbetrag
+  subtotal: string;
+  discountTotal: string;
+  gross: string;
   net: string;
   tax: string;
+  taxBreakdown: TaxBreakdownEntry[];
   count: number;
 }
 

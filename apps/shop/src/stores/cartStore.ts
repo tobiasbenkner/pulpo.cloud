@@ -30,25 +30,25 @@ export interface ParkedCart {
 export const cartItems = persistentMap<Record<string, CartItem>>(
   "cart:data",
   {},
-  { encode: JSON.stringify, decode: JSON.parse }
+  { encode: JSON.stringify, decode: JSON.parse },
 );
 
 export const lastTransaction = persistentAtom<TransactionResult | null>(
   "cart:last_tx",
   null,
-  { encode: JSON.stringify, decode: JSON.parse }
+  { encode: JSON.stringify, decode: JSON.parse },
 );
 
 export const shouldPrintReceipt = persistentAtom<boolean>(
   "settings:print",
   true,
-  { encode: JSON.stringify, decode: JSON.parse }
+  { encode: JSON.stringify, decode: JSON.parse },
 );
 
 export const parkedCarts = persistentMap<Record<string, ParkedCart>>(
   "cart:parked",
   {},
-  { encode: JSON.stringify, decode: JSON.parse }
+  { encode: JSON.stringify, decode: JSON.parse },
 );
 
 export const globalDiscount = persistentAtom<{
@@ -141,7 +141,7 @@ const setGlobalDiscount = (type: "percent" | "fixed", value: number) => {
 export const applyDiscount = (
   id: string,
   type: "percent" | "fixed",
-  value: number
+  value: number,
 ) => {
   if (id === "GLOBAL") {
     setGlobalDiscount(type, value);
@@ -250,7 +250,7 @@ export const swapLastTransactionMethod = () => {
 export const completeTransaction = (
   total: string,
   tendered: string,
-  method: "cash" | "card"
+  method: "cash" | "card",
 ) => {
   const change = new Big(tendered).minus(new Big(total)).toFixed(2);
   const customer = selectedCustomer.get();
@@ -300,7 +300,7 @@ export const cartTotals = computed(
           lineGross = lineGross.minus(item.discount.value);
         } else {
           lineGross = lineGross.minus(
-            lineGross.times(item.discount.value).div(HUNDRED)
+            lineGross.times(item.discount.value).div(HUNDRED),
           );
         }
       }
@@ -318,9 +318,7 @@ export const cartTotals = computed(
         discountAmount = new Big(globalDisc.value);
         finalTotalGross = finalTotalGross.minus(discountAmount);
       } else {
-        discountAmount = finalTotalGross
-          .times(globalDisc.value)
-          .div(HUNDRED);
+        discountAmount = finalTotalGross.times(globalDisc.value).div(HUNDRED);
         finalTotalGross = finalTotalGross.minus(discountAmount);
       }
     }
@@ -328,18 +326,31 @@ export const cartTotals = computed(
     if (finalTotalGross.lt(ZERO)) finalTotalGross = ZERO;
     if (discountAmount.gt(subtotalGross)) discountAmount = subtotalGross;
 
-    // 3. Steuer rückrechnen
+    // 3. Steuer rückrechnen (gruppiert nach Rate)
     const discountRatio = subtotalGross.gt(ZERO)
       ? finalTotalGross.div(subtotalGross)
       : new Big(1);
 
+    const taxByRate = new Map<number, Big>();
+
     itemList.forEach((item, i) => {
       const lineGross = lineGrossValues[i];
       const lineGrossAfterGlobal = lineGross.times(discountRatio);
-      const rate = new Big(rates[item.taxClass] ?? 0);
+      const rateNum = rates[item.taxClass] ?? 0;
+      const rate = new Big(rateNum);
       const lineNet = lineGrossAfterGlobal.div(new Big(1).plus(rate));
+      const lineTax = lineGrossAfterGlobal.minus(lineNet);
       totalNet = totalNet.plus(lineNet);
+
+      if (rateNum > 0) {
+        const prev = taxByRate.get(rateNum) ?? ZERO;
+        taxByRate.set(rateNum, prev.plus(lineTax));
+      }
     });
+
+    const taxBreakdown = Array.from(taxByRate.entries())
+      .sort(([a], [b]) => a - b)
+      .map(([rate, amount]) => ({ rate, amount: amount.toFixed(2) }));
 
     return {
       subtotal: subtotalGross.toFixed(2),
@@ -347,7 +358,8 @@ export const cartTotals = computed(
       gross: finalTotalGross.toFixed(2),
       net: totalNet.toFixed(2),
       tax: finalTotalGross.minus(totalNet).toFixed(2),
+      taxBreakdown,
       count: itemList.reduce((sum, item) => sum + item.quantity, 0),
     };
-  }
+  },
 );

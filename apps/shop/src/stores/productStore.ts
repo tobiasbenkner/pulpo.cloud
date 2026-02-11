@@ -55,13 +55,16 @@ export async function loadProducts() {
       id: cat.id,
       name: resolveTranslation(cat.name as Record<string, string>),
       products: cat.products.map((p) =>
-        mapCmsToShopProduct(p, resolveTranslation(cat.name as Record<string, string>)),
+        mapCmsToShopProduct(
+          p,
+          resolveTranslation(cat.name as Record<string, string>),
+        ),
       ),
     }));
 
     categories.set(mapped);
 
-    const postcode = import.meta.env.PUBLIC_TENANT_POSTCODE;
+    const postcode = "35010";
     if (postcode) {
       loadTaxRates(postcode);
     }
