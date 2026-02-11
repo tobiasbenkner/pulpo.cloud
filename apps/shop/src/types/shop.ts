@@ -1,6 +1,6 @@
 // apps/shop/src/types/shop.ts
 
-export type TaxClassCode = "STD" | "RED" | "ZERO";
+export type TaxClassCode = "STD" | "RED" | "INC" | "NULL" | "SUPER_RED" | "ZERO";
 
 export interface Product {
   id: string;

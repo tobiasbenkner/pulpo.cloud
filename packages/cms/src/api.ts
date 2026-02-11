@@ -6,3 +6,4 @@ export * from "./api/tenant";
 export * from "./api/auth";
 export * from "./api/agenda";
 export * from "./api/invoices";
+export * from "./api/tax";

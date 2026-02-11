@@ -11,6 +11,7 @@ import type {
   TaxClassCode,
   Customer,
 } from "../types/shop";
+import { taxRates } from "./taxStore";
 
 // --- TYPEN ---
 
@@ -23,13 +24,6 @@ export interface ParkedCart {
   customer: Customer | null;
   globalDiscount: { type: "percent" | "fixed"; value: number } | null; // NEU
 }
-
-// --- KONFIGURATION ---
-const TAX_RATES: Record<TaxClassCode, number> = {
-  STD: 0.07, // 7% IGIC
-  RED: 0.03, // 3%
-  ZERO: 0.0,
-};
 
 // --- STATE (PERSISTENT) ---
 
@@ -288,8 +282,8 @@ export const completeTransaction = (
 // --- COMPUTED: TOTALS ---
 
 export const cartTotals = computed(
-  [cartItems, globalDiscount],
-  (items, globalDisc): CartTotals => {
+  [cartItems, globalDiscount, taxRates],
+  (items, globalDisc, rates): CartTotals => {
     const ZERO = new Big(0);
     const HUNDRED = new Big(100);
     let subtotalGross = ZERO;
@@ -342,7 +336,7 @@ export const cartTotals = computed(
     itemList.forEach((item, i) => {
       const lineGross = lineGrossValues[i];
       const lineGrossAfterGlobal = lineGross.times(discountRatio);
-      const rate = new Big(TAX_RATES[item.taxClass] || 0);
+      const rate = new Big(rates[item.taxClass] ?? 0);
       const lineNet = lineGrossAfterGlobal.div(new Big(1).plus(rate));
       totalNet = totalNet.plus(lineNet);
     });

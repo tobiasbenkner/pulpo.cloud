@@ -3,6 +3,7 @@ import { getAuthClient, getStoredToken } from "@pulpo/auth";
 import { getCategoriesWithProducts, imageUrl } from "@pulpo/cms";
 import type { ProductCategory as CmsCategory } from "@pulpo/cms";
 import type { Product } from "../types/shop";
+import { loadTaxRates } from "./taxStore";
 
 export interface ShopCategory {
   id: string;
@@ -59,6 +60,11 @@ export async function loadProducts() {
     }));
 
     categories.set(mapped);
+
+    const postcode = import.meta.env.PUBLIC_TENANT_POSTCODE;
+    if (postcode) {
+      loadTaxRates(postcode);
+    }
   } catch (e: any) {
     console.error("Failed to load products:", e);
     error.set(e.message || "Failed to load products");

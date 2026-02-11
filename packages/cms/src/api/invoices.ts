@@ -5,24 +5,24 @@ import {
   type DirectusClient,
   type RestClient,
 } from "@directus/sdk";
-import type { Invoice, InvoiceItem, Schema } from "../types";
+import type { Invoice, InvoiceItem, InvoicePayment, Schema } from "../types";
 
 type Client = DirectusClient<Schema> & RestClient<Schema>;
 
 export async function createInvoice(
   client: Client,
-  data: Omit<Invoice, "id" | "date_created" | "items"> & {
+  data: Omit<Invoice, "id" | "date_created" | "items" | "payments"> & {
     items: Omit<InvoiceItem, "id" | "invoice_id">[];
+    payments: Omit<InvoicePayment, "id" | "date_created" | "invoice_id">[];
   },
 ) {
-  const { items, ...invoiceData } = data;
+  const { items, payments, ...invoiceData } = data;
 
   const invoice = await client.request(
     createItem("invoices", {
       ...invoiceData,
-      items: {
-        create: items,
-      },
+      items: { create: items },
+      payments: { create: payments },
     } as any),
   );
 
@@ -41,7 +41,7 @@ export async function getInvoices(
     readItems("invoices", {
       filter,
       sort: ["-date_created"],
-      fields: ["*", { items: ["*"] }],
+      fields: ["*", { items: ["*"] }, { payments: ["*"] }],
     }),
   );
 }
@@ -49,7 +49,7 @@ export async function getInvoices(
 export async function getInvoice(client: Client, id: string) {
   return client.request(
     readItem("invoices", id, {
-      fields: ["*", { items: ["*"] }],
+      fields: ["*", { items: ["*"] }, { payments: ["*"] }],
     }),
   );
 }
