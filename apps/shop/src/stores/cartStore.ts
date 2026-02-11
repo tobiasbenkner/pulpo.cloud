@@ -3,6 +3,8 @@
 import { atom, computed } from "nanostores";
 import { persistentMap, persistentAtom } from "@nanostores/persistent";
 import Big from "big.js";
+import { getAuthClient } from "@pulpo/auth";
+import { createInvoice } from "@pulpo/cms";
 import type {
   Product,
   CartItem,
@@ -247,15 +249,49 @@ export const swapLastTransactionMethod = () => {
   lastTransaction.set({ ...tx, method: newMethod });
 };
 
-export const completeTransaction = (
+export const completeTransaction = async (
   total: string,
   tendered: string,
   method: "cash" | "card",
 ) => {
-  const change = new Big(tendered).minus(new Big(total)).toFixed(2);
+  const totals = cartTotals.get();
   const customer = selectedCustomer.get();
   const type = customer ? "invoice" : "ticket";
+  const change = new Big(tendered).minus(new Big(total)).toFixed(2);
 
+  // Invoice in Directus erstellen
+  try {
+    const client = getAuthClient();
+    await createInvoice(client, {
+      status: "paid",
+      total_net: totals.net,
+      total_tax: totals.tax,
+      total_gross: totals.gross,
+      items: totals.items.map((item) => ({
+        product_name: item.productName,
+        quantity: item.quantity,
+        tax_rate_snapshot: item.taxRateSnapshot,
+        price_gross_unit: item.priceGrossUnit,
+        price_net_unit_precise: item.priceNetUnitPrecise,
+        row_total_net_precise: item.rowTotalNetPrecise,
+        row_total_gross: item.rowTotalGross,
+      })),
+      payments: [
+        {
+          method,
+          amount: total,
+          tendered,
+          change,
+          tip: null,
+        },
+      ],
+    });
+  } catch (e) {
+    console.error("Failed to create invoice:", e);
+    return; // Cart NICHT leeren bei Fehler
+  }
+
+  // Erfolg: lokale Transaktion speichern + Cart leeren
   const txData: TransactionResult = {
     total,
     tendered,
@@ -272,7 +308,6 @@ export const completeTransaction = (
     triggerPrint(txData);
   }
 
-  // Reset alles
   cartItems.set({});
   globalDiscount.set(null);
   selectedCustomer.set(null);

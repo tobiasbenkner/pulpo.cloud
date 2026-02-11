@@ -11,7 +11,19 @@ type Client = DirectusClient<Schema> & RestClient<Schema>;
 
 export async function createInvoice(
   client: Client,
-  data: Omit<Invoice, "id" | "date_created" | "items" | "payments"> & {
+  data: Omit<
+    Invoice,
+    | "id"
+    | "date_created"
+    | "invoice_number"
+    | "tenant"
+    | "previous_record_hash"
+    | "chain_hash"
+    | "qr_url"
+    | "generation_date"
+    | "items"
+    | "payments"
+  > & {
     items: Omit<InvoiceItem, "id" | "invoice_id">[];
     payments: Omit<InvoicePayment, "id" | "date_created" | "invoice_id">[];
   },

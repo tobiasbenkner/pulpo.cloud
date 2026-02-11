@@ -400,7 +400,7 @@
 
   // Wichtig: Type Casting für disabled Property, aber sicher
   const btnConfirm = document.getElementById(
-    "confirm-cash-btn"
+    "confirm-cash-btn",
   ) as HTMLButtonElement | null;
 
   const btnBack = document.getElementById("back-to-selection");
@@ -441,7 +441,7 @@
           "opacity-0",
           "translate-y-4",
           "sm:translate-y-0",
-          "sm:scale-95"
+          "sm:scale-95",
         );
       }, 10);
     } else {
@@ -450,7 +450,7 @@
         "opacity-0",
         "translate-y-4",
         "sm:translate-y-0",
-        "sm:scale-95"
+        "sm:scale-95",
       );
       setTimeout(() => modal?.classList.add("hidden"), 300);
     }
@@ -463,18 +463,23 @@
   btnBack?.addEventListener("click", () => showView("selection"));
 
   // --- ACTIONS ---
-  btnCardPay?.addEventListener("click", () => {
-    completeTransaction(
+  btnCardPay?.addEventListener("click", async () => {
+    btnCardPay.classList.add("opacity-50", "pointer-events-none");
+    await completeTransaction(
       currentTotal.toFixed(2),
       currentTotal.toFixed(2),
-      "card"
+      "card",
     );
+    btnCardPay.classList.remove("opacity-50", "pointer-events-none");
   });
 
-  btnConfirm?.addEventListener("click", () => {
+  btnConfirm?.addEventListener("click", async () => {
+    if (!btnConfirm) return;
+    btnConfirm.disabled = true;
     const tenderedStr = (inputCents / 100).toFixed(2);
     const totalStr = currentTotal.toFixed(2);
-    completeTransaction(totalStr, tenderedStr, "cash");
+    await completeTransaction(totalStr, tenderedStr, "cash");
+    btnConfirm.disabled = false;
   });
 
   // --- NUMPAD ---
@@ -544,7 +549,7 @@
 
   // --- CUSTOMER & TOTALS ---
   customerSelector?.addEventListener("click", () =>
-    isCustomerModalOpen.set(true)
+    isCustomerModalOpen.set(true),
   );
 
   selectedCustomer.subscribe((cust) => {
@@ -575,17 +580,17 @@
   shouldPrintReceipt.subscribe((val) => {
     if (val) {
       toggleUIs.forEach((el) =>
-        el.classList.replace("bg-zinc-200", "bg-blue-600")
+        el.classList.replace("bg-zinc-200", "bg-blue-600"),
       );
       toggleKnobs.forEach((el) =>
-        el.classList.replace("translate-x-1", "translate-x-6")
+        el.classList.replace("translate-x-1", "translate-x-6"),
       );
     } else {
       toggleUIs.forEach((el) =>
-        el.classList.replace("bg-blue-600", "bg-zinc-200")
+        el.classList.replace("bg-blue-600", "bg-zinc-200"),
       );
       toggleKnobs.forEach((el) =>
-        el.classList.replace("translate-x-6", "translate-x-1")
+        el.classList.replace("translate-x-6", "translate-x-1"),
       );
     }
   });
