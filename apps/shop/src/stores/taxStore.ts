@@ -2,14 +2,7 @@ import { atom } from "nanostores";
 import { getAuthClient } from "@pulpo/auth";
 import { getTaxRulesForPostcode } from "@pulpo/cms";
 
-export const taxRates = atom<Record<string, number>>({
-  STD: 0.07,
-  RED: 0.03,
-  INC: 0.095,
-  NULL: 0,
-  SUPER_RED: 0,
-  ZERO: 0,
-});
+export const taxRates = atom<Record<string, number>>({});
 
 export const taxLoaded = atom(false);
 

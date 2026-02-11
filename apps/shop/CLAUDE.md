@@ -60,7 +60,7 @@ IGIC (Canary Islands) tax system with dynamic rates loaded from Directus CMS.
 2. The postcode comes from `PUBLIC_TENANT_POSTCODE` env var (e.g. `35001`)
 3. `getTaxRulesForPostcode()` in `@pulpo/cms` loads all `tax_zones` sorted by priority, matches the postcode against each zone's regex, then loads `tax_rules` for the matched zone
 4. Result is a `Record<classCode, rate>` stored in the `taxRates` atom
-5. Hardcoded Canary Islands defaults are used as fallback if the API call fails
+5. If the API call fails, `taxRates` remains empty and all rates default to 0 via `rates[item.taxClass] ?? 0`
 
 **CMS Collections** (Directus):
 - `tax_classes` — Tax class definitions with `code` (e.g. `STD`, `RED`)
