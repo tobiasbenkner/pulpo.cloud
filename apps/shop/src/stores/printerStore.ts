@@ -146,6 +146,9 @@ function buildReceipt(receiptData: {
   for (const item of totals.items) {
     const qty = item.quantity > 1 ? `${item.quantity}x ` : "";
     lines.push(twoColTable(`${qty}${item.productName}`, item.rowTotalGross));
+    if (item.quantity > 1) {
+      lines.push(twoColTable(`  á ${parseFloat(item.priceGrossUnit).toFixed(2)}`, ""));
+    }
   }
 
   lines.push(separatorLine());
