@@ -1,6 +1,6 @@
 import { atom } from "nanostores";
-import { getAuthClient } from "@pulpo/auth";
-import { getProfile, getTenant } from "@pulpo/cms";
+import { getAuthClient, getStoredToken } from "@pulpo/auth";
+import { getProfile, getTenant, imageUrl } from "@pulpo/cms";
 import type { Tenant } from "@pulpo/cms";
 import type { CartTotals } from "../types/shop";
 import data from "../data.json";
@@ -113,8 +113,17 @@ function buildReceipt(receiptData: {
   const t = tenant.get();
   const lines: PrintLine[] = [];
 
-  // Header: Business name
+  // Header: Logo + Business name
   if (t) {
+    if (t.invoice_image) {
+      const token = getStoredToken()?.access_token ?? "";
+      const url = imageUrl(t.invoice_image).replace(
+        "access_token=",
+        `access_token=${token}`,
+      );
+      lines.push({ ...DEFAULTS, type: "image", text: url, align: "CT" });
+      lines.push(emptyLine());
+    }
     lines.push(textLine(t.name, { align: "CT", fontSize: "big", style: "B" }));
     lines.push(textLine(t.street, { align: "CT" }));
     lines.push(textLine(`${t.postcode} ${t.city}`, { align: "CT" }));

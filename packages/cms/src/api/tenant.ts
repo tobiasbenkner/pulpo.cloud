@@ -36,6 +36,7 @@ export type Tenant = {
     restaurantguru: string;
     yelp: string;
   };
+  invoice_image: string | null;
   opening_hours: OpeningHour[];
   contacts: Contact[];
 };

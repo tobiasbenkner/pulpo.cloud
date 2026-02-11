@@ -9,7 +9,8 @@ function formatTableLine(cols: Col[], totalWidth: number): string {
   let line = "";
   for (const col of cols) {
     const colWidth = Math.floor(totalWidth * col.width);
-    const text = col.text.length > colWidth ? col.text.slice(0, colWidth) : col.text;
+    const text =
+      col.text.length > colWidth ? col.text.slice(0, colWidth) : col.text;
     const pad = colWidth - text.length;
     if (col.align === "RIGHT") {
       line += " ".repeat(pad) + text;
@@ -31,7 +32,7 @@ export async function print(printJob: PrintJobElectron) {
   } else {
     device = new UsbAdapter(
       printerSettings.vendor_id,
-      printerSettings.product_id
+      printerSettings.product_id,
     );
   }
 
@@ -89,7 +90,7 @@ export async function print(printJob: PrintJobElectron) {
             try {
               printer.align("CT");
               const url = await downloadAndConvertWebpToBase64Png(
-                line.text as string
+                line.text as string,
               );
               const image = await Image.load(url);
               printer = await printer.image(image);
@@ -119,7 +120,10 @@ async function downloadAndConvertWebpToBase64Png(webpUrl: string) {
     responseType: "arraybuffer",
   });
   const webpBuffer = Buffer.from(response.data);
-  const pngBuffer = await sharp(webpBuffer).png().toBuffer();
+  const pngBuffer = await sharp(webpBuffer)
+    .resize({ width: 200, fit: "inside" })
+    .png()
+    .toBuffer();
   const base64Png = `data:image/png;base64,${pngBuffer.toString("base64")}`;
 
   return base64Png;
