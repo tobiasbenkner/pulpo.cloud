@@ -7,8 +7,8 @@ import type {
   Product,
   CartItem,
   CartTotals,
+  CartTotalsItem,
   TransactionResult,
-  TaxClassCode,
   Customer,
 } from "../types/shop";
 import { taxRates } from "./taxStore";
@@ -331,25 +331,41 @@ export const cartTotals = computed(
       ? finalTotalGross.div(subtotalGross)
       : new Big(1);
 
-    const taxByRate = new Map<number, Big>();
+    const taxByRate = new Map<string, Big>();
+    const computedItems: CartTotalsItem[] = [];
 
     itemList.forEach((item, i) => {
       const lineGross = lineGrossValues[i];
       const lineGrossAfterGlobal = lineGross.times(discountRatio);
-      const rateNum = rates[item.taxClass] ?? 0;
-      const rate = new Big(rateNum);
+      const rateStr = rates[item.taxClass] ?? "0";
+      const rate = new Big(rateStr);
       const lineNet = lineGrossAfterGlobal.div(new Big(1).plus(rate));
-      const lineTax = lineGrossAfterGlobal.minus(lineNet);
-      totalNet = totalNet.plus(lineNet);
 
-      if (rateNum > 0) {
-        const prev = taxByRate.get(rateNum) ?? ZERO;
-        taxByRate.set(rateNum, prev.plus(lineTax));
+      const rowNetRounded = new Big(lineNet.toFixed(8));
+      totalNet = totalNet.plus(rowNetRounded);
+
+      if (rate.gt(0)) {
+        const prev = taxByRate.get(rateStr) ?? ZERO;
+        const rowTax = lineGrossAfterGlobal.minus(rowNetRounded);
+        taxByRate.set(rateStr, prev.plus(rowTax));
       }
+
+      const priceGrossUnit = new Big(item.priceGross);
+      computedItems.push({
+        productName: item.name,
+        quantity: item.quantity,
+        priceGrossUnit: priceGrossUnit.toFixed(4),
+        taxRateSnapshot: rate.times(100).toFixed(2),
+        priceNetUnitPrecise: priceGrossUnit
+          .div(new Big(1).plus(rate))
+          .toFixed(8),
+        rowTotalGross: lineGrossAfterGlobal.toFixed(2),
+        rowTotalNetPrecise: rowNetRounded.toFixed(8),
+      });
     });
 
     const taxBreakdown = Array.from(taxByRate.entries())
-      .sort(([a], [b]) => a - b)
+      .sort(([a], [b]) => new Big(a).cmp(new Big(b)))
       .map(([rate, amount]) => ({ rate, amount: amount.toFixed(2) }));
 
     return {
@@ -359,6 +375,7 @@ export const cartTotals = computed(
       net: totalNet.toFixed(2),
       tax: finalTotalGross.minus(totalNet).toFixed(2),
       taxBreakdown,
+      items: computedItems,
       count: itemList.reduce((sum, item) => sum + item.quantity, 0),
     };
   },

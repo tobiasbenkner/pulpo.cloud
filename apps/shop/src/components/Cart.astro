@@ -66,6 +66,7 @@
     removeFromCart,
     isPaymentModalOpen, // War vorher 'isCheckoutOpen', muss konsistent sein
   } from "../stores/cartStore";
+  import Big from "big.js";
 
   // 1. Elemente sicher selektieren
   const listEl = document.getElementById("cart-list-container");
@@ -76,7 +77,7 @@
 
   // Type Casting für den Button, damit TS weiß, dass er 'disabled' haben kann
   const checkoutBtn = document.getElementById(
-    "btn-checkout"
+    "btn-checkout",
   ) as HTMLButtonElement | null;
 
   // Sicherheits-Check: Wenn Elemente fehlen (warum auch immer), Skript abbrechen
@@ -137,16 +138,19 @@
 
     entries.forEach(([id, item]) => {
       // Rabatt Berechnung für Anzeige
-      const originalTotal = item.priceGross * item.quantity;
+      const originalTotal = new Big(item.priceGross).times(item.quantity);
       let finalTotal = originalTotal;
       let isDiscounted = false;
 
       if (item.discount) {
         isDiscounted = true;
         if (item.discount.type === "percent") {
-          finalTotal = originalTotal * (1 - item.discount.value / 100);
+          finalTotal = originalTotal.times(
+            new Big(1).minus(new Big(item.discount.value).div(100)),
+          );
         } else {
-          finalTotal = Math.max(0, originalTotal - item.discount.value);
+          const discounted = originalTotal.minus(item.discount.value);
+          finalTotal = discounted.lt(0) ? new Big(0) : discounted;
         }
       }
 
@@ -159,7 +163,7 @@
         <div class="flex flex-col min-w-0 pr-3">
             <span class="font-bold text-zinc-800 truncate" title="${item.name}">${item.name}</span>
             <span class="text-xs text-zinc-400 font-mono mt-0.5">
-                ${item.quantity} x ${item.priceGross.toFixed(2)} €
+                ${item.quantity} x ${new Big(item.priceGross).toFixed(2)} €
                 ${isDiscounted ? `<span class="text-orange-500 ml-1">(Rabatt aktiv)</span>` : ""}
             </span>
         </div>

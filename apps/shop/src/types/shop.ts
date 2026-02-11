@@ -1,11 +1,17 @@
 // apps/shop/src/types/shop.ts
 
-export type TaxClassCode = "STD" | "RED" | "INC" | "NULL" | "SUPER_RED" | "ZERO";
+export type TaxClassCode =
+  | "STD"
+  | "RED"
+  | "INC"
+  | "NULL"
+  | "SUPER_RED"
+  | "ZERO";
 
 export interface Product {
   id: string;
   name: string;
-  priceGross: number;
+  priceGross: string;
   taxClass: TaxClassCode;
   image: string;
   category: string;
@@ -21,8 +27,18 @@ export interface CartItem extends Product {
 }
 
 export interface TaxBreakdownEntry {
-  rate: number;
+  rate: string;
   amount: string;
+}
+
+export interface CartTotalsItem {
+  productName: string;
+  quantity: number;
+  priceGrossUnit: string;
+  taxRateSnapshot: string;
+  priceNetUnitPrecise: string;
+  rowTotalGross: string;
+  rowTotalNetPrecise: string;
 }
 
 export interface CartTotals {
@@ -32,6 +48,7 @@ export interface CartTotals {
   net: string;
   tax: string;
   taxBreakdown: TaxBreakdownEntry[];
+  items: CartTotalsItem[];
   count: number;
 }
 

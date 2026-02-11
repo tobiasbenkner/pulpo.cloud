@@ -219,6 +219,7 @@ import LastChangeWidget from "./LastChangeWidget.astro";
     deleteParkedCart,
     isQuantityModalOpen,
   } from "../stores/cartStore";
+  import Big from "big.js";
 
   // --- TYPESCRIPT DEFINITIONEN ---
   declare global {
@@ -314,7 +315,7 @@ import LastChangeWidget from "./LastChangeWidget.astro";
           .map(
             (entry) =>
               `<div class="flex justify-between text-zinc-400 text-[10px] uppercase tracking-wide">
-                <span>IGIC ${(entry.rate * 100).toFixed(1).replace(".0", "")}%</span>
+                <span>IGIC ${new Big(entry.rate).times(100).toFixed(1).replace(".0", "")}%</span>
                 <span class="font-mono">${entry.amount} €</span>
               </div>`,
           )
@@ -437,20 +438,19 @@ import LastChangeWidget from "./LastChangeWidget.astro";
     entries.forEach(([id, item]) => {
       const div = document.createElement("div");
       const hasDiscount = !!item.discount;
-      const originalPriceTotal = item.priceGross * item.quantity;
+      const originalPriceTotal = new Big(item.priceGross).times(item.quantity);
       let finalPriceTotal = originalPriceTotal;
       let discountLabel = "";
       if (item.discount) {
         if (item.discount.type === "percent") {
           discountLabel = `-${item.discount.value}%`;
-          finalPriceTotal =
-            originalPriceTotal * (1 - item.discount.value / 100);
-        } else {
-          discountLabel = `-${item.discount.value.toFixed(2)}€`;
-          finalPriceTotal = Math.max(
-            0,
-            originalPriceTotal - item.discount.value,
+          finalPriceTotal = originalPriceTotal.times(
+            new Big(1).minus(new Big(item.discount.value).div(100)),
           );
+        } else {
+          discountLabel = `-${new Big(item.discount.value).toFixed(2)}€`;
+          const discounted = originalPriceTotal.minus(item.discount.value);
+          finalPriceTotal = discounted.lt(0) ? new Big(0) : discounted;
         }
       }
       const itemJson = JSON.stringify(item).replace(/"/g, "&quot;");
@@ -468,7 +468,7 @@ import LastChangeWidget from "./LastChangeWidget.astro";
           <div class="flex-1 min-w-0 pr-3">
               <h4 class="font-semibold text-zinc-800 text-sm leading-tight truncate mb-0.5" title="${item.name}">${item.name}</h4>
               <div class="flex items-center gap-2">
-                  <p class="text-[10px] text-zinc-400 font-medium">${item.priceGross.toFixed(2)} €/Stk.</p>
+                  <p class="text-[10px] text-zinc-400 font-medium">${new Big(item.priceGross).toFixed(2)} €/Stk.</p>
                   <button onclick="window.cartActions.openDiscount('${id}')" class="text-[9px] px-1.5 py-0.5 rounded-md font-bold transition-colors ${hasDiscount ? "bg-orange-100 text-orange-700 border border-orange-200" : "bg-zinc-100 text-zinc-500 border border-zinc-200 hover:bg-zinc-200"}">
                       ${hasDiscount ? discountLabel : "+ Rabatt"}
                   </button>

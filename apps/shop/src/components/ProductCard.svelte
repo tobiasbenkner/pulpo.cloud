@@ -86,7 +86,7 @@
     <div
       class="absolute bottom-2 right-2 bg-zinc-900/90 text-white px-2 py-1 rounded-lg text-xs font-bold shadow-sm backdrop-blur-sm"
     >
-      {product.priceGross.toFixed(2)} &euro;
+      {Number(product.priceGross).toFixed(2)} &euro;
     </div>
   </div>
 

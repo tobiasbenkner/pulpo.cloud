@@ -209,7 +209,7 @@
 
   // Confirm Logic
   confirmBtn.addEventListener("click", () => {
-    const price = inputCents / 100;
+    const price = (inputCents / 100).toFixed(2);
 
     // NEU: Name ermitteln
     // Wenn Input leer ist -> Standardtext "Diverses"

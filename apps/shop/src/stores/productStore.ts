@@ -33,7 +33,7 @@ function mapCmsToShopProduct(
   return {
     id: product.id,
     name: resolveTranslation(product.name as Record<string, string>),
-    priceGross: Number(product.price_gross),
+    priceGross: product.price_gross,
     taxClass: (product.tax_class?.code as Product["taxClass"]) ?? "STD",
     image: buildImageUrl(product.image),
     category: categoryName,
