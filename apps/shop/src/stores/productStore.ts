@@ -4,6 +4,7 @@ import { getCategoriesWithProducts, imageUrl } from "@pulpo/cms";
 import type { ProductCategory as CmsCategory } from "@pulpo/cms";
 import type { Product } from "../types/shop";
 import { loadTaxRates } from "./taxStore";
+import { loadTenant } from "./printerStore";
 
 export interface ShopCategory {
   id: string;
@@ -68,6 +69,8 @@ export async function loadProducts() {
     if (postcode) {
       loadTaxRates(postcode);
     }
+
+    loadTenant();
   } catch (e: any) {
     console.error("Failed to load products:", e);
     error.set(e.message || "Failed to load products");

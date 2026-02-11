@@ -3,7 +3,7 @@ import { Schema, User } from "../types";
 
 export async function getProfile(
   client: DirectusClient<Schema> & RestClient<Schema>,
-) {
+): Promise<User> {
   const user = (await client.request(
     readMe({
       fields: ["*", "avatar.*"],

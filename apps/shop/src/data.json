@@ -1,0 +1,12 @@
+{
+  "printer": {
+    "serviceUrl": "http://localhost:8080",
+    "connection": "USB",
+    "width": 48,
+    "encoding": "GB18030",
+    "replace_accents": false,
+    "feed": 3,
+    "product_id": "8214",
+    "vendor_id": "8137"
+  }
+}

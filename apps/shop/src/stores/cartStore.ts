@@ -14,6 +14,7 @@ import type {
   Customer,
 } from "../types/shop";
 import { taxRates } from "./taxStore";
+import { printReceipt } from "./printerStore";
 
 // --- TYPEN ---
 
@@ -238,10 +239,6 @@ export const deleteParkedCart = (parkId: string) => {
 
 // --- ACTIONS: TRANSACTION ---
 
-export const triggerPrint = (transaction: TransactionResult) => {
-  console.log("🖨️ DRUCKE BON:", transaction.total, "€");
-};
-
 export const swapLastTransactionMethod = () => {
   const tx = lastTransaction.get();
   if (!tx) return;
@@ -259,10 +256,14 @@ export const completeTransaction = async (
   const type = customer ? "invoice" : "ticket";
   const change = new Big(tendered).minus(new Big(total)).toFixed(2);
 
+  // Totals snapshot VOR dem Cart-Reset
+  const totalsSnapshot = { ...totals, items: [...totals.items] };
+
   // Invoice in Directus erstellen
+  let invoice: any;
   try {
     const client = getAuthClient();
-    await createInvoice(client, {
+    invoice = await createInvoice(client, {
       status: "paid",
       total_net: totals.net,
       total_tax: totals.tax,
@@ -305,7 +306,15 @@ export const completeTransaction = async (
   lastTransaction.set(txData);
 
   if (shouldPrintReceipt.get()) {
-    triggerPrint(txData);
+    // Fire-and-forget: nicht awaiten, damit UI nicht blockiert
+    printReceipt({
+      totals: totalsSnapshot,
+      invoiceNumber: invoice?.invoice_number ?? "",
+      method,
+      total,
+      tendered,
+      change,
+    });
   }
 
   cartItems.set({});

@@ -79,9 +79,9 @@
 <script>
   import {
     lastTransaction,
-    triggerPrint,
     swapLastTransactionMethod,
   } from "../stores/cartStore";
+  import { reprintLastReceipt } from "../stores/printerStore";
 
   const container = document.getElementById("last-transaction")!;
   const bgContainer = document.getElementById("lt-container")!;
@@ -146,13 +146,13 @@
   reprintBtn.addEventListener("click", () => {
     const tx = lastTransaction.get();
     if (tx) {
-      triggerPrint(tx);
+      reprintLastReceipt();
 
       // Visuelles Feedback
       reprintBtn.classList.add("bg-emerald-300", "scale-95");
       setTimeout(
         () => reprintBtn.classList.remove("bg-emerald-300", "scale-95"),
-        200
+        200,
       );
     }
   });
