@@ -6,18 +6,12 @@ import CustomAmountModal from "../components/CustomAmountModal.astro";
 import CustomerModal from "../components/CustomerModal.astro";
 import DiscountModal from "../components/DiscountModal.astro";
 import QuantityModal from "../components/QuantityModal.astro";
-import AuthGuard from "@pulpo/auth/components/AuthGuard.svelte";
-import ProductGrid from "../components/ProductGrid.svelte";
+import ShopApp from "../components/ShopApp.svelte";
 ---
 
 <Layout title="POS Pulpo">
-  <AuthGuard client:only="svelte" />
-
-  <div id="pos-content" class="grid grid-cols-[1fr_340px] h-full hidden">
-    <!-- Linker Bereich -->
-    <ProductGrid client:only="svelte" />
-
-    <!-- Rechter Bereich (Sidebar) -->
+  <div class="grid grid-cols-[1fr_340px] h-full">
+    <ShopApp client:only="svelte" />
     <CartSidebar />
   </div>
 
@@ -28,13 +22,3 @@ import ProductGrid from "../components/ProductGrid.svelte";
   <DiscountModal />
   <QuantityModal />
 </Layout>
-
-<script>
-  import { authStore } from "@pulpo/auth";
-
-  authStore.subscribe((state) => {
-    if (!state.loading && state.isAuthenticated) {
-      document.getElementById("pos-content")?.classList.remove("hidden");
-    }
-  });
-</script>

@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { authStore } from "@pulpo/auth";
   import {
     categories,
     isLoading,
@@ -17,24 +16,15 @@
   let loading = $state(true);
   let storeError = $state<string | null>(null);
 
-  // Subscribe to nanostores
   onMount(() => {
     const unsubCats = categories.subscribe((v) => (storeCategories = v));
     const unsubLoading = isLoading.subscribe((v) => (loading = v));
     const unsubError = error.subscribe((v) => (storeError = v));
 
-    // Load products once authenticated
-    const unsubAuth = authStore.subscribe((state) => {
-      if (!state.loading && state.isAuthenticated) {
-        loadProducts();
-      }
-    });
-
     return () => {
       unsubCats();
       unsubLoading();
       unsubError();
-      unsubAuth();
     };
   });
 

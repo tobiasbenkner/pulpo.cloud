@@ -1,6 +1,6 @@
 ---
 // apps/shop/src/components/CartSidebar.astro
-import LastChangeWidget from "./LastChangeWidget.astro";
+import LastChangeWidget from "./LastChangeWidget.svelte";
 ---
 
 <aside
@@ -69,7 +69,7 @@ import LastChangeWidget from "./LastChangeWidget.astro";
         </button>
       </div>
     </div>
-    <LastChangeWidget />
+    <LastChangeWidget client:only="svelte" />
   </div>
 
   <!-- === OVERLAY: GEPARKTE AUFTRÄGE === -->

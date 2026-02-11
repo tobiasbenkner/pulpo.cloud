@@ -53,6 +53,7 @@ function createClient(url: string) {
 }
 
 export function initAuthClient(url: string) {
+  if (_client) return _client;
   _client = createClient(url);
   return _client;
 }
