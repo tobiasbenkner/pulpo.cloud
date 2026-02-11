@@ -12,8 +12,9 @@ export interface Invoice {
   chain_hash: string | null;
   qr_url: string | null;
   generation_date: string | null;
-  // Relation
+  // Relations
   items: InvoiceItem[];
+  payments: InvoicePayment[];
 }
 
 export interface InvoiceItem {
@@ -26,4 +27,15 @@ export interface InvoiceItem {
   price_net_unit_precise: number;
   row_total_net_precise: number;
   row_total_gross: number;
+}
+
+export interface InvoicePayment {
+  id: number;
+  date_created: string | null;
+  invoice_id: string;
+  method: "cash" | "card";
+  amount: number;
+  tendered: number | null;
+  change: number | null;
+  tip: number | null;
 }
