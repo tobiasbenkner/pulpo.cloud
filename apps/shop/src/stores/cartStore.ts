@@ -2,6 +2,7 @@
 
 import { atom, computed } from "nanostores";
 import { persistentMap, persistentAtom } from "@nanostores/persistent";
+import Big from "big.js";
 import type {
   Product,
   CartItem,
@@ -257,7 +258,7 @@ export const completeTransaction = (
   tendered: string,
   method: "cash" | "card"
 ) => {
-  const change = (parseFloat(tendered) - parseFloat(total)).toFixed(2);
+  const change = new Big(tendered).minus(new Big(total)).toFixed(2);
   const customer = selectedCustomer.get();
   const type = customer ? "invoice" : "ticket";
 
@@ -289,57 +290,61 @@ export const completeTransaction = (
 export const cartTotals = computed(
   [cartItems, globalDiscount],
   (items, globalDisc): CartTotals => {
-    let subtotalGross = 0;
-    let totalNet = 0;
+    const ZERO = new Big(0);
+    const HUNDRED = new Big(100);
+    let subtotalGross = ZERO;
+    let totalNet = ZERO;
 
     // 1. Zwischensumme (nach Artikelrabatten)
-    Object.values(items).forEach((item) => {
-      let lineGross = item.priceGross * item.quantity;
+    const lineGrossValues: Big[] = [];
+    const itemList = Object.values(items);
+
+    itemList.forEach((item) => {
+      let lineGross = new Big(item.priceGross).times(item.quantity);
       if (item.discount) {
         if (item.discount.type === "fixed") {
-          lineGross -= item.discount.value;
+          lineGross = lineGross.minus(item.discount.value);
         } else {
-          lineGross -= lineGross * (item.discount.value / 100);
+          lineGross = lineGross.minus(
+            lineGross.times(item.discount.value).div(HUNDRED)
+          );
         }
       }
-      if (lineGross < 0) lineGross = 0;
-      subtotalGross += lineGross;
+      if (lineGross.lt(ZERO)) lineGross = ZERO;
+      lineGrossValues.push(lineGross);
+      subtotalGross = subtotalGross.plus(lineGross);
     });
 
     // 2. Global Discount
     let finalTotalGross = subtotalGross;
-    let discountAmount = 0;
+    let discountAmount = ZERO;
 
     if (globalDisc) {
       if (globalDisc.type === "fixed") {
-        discountAmount = globalDisc.value;
-        finalTotalGross -= discountAmount;
+        discountAmount = new Big(globalDisc.value);
+        finalTotalGross = finalTotalGross.minus(discountAmount);
       } else {
-        discountAmount = finalTotalGross * (globalDisc.value / 100);
-        finalTotalGross -= discountAmount;
+        discountAmount = finalTotalGross
+          .times(globalDisc.value)
+          .div(HUNDRED);
+        finalTotalGross = finalTotalGross.minus(discountAmount);
       }
     }
 
-    if (finalTotalGross < 0) finalTotalGross = 0;
-    if (discountAmount > subtotalGross) discountAmount = subtotalGross;
+    if (finalTotalGross.lt(ZERO)) finalTotalGross = ZERO;
+    if (discountAmount.gt(subtotalGross)) discountAmount = subtotalGross;
 
     // 3. Steuer rückrechnen
-    const discountRatio =
-      subtotalGross > 0 ? finalTotalGross / subtotalGross : 1;
+    const discountRatio = subtotalGross.gt(ZERO)
+      ? finalTotalGross.div(subtotalGross)
+      : new Big(1);
 
-    Object.values(items).forEach((item) => {
-      let lineGross = item.priceGross * item.quantity;
-      if (item.discount) {
-        if (item.discount.type === "fixed") lineGross -= item.discount.value;
-        else lineGross -= lineGross * (item.discount.value / 100);
-      }
-      if (lineGross < 0) lineGross = 0;
-
-      const lineGrossAfterGlobal = lineGross * discountRatio;
-      const rate = TAX_RATES[item.taxClass] || 0;
-      const lineNet = lineGrossAfterGlobal / (1 + rate);
-
-      totalNet += lineNet;
+    itemList.forEach((item, i) => {
+      const lineGross = lineGrossValues[i];
+      const lineGrossAfterGlobal = lineGross.times(discountRatio);
+      const rate = new Big(TAX_RATES[item.taxClass] || 0);
+      const lineNet = lineGrossAfterGlobal.div(new Big(1).plus(rate));
+      totalNet = totalNet.plus(lineNet);
     });
 
     return {
@@ -347,8 +352,8 @@ export const cartTotals = computed(
       discountTotal: discountAmount.toFixed(2),
       gross: finalTotalGross.toFixed(2),
       net: totalNet.toFixed(2),
-      tax: (finalTotalGross - totalNet).toFixed(2),
-      count: Object.values(items).reduce((sum, item) => sum + item.quantity, 0),
+      tax: finalTotalGross.minus(totalNet).toFixed(2),
+      count: itemList.reduce((sum, item) => sum + item.quantity, 0),
     };
   }
 );

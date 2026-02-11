@@ -1,4 +1,5 @@
 import { Reservation, ReservationTurn } from "./agenda";
+import { Invoice, InvoiceItem } from "./invoice";
 import { Language } from "./language";
 import { User } from "./user";
 
@@ -12,6 +13,9 @@ export interface Schema {
   tax_classes: any[];
   opening_hours: any[];
   tenants: any[];
+
+  invoices: Invoice[];
+  invoice_items: InvoiceItem[];
 
   reservations: Reservation[];
   reservations_turns: ReservationTurn[];
