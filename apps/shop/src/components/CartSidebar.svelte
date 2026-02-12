@@ -14,10 +14,11 @@
     deleteParkedCart,
     isQuantityModalOpen,
   } from "../stores/cartStore";
-  import type { CartItem, CartTotals, TaxBreakdownEntry } from "../types/shop";
+  import type { CartItem, CartTotals } from "../types/shop";
   import type { ParkedCart } from "../stores/cartStore";
   import Big from "big.js";
   import LastChangeWidget from "./LastChangeWidget.svelte";
+  import { SquareParking } from "lucide-svelte";
 
   let items = $state<Record<string, CartItem>>({});
   let totals = $state<CartTotals>({
@@ -121,19 +122,7 @@
           title="Warenkorb parken"
           onclick={handlePark}
         >
-          <svg
-            class="w-5 h-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
-            />
-          </svg>
+          <SquareParking class="w-5 h-5" />
         </button>
 
         {#if parkedIds.length > 0}
@@ -178,9 +167,7 @@
       <div
         class="flex justify-between items-center mb-1 border-b border-zinc-200 pb-2"
       >
-        <h3
-          class="text-xs font-bold text-zinc-400 uppercase tracking-widest"
-        >
+        <h3 class="text-xs font-bold text-zinc-400 uppercase tracking-widest">
           Warteschlange
         </h3>
         <button
@@ -210,7 +197,10 @@
             role="button"
             tabindex="0"
             onclick={(e) => {
-              if (!(e.target instanceof HTMLElement) || !e.target.closest("button")) {
+              if (
+                !(e.target instanceof HTMLElement) ||
+                !e.target.closest("button")
+              ) {
                 handleRestore(id);
               }
             }}
@@ -264,7 +254,8 @@
   <!-- === LISTE === -->
   <div class="flex-1 min-h-0 relative bg-white group">
     <div
-      class="absolute top-0 left-0 right-0 h-6 bg-gradient-to-b from-white to-transparent z-10 pointer-events-none transition-opacity duration-300 {scrollTop > 10
+      class="absolute top-0 left-0 right-0 h-6 bg-gradient-to-b from-white to-transparent z-10 pointer-events-none transition-opacity duration-300 {scrollTop >
+      10
         ? 'opacity-100'
         : 'opacity-0'}"
     ></div>
@@ -309,8 +300,7 @@
                   {new Big(item.priceGross).toFixed(2)} &euro;/Stk.
                 </p>
                 <button
-                  onclick={() =>
-                    isDiscountModalOpen.set({ itemId: id })}
+                  onclick={() => isDiscountModalOpen.set({ itemId: id })}
                   class="text-[9px] px-1.5 py-0.5 rounded-md font-bold transition-colors {info.hasDiscount
                     ? 'bg-orange-100 text-orange-700 border border-orange-200'
                     : 'bg-zinc-100 text-zinc-500 border border-zinc-200 hover:bg-zinc-200'}"
@@ -322,8 +312,7 @@
             <div class="flex flex-col items-end gap-1">
               <div class="flex flex-col items-end leading-none mb-1">
                 {#if info.hasDiscount}
-                  <span
-                    class="text-[10px] text-zinc-400 line-through mb-0.5"
+                  <span class="text-[10px] text-zinc-400 line-through mb-0.5"
                     >{info.originalPriceTotal} &euro;</span
                   >
                 {/if}
@@ -376,8 +365,7 @@
                   {/if}
                 </button>
                 <button
-                  onclick={() =>
-                    isQuantityModalOpen.set({ itemId: id })}
+                  onclick={() => isQuantityModalOpen.set({ itemId: id })}
                   class="w-10 h-full text-center font-bold text-sm text-zinc-900 tabular-nums hover:bg-zinc-50 hover:text-blue-600 transition-colors"
                   title="Menge \u00E4ndern"
                 >
