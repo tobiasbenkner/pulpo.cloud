@@ -1,0 +1,3578 @@
+[
+  {
+    "id": 1,
+    "collection": "categories",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "483da352-ddb8-48e3-8de8-729977c8e916"
+  },
+  {
+    "id": 6,
+    "collection": "tenants",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "483da352-ddb8-48e3-8de8-729977c8e916"
+  },
+  {
+    "id": 7,
+    "collection": "directus_files",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "483da352-ddb8-48e3-8de8-729977c8e916"
+  },
+  {
+    "id": 8,
+    "collection": "directus_folders",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "483da352-ddb8-48e3-8de8-729977c8e916"
+  },
+  {
+    "id": 10,
+    "collection": "languages",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "483da352-ddb8-48e3-8de8-729977c8e916"
+  },
+  {
+    "id": 11,
+    "collection": "categories_translations",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "483da352-ddb8-48e3-8de8-729977c8e916"
+  },
+  {
+    "id": 12,
+    "collection": "products",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "483da352-ddb8-48e3-8de8-729977c8e916"
+  },
+  {
+    "id": 13,
+    "collection": "products_translations",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "483da352-ddb8-48e3-8de8-729977c8e916"
+  },
+  {
+    "id": 23,
+    "collection": "actions_translations",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "483da352-ddb8-48e3-8de8-729977c8e916"
+  },
+  {
+    "id": 24,
+    "collection": "actions",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "483da352-ddb8-48e3-8de8-729977c8e916"
+  },
+  {
+    "id": 44,
+    "collection": "reservations",
+    "action": "read",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "id",
+      "user_created",
+      "date_created",
+      "user_updated",
+      "date_updated",
+      "date",
+      "time",
+      "name",
+      "person_count",
+      "contact",
+      "notes",
+      "user",
+      "arrived"
+    ],
+    "policy": "b102820b-1927-4a72-b798-8df61556e345"
+  },
+  {
+    "id": 46,
+    "collection": "reservations",
+    "action": "create",
+    "permissions": null,
+    "validation": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "presets": {
+      "tenant": "$CURRENT_USER.tenant"
+    },
+    "fields": [
+      "date",
+      "time",
+      "name",
+      "person_count",
+      "contact",
+      "notes",
+      "user"
+    ],
+    "policy": "b102820b-1927-4a72-b798-8df61556e345"
+  },
+  {
+    "id": 47,
+    "collection": "reservations",
+    "action": "update",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "date",
+      "time",
+      "name",
+      "person_count",
+      "contact",
+      "notes",
+      "user",
+      "arrived"
+    ],
+    "policy": "b102820b-1927-4a72-b798-8df61556e345"
+  },
+  {
+    "id": 48,
+    "collection": "reservations",
+    "action": "delete",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": null,
+    "policy": "b102820b-1927-4a72-b798-8df61556e345"
+  },
+  {
+    "id": 49,
+    "collection": "directus_files",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "b102820b-1927-4a72-b798-8df61556e345"
+  },
+  {
+    "id": 50,
+    "collection": "directus_users",
+    "action": "read",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "tenant"
+    ],
+    "policy": "b102820b-1927-4a72-b798-8df61556e345"
+  },
+  {
+    "id": 52,
+    "collection": "opening_hours",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "483da352-ddb8-48e3-8de8-729977c8e916"
+  },
+  {
+    "id": 53,
+    "collection": "opening_hours_translations",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "483da352-ddb8-48e3-8de8-729977c8e916"
+  },
+  {
+    "id": 54,
+    "collection": "directus_collections",
+    "action": "read",
+    "permissions": {},
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "278f8f46-4f30-453c-a71b-44c401736c37"
+  },
+  {
+    "id": 55,
+    "collection": "directus_fields",
+    "action": "read",
+    "permissions": {},
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "278f8f46-4f30-453c-a71b-44c401736c37"
+  },
+  {
+    "id": 56,
+    "collection": "directus_relations",
+    "action": "read",
+    "permissions": {},
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "278f8f46-4f30-453c-a71b-44c401736c37"
+  },
+  {
+    "id": 57,
+    "collection": "directus_translations",
+    "action": "read",
+    "permissions": {},
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "278f8f46-4f30-453c-a71b-44c401736c37"
+  },
+  {
+    "id": 58,
+    "collection": "directus_activity",
+    "action": "read",
+    "permissions": {
+      "user": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "278f8f46-4f30-453c-a71b-44c401736c37"
+  },
+  {
+    "id": 59,
+    "collection": "directus_comments",
+    "action": "read",
+    "permissions": {
+      "user_created": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "278f8f46-4f30-453c-a71b-44c401736c37"
+  },
+  {
+    "id": 60,
+    "collection": "directus_comments",
+    "action": "create",
+    "permissions": {},
+    "validation": {
+      "comment": {
+        "_nnull": true
+      }
+    },
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "278f8f46-4f30-453c-a71b-44c401736c37"
+  },
+  {
+    "id": 61,
+    "collection": "directus_comments",
+    "action": "update",
+    "permissions": {
+      "user_created": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "comment"
+    ],
+    "policy": "278f8f46-4f30-453c-a71b-44c401736c37"
+  },
+  {
+    "id": 62,
+    "collection": "directus_comments",
+    "action": "delete",
+    "permissions": {
+      "user_created": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "278f8f46-4f30-453c-a71b-44c401736c37"
+  },
+  {
+    "id": 63,
+    "collection": "directus_presets",
+    "action": "read",
+    "permissions": {
+      "_or": [
+        {
+          "user": {
+            "_eq": "$CURRENT_USER"
+          }
+        },
+        {
+          "_and": [
+            {
+              "user": {
+                "_null": true
+              }
+            },
+            {
+              "role": {
+                "_eq": "$CURRENT_ROLE"
+              }
+            }
+          ]
+        },
+        {
+          "_and": [
+            {
+              "user": {
+                "_null": true
+              }
+            },
+            {
+              "role": {
+                "_null": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "278f8f46-4f30-453c-a71b-44c401736c37"
+  },
+  {
+    "id": 64,
+    "collection": "directus_presets",
+    "action": "create",
+    "permissions": {},
+    "validation": {
+      "user": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "278f8f46-4f30-453c-a71b-44c401736c37"
+  },
+  {
+    "id": 65,
+    "collection": "directus_presets",
+    "action": "update",
+    "permissions": {
+      "user": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "validation": {
+      "user": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "278f8f46-4f30-453c-a71b-44c401736c37"
+  },
+  {
+    "id": 66,
+    "collection": "directus_presets",
+    "action": "delete",
+    "permissions": {
+      "user": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "278f8f46-4f30-453c-a71b-44c401736c37"
+  },
+  {
+    "id": 67,
+    "collection": "directus_roles",
+    "action": "read",
+    "permissions": {
+      "id": {
+        "_in": "$CURRENT_ROLES"
+      }
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "278f8f46-4f30-453c-a71b-44c401736c37"
+  },
+  {
+    "id": 68,
+    "collection": "directus_settings",
+    "action": "read",
+    "permissions": {},
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "278f8f46-4f30-453c-a71b-44c401736c37"
+  },
+  {
+    "id": 69,
+    "collection": "directus_translations",
+    "action": "read",
+    "permissions": {},
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "278f8f46-4f30-453c-a71b-44c401736c37"
+  },
+  {
+    "id": 70,
+    "collection": "directus_notifications",
+    "action": "read",
+    "permissions": {
+      "recipient": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "278f8f46-4f30-453c-a71b-44c401736c37"
+  },
+  {
+    "id": 71,
+    "collection": "directus_notifications",
+    "action": "update",
+    "permissions": {
+      "recipient": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "status"
+    ],
+    "policy": "278f8f46-4f30-453c-a71b-44c401736c37"
+  },
+  {
+    "id": 72,
+    "collection": "directus_shares",
+    "action": "read",
+    "permissions": {
+      "user_created": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "278f8f46-4f30-453c-a71b-44c401736c37"
+  },
+  {
+    "id": 73,
+    "collection": "directus_users",
+    "action": "read",
+    "permissions": {
+      "id": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "id",
+      "first_name",
+      "last_name",
+      "last_page",
+      "email",
+      "password",
+      "location",
+      "title",
+      "description",
+      "tags",
+      "provider",
+      "preferences_divider",
+      "avatar",
+      "language",
+      "appearance",
+      "theme_light",
+      "theme_dark",
+      "tfa_secret",
+      "status",
+      "role"
+    ],
+    "policy": "278f8f46-4f30-453c-a71b-44c401736c37"
+  },
+  {
+    "id": 74,
+    "collection": "posts",
+    "action": "read",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "id",
+      "status",
+      "translations",
+      "title",
+      "image",
+      "category",
+      "date"
+    ],
+    "policy": "278f8f46-4f30-453c-a71b-44c401736c37"
+  },
+  {
+    "id": 75,
+    "collection": "posts_translations",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "278f8f46-4f30-453c-a71b-44c401736c37"
+  },
+  {
+    "id": 76,
+    "collection": "posts",
+    "action": "create",
+    "permissions": null,
+    "validation": null,
+    "presets": {
+      "tenant": "$CURRENT_USER.tenant"
+    },
+    "fields": [
+      "id",
+      "status",
+      "translations",
+      "title",
+      "image",
+      "category",
+      "date"
+    ],
+    "policy": "278f8f46-4f30-453c-a71b-44c401736c37"
+  },
+  {
+    "id": 77,
+    "collection": "posts_translations",
+    "action": "create",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "278f8f46-4f30-453c-a71b-44c401736c37"
+  },
+  {
+    "id": 78,
+    "collection": "posts",
+    "action": "update",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "id",
+      "status",
+      "translations",
+      "title",
+      "image",
+      "category",
+      "date"
+    ],
+    "policy": "278f8f46-4f30-453c-a71b-44c401736c37"
+  },
+  {
+    "id": 79,
+    "collection": "posts_translations",
+    "action": "update",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "278f8f46-4f30-453c-a71b-44c401736c37"
+  },
+  {
+    "id": 80,
+    "collection": "posts",
+    "action": "delete",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": null,
+    "policy": "278f8f46-4f30-453c-a71b-44c401736c37"
+  },
+  {
+    "id": 81,
+    "collection": "directus_collections",
+    "action": "read",
+    "permissions": {},
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "9f780a0b-0a2d-4812-9a62-fb1a8e86461b"
+  },
+  {
+    "id": 82,
+    "collection": "directus_fields",
+    "action": "read",
+    "permissions": {},
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "9f780a0b-0a2d-4812-9a62-fb1a8e86461b"
+  },
+  {
+    "id": 83,
+    "collection": "directus_relations",
+    "action": "read",
+    "permissions": {},
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "9f780a0b-0a2d-4812-9a62-fb1a8e86461b"
+  },
+  {
+    "id": 84,
+    "collection": "directus_translations",
+    "action": "read",
+    "permissions": {},
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "9f780a0b-0a2d-4812-9a62-fb1a8e86461b"
+  },
+  {
+    "id": 86,
+    "collection": "directus_comments",
+    "action": "read",
+    "permissions": {
+      "user_created": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "9f780a0b-0a2d-4812-9a62-fb1a8e86461b"
+  },
+  {
+    "id": 87,
+    "collection": "directus_comments",
+    "action": "create",
+    "permissions": {},
+    "validation": {
+      "comment": {
+        "_nnull": true
+      }
+    },
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "9f780a0b-0a2d-4812-9a62-fb1a8e86461b"
+  },
+  {
+    "id": 88,
+    "collection": "directus_comments",
+    "action": "update",
+    "permissions": {
+      "user_created": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "comment"
+    ],
+    "policy": "9f780a0b-0a2d-4812-9a62-fb1a8e86461b"
+  },
+  {
+    "id": 89,
+    "collection": "directus_comments",
+    "action": "delete",
+    "permissions": {
+      "user_created": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "9f780a0b-0a2d-4812-9a62-fb1a8e86461b"
+  },
+  {
+    "id": 90,
+    "collection": "directus_presets",
+    "action": "read",
+    "permissions": {
+      "_or": [
+        {
+          "user": {
+            "_eq": "$CURRENT_USER"
+          }
+        },
+        {
+          "_and": [
+            {
+              "user": {
+                "_null": true
+              }
+            },
+            {
+              "role": {
+                "_eq": "$CURRENT_ROLE"
+              }
+            }
+          ]
+        },
+        {
+          "_and": [
+            {
+              "user": {
+                "_null": true
+              }
+            },
+            {
+              "role": {
+                "_null": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "9f780a0b-0a2d-4812-9a62-fb1a8e86461b"
+  },
+  {
+    "id": 91,
+    "collection": "directus_presets",
+    "action": "create",
+    "permissions": {},
+    "validation": {
+      "user": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "9f780a0b-0a2d-4812-9a62-fb1a8e86461b"
+  },
+  {
+    "id": 92,
+    "collection": "directus_presets",
+    "action": "update",
+    "permissions": {
+      "user": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "validation": {
+      "user": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "9f780a0b-0a2d-4812-9a62-fb1a8e86461b"
+  },
+  {
+    "id": 93,
+    "collection": "directus_presets",
+    "action": "delete",
+    "permissions": {
+      "user": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "9f780a0b-0a2d-4812-9a62-fb1a8e86461b"
+  },
+  {
+    "id": 94,
+    "collection": "directus_roles",
+    "action": "read",
+    "permissions": {
+      "id": {
+        "_in": "$CURRENT_ROLES"
+      }
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "9f780a0b-0a2d-4812-9a62-fb1a8e86461b"
+  },
+  {
+    "id": 95,
+    "collection": "directus_settings",
+    "action": "read",
+    "permissions": {},
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "9f780a0b-0a2d-4812-9a62-fb1a8e86461b"
+  },
+  {
+    "id": 96,
+    "collection": "directus_translations",
+    "action": "read",
+    "permissions": {},
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "9f780a0b-0a2d-4812-9a62-fb1a8e86461b"
+  },
+  {
+    "id": 97,
+    "collection": "directus_notifications",
+    "action": "read",
+    "permissions": {
+      "recipient": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "9f780a0b-0a2d-4812-9a62-fb1a8e86461b"
+  },
+  {
+    "id": 98,
+    "collection": "directus_notifications",
+    "action": "update",
+    "permissions": {
+      "recipient": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "status"
+    ],
+    "policy": "9f780a0b-0a2d-4812-9a62-fb1a8e86461b"
+  },
+  {
+    "id": 99,
+    "collection": "directus_shares",
+    "action": "read",
+    "permissions": {
+      "user_created": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "9f780a0b-0a2d-4812-9a62-fb1a8e86461b"
+  },
+  {
+    "id": 100,
+    "collection": "directus_users",
+    "action": "read",
+    "permissions": {
+      "id": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "id",
+      "first_name",
+      "last_name",
+      "last_page",
+      "email",
+      "password",
+      "location",
+      "title",
+      "description",
+      "tags",
+      "provider",
+      "preferences_divider",
+      "avatar",
+      "language",
+      "appearance",
+      "theme_light",
+      "theme_dark",
+      "tfa_secret",
+      "status",
+      "role"
+    ],
+    "policy": "9f780a0b-0a2d-4812-9a62-fb1a8e86461b"
+  },
+  {
+    "id": 101,
+    "collection": "languages",
+    "action": "create",
+    "permissions": null,
+    "validation": null,
+    "presets": {
+      "tenant": "$CURRENT_USER.tenant"
+    },
+    "fields": [
+      "id",
+      "sort",
+      "code",
+      "name",
+      "flag"
+    ],
+    "policy": "9f780a0b-0a2d-4812-9a62-fb1a8e86461b"
+  },
+  {
+    "id": 102,
+    "collection": "languages",
+    "action": "read",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "id",
+      "sort",
+      "code",
+      "name",
+      "flag"
+    ],
+    "policy": "9f780a0b-0a2d-4812-9a62-fb1a8e86461b"
+  },
+  {
+    "id": 103,
+    "collection": "languages",
+    "action": "update",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": {
+      "tenant": "$CURRENT_USER.tenant"
+    },
+    "fields": [
+      "id",
+      "sort",
+      "code",
+      "name",
+      "flag"
+    ],
+    "policy": "9f780a0b-0a2d-4812-9a62-fb1a8e86461b"
+  },
+  {
+    "id": 104,
+    "collection": "languages",
+    "action": "delete",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": null,
+    "policy": "9f780a0b-0a2d-4812-9a62-fb1a8e86461b"
+  },
+  {
+    "id": 105,
+    "collection": "directus_files",
+    "action": "create",
+    "permissions": null,
+    "validation": null,
+    "presets": {
+      "tenant": "$CURRENT_USER.tenant"
+    },
+    "fields": [
+      "id",
+      "title",
+      "description",
+      "tags",
+      "location",
+      "storage",
+      "focal_point_x",
+      "focal_point_y",
+      "filename_disk",
+      "filename_download",
+      "metadata",
+      "type",
+      "filesize",
+      "created_on",
+      "modified_by",
+      "modified_on",
+      "embed",
+      "uploaded_by",
+      "uploaded_on",
+      "folder",
+      "height",
+      "width",
+      "charset",
+      "duration",
+      "tus_id",
+      "tus_data",
+      "$thumbnail"
+    ],
+    "policy": "38c4b37f-f1f5-4104-9cce-a984b75a3fd5"
+  },
+  {
+    "id": 106,
+    "collection": "directus_files",
+    "action": "read",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "id",
+      "title",
+      "description",
+      "tags",
+      "location",
+      "storage",
+      "focal_point_x",
+      "focal_point_divider",
+      "focal_point_y",
+      "storage_divider",
+      "filename_disk",
+      "filename_download",
+      "metadata",
+      "type",
+      "filesize",
+      "created_on",
+      "modified_by",
+      "modified_on",
+      "embed",
+      "uploaded_by",
+      "uploaded_on",
+      "folder",
+      "width",
+      "height",
+      "charset",
+      "duration",
+      "tus_id",
+      "tus_data",
+      "$thumbnail"
+    ],
+    "policy": "38c4b37f-f1f5-4104-9cce-a984b75a3fd5"
+  },
+  {
+    "id": 107,
+    "collection": "directus_files",
+    "action": "update",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": {
+      "tenant": "$CURRENT_USER.tenant"
+    },
+    "fields": [
+      "id",
+      "title",
+      "description",
+      "tags",
+      "location",
+      "storage",
+      "focal_point_x",
+      "focal_point_y",
+      "filename_disk",
+      "filename_download",
+      "metadata",
+      "type",
+      "filesize",
+      "created_on",
+      "modified_by",
+      "modified_on",
+      "embed",
+      "uploaded_by",
+      "uploaded_on",
+      "folder",
+      "width",
+      "height",
+      "charset",
+      "duration",
+      "tus_id",
+      "tus_data",
+      "$thumbnail"
+    ],
+    "policy": "38c4b37f-f1f5-4104-9cce-a984b75a3fd5"
+  },
+  {
+    "id": 108,
+    "collection": "directus_files",
+    "action": "delete",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": null,
+    "policy": "38c4b37f-f1f5-4104-9cce-a984b75a3fd5"
+  },
+  {
+    "id": 109,
+    "collection": "directus_folders",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "38c4b37f-f1f5-4104-9cce-a984b75a3fd5"
+  },
+  {
+    "id": 110,
+    "collection": "posts_categories",
+    "action": "create",
+    "permissions": null,
+    "validation": null,
+    "presets": {
+      "tenant": "$CURRENT_USER.tenant"
+    },
+    "fields": [
+      "id",
+      "title",
+      "translations"
+    ],
+    "policy": "278f8f46-4f30-453c-a71b-44c401736c37"
+  },
+  {
+    "id": 111,
+    "collection": "posts_categories",
+    "action": "read",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "id",
+      "title",
+      "translations"
+    ],
+    "policy": "278f8f46-4f30-453c-a71b-44c401736c37"
+  },
+  {
+    "id": 112,
+    "collection": "posts_categories",
+    "action": "update",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "id",
+      "title",
+      "translations"
+    ],
+    "policy": "278f8f46-4f30-453c-a71b-44c401736c37"
+  },
+  {
+    "id": 113,
+    "collection": "posts_categories",
+    "action": "delete",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": null,
+    "policy": "278f8f46-4f30-453c-a71b-44c401736c37"
+  },
+  {
+    "id": 114,
+    "collection": "posts",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "483da352-ddb8-48e3-8de8-729977c8e916"
+  },
+  {
+    "id": 115,
+    "collection": "posts_categories",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "483da352-ddb8-48e3-8de8-729977c8e916"
+  },
+  {
+    "id": 116,
+    "collection": "posts_translations",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "483da352-ddb8-48e3-8de8-729977c8e916"
+  },
+  {
+    "id": 117,
+    "collection": "posts_categories_translations",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "483da352-ddb8-48e3-8de8-729977c8e916"
+  },
+  {
+    "id": 118,
+    "collection": "posts_categories_translations",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "278f8f46-4f30-453c-a71b-44c401736c37"
+  },
+  {
+    "id": 119,
+    "collection": "posts_categories_translations",
+    "action": "create",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "278f8f46-4f30-453c-a71b-44c401736c37"
+  },
+  {
+    "id": 120,
+    "collection": "posts_categories_translations",
+    "action": "update",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "278f8f46-4f30-453c-a71b-44c401736c37"
+  },
+  {
+    "id": 121,
+    "collection": "events",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "abf8a154-5b1c-4a46-ac9c-7300570f4f17"
+  },
+  {
+    "id": 122,
+    "collection": "events_translations",
+    "action": "create",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "cb6b285b-9d8a-471f-a3cf-7598b32abf4e"
+  },
+  {
+    "id": 123,
+    "collection": "events_translations",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "id",
+      "events_id",
+      "languages_id",
+      "title",
+      "description",
+      "event",
+      "tabs"
+    ],
+    "policy": "cb6b285b-9d8a-471f-a3cf-7598b32abf4e"
+  },
+  {
+    "id": 124,
+    "collection": "events_translations",
+    "action": "update",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "cb6b285b-9d8a-471f-a3cf-7598b32abf4e"
+  },
+  {
+    "id": 125,
+    "collection": "events_translations",
+    "action": "delete",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "cb6b285b-9d8a-471f-a3cf-7598b32abf4e"
+  },
+  {
+    "id": 126,
+    "collection": "events",
+    "action": "create",
+    "permissions": null,
+    "validation": null,
+    "presets": {
+      "tenant": "$CURRENT_USER.tenant"
+    },
+    "fields": [
+      "id",
+      "date",
+      "time",
+      "price",
+      "image",
+      "translations"
+    ],
+    "policy": "cb6b285b-9d8a-471f-a3cf-7598b32abf4e"
+  },
+  {
+    "id": 127,
+    "collection": "events",
+    "action": "read",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "id",
+      "date",
+      "time",
+      "price",
+      "image",
+      "translations"
+    ],
+    "policy": "cb6b285b-9d8a-471f-a3cf-7598b32abf4e"
+  },
+  {
+    "id": 128,
+    "collection": "events",
+    "action": "update",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": {
+      "tenant": "$CURRENT_USER.tenant"
+    },
+    "fields": [
+      "id",
+      "date",
+      "time",
+      "image",
+      "price",
+      "translations"
+    ],
+    "policy": "cb6b285b-9d8a-471f-a3cf-7598b32abf4e"
+  },
+  {
+    "id": 129,
+    "collection": "events",
+    "action": "delete",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": null,
+    "policy": "cb6b285b-9d8a-471f-a3cf-7598b32abf4e"
+  },
+  {
+    "id": 130,
+    "collection": "events",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "483da352-ddb8-48e3-8de8-729977c8e916"
+  },
+  {
+    "id": 131,
+    "collection": "events_translations",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "483da352-ddb8-48e3-8de8-729977c8e916"
+  },
+  {
+    "id": 132,
+    "collection": "directus_files",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "a8ec307d-8300-4dd9-a1e0-677b2cb7de2b"
+  },
+  {
+    "id": 133,
+    "collection": "events_translations",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "abf8a154-5b1c-4a46-ac9c-7300570f4f17"
+  },
+  {
+    "id": 134,
+    "collection": "languages",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "abf8a154-5b1c-4a46-ac9c-7300570f4f17"
+  },
+  {
+    "id": 135,
+    "collection": "opening_hours",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "abf8a154-5b1c-4a46-ac9c-7300570f4f17"
+  },
+  {
+    "id": 136,
+    "collection": "opening_hours_translations",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "abf8a154-5b1c-4a46-ac9c-7300570f4f17"
+  },
+  {
+    "id": 137,
+    "collection": "opening_hours_translations",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "b45d5890-588c-4c53-b080-b7f301e3ffed"
+  },
+  {
+    "id": 138,
+    "collection": "opening_hours_translations",
+    "action": "create",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "b45d5890-588c-4c53-b080-b7f301e3ffed"
+  },
+  {
+    "id": 139,
+    "collection": "opening_hours_translations",
+    "action": "update",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "b45d5890-588c-4c53-b080-b7f301e3ffed"
+  },
+  {
+    "id": 140,
+    "collection": "opening_hours_translations",
+    "action": "delete",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "b45d5890-588c-4c53-b080-b7f301e3ffed"
+  },
+  {
+    "id": 141,
+    "collection": "opening_hours",
+    "action": "create",
+    "permissions": null,
+    "validation": null,
+    "presets": {
+      "tenant": "$CURRENT_USER.tenant"
+    },
+    "fields": [
+      "id",
+      "sort",
+      "title",
+      "translations"
+    ],
+    "policy": "b45d5890-588c-4c53-b080-b7f301e3ffed"
+  },
+  {
+    "id": 142,
+    "collection": "opening_hours",
+    "action": "read",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "id",
+      "sort",
+      "title",
+      "translations"
+    ],
+    "policy": "b45d5890-588c-4c53-b080-b7f301e3ffed"
+  },
+  {
+    "id": 143,
+    "collection": "opening_hours",
+    "action": "update",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": {
+      "tenant": "$CURRENT_USER.tenant"
+    },
+    "fields": [
+      "id",
+      "sort",
+      "title",
+      "translations"
+    ],
+    "policy": "b45d5890-588c-4c53-b080-b7f301e3ffed"
+  },
+  {
+    "id": 144,
+    "collection": "opening_hours",
+    "action": "delete",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": null,
+    "policy": "b45d5890-588c-4c53-b080-b7f301e3ffed"
+  },
+  {
+    "id": 145,
+    "collection": "products_translations",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "efe26de3-f101-4272-885b-5c68a85ccd8b"
+  },
+  {
+    "id": 146,
+    "collection": "products_translations",
+    "action": "create",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "efe26de3-f101-4272-885b-5c68a85ccd8b"
+  },
+  {
+    "id": 147,
+    "collection": "products_translations",
+    "action": "update",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "efe26de3-f101-4272-885b-5c68a85ccd8b"
+  },
+  {
+    "id": 148,
+    "collection": "products_translations",
+    "action": "delete",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "efe26de3-f101-4272-885b-5c68a85ccd8b"
+  },
+  {
+    "id": 149,
+    "collection": "products",
+    "action": "create",
+    "permissions": null,
+    "validation": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "presets": {
+      "tenant": "$CURRENT_USER.tenant"
+    },
+    "fields": [
+      "id",
+      "sort",
+      "price",
+      "image",
+      "category",
+      "allergies",
+      "price_gross",
+      "tax_class",
+      "product",
+      "translations",
+      "meta",
+      "image",
+      "allergies",
+      "finance",
+      "price",
+      "price_gross",
+      "tax_class",
+      "tabs"
+    ],
+    "policy": "efe26de3-f101-4272-885b-5c68a85ccd8b"
+  },
+  {
+    "id": 150,
+    "collection": "products",
+    "action": "read",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "sort",
+      "category",
+      "id",
+      "product",
+      "translations",
+      "meta",
+      "image",
+      "allergies",
+      "finance",
+      "price",
+      "price_gross",
+      "tax_class",
+      "stock",
+      "tabs"
+    ],
+    "policy": "efe26de3-f101-4272-885b-5c68a85ccd8b"
+  },
+  {
+    "id": 151,
+    "collection": "products",
+    "action": "update",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "presets": {
+      "tenant": "$CURRENT_USER.tenant"
+    },
+    "fields": [
+      "id",
+      "sort",
+      "category",
+      "product",
+      "translations",
+      "meta",
+      "image",
+      "allergies",
+      "finance",
+      "price",
+      "price_gross",
+      "tax_class",
+      "stock",
+      "tabs"
+    ],
+    "policy": "efe26de3-f101-4272-885b-5c68a85ccd8b"
+  },
+  {
+    "id": 152,
+    "collection": "products",
+    "action": "delete",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": null,
+    "policy": "efe26de3-f101-4272-885b-5c68a85ccd8b"
+  },
+  {
+    "id": 153,
+    "collection": "categories",
+    "action": "create",
+    "permissions": null,
+    "validation": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "presets": {
+      "tenant": "$CURRENT_USER.tenant"
+    },
+    "fields": [
+      "id",
+      "sort",
+      "translations",
+      "image",
+      "products"
+    ],
+    "policy": "efe26de3-f101-4272-885b-5c68a85ccd8b"
+  },
+  {
+    "id": 154,
+    "collection": "categories",
+    "action": "read",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "id",
+      "sort",
+      "translations",
+      "image",
+      "products"
+    ],
+    "policy": "efe26de3-f101-4272-885b-5c68a85ccd8b"
+  },
+  {
+    "id": 155,
+    "collection": "categories",
+    "action": "update",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "presets": {
+      "tenant": "$CURRENT_USER.tenant"
+    },
+    "fields": [
+      "id",
+      "sort",
+      "translations",
+      "image",
+      "products"
+    ],
+    "policy": "efe26de3-f101-4272-885b-5c68a85ccd8b"
+  },
+  {
+    "id": 156,
+    "collection": "categories",
+    "action": "delete",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": null,
+    "policy": "efe26de3-f101-4272-885b-5c68a85ccd8b"
+  },
+  {
+    "id": 157,
+    "collection": "categories_translations",
+    "action": "create",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "efe26de3-f101-4272-885b-5c68a85ccd8b"
+  },
+  {
+    "id": 158,
+    "collection": "categories_translations",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "efe26de3-f101-4272-885b-5c68a85ccd8b"
+  },
+  {
+    "id": 159,
+    "collection": "categories_translations",
+    "action": "update",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "efe26de3-f101-4272-885b-5c68a85ccd8b"
+  },
+  {
+    "id": 160,
+    "collection": "categories_translations",
+    "action": "delete",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "efe26de3-f101-4272-885b-5c68a85ccd8b"
+  },
+  {
+    "id": 161,
+    "collection": "languages",
+    "action": "create",
+    "permissions": null,
+    "validation": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "presets": {
+      "tenant": "$CURRENT_USER.tenant"
+    },
+    "fields": [
+      "id",
+      "sort",
+      "code",
+      "name",
+      "flag"
+    ],
+    "policy": "efe26de3-f101-4272-885b-5c68a85ccd8b"
+  },
+  {
+    "id": 162,
+    "collection": "languages",
+    "action": "read",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "id",
+      "sort",
+      "code",
+      "name",
+      "flag"
+    ],
+    "policy": "efe26de3-f101-4272-885b-5c68a85ccd8b"
+  },
+  {
+    "id": 163,
+    "collection": "languages",
+    "action": "update",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "presets": {
+      "tenant": "$CURRENT_USER.tenant"
+    },
+    "fields": [
+      "id",
+      "sort",
+      "code",
+      "name",
+      "flag"
+    ],
+    "policy": "efe26de3-f101-4272-885b-5c68a85ccd8b"
+  },
+  {
+    "id": 164,
+    "collection": "languages",
+    "action": "delete",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": null,
+    "policy": "efe26de3-f101-4272-885b-5c68a85ccd8b"
+  },
+  {
+    "id": 165,
+    "collection": "products",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "abf8a154-5b1c-4a46-ac9c-7300570f4f17"
+  },
+  {
+    "id": 166,
+    "collection": "products_translations",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "abf8a154-5b1c-4a46-ac9c-7300570f4f17"
+  },
+  {
+    "id": 167,
+    "collection": "categories_translations",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "abf8a154-5b1c-4a46-ac9c-7300570f4f17"
+  },
+  {
+    "id": 168,
+    "collection": "categories",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "abf8a154-5b1c-4a46-ac9c-7300570f4f17"
+  },
+  {
+    "id": 169,
+    "collection": "tenants",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "id",
+      "opening_hours",
+      "name",
+      "street",
+      "postcode",
+      "city",
+      "maps",
+      "instagram",
+      "facebook",
+      "tiktok",
+      "youtube",
+      "tripadvisor",
+      "restaurantguru",
+      "yelp",
+      "social_media",
+      "contacts",
+      "nif",
+      "location",
+      "tabs"
+    ],
+    "policy": "abf8a154-5b1c-4a46-ac9c-7300570f4f17"
+  },
+  {
+    "id": 170,
+    "collection": "actions",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "abf8a154-5b1c-4a46-ac9c-7300570f4f17"
+  },
+  {
+    "id": 171,
+    "collection": "actions_translations",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "abf8a154-5b1c-4a46-ac9c-7300570f4f17"
+  },
+  {
+    "id": 172,
+    "collection": "tenants",
+    "action": "read",
+    "permissions": {
+      "_and": [
+        {
+          "id": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "id",
+      "date_created",
+      "location",
+      "nif",
+      "name",
+      "street",
+      "postcode",
+      "city",
+      "maps",
+      "contacts",
+      "opening_hours",
+      "social_media",
+      "instagram",
+      "facebook",
+      "tiktok",
+      "youtube",
+      "tripadvisor",
+      "restaurantguru",
+      "yelp",
+      "last_invoice_number",
+      "invoice_prefix",
+      "timezone",
+      "invoice_image",
+      "invoices",
+      "tabs"
+    ],
+    "policy": "434296c2-d704-4d3a-a317-5fd7716fed5a"
+  },
+  {
+    "id": 173,
+    "collection": "tenants",
+    "action": "update",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "id",
+      "date_created",
+      "location",
+      "nif",
+      "name",
+      "street",
+      "postcode",
+      "city",
+      "maps",
+      "contacts",
+      "opening_hours",
+      "social_media",
+      "instagram",
+      "facebook",
+      "tiktok",
+      "youtube",
+      "tripadvisor",
+      "restaurantguru",
+      "yelp",
+      "tabs"
+    ],
+    "policy": "434296c2-d704-4d3a-a317-5fd7716fed5a"
+  },
+  {
+    "id": 174,
+    "collection": "actions_translations",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "41cfd020-96be-4e03-907a-47c879c7f295"
+  },
+  {
+    "id": 175,
+    "collection": "actions_translations",
+    "action": "create",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "41cfd020-96be-4e03-907a-47c879c7f295"
+  },
+  {
+    "id": 176,
+    "collection": "actions_translations",
+    "action": "update",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "41cfd020-96be-4e03-907a-47c879c7f295"
+  },
+  {
+    "id": 177,
+    "collection": "actions_translations",
+    "action": "delete",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "41cfd020-96be-4e03-907a-47c879c7f295"
+  },
+  {
+    "id": 178,
+    "collection": "actions",
+    "action": "create",
+    "permissions": null,
+    "validation": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "presets": {
+      "tenant": "$CURRENT_USER.tenant"
+    },
+    "fields": [
+      "id",
+      "sort",
+      "title",
+      "translations",
+      "type",
+      "url"
+    ],
+    "policy": "41cfd020-96be-4e03-907a-47c879c7f295"
+  },
+  {
+    "id": 179,
+    "collection": "actions",
+    "action": "read",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "id",
+      "sort",
+      "title",
+      "translations",
+      "type",
+      "url"
+    ],
+    "policy": "41cfd020-96be-4e03-907a-47c879c7f295"
+  },
+  {
+    "id": 180,
+    "collection": "actions",
+    "action": "update",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "presets": {
+      "tenant": "$CURRENT_USER.tenant"
+    },
+    "fields": [
+      "id",
+      "sort",
+      "title",
+      "translations",
+      "type",
+      "url"
+    ],
+    "policy": "41cfd020-96be-4e03-907a-47c879c7f295"
+  },
+  {
+    "id": 181,
+    "collection": "actions",
+    "action": "delete",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": null,
+    "policy": "41cfd020-96be-4e03-907a-47c879c7f295"
+  },
+  {
+    "id": 182,
+    "collection": "reservations",
+    "action": "create",
+    "permissions": null,
+    "validation": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "presets": {
+      "tenant": "$CURRENT_USER.tenant"
+    },
+    "fields": [
+      "id",
+      "user_created",
+      "date_created",
+      "user_updated",
+      "date_updated",
+      "date",
+      "time",
+      "name",
+      "person_count",
+      "contact",
+      "notes",
+      "arrived",
+      "user"
+    ],
+    "policy": "9ecce739-8874-4a97-8fb2-5d9a57fe48a6"
+  },
+  {
+    "id": 183,
+    "collection": "reservations",
+    "action": "read",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "id",
+      "user_created",
+      "date_created",
+      "user_updated",
+      "date_updated",
+      "date",
+      "time",
+      "name",
+      "person_count",
+      "contact",
+      "notes",
+      "arrived",
+      "user"
+    ],
+    "policy": "9ecce739-8874-4a97-8fb2-5d9a57fe48a6"
+  },
+  {
+    "id": 184,
+    "collection": "reservations",
+    "action": "update",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "presets": {
+      "tenant": "$CURRENT_USER.tenant"
+    },
+    "fields": [
+      "id",
+      "user_created",
+      "date_created",
+      "user_updated",
+      "date_updated",
+      "date",
+      "time",
+      "name",
+      "person_count",
+      "contact",
+      "notes",
+      "arrived",
+      "user"
+    ],
+    "policy": "9ecce739-8874-4a97-8fb2-5d9a57fe48a6"
+  },
+  {
+    "id": 185,
+    "collection": "reservations",
+    "action": "delete",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": null,
+    "policy": "9ecce739-8874-4a97-8fb2-5d9a57fe48a6"
+  },
+  {
+    "id": 190,
+    "collection": "reservations_turns",
+    "action": "create",
+    "permissions": null,
+    "validation": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "presets": {
+      "tenant": "$CURRENT_USER.tenant"
+    },
+    "fields": [
+      "id",
+      "label",
+      "start",
+      "color"
+    ],
+    "policy": "9ecce739-8874-4a97-8fb2-5d9a57fe48a6"
+  },
+  {
+    "id": 191,
+    "collection": "reservations_turns",
+    "action": "read",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "id",
+      "label",
+      "color",
+      "start"
+    ],
+    "policy": "9ecce739-8874-4a97-8fb2-5d9a57fe48a6"
+  },
+  {
+    "id": 192,
+    "collection": "reservations_turns",
+    "action": "update",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "presets": {
+      "tenant": "$CURRENT_USER.tenant"
+    },
+    "fields": [
+      "id",
+      "label",
+      "start",
+      "color"
+    ],
+    "policy": "9ecce739-8874-4a97-8fb2-5d9a57fe48a6"
+  },
+  {
+    "id": 193,
+    "collection": "reservations_turns",
+    "action": "delete",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": null,
+    "policy": "9ecce739-8874-4a97-8fb2-5d9a57fe48a6"
+  },
+  {
+    "id": 194,
+    "collection": "directus_users",
+    "action": "read",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "first_name",
+      "last_name",
+      "avatar",
+      "id"
+    ],
+    "policy": "a2e81177-6400-4261-82eb-17cf979e59cc"
+  },
+  {
+    "id": 195,
+    "collection": "tax_classes",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "efe26de3-f101-4272-885b-5c68a85ccd8b"
+  },
+  {
+    "id": 196,
+    "collection": "tax_zones",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "efe26de3-f101-4272-885b-5c68a85ccd8b"
+  },
+  {
+    "id": 197,
+    "collection": "tax_rules",
+    "action": "read",
+    "permissions": null,
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "policy": "efe26de3-f101-4272-885b-5c68a85ccd8b"
+  },
+  {
+    "id": 198,
+    "collection": "invoices",
+    "action": "create",
+    "permissions": null,
+    "validation": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "presets": {
+      "tenant": "$CURRENT_USER.tenant"
+    },
+    "fields": [
+      "items",
+      "invoice",
+      "status",
+      "total_net",
+      "total_tax",
+      "total_gross",
+      "payments",
+      "tabs",
+      "invoice_number",
+      "closure_id"
+    ],
+    "policy": "efe26de3-f101-4272-885b-5c68a85ccd8b"
+  },
+  {
+    "id": 199,
+    "collection": "invoices",
+    "action": "read",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "date_created",
+      "invoice_number",
+      "status",
+      "total_net",
+      "total_tax",
+      "total_gross",
+      "previous_record_hash",
+      "chain_hash",
+      "qr_url",
+      "generation_date",
+      "id",
+      "tenant",
+      "items",
+      "invoice",
+      "payments",
+      "verifactu",
+      "tabs",
+      "closure_id"
+    ],
+    "policy": "efe26de3-f101-4272-885b-5c68a85ccd8b"
+  },
+  {
+    "id": 200,
+    "collection": "invoice_items",
+    "action": "create",
+    "permissions": null,
+    "validation": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "presets": {
+      "tenant": "$CURRENT_USER.tenant"
+    },
+    "fields": [
+      "product_name",
+      "quantity",
+      "tax_rate_snapshot",
+      "price_gross_unit",
+      "price_net_unit_precise",
+      "row_total_net_precise",
+      "row_total_gross",
+      "invoice_id"
+    ],
+    "policy": "efe26de3-f101-4272-885b-5c68a85ccd8b"
+  },
+  {
+    "id": 201,
+    "collection": "invoice_items",
+    "action": "read",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "id",
+      "product_name",
+      "quantity",
+      "tax_rate_snapshot",
+      "price_gross_unit",
+      "price_net_unit_precise",
+      "row_total_net_precise",
+      "row_total_gross",
+      "invoice_id"
+    ],
+    "policy": "efe26de3-f101-4272-885b-5c68a85ccd8b"
+  },
+  {
+    "id": 202,
+    "collection": "invoice_payments",
+    "action": "create",
+    "permissions": null,
+    "validation": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "presets": {
+      "tenant": "$CURRENT_USER.tenant"
+    },
+    "fields": [
+      "method",
+      "amount",
+      "tendered",
+      "change",
+      "tip",
+      "invoice_id"
+    ],
+    "policy": "efe26de3-f101-4272-885b-5c68a85ccd8b"
+  },
+  {
+    "id": 203,
+    "collection": "invoice_payments",
+    "action": "read",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "id",
+      "date_created",
+      "invoice_id",
+      "method",
+      "amount",
+      "tendered",
+      "change",
+      "tip"
+    ],
+    "policy": "efe26de3-f101-4272-885b-5c68a85ccd8b"
+  },
+  {
+    "id": 205,
+    "collection": "cash_register_closures",
+    "action": "create",
+    "permissions": null,
+    "validation": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "presets": {
+      "tenant": "$CURRENT_USER.tenant"
+    },
+    "fields": [
+      "id",
+      "date_created",
+      "period_start",
+      "period_end",
+      "total_gross",
+      "total_net",
+      "total_tax",
+      "total_cash",
+      "total_card",
+      "total_change",
+      "transaction_count",
+      "starting_cash",
+      "expected_cash",
+      "counted_cash",
+      "difference",
+      "tax_breakdown",
+      "status",
+      "denomination_count"
+    ],
+    "policy": "efe26de3-f101-4272-885b-5c68a85ccd8b"
+  },
+  {
+    "id": 206,
+    "collection": "cash_register_closures",
+    "action": "read",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "period_start",
+      "period_end",
+      "total_gross",
+      "total_net",
+      "total_tax",
+      "total_cash",
+      "total_card",
+      "total_change",
+      "transaction_count",
+      "starting_cash",
+      "expected_cash",
+      "counted_cash",
+      "difference",
+      "tax_breakdown",
+      "date_created",
+      "id",
+      "status",
+      "denomination_count"
+    ],
+    "policy": "efe26de3-f101-4272-885b-5c68a85ccd8b"
+  },
+  {
+    "id": 207,
+    "collection": "cash_register_closures",
+    "action": "update",
+    "permissions": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "validation": {
+      "_and": [
+        {
+          "tenant": {
+            "_eq": "$CURRENT_USER.tenant"
+          }
+        }
+      ]
+    },
+    "presets": {
+      "tenant": "$CURRENT_USER.tenant"
+    },
+    "fields": [
+      "id",
+      "period_start",
+      "period_end",
+      "total_gross",
+      "total_net",
+      "total_tax",
+      "total_cash",
+      "total_card",
+      "total_change",
+      "transaction_count",
+      "starting_cash",
+      "expected_cash",
+      "counted_cash",
+      "difference",
+      "tax_breakdown",
+      "status",
+      "denomination_count"
+    ],
+    "policy": "efe26de3-f101-4272-885b-5c68a85ccd8b"
+  },
+  {
+    "policy": null,
+    "permissions": {},
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "system": true,
+    "collection": "directus_collections",
+    "action": "read"
+  },
+  {
+    "policy": null,
+    "permissions": {},
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "system": true,
+    "collection": "directus_fields",
+    "action": "read"
+  },
+  {
+    "policy": null,
+    "permissions": {},
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "system": true,
+    "collection": "directus_relations",
+    "action": "read"
+  },
+  {
+    "policy": null,
+    "permissions": {},
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "system": true,
+    "collection": "directus_translations",
+    "action": "read"
+  },
+  {
+    "policy": null,
+    "permissions": {
+      "user": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "system": true,
+    "collection": "directus_activity",
+    "action": "read"
+  },
+  {
+    "policy": null,
+    "permissions": {
+      "user_created": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "system": true,
+    "collection": "directus_comments",
+    "action": "read"
+  },
+  {
+    "policy": null,
+    "permissions": {},
+    "validation": {
+      "comment": {
+        "_nnull": true
+      }
+    },
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "system": true,
+    "collection": "directus_comments",
+    "action": "create"
+  },
+  {
+    "policy": null,
+    "permissions": {
+      "user_created": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "comment"
+    ],
+    "system": true,
+    "collection": "directus_comments",
+    "action": "update"
+  },
+  {
+    "policy": null,
+    "permissions": {
+      "user_created": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "system": true,
+    "collection": "directus_comments",
+    "action": "delete"
+  },
+  {
+    "policy": null,
+    "permissions": {
+      "_or": [
+        {
+          "user": {
+            "_eq": "$CURRENT_USER"
+          }
+        },
+        {
+          "_and": [
+            {
+              "user": {
+                "_null": true
+              }
+            },
+            {
+              "role": {
+                "_eq": "$CURRENT_ROLE"
+              }
+            }
+          ]
+        },
+        {
+          "_and": [
+            {
+              "user": {
+                "_null": true
+              }
+            },
+            {
+              "role": {
+                "_null": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "system": true,
+    "collection": "directus_presets",
+    "action": "read"
+  },
+  {
+    "policy": null,
+    "permissions": {},
+    "validation": {
+      "user": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "system": true,
+    "collection": "directus_presets",
+    "action": "create"
+  },
+  {
+    "policy": null,
+    "permissions": {
+      "user": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "validation": {
+      "user": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "system": true,
+    "collection": "directus_presets",
+    "action": "update"
+  },
+  {
+    "policy": null,
+    "permissions": {
+      "user": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "system": true,
+    "collection": "directus_presets",
+    "action": "delete"
+  },
+  {
+    "policy": null,
+    "permissions": {
+      "id": {
+        "_in": "$CURRENT_ROLES"
+      }
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "system": true,
+    "collection": "directus_roles",
+    "action": "read"
+  },
+  {
+    "policy": null,
+    "permissions": {},
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "system": true,
+    "collection": "directus_settings",
+    "action": "read"
+  },
+  {
+    "policy": null,
+    "permissions": {},
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "system": true,
+    "collection": "directus_translations",
+    "action": "read"
+  },
+  {
+    "policy": null,
+    "permissions": {
+      "recipient": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "system": true,
+    "collection": "directus_notifications",
+    "action": "read"
+  },
+  {
+    "policy": null,
+    "permissions": {
+      "recipient": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "status"
+    ],
+    "system": true,
+    "collection": "directus_notifications",
+    "action": "update"
+  },
+  {
+    "policy": null,
+    "permissions": {
+      "user_created": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "*"
+    ],
+    "system": true,
+    "collection": "directus_shares",
+    "action": "read"
+  },
+  {
+    "policy": null,
+    "permissions": {
+      "id": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "validation": null,
+    "presets": null,
+    "fields": [
+      "id",
+      "first_name",
+      "last_name",
+      "last_page",
+      "email",
+      "password",
+      "location",
+      "title",
+      "description",
+      "tags",
+      "provider",
+      "preferences_divider",
+      "avatar",
+      "language",
+      "appearance",
+      "theme_light",
+      "theme_dark",
+      "tfa_secret",
+      "status",
+      "role"
+    ],
+    "system": true,
+    "collection": "directus_users",
+    "action": "read"
+  }
+]

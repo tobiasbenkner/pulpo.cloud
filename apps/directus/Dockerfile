@@ -16,8 +16,9 @@ WORKDIR /directus
 RUN pnpm install @timio23/directus-group-tabs@3.0.0 @directus-labs/seo-plugin@1.1.1
 
 COPY ./snapshot.yaml /directus/snapshot.yaml
+COPY ./migrations /directus/migrations
 
-COPY ./start.sh /directus/start.sh
+COPY ./start.sh /directus/
 USER root
 RUN chmod +x /directus/start.sh
 USER node

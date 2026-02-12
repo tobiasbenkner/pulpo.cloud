@@ -1,0 +1,119 @@
+[
+  {
+    "id": "0f0027b3-ee11-4d9d-84c9-371086fd7775",
+    "name": "Build Service",
+    "icon": "supervised_user_circle",
+    "description": null,
+    "parent": null,
+    "children": [],
+    "policies": [
+      "634233e7-105b-4934-8cfd-600ec1c7edb6"
+    ],
+    "users": [
+      "5c5478ab-c632-45d7-8d91-a7fe3081143a"
+    ]
+  },
+  {
+    "id": "27225513-a502-4dd4-845c-37ba3a3e7a53",
+    "name": "App User",
+    "icon": "supervised_user_circle",
+    "description": null,
+    "parent": null,
+    "children": [],
+    "policies": [
+      "ab866476-f712-40d9-bd7d-f01b4b59d0c8",
+      "1cf0298c-4612-4a9e-9421-0533dcbfb60c",
+      "659314d6-e482-455a-b531-5b734a71a24b"
+    ],
+    "users": [
+      "e2282dd9-0cbb-49fe-82ef-c7b2fbb9bbd2"
+    ]
+  },
+  {
+    "id": "5b90fc60-89ea-465c-960f-d59c38373d27",
+    "name": "Events",
+    "icon": "supervised_user_circle",
+    "description": null,
+    "parent": null,
+    "children": [],
+    "policies": [
+      "938b5b67-13f6-41ed-b1fa-fd689b572799",
+      "e0d754dc-4ed1-441a-9b91-7da9a42252dd",
+      "ed374c5a-4a5d-485f-9eea-8336e9c2c543",
+      "98a5e80c-786b-45b2-9892-2a4baa7e4be1",
+      "a7f0f46d-adf7-43ca-9d68-7fb502d90a1f"
+    ],
+    "users": [
+      "14e2c39d-eb1e-4f09-8fda-a627a027a48d",
+      "7cad6a9f-e9d4-4296-9218-4fc38470668c"
+    ]
+  },
+  {
+    "id": "62b9f051-c3de-4cb5-a6be-bf3ab9cbd8cb",
+    "name": "Author",
+    "icon": "supervised_user_circle",
+    "description": null,
+    "parent": null,
+    "children": [],
+    "policies": [
+      "11c61af4-ef6d-4eee-84c7-802e756cc43c",
+      "7a6f97a1-3db9-483f-8220-4508f11da1a6",
+      "ba7ac76d-c66e-42b8-a855-1a37673368f2"
+    ],
+    "users": [
+      "faa5278a-88e0-49f5-a599-987611576953"
+    ]
+  },
+  {
+    "id": "6e23ac8e-5881-49fb-b3c0-b578191134f6",
+    "name": "Languages",
+    "icon": "supervised_user_circle",
+    "description": null,
+    "parent": null,
+    "children": [],
+    "policies": [
+      "528768a0-3091-46d3-9f87-b3b4e6abef32",
+      "e7f4fdbf-c40e-4320-98f7-246ed1d2ee99"
+    ],
+    "users": []
+  },
+  {
+    "id": "b2ee85ce-b149-4e99-9be6-ede673317308",
+    "name": "Staff",
+    "icon": "supervised_user_circle",
+    "description": null,
+    "parent": null,
+    "children": [],
+    "policies": [
+      "101a03d8-e55a-4a1a-aace-69df6f6d9dc7"
+    ],
+    "users": []
+  },
+  {
+    "id": "cd3934be-6d3b-4390-b506-38397f77976e",
+    "name": "Opening Hours",
+    "icon": "supervised_user_circle",
+    "description": null,
+    "parent": null,
+    "children": [],
+    "policies": [
+      "3d856b7c-23f2-4790-a060-5f5ba13b4a2a",
+      "51a0662e-fbe7-403a-9ad1-a2c8fb1d862e"
+    ],
+    "users": []
+  },
+  {
+    "id": "fbeac256-0293-476a-b648-66442fc1558a",
+    "name": "Administrator",
+    "icon": "verified",
+    "description": "$t:admin_description",
+    "parent": null,
+    "children": [],
+    "policies": [
+      "3a550acd-ab3a-4593-a360-e503abc7f183"
+    ],
+    "users": [
+      "81788ea6-2883-44be-9e80-c0e9d27b79df"
+    ]
+  }
+]

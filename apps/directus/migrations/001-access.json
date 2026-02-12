@@ -1,0 +1,219 @@
+[
+  {
+    "id": "ea58a49f-1e92-4054-bae3-25ad9a320f71",
+    "role": null,
+    "user": "e2282dd9-0cbb-49fe-82ef-c7b2fbb9bbd2",
+    "policy": "5b65c0bb-c8ef-4b6b-890a-1df50b410df9",
+    "sort": 1
+  },
+  {
+    "id": "938b5b67-13f6-41ed-b1fa-fd689b572799",
+    "role": "5b90fc60-89ea-465c-960f-d59c38373d27",
+    "user": null,
+    "policy": "cb6b285b-9d8a-471f-a3cf-7598b32abf4e",
+    "sort": 1
+  },
+  {
+    "id": "3d856b7c-23f2-4790-a060-5f5ba13b4a2a",
+    "role": "cd3934be-6d3b-4390-b506-38397f77976e",
+    "user": null,
+    "policy": "b45d5890-588c-4c53-b080-b7f301e3ffed",
+    "sort": 1
+  },
+  {
+    "id": "ab866476-f712-40d9-bd7d-f01b4b59d0c8",
+    "role": "27225513-a502-4dd4-845c-37ba3a3e7a53",
+    "user": null,
+    "policy": "5b65c0bb-c8ef-4b6b-890a-1df50b410df9",
+    "sort": 1
+  },
+  {
+    "id": "528768a0-3091-46d3-9f87-b3b4e6abef32",
+    "role": "6e23ac8e-5881-49fb-b3c0-b578191134f6",
+    "user": null,
+    "policy": "9f780a0b-0a2d-4812-9a62-fb1a8e86461b",
+    "sort": 1
+  },
+  {
+    "id": "83c4b92d-e9e4-40e5-a7b3-c86acb4fec70",
+    "role": null,
+    "user": "7cad6a9f-e9d4-4296-9218-4fc38470668c",
+    "policy": "5b65c0bb-c8ef-4b6b-890a-1df50b410df9",
+    "sort": 1
+  },
+  {
+    "id": "6a2c13b4-778a-4827-a9c3-11d97e8149bb",
+    "role": null,
+    "user": "14e2c39d-eb1e-4f09-8fda-a627a027a48d",
+    "policy": "5b65c0bb-c8ef-4b6b-890a-1df50b410df9",
+    "sort": 1
+  },
+  {
+    "id": "101a03d8-e55a-4a1a-aace-69df6f6d9dc7",
+    "role": "b2ee85ce-b149-4e99-9be6-ede673317308",
+    "user": null,
+    "policy": "b102820b-1927-4a72-b798-8df61556e345",
+    "sort": 1
+  },
+  {
+    "id": "11c61af4-ef6d-4eee-84c7-802e756cc43c",
+    "role": "62b9f051-c3de-4cb5-a6be-bf3ab9cbd8cb",
+    "user": null,
+    "policy": "278f8f46-4f30-453c-a71b-44c401736c37",
+    "sort": 1
+  },
+  {
+    "id": "e1e73ebe-e04c-47be-8f10-adb534b8eb28",
+    "role": null,
+    "user": null,
+    "policy": "abf8a154-5b1c-4a46-ac9c-7300570f4f17",
+    "sort": 1
+  },
+  {
+    "id": "634233e7-105b-4934-8cfd-600ec1c7edb6",
+    "role": "0f0027b3-ee11-4d9d-84c9-371086fd7775",
+    "user": null,
+    "policy": "483da352-ddb8-48e3-8de8-729977c8e916",
+    "sort": 1
+  },
+  {
+    "id": "d1f3feac-6377-4dbe-954b-97cb7f57d252",
+    "role": null,
+    "user": "14e2c39d-eb1e-4f09-8fda-a627a027a48d",
+    "policy": "38c4b37f-f1f5-4104-9cce-a984b75a3fd5",
+    "sort": 2
+  },
+  {
+    "id": "e0d754dc-4ed1-441a-9b91-7da9a42252dd",
+    "role": "5b90fc60-89ea-465c-960f-d59c38373d27",
+    "user": null,
+    "policy": "38c4b37f-f1f5-4104-9cce-a984b75a3fd5",
+    "sort": 2
+  },
+  {
+    "id": "e8565c7e-1df4-4fcb-8174-66dacd81ff6b",
+    "role": null,
+    "user": "e2282dd9-0cbb-49fe-82ef-c7b2fbb9bbd2",
+    "policy": "efe26de3-f101-4272-885b-5c68a85ccd8b",
+    "sort": 2
+  },
+  {
+    "id": "1cf0298c-4612-4a9e-9421-0533dcbfb60c",
+    "role": "27225513-a502-4dd4-845c-37ba3a3e7a53",
+    "user": null,
+    "policy": "38c4b37f-f1f5-4104-9cce-a984b75a3fd5",
+    "sort": 2
+  },
+  {
+    "id": "7a6f97a1-3db9-483f-8220-4508f11da1a6",
+    "role": "62b9f051-c3de-4cb5-a6be-bf3ab9cbd8cb",
+    "user": null,
+    "policy": "9f780a0b-0a2d-4812-9a62-fb1a8e86461b",
+    "sort": 2
+  },
+  {
+    "id": "659314d6-e482-455a-b531-5b734a71a24b",
+    "role": "27225513-a502-4dd4-845c-37ba3a3e7a53",
+    "user": null,
+    "policy": "434296c2-d704-4d3a-a317-5fd7716fed5a",
+    "sort": 3
+  },
+  {
+    "id": "ba7ac76d-c66e-42b8-a855-1a37673368f2",
+    "role": "62b9f051-c3de-4cb5-a6be-bf3ab9cbd8cb",
+    "user": null,
+    "policy": "38c4b37f-f1f5-4104-9cce-a984b75a3fd5",
+    "sort": 3
+  },
+  {
+    "id": "ed374c5a-4a5d-485f-9eea-8336e9c2c543",
+    "role": "5b90fc60-89ea-465c-960f-d59c38373d27",
+    "user": null,
+    "policy": "9f780a0b-0a2d-4812-9a62-fb1a8e86461b",
+    "sort": 3
+  },
+  {
+    "id": "40fea293-61b3-4f2f-bd07-d58af4eba304",
+    "role": null,
+    "user": "14e2c39d-eb1e-4f09-8fda-a627a027a48d",
+    "policy": "efe26de3-f101-4272-885b-5c68a85ccd8b",
+    "sort": 3
+  },
+  {
+    "id": "82e99e99-ea60-457a-8a66-1a4c1c95098c",
+    "role": null,
+    "user": "14e2c39d-eb1e-4f09-8fda-a627a027a48d",
+    "policy": "434296c2-d704-4d3a-a317-5fd7716fed5a",
+    "sort": 4
+  },
+  {
+    "id": "98a5e80c-786b-45b2-9892-2a4baa7e4be1",
+    "role": "5b90fc60-89ea-465c-960f-d59c38373d27",
+    "user": null,
+    "policy": "5b65c0bb-c8ef-4b6b-890a-1df50b410df9",
+    "sort": 4
+  },
+  {
+    "id": "a7f0f46d-adf7-43ca-9d68-7fb502d90a1f",
+    "role": "5b90fc60-89ea-465c-960f-d59c38373d27",
+    "user": null,
+    "policy": "b45d5890-588c-4c53-b080-b7f301e3ffed",
+    "sort": 5
+  },
+  {
+    "id": "378416e2-c591-4417-b9a2-ed9921ccaacc",
+    "role": null,
+    "user": "14e2c39d-eb1e-4f09-8fda-a627a027a48d",
+    "policy": "b45d5890-588c-4c53-b080-b7f301e3ffed",
+    "sort": 5
+  },
+  {
+    "id": "954ee84a-0bdd-4022-9dfa-71de24356b7c",
+    "role": null,
+    "user": "14e2c39d-eb1e-4f09-8fda-a627a027a48d",
+    "policy": "41cfd020-96be-4e03-907a-47c879c7f295",
+    "sort": 6
+  },
+  {
+    "id": "213e3117-3aad-4870-a887-d38f35dcd277",
+    "role": null,
+    "user": "14e2c39d-eb1e-4f09-8fda-a627a027a48d",
+    "policy": "9ecce739-8874-4a97-8fb2-5d9a57fe48a6",
+    "sort": 7
+  },
+  {
+    "id": "fe505b57-51c3-4094-80d3-63f932f77592",
+    "role": null,
+    "user": "14e2c39d-eb1e-4f09-8fda-a627a027a48d",
+    "policy": "a2e81177-6400-4261-82eb-17cf979e59cc",
+    "sort": 8
+  },
+  {
+    "id": "e7f4fdbf-c40e-4320-98f7-246ed1d2ee99",
+    "role": "6e23ac8e-5881-49fb-b3c0-b578191134f6",
+    "user": null,
+    "policy": "efe26de3-f101-4272-885b-5c68a85ccd8b",
+    "sort": null
+  },
+  {
+    "id": "7a2317f5-ba87-42b4-9c17-ba0ea3503247",
+    "role": null,
+    "user": null,
+    "policy": "a8ec307d-8300-4dd9-a1e0-677b2cb7de2b",
+    "sort": null
+  },
+  {
+    "id": "3a550acd-ab3a-4593-a360-e503abc7f183",
+    "role": "fbeac256-0293-476a-b648-66442fc1558a",
+    "user": null,
+    "policy": "57ea878d-0f04-4747-b464-4139858e34ef",
+    "sort": null
+  },
+  {
+    "id": "51a0662e-fbe7-403a-9ad1-a2c8fb1d862e",
+    "role": "cd3934be-6d3b-4390-b506-38397f77976e",
+    "user": null,
+    "policy": "efe26de3-f101-4272-885b-5c68a85ccd8b",
+    "sort": null
+  }
+]
