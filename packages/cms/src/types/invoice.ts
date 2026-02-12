@@ -7,6 +7,8 @@ export interface Invoice {
   total_net: string;
   total_tax: string;
   total_gross: string;
+  discount_type: "percent" | "fixed" | null;
+  discount_value: string | null;
   closure_id: string | null;
   // VeriFactu
   previous_record_hash: string | null;
@@ -28,6 +30,8 @@ export interface InvoiceItem {
   price_net_unit_precise: string;
   row_total_net_precise: string;
   row_total_gross: string;
+  discount_type: "percent" | "fixed" | null;
+  discount_value: string | null;
 }
 
 export interface InvoicePayment {

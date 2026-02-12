@@ -159,6 +159,13 @@ function buildReceipt(receiptData: {
         twoColTable(`    @ ${parseFloat(item.priceGrossUnit).toFixed(2)}`, ""),
       );
     }
+    if (item.discountType && item.discountValue) {
+      const label =
+        item.discountType === "percent"
+          ? `    Dto. -${parseFloat(item.discountValue)}%`
+          : `    Dto. -${parseFloat(item.discountValue).toFixed(2)}`;
+      lines.push(twoColTable(label, ""));
+    }
   }
 
   lines.push(separatorLine());
@@ -168,7 +175,11 @@ function buildReceipt(receiptData: {
   lines.push(emptyLine());
 
   if (parseFloat(totals.discountTotal) > 0) {
-    lines.push(twoColTable("Descuento", `-${totals.discountTotal}`));
+    const discLabel =
+      totals.discountType === "percent" && totals.discountValue
+        ? `Descuento ${parseFloat(totals.discountValue)}%`
+        : "Descuento";
+    lines.push(twoColTable(discLabel, `-${totals.discountTotal}`));
   }
 
   // Tax breakdown: group net by rate from items
@@ -329,9 +340,7 @@ function buildClosureReport(
 
   // Totals
   lines.push(twoColTable("Transaktionen", String(report.transactionCount)));
-  lines.push(
-    twoColTable("Brutto", `${report.totalGross} EUR`, "NORMAL", "B"),
-  );
+  lines.push(twoColTable("Brutto", `${report.totalGross} EUR`, "NORMAL", "B"));
   lines.push(twoColTable("Netto", `${report.totalNet} EUR`));
   lines.push(twoColTable("Steuer", `${report.totalTax} EUR`));
   lines.push(emptyLine());
@@ -376,9 +385,7 @@ function buildClosureReport(
 
   const diffNum = parseFloat(difference);
   const sign = diffNum >= 0 ? "+" : "";
-  lines.push(
-    twoColTable("Differenz", `${sign}${difference}`, "NORMAL", "B"),
-  );
+  lines.push(twoColTable("Differenz", `${sign}${difference}`, "NORMAL", "B"));
 
   lines.push(emptyLine());
   lines.push(emptyLine());

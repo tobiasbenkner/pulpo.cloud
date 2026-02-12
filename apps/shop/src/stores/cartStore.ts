@@ -277,6 +277,8 @@ export const completeTransaction = async (
       total_net: totals.net,
       total_tax: totals.tax,
       total_gross: totals.gross,
+      discount_type: totals.discountType,
+      discount_value: totals.discountValue,
       items: totals.items.map((item) => ({
         product_name: item.productName,
         quantity: item.quantity,
@@ -285,6 +287,8 @@ export const completeTransaction = async (
         price_net_unit_precise: item.priceNetUnitPrecise,
         row_total_net_precise: item.rowTotalNetPrecise,
         row_total_gross: item.rowTotalGross,
+        discount_type: item.discountType,
+        discount_value: item.discountValue,
       })),
       payments: [
         {
@@ -421,6 +425,10 @@ export const cartTotals = computed(
           .toFixed(8),
         rowTotalGross: lineGrossAfterGlobal.toFixed(2),
         rowTotalNetPrecise: rowNetRounded.toFixed(8),
+        discountType: item.discount?.type ?? null,
+        discountValue: item.discount
+          ? new Big(item.discount.value).toFixed(4)
+          : null,
       });
     });
 
@@ -437,6 +445,8 @@ export const cartTotals = computed(
       taxBreakdown,
       items: computedItems,
       count: itemList.reduce((sum, item) => sum + item.quantity, 0),
+      discountType: globalDisc?.type ?? null,
+      discountValue: globalDisc ? new Big(globalDisc.value).toFixed(4) : null,
     };
   },
 );

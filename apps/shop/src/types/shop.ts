@@ -39,6 +39,8 @@ export interface CartTotalsItem {
   priceNetUnitPrecise: string;
   rowTotalGross: string;
   rowTotalNetPrecise: string;
+  discountType: "percent" | "fixed" | null;
+  discountValue: string | null;
 }
 
 export interface CartTotals {
@@ -50,6 +52,8 @@ export interface CartTotals {
   taxBreakdown: TaxBreakdownEntry[];
   items: CartTotalsItem[];
   count: number;
+  discountType: "percent" | "fixed" | null;
+  discountValue: string | null;
 }
 
 export interface Customer {

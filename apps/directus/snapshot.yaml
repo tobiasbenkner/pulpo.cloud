@@ -1410,7 +1410,7 @@ fields:
       translations: null
       validation: null
       validation_message: null
-      width: full
+      width: half
     schema:
       name: period_start
       table: cash_register_closures
@@ -1450,7 +1450,7 @@ fields:
       translations: null
       validation: null
       validation_message: null
-      width: full
+      width: half
     schema:
       name: period_end
       table: cash_register_closures
@@ -1530,7 +1530,7 @@ fields:
       translations: null
       validation: null
       validation_message: null
-      width: full
+      width: half
     schema:
       name: total_net
       table: cash_register_closures
@@ -1570,7 +1570,7 @@ fields:
       translations: null
       validation: null
       validation_message: null
-      width: full
+      width: half
     schema:
       name: total_tax
       table: cash_register_closures
@@ -3803,6 +3803,92 @@ fields:
       has_auto_increment: false
       foreign_key_table: tenants
       foreign_key_column: id
+  - collection: invoice_items
+    field: discount_type
+    type: string
+    meta:
+      collection: invoice_items
+      conditions: null
+      display: null
+      display_options: null
+      field: discount_type
+      group: null
+      hidden: false
+      interface: select-dropdown
+      note: null
+      options:
+        allowNone: true
+        choices:
+          - text: percent
+            value: percent
+          - text: fixed
+            value: fixed
+      readonly: false
+      required: false
+      searchable: true
+      sort: 11
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: discount_type
+      table: invoice_items
+      data_type: character varying
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: invoice_items
+    field: discount_value
+    type: decimal
+    meta:
+      collection: invoice_items
+      conditions: null
+      display: null
+      display_options: null
+      field: discount_value
+      group: null
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: false
+      searchable: true
+      sort: 12
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: discount_value
+      table: invoice_items
+      data_type: numeric
+      default_value: null
+      max_length: null
+      numeric_precision: 19
+      numeric_scale: 4
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
   - collection: invoice_payments
     field: id
     type: integer
@@ -4272,7 +4358,7 @@ fields:
       readonly: false
       required: true
       searchable: true
-      sort: 4
+      sort: 5
       special: null
       translations: null
       validation: null
@@ -4788,7 +4874,7 @@ fields:
       readonly: false
       required: false
       searchable: true
-      sort: 5
+      sort: 6
       special:
         - alias
         - no-data
@@ -4814,7 +4900,7 @@ fields:
       readonly: false
       required: true
       searchable: true
-      sort: 6
+      sort: 4
       special:
         - m2o
       translations: null
@@ -4838,6 +4924,118 @@ fields:
       has_auto_increment: false
       foreign_key_table: cash_register_closures
       foreign_key_column: id
+  - collection: invoices
+    field: discount_type
+    type: string
+    meta:
+      collection: invoices
+      conditions: null
+      display: null
+      display_options: null
+      field: discount_type
+      group: discount
+      hidden: false
+      interface: select-dropdown
+      note: null
+      options:
+        allowNone: true
+        choices:
+          - text: percent
+            value: percent
+          - text: fixed
+            value: fixed
+      readonly: false
+      required: false
+      searchable: true
+      sort: 1
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: discount_type
+      table: invoices
+      data_type: character varying
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: invoices
+    field: discount_value
+    type: decimal
+    meta:
+      collection: invoices
+      conditions: null
+      display: null
+      display_options: null
+      field: discount_value
+      group: discount
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: false
+      searchable: true
+      sort: 2
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: discount_value
+      table: invoices
+      data_type: numeric
+      default_value: null
+      max_length: null
+      numeric_precision: 19
+      numeric_scale: 4
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: invoices
+    field: discount
+    type: alias
+    meta:
+      collection: invoices
+      conditions: null
+      display: null
+      display_options: null
+      field: discount
+      group: tabs
+      hidden: false
+      interface: group-raw
+      note: null
+      options: null
+      readonly: false
+      required: false
+      searchable: true
+      sort: 5
+      special:
+        - alias
+        - no-data
+        - group
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
   - collection: languages
     field: id
     type: uuid
