@@ -71,6 +71,8 @@ export interface TransactionResult {
   customer?: Customer;
   type: "ticket" | "invoice";
   invoiceNumber: string;
+  invoiceId: string;
+  paymentId: number;
 }
 
 export interface ClosureReport {

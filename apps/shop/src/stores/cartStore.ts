@@ -4,7 +4,7 @@ import { atom, computed } from "nanostores";
 import { persistentMap, persistentAtom } from "@nanostores/persistent";
 import Big from "big.js";
 import { getAuthClient } from "@pulpo/auth";
-import { createInvoice } from "@pulpo/cms";
+import { createInvoice, updateInvoicePaymentMethod } from "@pulpo/cms";
 import type {
   Product,
   CartItem,
@@ -239,10 +239,19 @@ export const deleteParkedCart = (parkId: string) => {
 
 // --- ACTIONS: TRANSACTION ---
 
-export const swapLastTransactionMethod = () => {
+export const swapLastTransactionMethod = async () => {
   const tx = lastTransaction.get();
   if (!tx) return;
   const newMethod = tx.method === "cash" ? "card" : "cash";
+
+  const client = getAuthClient();
+  await updateInvoicePaymentMethod(
+    client as any,
+    tx.paymentId,
+    newMethod,
+    tx.total,
+  );
+
   lastTransaction.set({ ...tx, method: newMethod });
 };
 
@@ -293,6 +302,8 @@ export const completeTransaction = async (
   }
 
   const invoiceNumber = invoice?.invoice_number ?? "";
+  const invoiceId = invoice?.id ?? "";
+  const paymentId = invoice?.payments?.[0]?.id ?? 0;
 
   // Erfolg: lokale Transaktion speichern + Cart leeren
   const txData: TransactionResult = {
@@ -304,6 +315,8 @@ export const completeTransaction = async (
     customer: customer || undefined,
     type,
     invoiceNumber,
+    invoiceId,
+    paymentId,
   };
 
   lastTransaction.set(txData);

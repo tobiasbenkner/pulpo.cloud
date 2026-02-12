@@ -12,6 +12,7 @@ import {
 } from "@pulpo/cms";
 import type { Invoice } from "@pulpo/cms";
 import type { ClosureReport } from "../types/shop";
+import { lastTransaction } from "./cartStore";
 
 // --- PERSISTENT (localStorage) ---
 
@@ -55,6 +56,7 @@ export async function openRegister(startAmount: string): Promise<void> {
   currentClosureId.set(closure.id);
   startingCash.set(startAmount);
   periodStart.set(closure.period_start);
+  lastTransaction.set(null);
   isRegisterOpen.set(true);
 }
 

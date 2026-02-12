@@ -14,6 +14,7 @@
     deleteParkedCart,
     isQuantityModalOpen,
   } from "../stores/cartStore";
+  import { isRegisterOpen } from "../stores/registerStore";
   import type { CartItem, CartTotals } from "../types/shop";
   import type { ParkedCart } from "../stores/cartStore";
   import Big from "big.js";
@@ -35,6 +36,7 @@
   let discount = $state<{ type: "percent" | "fixed"; value: number } | null>(
     null,
   );
+  let registerOpen = $state(false);
   let showParked = $state(false);
   let scrollTop = $state(0);
 
@@ -51,6 +53,7 @@
         if (Object.keys(v).length === 0) showParked = false;
       }),
       globalDiscount.subscribe((v) => (discount = v)),
+      isRegisterOpen.subscribe((v) => (registerOpen = v)),
     ];
     return () => unsubs.forEach((u) => u());
   });
@@ -97,9 +100,29 @@
   }
 </script>
 
-<aside
-  class="flex flex-col h-full w-full bg-white shadow-2xl z-20 border-l border-zinc-200 overflow-hidden relative"
->
+{#if !registerOpen}
+  <aside
+    class="flex flex-col h-full w-full bg-white shadow-2xl z-20 border-l border-zinc-200 overflow-hidden relative items-center justify-center text-zinc-300 select-none"
+  >
+    <svg
+      class="w-12 h-12 mb-2 opacity-50"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="1.5"
+        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+      />
+    </svg>
+    <span class="text-xs font-medium">Kasse geschlossen</span>
+  </aside>
+{:else}
+  <aside
+    class="flex flex-col h-full w-full bg-white shadow-2xl z-20 border-l border-zinc-200 overflow-hidden relative"
+  >
   <!-- === HEADER === -->
   <div
     class="flex-none flex flex-col gap-3 px-4 py-4 border-b border-zinc-100 bg-white z-20 relative"
@@ -489,4 +512,5 @@
       </button>
     </div>
   </div>
-</aside>
+  </aside>
+{/if}
