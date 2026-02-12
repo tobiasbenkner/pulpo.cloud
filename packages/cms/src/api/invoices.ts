@@ -1,5 +1,4 @@
 import {
-  createItem,
   readItem,
   readItems,
   type DirectusClient,
@@ -9,6 +8,7 @@ import type { Invoice, InvoiceItem, InvoicePayment, Schema } from "../types";
 
 type Client = DirectusClient<Schema> & RestClient<Schema>;
 
+/** Create invoice via invoice-processor extension endpoint */
 export async function createInvoice(
   client: Client,
   data: Omit<
@@ -28,18 +28,16 @@ export async function createInvoice(
     items: Omit<InvoiceItem, "id" | "invoice_id">[];
     payments: Omit<InvoicePayment, "id" | "date_created" | "invoice_id">[];
   },
-) {
-  const { items, payments, ...invoiceData } = data;
-
-  const invoice = await client.request(
-    createItem("invoices", {
-      ...invoiceData,
-      items: { create: items },
-      payments: { create: payments },
-    } as any),
-  );
-
-  return invoice;
+): Promise<Invoice> {
+  const res: { success: boolean; invoice: Invoice } = await (
+    client as any
+  ).request(() => ({
+    method: "POST",
+    path: "/invoice-processor/invoices",
+    body: JSON.stringify(data),
+    headers: { "Content-Type": "application/json" },
+  }));
+  return res.invoice;
 }
 
 export async function getInvoices(

@@ -1,5 +1,4 @@
 import {
-  createItem,
   readItems,
   updateItem,
   type DirectusClient,
@@ -9,34 +8,62 @@ import type { CashRegisterClosure, Schema } from "../types";
 
 type Client = DirectusClient<Schema> & RestClient<Schema>;
 
-/** Create a new open closure when the register opens */
+/** Open register via invoice-processor extension endpoint */
 export async function openClosure(
   client: Client,
-  data: { period_start: string; starting_cash: string },
+  data: { starting_cash: string },
+): Promise<CashRegisterClosure> {
+  const res: { success: boolean; closure: CashRegisterClosure } =
+    await (client as any).request(() => ({
+      method: "POST",
+      path: "/invoice-processor/cash-register/open",
+      body: JSON.stringify({
+        starting_cash: parseFloat(data.starting_cash),
+      }),
+      headers: { "Content-Type": "application/json" },
+    }));
+  return res.closure;
+}
+
+/** Write report totals to the closure before closing */
+export async function updateClosureTotals(
+  client: Client,
+  id: string,
+  data: {
+    total_gross: string;
+    total_net: string;
+    total_tax: string;
+    total_cash: string;
+    total_card: string;
+    total_change: string;
+    transaction_count: number;
+    tax_breakdown: { rate: string; net: string; tax: string }[];
+  },
 ) {
   return client.request(
-    createItem("cash_register_closures", {
-      ...data,
-      status: "open",
-    } as any),
+    updateItem("cash_register_closures", id, data as any),
   );
 }
 
-/** Finalize the closure with totals and counting data */
+/** Close register via invoice-processor extension endpoint */
 export async function closeClosure(
   client: Client,
-  id: string,
-  data: Omit<
-    CashRegisterClosure,
-    "id" | "date_created" | "tenant" | "status" | "period_start" | "starting_cash"
-  >,
-) {
-  return client.request(
-    updateItem("cash_register_closures", id, {
-      ...data,
-      status: "closed",
-    } as any),
-  );
+  data: {
+    counted_cash: string;
+    denomination_count?: { cents: number; label: string; qty: number }[];
+  },
+): Promise<CashRegisterClosure> {
+  const res: { success: boolean; closure: CashRegisterClosure } =
+    await (client as any).request(() => ({
+      method: "POST",
+      path: "/invoice-processor/cash-register/close",
+      body: JSON.stringify({
+        counted_cash: parseFloat(data.counted_cash),
+        denomination_count: data.denomination_count,
+      }),
+      headers: { "Content-Type": "application/json" },
+    }));
+  return res.closure;
 }
 
 /** Get the currently open closure (if any) */

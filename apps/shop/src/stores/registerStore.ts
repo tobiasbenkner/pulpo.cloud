@@ -6,6 +6,7 @@ import {
   getInvoices,
   openClosure,
   closeClosure,
+  updateClosureTotals,
   getLastClosure,
   getOpenClosure,
 } from "@pulpo/cms";
@@ -44,10 +45,8 @@ export const closureLoading = atom<boolean>(false);
 
 export async function openRegister(startAmount: string): Promise<void> {
   const client = getAuthClient();
-  const now = new Date().toISOString();
 
   const closure = await openClosure(client as any, {
-    period_start: now,
     starting_cash: startAmount,
   });
 
@@ -55,7 +54,7 @@ export async function openRegister(startAmount: string): Promise<void> {
 
   currentClosureId.set(closure.id);
   startingCash.set(startAmount);
-  periodStart.set(now);
+  periodStart.set(closure.period_start);
   isRegisterOpen.set(true);
 }
 
@@ -165,11 +164,10 @@ export async function finalizeClosure(
   const closureId = currentClosureId.get();
   if (!closureId) throw new Error("No open closure ID");
 
-  const difference = new Big(countedCash).minus(new Big(report.expectedCash));
-
   const client = getAuthClient();
-  await closeClosure(client as any, closureId, {
-    period_end: report.periodEnd,
+
+  // Step 1: Write report totals to the closure record
+  await updateClosureTotals(client as any, closureId, {
     total_gross: report.totalGross,
     total_net: report.totalNet,
     total_tax: report.totalTax,
@@ -177,10 +175,12 @@ export async function finalizeClosure(
     total_card: report.totalCard,
     total_change: report.totalChange,
     transaction_count: report.transactionCount,
-    expected_cash: report.expectedCash,
-    counted_cash: countedCash,
-    difference: difference.toFixed(2),
     tax_breakdown: report.taxBreakdown,
+  });
+
+  // Step 2: Close via extension (calculates expected_cash & difference server-side)
+  await closeClosure(client as any, {
+    counted_cash: countedCash,
     denomination_count: denominationCount,
   });
 
