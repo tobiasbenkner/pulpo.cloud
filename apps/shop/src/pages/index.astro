@@ -1,6 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import CartSidebar from "../components/CartSidebar.astro";
+import CartSidebar from "../components/CartSidebar.svelte";
 import CheckoutModal from "../components/CheckoutModal.astro";
 import CustomAmountModal from "../components/CustomAmountModal.astro";
 import CustomerModal from "../components/CustomerModal.astro";
@@ -14,7 +14,7 @@ import ShopApp from "../components/ShopApp.svelte";
 <Layout title="POS Pulpo">
   <div class="grid grid-cols-[1fr_340px] h-full">
     <ShopApp client:only="svelte" />
-    <CartSidebar />
+    <CartSidebar client:only="svelte" />
   </div>
 
   <!-- Modals -->
