@@ -2,7 +2,7 @@ import { atom } from "nanostores";
 import { getAuthClient, getStoredToken } from "@pulpo/auth";
 import { getProfile, getTenant, imageUrl } from "@pulpo/cms";
 import type { Tenant } from "@pulpo/cms";
-import type { CartTotals } from "../types/shop";
+import type { CartTotals, ClosureReport } from "../types/shop";
 import data from "../data.json";
 
 // --- TYPES ---
@@ -279,4 +279,127 @@ export async function reprintLastReceipt(): Promise<void> {
     return;
   }
   await sendPrintJob(lastPrintJob);
+}
+
+// --- CLOSURE REPORT ---
+
+function formatClosureDate(iso: string): string {
+  const d = new Date(iso);
+  return (
+    d.toLocaleDateString("es-ES", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    }) +
+    " " +
+    d.toLocaleTimeString("es-ES", {
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+  );
+}
+
+function buildClosureReport(
+  report: ClosureReport,
+  countedCash: string,
+  difference: string,
+): PrintLine[] {
+  const t = tenant.get();
+  const lines: PrintLine[] = [];
+
+  // Header
+  if (t) {
+    lines.push(textLine(t.name, { align: "CT", fontSize: "big", style: "B" }));
+  }
+
+  lines.push(emptyLine());
+  lines.push(
+    textLine("KASSENSCHLIESSUNG", {
+      align: "CT",
+      fontSize: "big",
+      style: "B",
+    }),
+  );
+  lines.push(emptyLine());
+
+  // Period
+  lines.push(twoColTable("Von:", formatClosureDate(report.periodStart)));
+  lines.push(twoColTable("Bis:", formatClosureDate(report.periodEnd)));
+  lines.push(separatorLine());
+
+  // Totals
+  lines.push(twoColTable("Transaktionen", String(report.transactionCount)));
+  lines.push(
+    twoColTable("Brutto", `${report.totalGross} EUR`, "NORMAL", "B"),
+  );
+  lines.push(twoColTable("Netto", `${report.totalNet} EUR`));
+  lines.push(twoColTable("Steuer", `${report.totalTax} EUR`));
+  lines.push(emptyLine());
+  lines.push(twoColTable("Bar", `${report.totalCash} EUR`));
+  lines.push(twoColTable("Karte", `${report.totalCard} EUR`));
+
+  // Tax breakdown
+  if (report.taxBreakdown.length > 0) {
+    lines.push(emptyLine());
+    for (const entry of report.taxBreakdown) {
+      const pct = parseFloat(entry.rate).toFixed(0);
+      lines.push(
+        tableLine([
+          {
+            text: `IGIC ${pct.padStart(4)}%`,
+            align: "LEFT",
+            width: 0.3,
+            style: "NORMAL",
+          },
+          {
+            text: `Base ${entry.net.padStart(7)}`,
+            align: "RIGHT",
+            width: 0.35,
+            style: "NORMAL",
+          },
+          {
+            text: `Imp. ${entry.tax.padStart(7)}`,
+            align: "RIGHT",
+            width: 0.35,
+            style: "NORMAL",
+          },
+        ]),
+      );
+    }
+  }
+
+  // Cash count
+  lines.push(separatorLine());
+  lines.push(twoColTable("Anfangsbestand", `${report.startingCash}`));
+  lines.push(twoColTable("Soll", `${report.expectedCash}`, "NORMAL", "B"));
+  lines.push(twoColTable("Gezahlt", countedCash));
+
+  const diffNum = parseFloat(difference);
+  const sign = diffNum >= 0 ? "+" : "";
+  lines.push(
+    twoColTable("Differenz", `${sign}${difference}`, "NORMAL", "B"),
+  );
+
+  lines.push(emptyLine());
+  lines.push(emptyLine());
+
+  return lines;
+}
+
+export async function printClosureReport(
+  report: ClosureReport,
+  countedCash: string,
+  difference: string,
+): Promise<void> {
+  const document = buildClosureReport(report, countedCash, difference);
+
+  const { serviceUrl, ...printerSettings } = data.printer;
+
+  const job: PrintJob = {
+    printer: printerSettings as PrintJob["printer"],
+    document,
+    open: true,
+  };
+
+  await sendPrintJob(job);
 }

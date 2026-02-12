@@ -3,17 +3,26 @@
   import { initAuthClient, checkAuthentication } from "@pulpo/auth";
   import { DIRECTUS_URL } from "@pulpo/cms";
   import { loadProducts } from "../stores/productStore";
+  import { isRegisterOpen, syncRegisterState } from "../stores/registerStore";
   import ProductGrid from "./ProductGrid.svelte";
+  import OpenRegister from "./OpenRegister.svelte";
 
   initAuthClient(DIRECTUS_URL);
 
   let state = $state<"loading" | "ready" | "error">("loading");
+  let registerOpen = $state(false);
+
+  onMount(() => {
+    const unsub = isRegisterOpen.subscribe((v) => (registerOpen = v));
+    return unsub;
+  });
 
   onMount(async () => {
     try {
       await checkAuthentication();
       state = "ready";
       loadProducts();
+      syncRegisterState();
     } catch {
       window.location.href = "/login";
     }
@@ -34,5 +43,9 @@
     </div>
   </div>
 {:else if state === "ready"}
-  <ProductGrid />
+  {#if registerOpen}
+    <ProductGrid />
+  {:else}
+    <OpenRegister />
+  {/if}
 {/if}

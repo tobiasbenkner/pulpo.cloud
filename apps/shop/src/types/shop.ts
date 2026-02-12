@@ -72,3 +72,18 @@ export interface TransactionResult {
   type: "ticket" | "invoice";
   invoiceNumber: string;
 }
+
+export interface ClosureReport {
+  periodStart: string;
+  periodEnd: string;
+  transactionCount: number;
+  totalGross: string;
+  totalNet: string;
+  totalTax: string;
+  totalCash: string;
+  totalCard: string;
+  totalChange: string;
+  expectedCash: string;
+  startingCash: string;
+  taxBreakdown: { rate: string; net: string; tax: string }[];
+}

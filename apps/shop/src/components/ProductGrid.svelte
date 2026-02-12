@@ -7,6 +7,7 @@
     loadProducts,
   } from "../stores/productStore";
   import { isCustomAmountOpen } from "../stores/cartStore";
+  import { isClosureModalOpen } from "../stores/registerStore";
   import ProductCard from "./ProductCard.svelte";
   import type { Product } from "../types/shop";
   import type { ShopCategory } from "../stores/productStore";
@@ -15,6 +16,7 @@
   let storeCategories = $state<ShopCategory[]>([]);
   let loading = $state(true);
   let storeError = $state<string | null>(null);
+  let menuOpen = $state(false);
 
   onMount(() => {
     const unsubCats = categories.subscribe((v) => (storeCategories = v));
@@ -43,6 +45,11 @@
   function openCustomAmount() {
     isCustomAmountOpen.set(true);
   }
+
+  function openClosureModal() {
+    menuOpen = false;
+    isClosureModalOpen.set(true);
+  }
 </script>
 
 <main class="h-full flex flex-col relative overflow-hidden bg-zinc-50">
@@ -50,18 +57,56 @@
   <div
     class="flex-none flex items-start gap-4 px-4 py-3 bg-zinc-50 z-10 shadow-sm border-b border-zinc-200 min-h-[64px]"
   >
-    <!-- LOGO -->
-    <div
-      class="flex-none flex items-center justify-center bg-zinc-900 text-white w-9 h-9 rounded-lg shadow-md cursor-pointer hover:bg-zinc-800 transition-colors mt-0.5"
-    >
-      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-        />
-      </svg>
+    <!-- LOGO / MENU -->
+    <div class="flex-none relative mt-0.5">
+      <button
+        class="flex items-center justify-center bg-zinc-900 text-white w-9 h-9 rounded-lg shadow-md cursor-pointer hover:bg-zinc-800 transition-colors"
+        onclick={() => (menuOpen = !menuOpen)}
+      >
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+          />
+        </svg>
+      </button>
+
+      {#if menuOpen}
+        <!-- Backdrop -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <div
+          class="fixed inset-0 z-20"
+          onclick={() => (menuOpen = false)}
+          onkeydown={() => {}}
+        ></div>
+
+        <!-- Dropdown -->
+        <div
+          class="absolute left-0 top-full mt-1 w-52 bg-white rounded-xl shadow-xl border border-zinc-200 py-1 z-30"
+        >
+          <button
+            class="w-full flex items-center gap-3 px-4 py-3 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors text-left"
+            onclick={openClosureModal}
+          >
+            <svg
+              class="w-5 h-5 text-zinc-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+              />
+            </svg>
+            <span class="font-medium">Kasse schlie&szlig;en</span>
+          </button>
+        </div>
+      {/if}
     </div>
 
     <!-- KATEGORIEN -->

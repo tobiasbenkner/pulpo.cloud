@@ -1,4 +1,5 @@
 import { Reservation, ReservationTurn } from "./agenda";
+import { CashRegisterClosure } from "./cash-register";
 import { Invoice, InvoiceItem, InvoicePayment } from "./invoice";
 import { Language } from "./language";
 import { TaxClass, TaxRule, TaxZone } from "./tax";
@@ -20,6 +21,8 @@ export interface Schema {
   invoices: Invoice[];
   invoice_items: InvoiceItem[];
   invoice_payments: InvoicePayment[];
+
+  cash_register_closures: CashRegisterClosure[];
 
   reservations: Reservation[];
   reservations_turns: ReservationTurn[];

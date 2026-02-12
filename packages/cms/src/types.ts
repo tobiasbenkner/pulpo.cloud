@@ -1,4 +1,5 @@
 export * from "./types/blog";
+export * from "./types/cash-register";
 export * from "./types/language";
 export * from "./types/agenda";
 export * from "./types/user";

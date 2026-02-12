@@ -7,6 +7,7 @@ export interface Invoice {
   total_net: string;
   total_tax: string;
   total_gross: string;
+  closure_id: string | null;
   // VeriFactu
   previous_record_hash: string | null;
   chain_hash: string | null;
