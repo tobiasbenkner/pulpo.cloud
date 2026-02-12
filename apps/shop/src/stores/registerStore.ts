@@ -6,7 +6,6 @@ import {
   getInvoices,
   openClosure,
   closeClosure,
-  updateClosureTotals,
   getLastClosure,
   getOpenClosure,
 } from "@pulpo/cms";
@@ -165,8 +164,10 @@ export async function finalizeClosure(
 
   const client = getAuthClient();
 
-  // Step 1: Write report totals to the closure record
-  await updateClosureTotals(client as any, closureId, {
+  // Close via extension (writes totals + calculates expected_cash & difference server-side)
+  await closeClosure(client as any, {
+    counted_cash: countedCash,
+    denomination_count: denominationCount,
     total_gross: report.totalGross,
     total_net: report.totalNet,
     total_tax: report.totalTax,
@@ -175,12 +176,6 @@ export async function finalizeClosure(
     total_change: report.totalChange,
     transaction_count: report.transactionCount,
     tax_breakdown: report.taxBreakdown,
-  });
-
-  // Step 2: Close via extension (calculates expected_cash & difference server-side)
-  await closeClosure(client as any, {
-    counted_cash: countedCash,
-    denomination_count: denominationCount,
   });
 
   // Reset register state

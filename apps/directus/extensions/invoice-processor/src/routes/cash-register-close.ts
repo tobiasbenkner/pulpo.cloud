@@ -11,9 +11,28 @@ export function registerCashRegisterClose(
 
   router.post("/cash-register/close", async (req, res) => {
     try {
-      const { counted_cash, denomination_count } = req.body as {
+      const {
+        counted_cash,
+        denomination_count,
+        total_gross,
+        total_net,
+        total_tax,
+        total_cash,
+        total_card,
+        total_change,
+        transaction_count,
+        tax_breakdown,
+      } = req.body as {
         counted_cash?: number;
         denomination_count?: Record<string, number>;
+        total_gross?: number;
+        total_net?: number;
+        total_tax?: number;
+        total_cash?: number;
+        total_card?: number;
+        total_change?: number;
+        transaction_count?: number;
+        tax_breakdown?: { rate: string; net: string; tax: string }[];
       };
 
       const tenant = await getTenantFromUser(req, context);
@@ -51,13 +70,26 @@ export function registerCashRegisterClose(
         period_end: new Date().toISOString(),
       };
 
+      // Write report totals
+      if (total_gross !== undefined) updateData.total_gross = total_gross;
+      if (total_net !== undefined) updateData.total_net = total_net;
+      if (total_tax !== undefined) updateData.total_tax = total_tax;
+      if (total_cash !== undefined) updateData.total_cash = total_cash;
+      if (total_card !== undefined) updateData.total_card = total_card;
+      if (total_change !== undefined) updateData.total_change = total_change;
+      if (transaction_count !== undefined)
+        updateData.transaction_count = transaction_count;
+      if (tax_breakdown !== undefined)
+        updateData.tax_breakdown = tax_breakdown;
+
       if (counted_cash !== undefined) {
         updateData.counted_cash = counted_cash;
 
-        // total_cash = sum(pmt.amount) = net cash gain (already excludes change)
+        // total_cash from body (or already on record) for expected_cash calc
+        const cashTotal =
+          total_cash ?? Number(openClosure.total_cash) ?? 0;
         const expectedCash =
-          (Number(openClosure.starting_cash) || 0) +
-          (Number(openClosure.total_cash) || 0);
+          (Number(openClosure.starting_cash) || 0) + Number(cashTotal);
 
         updateData.expected_cash = expectedCash;
         updateData.difference = counted_cash - expectedCash;

@@ -1,9 +1,4 @@
-import {
-  readItems,
-  updateItem,
-  type DirectusClient,
-  type RestClient,
-} from "@directus/sdk";
+import { readItems, type DirectusClient, type RestClient } from "@directus/sdk";
 import type { CashRegisterClosure, Schema } from "../types";
 
 type Client = DirectusClient<Schema> & RestClient<Schema>;
@@ -13,23 +8,25 @@ export async function openClosure(
   client: Client,
   data: { starting_cash: string },
 ): Promise<CashRegisterClosure> {
-  const res: { success: boolean; closure: CashRegisterClosure } =
-    await (client as any).request(() => ({
-      method: "POST",
-      path: "/invoice-processor/cash-register/open",
-      body: JSON.stringify({
-        starting_cash: parseFloat(data.starting_cash),
-      }),
-      headers: { "Content-Type": "application/json" },
-    }));
+  const res: { success: boolean; closure: CashRegisterClosure } = await (
+    client as any
+  ).request(() => ({
+    method: "POST",
+    path: "/invoice-processor/cash-register/open",
+    body: JSON.stringify({
+      starting_cash: parseFloat(data.starting_cash),
+    }),
+    headers: { "Content-Type": "application/json" },
+  }));
   return res.closure;
 }
 
-/** Write report totals to the closure before closing */
-export async function updateClosureTotals(
+/** Close register via invoice-processor extension endpoint */
+export async function closeClosure(
   client: Client,
-  id: string,
   data: {
+    counted_cash: string;
+    denomination_count?: { cents: number; label: string; qty: number }[];
     total_gross: string;
     total_net: string;
     total_tax: string;
@@ -39,30 +36,26 @@ export async function updateClosureTotals(
     transaction_count: number;
     tax_breakdown: { rate: string; net: string; tax: string }[];
   },
-) {
-  return client.request(
-    updateItem("cash_register_closures", id, data as any),
-  );
-}
-
-/** Close register via invoice-processor extension endpoint */
-export async function closeClosure(
-  client: Client,
-  data: {
-    counted_cash: string;
-    denomination_count?: { cents: number; label: string; qty: number }[];
-  },
 ): Promise<CashRegisterClosure> {
-  const res: { success: boolean; closure: CashRegisterClosure } =
-    await (client as any).request(() => ({
-      method: "POST",
-      path: "/invoice-processor/cash-register/close",
-      body: JSON.stringify({
-        counted_cash: parseFloat(data.counted_cash),
-        denomination_count: data.denomination_count,
-      }),
-      headers: { "Content-Type": "application/json" },
-    }));
+  const res: { success: boolean; closure: CashRegisterClosure } = await (
+    client as any
+  ).request(() => ({
+    method: "POST",
+    path: "/invoice-processor/cash-register/close",
+    body: JSON.stringify({
+      counted_cash: parseFloat(data.counted_cash),
+      denomination_count: data.denomination_count,
+      total_gross: parseFloat(data.total_gross),
+      total_net: parseFloat(data.total_net),
+      total_tax: parseFloat(data.total_tax),
+      total_cash: parseFloat(data.total_cash),
+      total_card: parseFloat(data.total_card),
+      total_change: parseFloat(data.total_change),
+      transaction_count: data.transaction_count,
+      tax_breakdown: data.tax_breakdown,
+    }),
+    headers: { "Content-Type": "application/json" },
+  }));
   return res.closure;
 }
 
