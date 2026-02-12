@@ -1,0 +1,9 @@
+{
+  "name": "@pulpo/directus",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "docker build -t pulpocloud/directus .",
+    "deploy": "docker push pulpocloud/directus"
+  }
+}
