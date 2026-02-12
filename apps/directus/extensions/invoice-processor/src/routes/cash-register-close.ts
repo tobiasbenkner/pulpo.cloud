@@ -1,6 +1,7 @@
 import type { Router } from "express";
 import type { EndpointContext, ServiceConstructor } from "../types";
 import { getTenantFromUser } from "../helpers";
+import Big from "big.js";
 
 export function registerCashRegisterClose(
   router: Router,
@@ -23,14 +24,14 @@ export function registerCashRegisterClose(
         transaction_count,
         tax_breakdown,
       } = req.body as {
-        counted_cash?: number;
+        counted_cash?: string;
         denomination_count?: Record<string, number>;
-        total_gross?: number;
-        total_net?: number;
-        total_tax?: number;
-        total_cash?: number;
-        total_card?: number;
-        total_change?: number;
+        total_gross?: string;
+        total_net?: string;
+        total_tax?: string;
+        total_cash?: string;
+        total_card?: string;
+        total_change?: string;
         transaction_count?: number;
         tax_breakdown?: { rate: string; net: string; tax: string }[];
       };
@@ -86,13 +87,17 @@ export function registerCashRegisterClose(
         updateData.counted_cash = counted_cash;
 
         // total_cash from body (or already on record) for expected_cash calc
-        const cashTotal =
-          total_cash ?? Number(openClosure.total_cash) ?? 0;
-        const expectedCash =
-          (Number(openClosure.starting_cash) || 0) + Number(cashTotal);
+        const cashTotal = new Big(
+          total_cash ?? (openClosure.total_cash as string) ?? "0",
+        );
+        const startingCash = new Big(
+          (openClosure.starting_cash as string) ?? "0",
+        );
+        const expectedCash = startingCash.plus(cashTotal);
+        const difference = new Big(counted_cash).minus(expectedCash);
 
-        updateData.expected_cash = expectedCash;
-        updateData.difference = counted_cash - expectedCash;
+        updateData.expected_cash = expectedCash.toFixed(2);
+        updateData.difference = difference.toFixed(2);
       }
 
       if (denomination_count !== undefined) {

@@ -12,7 +12,7 @@ export function registerCashRegisterOpen(
   router.post("/cash-register/open", async (req, res) => {
     try {
       const { starting_cash } = req.body as {
-        starting_cash?: number;
+        starting_cash?: string;
       };
 
       const tenant = await getTenantFromUser(req, context);
@@ -47,7 +47,7 @@ export function registerCashRegisterOpen(
         tenant,
         status: "open",
         period_start: new Date().toISOString(),
-        starting_cash: starting_cash ?? 0,
+        starting_cash: starting_cash ?? "0.00",
       });
 
       const newClosure = await closureService.readOne(newClosureId);

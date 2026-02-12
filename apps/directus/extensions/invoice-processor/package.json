@@ -26,7 +26,11 @@
 	},
 	"devDependencies": {
 		"@directus/extensions-sdk": "17.0.7",
+		"@types/big.js": "^6.2.2",
 		"@types/node": "^25.2.3",
 		"typescript": "^5.9.3"
+	},
+	"dependencies": {
+		"big.js": "^7.0.1"
 	}
 }
