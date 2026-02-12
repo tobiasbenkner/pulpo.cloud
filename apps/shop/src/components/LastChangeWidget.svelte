@@ -59,10 +59,8 @@
       </button>
 
       <!-- INFORMATION -->
-      <div
-        class="flex-1 flex items-center justify-center gap-2 overflow-hidden px-1"
-      >
-        <div class="text-emerald-600 flex-none">
+      <div class="flex-1 flex items-center gap-4 overflow-hidden px-1">
+        <div class="text-emerald-600 flex-none self-center">
           {#if tx.method === "cash"}
             <Banknote class="w-5 h-5" />
           {:else}
@@ -70,36 +68,74 @@
           {/if}
         </div>
 
-        <div class="flex flex-col leading-none">
-          <span
-            class="text-[10px] font-bold text-emerald-600 uppercase tracking-wide mb-0.5 text-center sm:text-left"
-          >
-            {tx.method === "cash" ? "Efectivo" : "Tarjeta"}
-          </span>
-          <div
-            class="flex items-baseline gap-1.5 justify-center sm:justify-start"
-          >
-            <span class="text-sm font-extrabold text-emerald-800 tabular-nums">
-              {#if tx.method === "cash"}
-                {parseFloat(tx.change) > 0
-                  ? `CAMBIO: ${tx.change} €`
-                  : `${tx.total} €`}
+        <div class="flex-1 min-w-0 py-1">
+          {#if tx.method === "cash"}
+            <div class="grid grid-cols-[auto_1fr] gap-x-4 items-baseline">
+              <span
+                class="col-span-2 text-[9px] font-bold text-emerald-600 uppercase tracking-widest mb-1"
+                >Venta en efectivo</span
+              >
+
+              <span
+                class="text-[10px] font-bold text-emerald-900 uppercase opacity-60"
+                >Precio</span
+              >
+              <span
+                class="text-[11px] font-black text-emerald-900 tabular-nums text-right"
+                >{tx.total}€</span
+              >
+
+              {#if parseFloat(tx.change) > 0}
+                <span
+                  class="text-[10px] font-bold text-emerald-900 uppercase opacity-60"
+                  >Entregado</span
+                >
+                <span
+                  class="text-[11px] font-black text-emerald-900 tabular-nums text-right"
+                  >{tx.tendered}€</span
+                >
+
+                <span
+                  class="text-[10px] font-bold text-emerald-900 uppercase opacity-60"
+                  >Cambio</span
+                >
+                <span
+                  class="text-[11px] font-black text-emerald-900 tabular-nums text-right"
+                  >{tx.change}€</span
+                >
               {:else}
-                Éxito
+                <div class="col-span-2 pt-1">
+                  <span
+                    class="text-[10px] font-bold text-emerald-500 uppercase tracking-tight opacity-80"
+                    >Importe exacto</span
+                  >
+                </div>
               {/if}
-            </span>
-            <span
-              class="text-[10px] text-emerald-500 font-medium truncate hidden sm:inline-block"
-            >
-              {#if tx.method === "cash"}
-                {parseFloat(tx.change) > 0
-                  ? `(Ent: ${tx.tendered})`
-                  : "(Exacto)"}
-              {:else}
-                ({tx.total} €)
-              {/if}
-            </span>
-          </div>
+            </div>
+          {:else}
+            <div class="grid grid-cols-[auto_1fr] gap-x-4 items-baseline">
+              <span
+                class="col-span-2 text-[9px] font-bold text-emerald-600 uppercase tracking-widest mb-1"
+                >Cobro con tarjeta</span
+              >
+
+              <span
+                class="text-[10px] font-bold text-emerald-900 uppercase opacity-60"
+                >Precio</span
+              >
+              <span
+                class="text-[11px] font-black text-emerald-900 tabular-nums text-right"
+                >{tx.total}€</span
+              >
+
+              <div class="col-span-2 pt-1">
+                <span
+                  class="text-[10px] font-bold text-emerald-500 uppercase tracking-tight opacity-80"
+                  >Operación con éxito</span
+                >
+              </div>
+            </div>
+          {/if}
         </div>
       </div>
 
