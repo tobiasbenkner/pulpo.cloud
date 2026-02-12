@@ -14,3 +14,13 @@ COPY --from=builder /build/extensions/invoice-processor/package.json /directus/e
 
 WORKDIR /directus
 RUN pnpm install @timio23/directus-group-tabs@3.0.0 @directus-labs/seo-plugin@1.1.1
+
+COPY ./snapshot.yaml /directus/snapshot.yaml
+
+COPY ./start.sh /directus/start.sh
+USER root
+RUN chmod +x /directus/start.sh
+USER node
+
+ENTRYPOINT []
+CMD ["/directus/start.sh"]
