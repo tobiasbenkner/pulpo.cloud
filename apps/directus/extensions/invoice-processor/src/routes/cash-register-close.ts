@@ -54,10 +54,10 @@ export function registerCashRegisterClose(
       if (counted_cash !== undefined) {
         updateData.counted_cash = counted_cash;
 
+        // total_cash = sum(pmt.amount) = net cash gain (already excludes change)
         const expectedCash =
           (Number(openClosure.starting_cash) || 0) +
-          (Number(openClosure.total_cash) || 0) -
-          (Number(openClosure.total_change) || 0);
+          (Number(openClosure.total_cash) || 0);
 
         updateData.expected_cash = expectedCash;
         updateData.difference = counted_cash - expectedCash;

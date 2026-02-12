@@ -116,9 +116,8 @@ export async function generateClosureReport(): Promise<ClosureReport> {
     }
 
     const start = startingCash.get();
-    const expectedCash = new Big(start)
-      .plus(totalCash)
-      .minus(totalChange);
+    // totalCash = sum(pmt.amount) = net cash gain per transaction (already excludes change)
+    const expectedCash = new Big(start).plus(totalCash);
 
     const taxBreakdown = Array.from(taxMap.entries())
       .filter(([, v]) => v.tax.gt(0))
