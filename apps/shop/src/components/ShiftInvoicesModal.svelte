@@ -19,7 +19,7 @@
 
   function formatTime(iso: string): string {
     const d = new Date(iso);
-    return d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
+    return d.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
   }
 
   function formatCurrency(value: string): string {
@@ -156,7 +156,7 @@
 
           <div class="px-8 py-8">
             <h3 class="text-2xl font-bold text-center text-zinc-900 mb-6">
-              Rechnungen
+              Facturas
             </h3>
 
             {#if loading}
@@ -164,7 +164,7 @@
                 <div
                   class="w-10 h-10 border-2 border-zinc-300 border-t-zinc-600 rounded-full animate-spin mb-4"
                 ></div>
-                <p class="text-sm text-zinc-400">Rechnungen werden geladen...</p>
+                <p class="text-sm text-zinc-400">Cargando facturas...</p>
               </div>
             {:else if invoices.length === 0}
               <div class="flex flex-col items-center justify-center py-12">
@@ -173,18 +173,18 @@
                 >
                   <FileText class="w-7 h-7" />
                 </div>
-                <p class="text-sm text-zinc-500 font-medium">Keine Rechnungen in dieser Schicht</p>
+                <p class="text-sm text-zinc-500 font-medium">Sin facturas en este turno</p>
               </div>
             {:else}
               <div class="max-h-[60vh] overflow-y-auto -mx-2 px-2">
                 <table class="w-full text-sm">
                   <thead>
                     <tr class="border-b border-zinc-200">
-                      <th class="text-left py-2 px-2 text-zinc-400 font-medium text-xs uppercase tracking-wide">Uhrzeit</th>
-                      <th class="text-left py-2 px-2 text-zinc-400 font-medium text-xs uppercase tracking-wide">Nr.</th>
-                      <th class="text-right py-2 px-2 text-zinc-400 font-medium text-xs uppercase tracking-wide">Betrag</th>
-                      <th class="text-center py-2 px-2 text-zinc-400 font-medium text-xs uppercase tracking-wide">Zahlart</th>
-                      <th class="text-right py-2 px-2 text-zinc-400 font-medium text-xs uppercase tracking-wide">Aktionen</th>
+                      <th class="text-left py-2 px-2 text-zinc-400 font-medium text-xs uppercase tracking-wide">Hora</th>
+                      <th class="text-left py-2 px-2 text-zinc-400 font-medium text-xs uppercase tracking-wide">Nº</th>
+                      <th class="text-right py-2 px-2 text-zinc-400 font-medium text-xs uppercase tracking-wide">Importe</th>
+                      <th class="text-center py-2 px-2 text-zinc-400 font-medium text-xs uppercase tracking-wide">Pago</th>
+                      <th class="text-right py-2 px-2 text-zinc-400 font-medium text-xs uppercase tracking-wide">Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -201,10 +201,10 @@
                               ? 'bg-emerald-100 text-emerald-700'
                               : 'bg-blue-100 text-blue-700'}"
                           >
-                            {method === "cash" ? "Bar" : "Karte"}
+                            {method === "cash" ? "Ef." : "Tarj."}
                           </span>
                           {#if method === "cash" && payment?.change && parseFloat(payment.change) > 0}
-                            <div class="text-[10px] text-zinc-400 mt-0.5">Wechsel: {formatCurrency(payment.change)} &euro;</div>
+                            <div class="text-[10px] text-zinc-400 mt-0.5">Cambio: {formatCurrency(payment.change)} &euro;</div>
                           {/if}
                         </td>
                         <td class="py-3 px-2">
@@ -212,15 +212,15 @@
                             <!-- Cancel (not implemented) -->
                             <button
                               class="p-3 rounded-xl text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 active:scale-95 transition-all"
-                              title="Stornieren (noch nicht implementiert)"
-                              onclick={() => alert("Stornierung noch nicht implementiert")}
+                              title="Anular (no implementado)"
+                              onclick={() => alert("Anulación no implementada")}
                             >
                               <RefundIcon class="w-5 h-5" />
                             </button>
                             <!-- Swap payment method -->
                             <button
                               class="p-3 rounded-xl text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 active:scale-95 transition-all disabled:opacity-40"
-                              title={method === "cash" ? "Zu Karte wechseln" : "Zu Bar wechseln"}
+                              title={method === "cash" ? "Cambiar a tarjeta" : "Cambiar a efectivo"}
                               onclick={() => handleSwapPayment(inv)}
                               disabled={swapping === inv.id}
                             >
@@ -233,7 +233,7 @@
                             <!-- Print -->
                             <button
                               class="p-3 rounded-xl text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 active:scale-95 transition-all"
-                              title="Drucken"
+                              title="Imprimir"
                               onclick={() => handlePrint(inv)}
                             >
                               <Printer class="w-5 h-5" />

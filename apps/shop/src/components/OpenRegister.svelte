@@ -37,14 +37,14 @@
       const amount = (inputCents / 100).toFixed(2);
       await openRegister(amount);
     } catch (e: any) {
-      errorMsg = e.message || "Fehler beim Öffnen der Kasse";
+      errorMsg = e.message || "Error al abrir la caja";
       submitting = false;
     }
   }
 
   function formatDate(iso: string): string {
     const d = new Date(iso);
-    return d.toLocaleDateString("de-DE", {
+    return d.toLocaleDateString("es-ES", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
@@ -78,19 +78,17 @@
     </div>
 
     <h1 class="text-2xl font-bold text-center text-zinc-900 mb-2">
-      Kasse geschlossen
+      Caja cerrada
     </h1>
 
     {#if loading}
-      <p class="text-sm text-center text-zinc-400 mb-8">Laden...</p>
+      <p class="text-sm text-center text-zinc-400 mb-8">Cargando...</p>
     {:else if lastClosure?.period_end}
       <p class="text-sm text-center text-zinc-400 mb-8">
-        Letzter Abschluss: {formatDate(lastClosure.period_end)}
+        Último cierre: {formatDate(lastClosure.period_end)}
       </p>
     {:else}
-      <p class="text-sm text-center text-zinc-400 mb-8">
-        Kein vorheriger Abschluss
-      </p>
+      <p class="text-sm text-center text-zinc-400 mb-8">Sin cierre previo</p>
     {/if}
 
     {#if errorMsg}
@@ -100,7 +98,7 @@
     <!-- Display -->
     <div class="bg-zinc-900 rounded-2xl p-5 mb-5 text-center shadow-inner">
       <p class="text-zinc-400 text-xs uppercase font-bold mb-1 tracking-wide">
-        Anfangsbestand
+        Fondo de caja
       </p>
       <div class="text-4xl font-mono text-white tracking-tight">
         {displayValue} &euro;
@@ -143,7 +141,7 @@
       onclick={confirm}
       disabled={submitting}
     >
-      {submitting ? "Wird geöffnet..." : "Kasse öffnen"}
+      {submitting ? "Abriendo..." : "Abrir caja"}
     </button>
   </div>
 </div>

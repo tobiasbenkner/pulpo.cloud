@@ -40,7 +40,7 @@
 
         <div class="p-6 flex flex-col h-full">
           <h3 class="text-xl font-bold text-center text-zinc-900 mb-6">
-            Rabatt anwenden
+            Aplicar descuento
           </h3>
 
           <!-- Tabs -->
@@ -48,7 +48,7 @@
             <button
               id="tab-percent"
               class="flex-1 py-2.5 rounded-lg font-bold text-sm bg-white shadow-sm text-zinc-900 transition-all"
-              >Prozent (%)</button
+              >Porcentaje (%)</button
             >
             <button
               id="tab-fixed"
@@ -63,7 +63,7 @@
           >
             <span
               class="text-zinc-400 text-[10px] font-medium uppercase tracking-wider mb-0.5"
-              >Wert</span
+              >Valor</span
             >
             <div class="flex justify-end items-baseline gap-1 text-white">
               <span
@@ -123,12 +123,12 @@
             <button
               id="btn-remove-discount"
               class="flex-1 py-3.5 text-red-500 font-bold text-sm border border-red-100 rounded-xl hover:bg-red-50 active:scale-95 transition-colors"
-              >Entfernen</button
+              >Eliminar</button
             >
             <button
               id="btn-confirm-discount"
               class="flex-[2] py-3.5 bg-zinc-900 text-white font-bold text-lg rounded-xl shadow-lg hover:bg-black active:scale-95 transition-all"
-              >Speichern</button
+              >Guardar</button
             >
           </div>
         </div>
@@ -204,7 +204,7 @@
     if (state.itemId) {
       // 1. Unterscheidung Global/Item
       if (state.itemId === "GLOBAL") {
-        if (titleEl) titleEl.textContent = "Rabatt auf Warenkorb";
+        if (titleEl) titleEl.textContent = "Descuento en carrito";
         const gDisc = globalDiscount.get();
         if (gDisc) {
           currentType = gDisc.type;
@@ -214,7 +214,7 @@
           inputBuffer = "0";
         }
       } else {
-        if (titleEl) titleEl.textContent = "Artikel-Rabatt";
+        if (titleEl) titleEl.textContent = "Descuento de artículo";
         const currentItems = cartItems.get();
         const item = currentItems[state.itemId];
         if (item && item.discount) {

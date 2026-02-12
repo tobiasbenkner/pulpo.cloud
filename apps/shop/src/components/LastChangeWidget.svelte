@@ -51,7 +51,7 @@
       <!-- KORREKTUR BUTTON -->
       <button
         class="group relative flex-none p-2 bg-white text-zinc-400 rounded-md border border-zinc-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all active:scale-95 shadow-sm disabled:opacity-50"
-        title="Zahlart korrigieren"
+        title="Corregir forma de pago"
         onclick={handleSwap}
         disabled={swapping}
       >
@@ -74,7 +74,7 @@
           <span
             class="text-[10px] font-bold text-emerald-600 uppercase tracking-wide mb-0.5 text-center sm:text-left"
           >
-            {tx.method === "cash" ? "Barzahlung" : "Kartenzahlung"}
+            {tx.method === "cash" ? "Efectivo" : "Tarjeta"}
           </span>
           <div
             class="flex items-baseline gap-1.5 justify-center sm:justify-start"
@@ -82,10 +82,10 @@
             <span class="text-sm font-extrabold text-emerald-800 tabular-nums">
               {#if tx.method === "cash"}
                 {parseFloat(tx.change) > 0
-                  ? `RG: ${tx.change} €`
+                  ? `CAMBIO: ${tx.change} €`
                   : `${tx.total} €`}
               {:else}
-                Erfolgreich
+                Éxito
               {/if}
             </span>
             <span
@@ -93,8 +93,8 @@
             >
               {#if tx.method === "cash"}
                 {parseFloat(tx.change) > 0
-                  ? `(Geg: ${tx.tendered})`
-                  : "(Passend)"}
+                  ? `(Ent: ${tx.tendered})`
+                  : "(Exacto)"}
               {:else}
                 ({tx.total} €)
               {/if}
@@ -108,7 +108,7 @@
         class="flex-none p-2 rounded-md border transition-all shadow-sm {reprintFlash
           ? 'bg-emerald-300 scale-95 text-emerald-700 border-emerald-200'
           : 'bg-emerald-100 text-emerald-700 border-emerald-200 hover:bg-emerald-200 hover:border-emerald-300'} active:scale-95"
-        title="Bon nachdrucken"
+        title="Reimprimir ticket"
         onclick={handleReprint}
       >
         <Printer class="w-4 h-4" />

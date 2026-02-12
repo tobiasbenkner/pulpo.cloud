@@ -13,7 +13,7 @@
                 
                 <!-- Header -->
                 <div class="flex justify-between items-center px-6 py-4 border-b border-zinc-100 bg-zinc-50">
-                    <h3 class="text-lg font-bold text-zinc-900">Kunde auswählen</h3>
+                    <h3 class="text-lg font-bold text-zinc-900">Seleccionar cliente</h3>
                     <button id="cust-close-btn" class="p-2 bg-white rounded-full text-zinc-400 hover:text-zinc-600 shadow-sm">
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
@@ -22,7 +22,7 @@
                 <div class="p-6">
                     <!-- Suche -->
                     <div class="relative mb-6">
-                        <input type="text" placeholder="Suche nach Name oder NIF..." class="w-full pl-10 pr-4 py-3 bg-white border border-zinc-200 rounded-xl focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 transition-all" />
+                        <input type="text" placeholder="Buscar por nombre o NIF..." class="w-full pl-10 pr-4 py-3 bg-white border border-zinc-200 rounded-xl focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 transition-all" />
                         <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                     </div>
 
@@ -34,16 +34,16 @@
                     <!-- Neuer Kunde Form (Toggle) -->
                     <details class="group bg-zinc-50 rounded-xl border border-zinc-200">
                         <summary class="list-none flex justify-between items-center p-4 cursor-pointer font-bold text-zinc-700">
-                            <span>+ Neuen Kunden anlegen</span>
+                            <span>+ Crear nuevo cliente</span>
                             <svg class="w-5 h-5 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                         </summary>
                         <div class="p-4 pt-0 grid grid-cols-2 gap-3">
-                            <input id="new-name" type="text" placeholder="Firmenname / Name" class="col-span-2 p-3 rounded-lg border border-zinc-200" />
+                            <input id="new-name" type="text" placeholder="Nombre de la empresa / Nombre" class="col-span-2 p-3 rounded-lg border border-zinc-200" />
                             <input id="new-nif" type="text" placeholder="NIF / CIF" class="p-3 rounded-lg border border-zinc-200" />
-                            <input id="new-zip" type="text" placeholder="PLZ" class="p-3 rounded-lg border border-zinc-200" />
-                            <input id="new-address" type="text" placeholder="Adresse" class="col-span-2 p-3 rounded-lg border border-zinc-200" />
-                            <input id="new-city" type="text" placeholder="Stadt" class="col-span-2 p-3 rounded-lg border border-zinc-200" />
-                            <button id="btn-create-cust" class="col-span-2 bg-zinc-900 text-white py-3 rounded-lg font-bold mt-2">Kunde erstellen & Auswählen</button>
+                            <input id="new-zip" type="text" placeholder="Código postal" class="p-3 rounded-lg border border-zinc-200" />
+                            <input id="new-address" type="text" placeholder="Dirección" class="col-span-2 p-3 rounded-lg border border-zinc-200" />
+                            <input id="new-city" type="text" placeholder="Ciudad" class="col-span-2 p-3 rounded-lg border border-zinc-200" />
+                            <button id="btn-create-cust" class="col-span-2 bg-zinc-900 text-white py-3 rounded-lg font-bold mt-2">Crear y seleccionar cliente</button>
                         </div>
                     </details>
                 </div>

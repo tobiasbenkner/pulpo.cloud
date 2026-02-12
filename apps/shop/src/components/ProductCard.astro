@@ -19,13 +19,13 @@ let dotColor = "bg-emerald-500";
 let stockLabel = "";
 
 if (tracksStock) {
-  stockLabel = `${product.stock} Stk.`;
+  stockLabel = `${product.stock} uds.`;
   if (isOutOfStock) {
-    dotColor = "bg-zinc-300"; // Grau bei leer
-    stockLabel = "Ausverkauft";
+    dotColor = "bg-zinc-300"; // Gris si está vacío
+    stockLabel = "Agotado";
   } else if (isLowStock) {
-    dotColor = "bg-orange-500 animate-pulse"; // Orange bei wenig
-    stockLabel = `${product.stock} verfügbar`;
+    dotColor = "bg-orange-500 animate-pulse"; // Naranja si queda poco
+    stockLabel = `${product.stock} disponible${product.stock === 1 ? "" : "s"}`;
   }
 }
 ---
@@ -126,7 +126,7 @@ if (tracksStock) {
             </span>
           </div>
         ) : (
-          <span class="text-[10px] text-zinc-400 font-medium">Verfügbar</span>
+          <span class="text-[10px] text-zinc-400 font-medium">Disponible</span>
         )
       }
 

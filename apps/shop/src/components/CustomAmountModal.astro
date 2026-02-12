@@ -46,7 +46,7 @@
 
         <div class="px-6 py-6 h-full flex flex-col">
           <h3 class="text-xl font-bold text-center text-zinc-900 mb-6">
-            Freier Betrag
+            Importe libre
           </h3>
 
           <!-- NEU: TEXT INPUT (Optional) -->
@@ -55,12 +55,12 @@
               for="cam-name-input"
               class="block text-xs font-bold text-zinc-400 uppercase tracking-wide mb-1.5 ml-1"
             >
-              Bezeichnung (Optional)
+              Descripción (Opcional)
             </label>
             <input
               type="text"
               id="cam-name-input"
-              placeholder="z.B. Reparatur, Pfand..."
+              placeholder="ej. Reparación, Envase..."
               class="w-full bg-zinc-50 border border-zinc-200 text-zinc-900 text-lg rounded-xl focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 block w-full p-3 placeholder-zinc-300 transition-shadow"
               autocomplete="off"
             />
@@ -72,7 +72,7 @@
           >
             <span
               class="text-zinc-400 text-[10px] font-medium uppercase tracking-wider mb-0.5"
-              >Preis (Brutto)</span
+              >Precio (Bruto)</span
             >
             <div
               id="cam-display"
@@ -115,7 +115,7 @@
             class="w-full bg-zinc-900 text-white font-bold text-lg py-4 rounded-2xl shadow-lg hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
             disabled
           >
-            Hinzufügen
+            Añadir
           </button>
         </div>
       </div>
@@ -217,14 +217,14 @@
     const customName =
       nameInput.value.trim() !== ""
         ? nameInput.value.trim()
-        : "Diverses / Manuell";
+        : "Varios / Manual";
 
     const customProduct: Product = {
       id: `custom-${Date.now()}`, // Unique ID
       name: customName, // Dynamischer Name
       priceGross: price,
       taxClass: "STD",
-      category: "Manuell",
+      category: "Manual",
       image: "",
     };
 

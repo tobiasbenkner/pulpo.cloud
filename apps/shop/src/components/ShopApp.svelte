@@ -38,7 +38,7 @@
       <span
         class="text-xs font-medium text-zinc-400 tracking-widest uppercase"
       >
-        Laden...
+        Cargando...
       </span>
     </div>
   </div>

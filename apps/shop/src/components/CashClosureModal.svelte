@@ -38,7 +38,7 @@
 
   function denomLabel(cents: number, isBill: boolean): string {
     if (isBill) return `${cents / 100} \u20AC`;
-    return cents >= 100 ? `${cents / 100} \u20AC` : `${cents} ct`;
+    return cents >= 100 ? `${cents / 100} \u20AC` : `${cents} cts`;
   }
 
   // --- Derived ---
@@ -77,13 +77,13 @@
   function formatDateStr(iso: string): string {
     const d = new Date(iso);
     return (
-      d.toLocaleDateString("de-DE", {
+      d.toLocaleDateString("es-ES", {
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
       }) +
       " " +
-      d.toLocaleTimeString("de-DE", {
+      d.toLocaleTimeString("es-ES", {
         hour: "2-digit",
         minute: "2-digit",
       })
@@ -100,12 +100,12 @@
     const parked = parkedCarts.get();
 
     if (Object.keys(items).length > 0) {
-      warnings.push("Der aktuelle Warenkorb ist nicht leer.");
+      warnings.push("El carrito actual no está vacío.");
     }
     if (Object.keys(parked).length > 0) {
       const count = Object.keys(parked).length;
       warnings.push(
-        `Es gibt ${count} geparkte${count === 1 ? "n" : ""} Warenk${count === 1 ? "orb" : "\u00F6rbe"}.`,
+        `Hay ${count} carrito${count === 1 ? "" : "s"} aparcado${count === 1 ? "" : "s"}.`,
       );
     }
 
@@ -245,7 +245,7 @@
       await finalizeClosure(countedStr, denomData);
 
       // Show done view
-      doneDiffText = `Differenz: ${diff.gte(0) ? "+" : ""}${diff.toFixed(2)} \u20AC`;
+      doneDiffText = `Diferencia: ${diff.gte(0) ? "+" : ""}${diff.toFixed(2)} \u20AC`;
       doneDiffColor = diff.abs().lt(new Big("0.01"))
         ? "text-zinc-500"
         : diff.gt(0)
@@ -338,7 +338,7 @@
               <div
                 class="w-10 h-10 border-2 border-zinc-300 border-t-zinc-600 rounded-full animate-spin mb-4"
               ></div>
-              <p class="text-sm text-zinc-400">Daten werden geladen...</p>
+              <p class="text-sm text-zinc-400">Cargando datos...</p>
             </div>
 
             <!-- VIEW: WARNING -->
@@ -364,7 +364,7 @@
                 </div>
               </div>
               <h3 class="text-xl font-bold text-center text-zinc-900 mb-3">
-                Achtung
+                Atención
               </h3>
               <p
                 class="text-sm text-center text-zinc-500 mb-6 whitespace-pre-line"
@@ -376,13 +376,13 @@
                   class="flex-1 py-3 rounded-xl border-2 border-zinc-200 text-zinc-600 font-bold text-sm hover:bg-zinc-50 transition-colors"
                   onclick={closeModal}
                 >
-                  Abbrechen
+                  Cancelar
                 </button>
                 <button
                   class="flex-1 py-3 rounded-xl bg-amber-500 text-white font-bold text-sm hover:bg-amber-600 transition-colors"
                   onclick={() => loadAndShowSummary()}
                 >
-                  Trotzdem fortfahren
+                  Continuar de todos modos
                 </button>
               </div>
             </div>
@@ -391,7 +391,7 @@
           {:else if currentView === "summary"}
             <div class="px-8 py-8">
               <h3 class="text-2xl font-bold text-center text-zinc-900 mb-6">
-                Kassenschlie&szlig;ung
+                Cierre de caja
               </h3>
 
               <!-- Period -->
@@ -399,13 +399,13 @@
                 class="bg-zinc-50 rounded-xl p-4 mb-4 border border-zinc-100"
               >
                 <div class="flex justify-between text-sm mb-1">
-                  <span class="text-zinc-400">Von</span>
+                  <span class="text-zinc-400">Desde</span>
                   <span class="text-zinc-700 font-medium"
                     >{report ? formatDateStr(report.periodStart) : ""}</span
                   >
                 </div>
                 <div class="flex justify-between text-sm">
-                  <span class="text-zinc-400">Bis</span>
+                  <span class="text-zinc-400">Hasta</span>
                   <span class="text-zinc-700 font-medium"
                     >{report ? formatDateStr(report.periodEnd) : ""}</span
                   >
@@ -415,39 +415,39 @@
               <!-- Totals -->
               <div class="space-y-2 mb-4">
                 <div class="flex justify-between text-sm">
-                  <span class="text-zinc-500">Transaktionen</span>
+                  <span class="text-zinc-500">Transacciones</span>
                   <span class="font-bold text-zinc-900"
                     >{report?.transactionCount ?? 0}</span
                   >
                 </div>
                 <div class="h-px bg-zinc-100"></div>
                 <div class="flex justify-between text-sm">
-                  <span class="text-zinc-500">Brutto</span>
+                  <span class="text-zinc-500">Bruto</span>
                   <span class="font-bold text-zinc-900"
                     >{report?.totalGross ?? "0.00"} EUR</span
                   >
                 </div>
                 <div class="flex justify-between text-sm">
-                  <span class="text-zinc-500">Netto</span>
+                  <span class="text-zinc-500">Neto</span>
                   <span class="font-medium text-zinc-700"
                     >{report?.totalNet ?? "0.00"} EUR</span
                   >
                 </div>
                 <div class="flex justify-between text-sm">
-                  <span class="text-zinc-500">Steuer</span>
+                  <span class="text-zinc-500">Impuestos</span>
                   <span class="font-medium text-zinc-700"
                     >{report?.totalTax ?? "0.00"} EUR</span
                   >
                 </div>
                 <div class="h-px bg-zinc-100"></div>
                 <div class="flex justify-between text-sm">
-                  <span class="text-zinc-500">Bar</span>
+                  <span class="text-zinc-500">Efectivo</span>
                   <span class="font-medium text-zinc-700"
                     >{report?.totalCash ?? "0.00"} EUR</span
                   >
                 </div>
                 <div class="flex justify-between text-sm">
-                  <span class="text-zinc-500">Karte</span>
+                  <span class="text-zinc-500">Tarjeta</span>
                   <span class="font-medium text-zinc-700"
                     >{report?.totalCard ?? "0.00"} EUR</span
                   >
@@ -479,7 +479,7 @@
                   currentView = "count";
                 }}
               >
-                Weiter zur Z&auml;hlung
+                Continuar al recuento
               </button>
             </div>
 
@@ -505,7 +505,7 @@
                       d="M15 19l-7-7 7-7"
                     />
                   </svg>
-                  Zur&uuml;ck
+                  Volver
                 </button>
               </div>
 
@@ -513,7 +513,7 @@
               <div class="bg-zinc-900 rounded-2xl p-4 mb-4 shadow-inner">
                 <div class="flex justify-between items-end mb-3">
                   <span class="text-zinc-400 text-xs uppercase font-bold"
-                    >Soll (erwartet)</span
+                    >Esperado</span
                   >
                   <span class="text-xl font-mono text-white"
                     >{report?.expectedCash ?? "0.00"} &euro;</span
@@ -522,7 +522,7 @@
                 <div class="h-px bg-zinc-700 my-2"></div>
                 <div class="flex justify-between items-end mb-3">
                   <span class="text-zinc-400 text-xs uppercase font-bold"
-                    >Gez&auml;hlt</span
+                    >Contado</span
                   >
                   <span class="text-3xl font-mono text-white"
                     >{countedEur} &euro;</span
@@ -531,7 +531,7 @@
                 <div class="h-px bg-zinc-700 my-2"></div>
                 <div class="flex justify-between items-end">
                   <span class="text-zinc-400 text-xs uppercase font-bold"
-                    >Differenz</span
+                    >Diferencia</span
                   >
                   <span class="text-xl font-bold {differenceColor}"
                     >{differenceFormatted}</span
@@ -546,7 +546,7 @@
                   <div
                     class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2"
                   >
-                    Scheine
+                    Billetes
                   </div>
                   <div class="space-y-1.5">
                     {#each billCents as cents}
@@ -590,7 +590,7 @@
                   <div
                     class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2"
                   >
-                    M&uuml;nzen
+                    Monedas
                   </div>
                   <div class="space-y-1.5">
                     {#each coinCents as cents}
@@ -636,7 +636,7 @@
                 class="w-full mb-3 py-2 rounded-xl border-2 border-dashed border-zinc-300 text-zinc-500 font-bold text-sm hover:border-zinc-400 hover:bg-zinc-50 transition-colors"
                 onclick={resetDenominations}
               >
-                Zur&uuml;cksetzen
+                Restablecer
               </button>
 
               <!-- Print Toggle -->
@@ -663,7 +663,7 @@
                     </svg>
                   </div>
                   <span class="text-sm font-bold text-zinc-700"
-                    >Bon drucken</span
+                    >Imprimir ticket</span
                   >
                 </div>
                 <div
@@ -684,7 +684,7 @@
                 onclick={handleFinalize}
                 disabled={finalizing}
               >
-                {finalizing ? "Wird gespeichert..." : "Abschlie\u00DFen"}
+                {finalizing ? "Guardando..." : "Cerrar caja"}
               </button>
 
               <!-- QTY NUMPAD OVERLAY -->
@@ -711,7 +711,7 @@
                           d="M6 18L18 6M6 6l12 12"
                         />
                       </svg>
-                      Abbrechen
+                      Cancelar
                     </button>
                     <span class="text-sm font-bold text-zinc-900"
                       >{numpadLabel}</span
@@ -725,7 +725,7 @@
                     <p
                       class="text-zinc-400 text-xs uppercase font-bold mb-1 tracking-wide"
                     >
-                      Anzahl
+                      Cantidad
                     </p>
                     <div class="text-5xl font-mono text-white tracking-tight">
                       {qtyInputValue}
@@ -774,7 +774,7 @@
                     class="w-full bg-blue-600 text-white font-bold text-xl py-4 rounded-2xl shadow-lg shadow-blue-200 transition-all active:scale-[0.98] hover:bg-blue-700"
                     onclick={numpadConfirm}
                   >
-                    &Uuml;bernehmen
+                    Aplicar
                   </button>
                 </div>
               {/if}
@@ -803,7 +803,7 @@
                 </div>
               </div>
               <h3 class="text-2xl font-bold text-center text-zinc-900 mb-2">
-                Kasse geschlossen
+                Caja cerrada
               </h3>
               <p class="text-center text-lg font-bold mb-6 {doneDiffColor}">
                 {doneDiffText}

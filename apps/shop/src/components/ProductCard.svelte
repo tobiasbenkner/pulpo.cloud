@@ -27,10 +27,10 @@
     !tracksStock
       ? ""
       : isOutOfStock
-        ? "Ausverkauft"
+        ? "Agotado"
         : isLowStock
-          ? `${product.stock} verfügbar`
-          : `${product.stock} Stk.`,
+          ? `${product.stock} disponible${product.stock === 1 ? "" : "s"}`
+          : `${product.stock} uds.`,
   );
 
   let imgError = $state(false);
@@ -113,7 +113,7 @@
           </span>
         </div>
       {:else}
-        <span class="text-[10px] text-zinc-400 font-medium">Verfügbar</span>
+        <span class="text-[10px] text-zinc-400 font-medium">Disponible</span>
       {/if}
 
       {#if !isOutOfStock}

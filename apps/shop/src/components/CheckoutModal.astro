@@ -52,7 +52,7 @@
           class="px-8 py-8 pb-6 transition-all duration-300"
         >
           <h3 class="text-2xl font-bold text-center text-zinc-900 mb-6">
-            Zahlung wählen
+            Seleccionar pago
           </h3>
 
           <!-- KUNDEN SELEKTOR -->
@@ -79,7 +79,7 @@
               </div>
               <div class="text-left">
                 <div class="text-sm font-bold text-zinc-800">
-                  Anonymer Kunde
+                  Cliente anónimo
                 </div>
                 <div class="text-xs">Ticket (Simplificada)</div>
               </div>
@@ -109,13 +109,13 @@
                   id="cust-display-name"
                   class="text-sm font-bold text-blue-800 truncate max-w-[150px]"
                 >
-                  Kundenname
+                  Nombre del cliente
                 </div>
-                <div class="text-xs text-blue-600">Rechnung (Completa)</div>
+                <div class="text-xs text-blue-600">Factura (Completa)</div>
               </div>
             </div>
             <button class="text-sm font-bold text-blue-600 hover:underline pl-2"
-              >Ändern</button
+              >Cambiar</button
             >
           </div>
 
@@ -125,7 +125,7 @@
           >
             <span
               class="text-zinc-400 text-xs font-bold uppercase tracking-wide"
-              >Zu zahlen</span
+              >Total a pagar</span
             >
             <div
               class="display-total text-5xl font-extrabold text-white tracking-tight mt-1"
@@ -155,7 +155,9 @@
                   ></path></svg
                 >
               </div>
-              <span class="text-sm font-bold text-zinc-700">Bon drucken</span>
+              <span class="text-sm font-bold text-zinc-700"
+                >Imprimir ticket</span
+              >
             </div>
             <div
               class="toggle-print-ui relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none bg-blue-600"
@@ -189,7 +191,7 @@
                 >
               </div>
               <span class="font-bold text-zinc-700 group-hover:text-blue-700"
-                >Barzahlung</span
+                >Efectivo</span
               >
             </button>
             <button
@@ -213,7 +215,7 @@
                 >
               </div>
               <span class="font-bold text-zinc-700 group-hover:text-purple-700"
-                >Karte</span
+                >Tarjeta</span
               >
             </button>
           </div>
@@ -240,14 +242,14 @@
                   stroke-width="2"
                   d="M15 19l-7-7 7-7"></path></svg
               >
-              Zurück zur Auswahl
+              Volver a la selección
             </button>
           </div>
 
           <!-- Display -->
           <div class="bg-zinc-900 rounded-2xl p-4 mb-4 text-right shadow-inner">
             <p class="text-zinc-400 text-xs uppercase font-bold mb-1">
-              Gegeben
+              Entregado
             </p>
             <div
               id="cash-input-display"
@@ -257,7 +259,7 @@
             </div>
             <div class="h-px bg-zinc-700 w-full my-2"></div>
             <div class="flex justify-between items-end">
-              <span class="text-zinc-400 text-sm">Rückgeld:</span>
+              <span class="text-zinc-400 text-sm">Cambio:</span>
               <span
                 id="change-display"
                 class="text-2xl font-bold text-emerald-400">0.00 €</span
@@ -286,7 +288,9 @@
                   ></path></svg
                 >
               </div>
-              <span class="text-sm font-bold text-zinc-700">Bon drucken</span>
+              <span class="text-sm font-bold text-zinc-700"
+                >Imprimir ticket</span
+              >
             </div>
             <div
               class="toggle-print-ui relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none bg-blue-600"
@@ -354,7 +358,7 @@
             class="w-full bg-emerald-600 text-white font-bold text-xl py-4 rounded-2xl shadow-lg shadow-emerald-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
             disabled
           >
-            Bestätigen
+            Confirmar
           </button>
         </div>
       </div>
@@ -504,7 +508,7 @@
 
       if (btnConfirm) {
         btnConfirm.disabled = false;
-        btnConfirm.innerHTML = `Rückgeld: ${change.toFixed(2)}€ • Fertig`;
+        btnConfirm.innerHTML = `Cambio: ${change.toFixed(2)}€ • Hecho`;
         btnConfirm.classList.add("animate-pulse-slow");
       }
     } else {
@@ -516,7 +520,7 @@
 
       if (btnConfirm) {
         btnConfirm.disabled = true;
-        btnConfirm.innerHTML = "Betrag zu gering";
+        btnConfirm.innerHTML = "Importe insuficiente";
         btnConfirm.classList.remove("animate-pulse-slow");
       }
     }

@@ -13,7 +13,7 @@
   import type { ShopCategory } from "../stores/productStore";
   import { ShoppingBag, Lock, FileText, LogOut, Plus } from "lucide-svelte";
 
-  let selectedCategory = $state("Alle");
+  let selectedCategory = $state("Todos");
   let storeCategories = $state<ShopCategory[]>([]);
   let loading = $state(true);
   let storeError = $state<string | null>(null);
@@ -31,11 +31,11 @@
     };
   });
 
-  let categoryNames = $derived(["Alle", ...storeCategories.map((c) => c.name)]);
+  let categoryNames = $derived(["Todos", ...storeCategories.map((c) => c.name)]);
 
   let filteredProducts = $derived.by(() => {
     const all: Product[] = storeCategories.flatMap((c) => c.products);
-    if (selectedCategory === "Alle") return all;
+    if (selectedCategory === "Todos") return all;
     return all.filter((p) => p.category === selectedCategory);
   });
 
@@ -90,14 +90,14 @@
             onclick={openClosureModal}
           >
             <Lock class="w-5 h-5 text-zinc-400" />
-            <span class="font-medium">Kasse schlie&szlig;en</span>
+            <span class="font-medium">Cerrar caja</span>
           </button>
           <button
             class="w-full flex items-center gap-3 px-4 py-3 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors text-left"
             onclick={openShiftInvoicesModal}
           >
             <FileText class="w-5 h-5 text-zinc-400" />
-            <span class="font-medium">Rechnungen</span>
+            <span class="font-medium">Facturas</span>
           </button>
           <div class="border-t border-zinc-100 my-1"></div>
           <a
@@ -105,7 +105,7 @@
             class="w-full flex items-center gap-3 px-4 py-3 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors text-left"
           >
             <LogOut class="w-5 h-5 text-zinc-400" />
-            <span class="font-medium">Abmelden</span>
+            <span class="font-medium">Cerrar sesión</span>
           </a>
         </div>
       {/if}
@@ -135,19 +135,19 @@
           <div
             class="w-8 h-8 border-2 border-zinc-300 border-t-zinc-600 rounded-full animate-spin mx-auto mb-3"
           ></div>
-          <p class="text-sm">Produkte werden geladen...</p>
+          <p class="text-sm">Cargando productos...</p>
         </div>
       </div>
     {:else if storeError}
       <div class="flex items-center justify-center h-full text-red-500">
         <div class="text-center">
-          <p class="text-sm font-medium mb-2">Fehler beim Laden</p>
+          <p class="text-sm font-medium mb-2">Error al cargar</p>
           <p class="text-xs text-zinc-400">{storeError}</p>
           <button
             class="mt-3 px-4 py-2 bg-zinc-900 text-white rounded-lg text-xs font-bold hover:bg-zinc-800"
             onclick={() => loadProducts()}
           >
-            Erneut versuchen
+            Reintentar
           </button>
         </div>
       </div>
@@ -169,7 +169,7 @@
               <Plus class="w-6 h-6" />
             </div>
             <span class="font-bold text-xs uppercase tracking-wide text-center"
-              >Freier<br />Betrag</span
+              >Importe<br />libre</span
             >
           </div>
         </button>
