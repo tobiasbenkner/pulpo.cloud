@@ -7,6 +7,7 @@ import CustomerModal from "../components/CustomerModal.astro";
 import DiscountModal from "../components/DiscountModal.astro";
 import QuantityModal from "../components/QuantityModal.astro";
 import CashClosureModal from "../components/CashClosureModal.svelte";
+import ShiftInvoicesModal from "../components/ShiftInvoicesModal.svelte";
 import ShopApp from "../components/ShopApp.svelte";
 ---
 
@@ -23,4 +24,5 @@ import ShopApp from "../components/ShopApp.svelte";
   <DiscountModal />
   <QuantityModal />
   <CashClosureModal client:only="svelte" />
+  <ShiftInvoicesModal client:only="svelte" />
 </Layout>

@@ -1,6 +1,7 @@
 import {
   readItem,
   readItems,
+  updateItem,
   type DirectusClient,
   type RestClient,
 } from "@directus/sdk";
@@ -74,6 +75,21 @@ export async function getInvoice(client: Client, id: string) {
   return client.request(
     readItem("invoices", id, {
       fields: ["*", { items: ["*"] }, { payments: ["*"] }],
+    }),
+  );
+}
+
+export async function updateInvoicePaymentMethod(
+  client: Client,
+  paymentId: number,
+  newMethod: "cash" | "card",
+  amount: string,
+) {
+  return client.request(
+    updateItem("invoice_payments", paymentId, {
+      method: newMethod,
+      tendered: amount,
+      change: "0.00",
     }),
   );
 }

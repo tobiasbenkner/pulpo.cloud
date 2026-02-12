@@ -7,10 +7,11 @@
     loadProducts,
   } from "../stores/productStore";
   import { isCustomAmountOpen } from "../stores/cartStore";
-  import { isClosureModalOpen } from "../stores/registerStore";
+  import { isClosureModalOpen, isShiftInvoicesModalOpen } from "../stores/registerStore";
   import ProductCard from "./ProductCard.svelte";
   import type { Product } from "../types/shop";
   import type { ShopCategory } from "../stores/productStore";
+  import { ShoppingBag, Lock, FileText, LogOut, Plus } from "lucide-svelte";
 
   let selectedCategory = $state("Alle");
   let storeCategories = $state<ShopCategory[]>([]);
@@ -50,6 +51,11 @@
     menuOpen = false;
     isClosureModalOpen.set(true);
   }
+
+  function openShiftInvoicesModal() {
+    menuOpen = false;
+    isShiftInvoicesModalOpen.set(true);
+  }
 </script>
 
 <main class="h-full flex flex-col relative overflow-hidden bg-zinc-50">
@@ -63,19 +69,7 @@
         class="flex items-center justify-center bg-zinc-900 text-white w-9 h-9 rounded-lg shadow-md cursor-pointer hover:bg-zinc-800 transition-colors"
         onclick={() => (menuOpen = !menuOpen)}
       >
-        <svg
-          class="w-5 h-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-          />
-        </svg>
+        <ShoppingBag class="w-5 h-5" />
       </button>
 
       {#if menuOpen}
@@ -95,39 +89,22 @@
             class="w-full flex items-center gap-3 px-4 py-3 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors text-left"
             onclick={openClosureModal}
           >
-            <svg
-              class="w-5 h-5 text-zinc-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-              />
-            </svg>
+            <Lock class="w-5 h-5 text-zinc-400" />
             <span class="font-medium">Kasse schlie&szlig;en</span>
+          </button>
+          <button
+            class="w-full flex items-center gap-3 px-4 py-3 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors text-left"
+            onclick={openShiftInvoicesModal}
+          >
+            <FileText class="w-5 h-5 text-zinc-400" />
+            <span class="font-medium">Rechnungen</span>
           </button>
           <div class="border-t border-zinc-100 my-1"></div>
           <a
             href="/logout"
             class="w-full flex items-center gap-3 px-4 py-3 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors text-left"
           >
-            <svg
-              class="w-5 h-5 text-zinc-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-              />
-            </svg>
+            <LogOut class="w-5 h-5 text-zinc-400" />
             <span class="font-medium">Abmelden</span>
           </a>
         </div>
@@ -189,19 +166,7 @@
             <div
               class="w-12 h-12 rounded-full bg-zinc-200 group-hover:bg-zinc-300 flex items-center justify-center mb-2 transition-colors"
             >
-              <svg
-                class="w-6 h-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                />
-              </svg>
+              <Plus class="w-6 h-6" />
             </div>
             <span class="font-bold text-xs uppercase tracking-wide text-center"
               >Freier<br />Betrag</span

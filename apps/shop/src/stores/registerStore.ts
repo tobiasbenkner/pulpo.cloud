@@ -4,20 +4,21 @@ import Big from "big.js";
 import { getAuthClient } from "@pulpo/auth";
 import {
   getInvoices,
+  updateInvoicePaymentMethod,
   openClosure,
   closeClosure,
   getLastClosure,
   getOpenClosure,
 } from "@pulpo/cms";
+import type { Invoice } from "@pulpo/cms";
 import type { ClosureReport } from "../types/shop";
 
 // --- PERSISTENT (localStorage) ---
 
-export const isRegisterOpen = persistentAtom<boolean>(
-  "register:open",
-  false,
-  { encode: JSON.stringify, decode: JSON.parse },
-);
+export const isRegisterOpen = persistentAtom<boolean>("register:open", false, {
+  encode: JSON.stringify,
+  decode: JSON.parse,
+});
 
 export const currentClosureId = persistentAtom<string>(
   "register:closure_id",
@@ -29,16 +30,16 @@ export const startingCash = persistentAtom<string>(
   "0.00",
 );
 
-export const periodStart = persistentAtom<string>(
-  "register:period_start",
-  "",
-);
+export const periodStart = persistentAtom<string>("register:period_start", "");
 
 // --- SESSION (atoms) ---
 
 export const isClosureModalOpen = atom<boolean>(false);
 export const closureReport = atom<ClosureReport | null>(null);
 export const closureLoading = atom<boolean>(false);
+
+export const isShiftInvoicesModalOpen = atom<boolean>(false);
+export const shiftInvoices = atom<Invoice[]>([]);
 
 // --- ACTIONS ---
 
@@ -221,4 +222,42 @@ export async function syncRegisterState(): Promise<void> {
   } catch (e) {
     console.error("Failed to sync register state:", e);
   }
+}
+
+export async function loadShiftInvoices(): Promise<void> {
+  const client = getAuthClient();
+  const closureId = currentClosureId.get();
+
+  const invoices = await getInvoices(client as any, {
+    status: "paid",
+    closureId: closureId || undefined,
+  });
+
+  shiftInvoices.set(invoices as Invoice[]);
+}
+
+export async function swapPaymentMethod(
+  invoiceId: string,
+  paymentId: number,
+  newMethod: "cash" | "card",
+  amount: string,
+): Promise<void> {
+  const client = getAuthClient();
+  await updateInvoicePaymentMethod(client as any, paymentId, newMethod, amount);
+
+  // Update local state
+  const current = shiftInvoices.get();
+  shiftInvoices.set(
+    current.map((inv) => {
+      if (inv.id !== invoiceId) return inv;
+      return {
+        ...inv,
+        payments: inv.payments.map((p) =>
+          p.id === paymentId
+            ? { ...p, method: newMethod, tendered: amount, change: "0.00" }
+            : p,
+        ),
+      };
+    }),
+  );
 }
