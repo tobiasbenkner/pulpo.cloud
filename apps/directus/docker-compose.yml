@@ -4,6 +4,12 @@ services:
     ports:
       - 8055:8055
     environment:
+      CORS_ENABLED: true
+      CORS_ORIGIN: true
+      CORS_METHODS: GET,POST,PATCH,DELETE
+      CORS_HEADERS: Content-Type,Authorization
+      CORS_CREDENTIALS: true
+      
       KEY: "dein-super-geheimer-key"
       SECRET: "dein-super-geheimes-secret"
       ADMIN_EMAIL: "admin@example.com"
