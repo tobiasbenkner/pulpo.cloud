@@ -198,6 +198,7 @@
           <button
             class="p-1 text-zinc-400 hover:text-zinc-600"
             onclick={() => (showParked = false)}
+            aria-label="Cerrar lista de espera"
           >
             <svg
               class="w-5 h-5"
@@ -255,6 +256,7 @@
               <button
                 onclick={() => deleteParkedCart(id)}
                 class="p-2 text-zinc-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors z-10 relative"
+                aria-label="Eliminar carrito"
               >
                 <svg
                   class="w-4 h-4"
@@ -399,6 +401,7 @@
                   <button
                     class="w-10 h-full flex items-center justify-center text-zinc-500 hover:bg-zinc-100 rounded-r-lg transition-colors border-l border-zinc-100 active:bg-zinc-200"
                     onclick={() => addToCart(item)}
+                    aria-label="Añadir uno más"
                   >
                     <svg
                       class="w-5 h-5"

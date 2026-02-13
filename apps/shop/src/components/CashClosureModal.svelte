@@ -314,6 +314,7 @@
               <button
                 class="rounded-full p-2 bg-zinc-100 text-zinc-400 hover:text-zinc-600 transition-colors"
                 onclick={closeModal}
+                aria-label="Cerrar"
               >
                 <svg
                   class="h-5 w-5"
@@ -753,6 +754,7 @@
                     <button
                       class="bg-zinc-50 text-zinc-600 text-xl font-bold rounded-xl hover:bg-zinc-100 active:scale-95 border border-zinc-200 flex items-center justify-center"
                       onclick={numpadBackspace}
+                      aria-label="Borrar"
                     >
                       <svg
                         class="w-6 h-6"
