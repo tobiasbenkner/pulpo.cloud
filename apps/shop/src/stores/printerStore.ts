@@ -155,18 +155,30 @@ function buildReceipt(receiptData: {
   for (const item of totals.items) {
     const qty = parseInt(String(item.quantity), 10);
     const prefix = `${String(qty).padStart(2)}x `;
-    lines.push(twoColTable(`${prefix}${item.productName}`, item.rowTotalGross));
+    const hasDiscount = !!(item.discountType && item.discountValue);
+    const originalGross = new Big(item.priceGrossUnit).times(qty);
+
+    lines.push(
+      twoColTable(
+        `${prefix}${item.productName}`,
+        hasDiscount ? originalGross.toFixed(2) : item.rowTotalGross,
+      ),
+    );
+    if (hasDiscount) {
+      const discountAmount =
+        item.discountType === "percent"
+          ? originalGross.times(new Big(item.discountValue!)).div(100)
+          : new Big(item.discountValue!);
+      const label =
+        item.discountType === "percent"
+          ? `    Dto. -${parseFloat(item.discountValue!)}%`
+          : `    Dto.`;
+      lines.push(twoColTable(label, `-${discountAmount.toFixed(2)}`));
+    }
     if (qty > 1) {
       lines.push(
         twoColTable(`    @ ${parseFloat(item.priceGrossUnit).toFixed(2)}`, ""),
       );
-    }
-    if (item.discountType && item.discountValue) {
-      const label =
-        item.discountType === "percent"
-          ? `    Dto. -${parseFloat(item.discountValue)}%`
-          : `    Dto. -${parseFloat(item.discountValue).toFixed(2)}`;
-      lines.push(twoColTable(label, ""));
     }
   }
 
