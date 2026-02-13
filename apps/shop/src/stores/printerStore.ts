@@ -378,6 +378,7 @@ export async function printInvoice(invoice: Invoice): Promise<void> {
 export async function printRectificativa(
   rectificativa: Invoice,
   originalInvoiceNumber: string,
+  options?: { openDrawer?: boolean },
 ): Promise<void> {
   const ZERO = new Big(0);
   const HUNDRED = new Big(100);
@@ -513,7 +514,7 @@ export async function printRectificativa(
   const job: PrintJob = {
     printer: printerSettings as PrintJob["printer"],
     document: lines,
-    open: false, // don't open drawer for rectificativa
+    open: options?.openDrawer ?? false,
   };
 
   await sendPrintJob(job);

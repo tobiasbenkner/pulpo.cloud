@@ -246,6 +246,7 @@ export async function createRectificativa(data: {
   original_invoice_id: string;
   reason: string;
   reason_detail?: string;
+  payment_method: "cash" | "card";
   items: {
     product_id: string | null;
     product_name: string;

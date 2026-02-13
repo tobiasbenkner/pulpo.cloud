@@ -11,7 +11,14 @@
   import { RECTIFICATION_REASONS } from "../types/shop";
   import type { RectificationReason } from "../types/shop";
   import type { Invoice, InvoiceItem } from "@pulpo/cms";
-  import { X, Check, ChevronLeft, AlertTriangle } from "lucide-svelte";
+  import {
+    X,
+    Check,
+    ChevronLeft,
+    AlertTriangle,
+    HandCoins,
+    CreditCard,
+  } from "lucide-svelte";
   import Big from "big.js";
 
   type View = "select" | "confirm" | "done";
@@ -26,6 +33,7 @@
   // Form state
   let reason = $state<RectificationReason | "">("");
   let reasonDetail = $state("");
+  let refundMethod = $state<"cash" | "card">("cash");
   let selectedItems = $state<
     {
       item: InvoiceItem;
@@ -56,6 +64,7 @@
     view = "select";
     reason = "";
     reasonDetail = "";
+    refundMethod = "cash";
     selectedItems = [];
     submitting = false;
     resultNumber = "";
@@ -148,6 +157,7 @@
         original_invoice_id: invoice.id,
         reason: reason as string,
         reason_detail: reason === "otros" ? reasonDetail : undefined,
+        payment_method: refundMethod,
         items,
       });
 
@@ -169,6 +179,7 @@
         await printRectificativa(
           result.rectificativa as Invoice,
           invoice.invoice_number,
+          { openDrawer: refundMethod === "cash" },
         );
       }
 
@@ -192,6 +203,7 @@
         if (inv) {
           invoice = inv;
           resetState();
+          refundMethod = inv.payments?.[0]?.method ?? "cash";
           initItems(inv);
           openModalAnim();
         }
@@ -368,6 +380,39 @@
                 </div>
               </div>
 
+              <!-- Payment method -->
+              <div class="mb-4">
+                <p
+                  class="text-xs font-medium text-zinc-400 uppercase tracking-wide mb-2"
+                >
+                  Devolución por
+                </p>
+                <div
+                  class="inline-flex rounded-xl border border-zinc-200 overflow-hidden text-sm font-bold"
+                >
+                  <button
+                    class="flex items-center gap-2 px-4 py-2.5 transition-colors {refundMethod ===
+                    'cash'
+                      ? 'bg-emerald-100 text-emerald-700'
+                      : 'text-zinc-400 hover:bg-zinc-50 hover:text-zinc-600'}"
+                    onclick={() => (refundMethod = "cash")}
+                  >
+                    <HandCoins class="w-4 h-4" />
+                    Efectivo
+                  </button>
+                  <button
+                    class="flex items-center gap-2 px-4 py-2.5 border-l border-zinc-200 transition-colors {refundMethod ===
+                    'card'
+                      ? 'bg-blue-100 text-blue-700'
+                      : 'text-zinc-400 hover:bg-zinc-50 hover:text-zinc-600'}"
+                    onclick={() => (refundMethod = "card")}
+                  >
+                    <CreditCard class="w-4 h-4" />
+                    Tarjeta
+                  </button>
+                </div>
+              </div>
+
               <!-- Refund total -->
               <div
                 class="flex items-center justify-between bg-red-50 rounded-xl px-4 py-3 mb-6"
@@ -421,6 +466,12 @@
                     {#if reason === "otros" && reasonDetail}
                       — {reasonDetail}
                     {/if}
+                  </p>
+                </div>
+                <div class="px-4 py-3 border-b border-zinc-100">
+                  <p class="text-xs text-zinc-400">Devolución por</p>
+                  <p class="text-sm text-zinc-800">
+                    {refundMethod === "cash" ? "Efectivo" : "Tarjeta"}
                   </p>
                 </div>
                 <div class="divide-y divide-zinc-50">

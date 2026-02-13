@@ -19,6 +19,7 @@ interface RectifyBody {
   original_invoice_id: string;
   reason: string;
   reason_detail?: string;
+  payment_method?: "cash" | "card";
   items: RectifyItem[];
 }
 
@@ -31,7 +32,7 @@ export function registerInvoiceRectify(
 
   router.post("/invoices/rectify", async (req, res) => {
     try {
-      const { original_invoice_id, reason, reason_detail, items } =
+      const { original_invoice_id, reason, reason_detail, payment_method, items } =
         req.body as RectifyBody;
 
       if (!original_invoice_id || !reason || !items?.length) {
@@ -133,9 +134,9 @@ export function registerInvoiceRectify(
       }
       const totalTax = totalGross - totalNet;
 
-      // 7. Determine payment method from original
+      // 7. Determine payment method (from request or fallback to original)
       const originalPayment = (original.payments as any[])?.[0];
-      const paymentMethod = originalPayment?.method ?? "cash";
+      const paymentMethod = payment_method ?? originalPayment?.method ?? "cash";
 
       // 8. Build reason string
       const rectificationReason = reason_detail
