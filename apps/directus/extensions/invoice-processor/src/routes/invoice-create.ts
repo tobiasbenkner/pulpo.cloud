@@ -56,15 +56,25 @@ export function registerInvoiceCreate(
 
   router.post("/invoices", async (req, res) => {
     try {
-      const { status, total_net, total_tax, total_gross, items, payments } =
-        req.body as {
-          status: "draft" | "paid" | "cancelled";
-          total_net: string;
-          total_tax: string;
-          total_gross: string;
-          items: Record<string, unknown>[];
-          payments: Record<string, unknown>[];
-        };
+      const {
+        status,
+        total_net,
+        total_tax,
+        total_gross,
+        discount_type,
+        discount_value,
+        items,
+        payments,
+      } = req.body as {
+        status: "draft" | "paid" | "cancelled";
+        total_net: string;
+        total_tax: string;
+        total_gross: string;
+        discount_type?: "percent" | "fixed" | null;
+        discount_value?: string | null;
+        items: Record<string, unknown>[];
+        payments: Record<string, unknown>[];
+      };
 
       // 1. Authenticate & resolve tenant
       const tenant = await getTenantFromUser(req, context);
@@ -121,8 +131,14 @@ export function registerInvoiceCreate(
         total_net,
         total_tax,
         total_gross,
-        items: { create: items },
-        payments: { create: payments },
+        discount_type: discount_type ?? null,
+        discount_value: discount_value ?? null,
+        items: {
+          create: items.map((item) => ({ ...item, tenant })),
+        },
+        payments: {
+          create: payments.map((payment) => ({ ...payment, tenant })),
+        },
       });
 
       // 6. Update tenant's last_invoice_number

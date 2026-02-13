@@ -159,10 +159,7 @@ function buildReceipt(receiptData: {
     const originalGross = new Big(item.priceGrossUnit).times(qty);
 
     lines.push(
-      twoColTable(
-        `${prefix}${item.productName}`,
-        hasDiscount ? originalGross.toFixed(2) : item.rowTotalGross,
-      ),
+      twoColTable(`${prefix}${item.productName}`, originalGross.toFixed(2)),
     );
     if (hasDiscount) {
       const discountAmount =
@@ -184,17 +181,20 @@ function buildReceipt(receiptData: {
 
   lines.push(separatorLine());
 
+  // Global discount
+  if (parseFloat(totals.discountTotal) > 0) {
+    lines.push(twoColTable("Subtotal", totals.subtotal));
+    const discLabel =
+      totals.discountType === "percent" && totals.discountValue
+        ? `Descuento -${parseFloat(totals.discountValue)}%`
+        : "Descuento";
+    lines.push(twoColTable(discLabel, `-${totals.discountTotal}`));
+    lines.push(separatorLine());
+  }
+
   // Total
   lines.push(twoColTable("TOTAL", `${totals.gross} EUR`, "B", "B"));
   lines.push(emptyLine());
-
-  if (parseFloat(totals.discountTotal) > 0) {
-    const discLabel =
-      totals.discountType === "percent" && totals.discountValue
-        ? `Descuento ${parseFloat(totals.discountValue)}%`
-        : "Descuento";
-    lines.push(twoColTable(discLabel, `-${totals.discountTotal}`));
-  }
 
   // Tax breakdown: group net by rate from items
   const netByRate = new Map<string, number>();
