@@ -252,7 +252,12 @@ export const swapLastTransactionMethod = async () => {
     tx.total,
   );
 
-  lastTransaction.set({ ...tx, method: newMethod });
+  lastTransaction.set({
+    ...tx,
+    method: newMethod,
+    tendered: tx.total,
+    change: "0.00",
+  });
 };
 
 export const completeTransaction = async (

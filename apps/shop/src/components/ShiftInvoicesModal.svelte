@@ -8,7 +8,7 @@
   } from "../stores/registerStore";
   import { printInvoice } from "../stores/printerStore";
   import type { Invoice } from "@pulpo/cms";
-  import { X, FileText, Printer, CreditCard, Banknote } from "lucide-svelte";
+  import { X, FileText, Printer, CreditCard, HandCoins } from "lucide-svelte";
   import RefundIcon from "./icons/RefundIcon.svelte";
 
   let isOpen = $state(false);
@@ -180,8 +180,6 @@
                   </thead>
                   <tbody>
                     {#each invoices as inv (inv.id)}
-                      {@const payment = inv.payments?.[0]}
-                      {@const method = payment?.method ?? "cash"}
                       <tr
                         class="border-b border-zinc-100 hover:bg-zinc-50 transition-colors"
                       >
@@ -196,17 +194,42 @@
                           >{formatCurrency(inv.total_gross)} &euro;</td
                         >
                         <td class="py-3 px-2 text-center">
-                          <span
-                            class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold {method ===
-                            'cash'
-                              ? 'bg-emerald-100 text-emerald-700'
-                              : 'bg-blue-100 text-blue-700'}"
+                          <div
+                            class="inline-flex rounded-lg border border-zinc-200 overflow-hidden text-xs font-bold"
                           >
-                            {method === "cash" ? "Ef." : "Tarj."}
-                          </span>
-                          {#if method === "cash" && payment?.change && parseFloat(payment.change) > 0}
+                            <button
+                              class="flex items-center gap-1 px-2.5 py-1.5 transition-colors {inv
+                                .payments?.[0]?.method === 'cash'
+                                ? 'bg-emerald-100 text-emerald-700'
+                                : 'text-zinc-300 hover:bg-zinc-50 hover:text-zinc-500'}"
+                              disabled={inv.payments?.[0]?.method === "cash" ||
+                                swapping === inv.id}
+                              onclick={() => handleSwapPayment(inv)}
+                            >
+                              <HandCoins class="w-3.5 h-3.5" />
+                              Ef.
+                            </button>
+                            <button
+                              class="flex items-center gap-1 px-2.5 py-1.5 border-l border-zinc-200 transition-colors {inv
+                                .payments?.[0]?.method === 'card'
+                                ? 'bg-blue-100 text-blue-700'
+                                : 'text-zinc-300 hover:bg-zinc-50 hover:text-zinc-500'}"
+                              disabled={inv.payments?.[0]?.method === "card" ||
+                                swapping === inv.id}
+                              onclick={() => handleSwapPayment(inv)}
+                            >
+                              <CreditCard class="w-3.5 h-3.5" />
+                              Tarj.
+                            </button>
+                          </div>
+                          {#if inv.payments?.[0]?.method === "cash" && inv.payments[0].change && parseFloat(inv.payments[0].change) > 0}
                             <div class="text-[10px] text-zinc-400 mt-0.5">
-                              Cambio: {formatCurrency(payment.change)} &euro;
+                              Entregado: {formatCurrency(
+                                inv.payments[0].tendered ?? "0",
+                              )} &euro;
+                            </div>
+                            <div class="text-[10px] text-zinc-400">
+                              Cambio: {formatCurrency(inv.payments[0].change)} &euro;
                             </div>
                           {/if}
                         </td>
@@ -219,21 +242,6 @@
                               onclick={() => alert("Anulación no implementada")}
                             >
                               <RefundIcon class="w-5 h-5" />
-                            </button>
-                            <!-- Swap payment method -->
-                            <button
-                              class="p-3 rounded-xl text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 active:scale-95 transition-all disabled:opacity-40"
-                              title={method === "cash"
-                                ? "Cambiar a tarjeta"
-                                : "Cambiar a efectivo"}
-                              onclick={() => handleSwapPayment(inv)}
-                              disabled={swapping === inv.id}
-                            >
-                              {#if method === "cash"}
-                                <CreditCard class="w-5 h-5" />
-                              {:else}
-                                <Banknote class="w-5 h-5" />
-                              {/if}
                             </button>
                             <!-- Print -->
                             <button
