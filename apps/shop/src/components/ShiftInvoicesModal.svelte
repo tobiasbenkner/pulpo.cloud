@@ -8,14 +8,61 @@
   } from "../stores/registerStore";
   import { printInvoice } from "../stores/printerStore";
   import type { Invoice } from "@pulpo/cms";
-  import { X, FileText, Printer, CreditCard, HandCoins } from "lucide-svelte";
+  import {
+    X,
+    FileText,
+    Printer,
+    CreditCard,
+    HandCoins,
+    Eye,
+    EyeOff,
+  } from "lucide-svelte";
   import RefundIcon from "./icons/RefundIcon.svelte";
+  import Big from "big.js";
 
   let isOpen = $state(false);
   let isVisible = $state(false);
   let loading = $state(false);
   let invoices = $state<readonly Invoice[]>([]);
   let swapping = $state<string | null>(null);
+  let expandedId = $state<string | null>(null);
+
+  function itemPreview(inv: Invoice): string {
+    const items = inv.items ?? [];
+    const parts = items
+      .slice(0, 3)
+      .map((i) => `${parseInt(String(i.quantity))}x ${i.product_name}`);
+    if (items.length > 3) parts.push(`+${items.length - 3} más`);
+    return parts.join(", ");
+  }
+
+  function toggleDetail(id: string) {
+    expandedId = expandedId === id ? null : id;
+  }
+
+  function taxBreakdown(
+    inv: Invoice,
+  ): { ratePct: string; base: string; tax: string }[] {
+    const map = new Map<string, { base: Big; tax: Big }>();
+    for (const item of inv.items ?? []) {
+      const rate = item.tax_rate_snapshot;
+      const entry = map.get(rate) ?? { base: new Big(0), tax: new Big(0) };
+      entry.base = entry.base.plus(new Big(item.row_total_net_precise));
+      entry.tax = entry.tax.plus(
+        new Big(item.row_total_gross).minus(
+          new Big(item.row_total_net_precise),
+        ),
+      );
+      map.set(rate, entry);
+    }
+    return Array.from(map.entries())
+      .sort(([a], [b]) => new Big(a).cmp(new Big(b)))
+      .map(([rate, { base, tax }]) => ({
+        ratePct: parseFloat(rate).toFixed(0),
+        base: base.toFixed(2),
+        tax: tax.toFixed(2),
+      }));
+  }
 
   function formatTime(iso: string): string {
     const d = new Date(iso);
@@ -180,15 +227,25 @@
                   </thead>
                   <tbody>
                     {#each invoices as inv (inv.id)}
+                      <!-- Main row -->
                       <tr
-                        class="border-b border-zinc-100 hover:bg-zinc-50 transition-colors"
+                        class="border-b transition-colors {expandedId === inv.id
+                          ? 'bg-zinc-50 border-zinc-200'
+                          : 'border-zinc-100 hover:bg-zinc-50'}"
                       >
                         <td class="py-3 px-2 text-zinc-700 font-mono"
                           >{formatTime(inv.date_created)}</td
                         >
-                        <td class="py-3 px-2 text-zinc-700 font-medium"
-                          >{inv.invoice_number}</td
-                        >
+                        <td class="py-3 px-2">
+                          <div class="text-zinc-700 font-medium">
+                            {inv.invoice_number}
+                          </div>
+                          <div
+                            class="text-[10px] text-zinc-400 mt-0.5 truncate max-w-[180px]"
+                          >
+                            {itemPreview(inv)}
+                          </div>
+                        </td>
                         <td
                           class="py-3 px-2 text-zinc-900 font-bold text-right tabular-nums"
                           >{formatCurrency(inv.total_gross)} &euro;</td
@@ -235,6 +292,23 @@
                         </td>
                         <td class="py-3 px-2">
                           <div class="flex items-center justify-end gap-2">
+                            <!-- Detail toggle -->
+                            <button
+                              class="p-3 rounded-xl transition-all active:scale-95 {expandedId ===
+                              inv.id
+                                ? 'text-zinc-700 bg-zinc-200'
+                                : 'text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100'}"
+                              title={expandedId === inv.id
+                                ? "Ocultar detalles"
+                                : "Ver detalles"}
+                              onclick={() => toggleDetail(inv.id)}
+                            >
+                              {#if expandedId === inv.id}
+                                <EyeOff class="w-5 h-5" />
+                              {:else}
+                                <Eye class="w-5 h-5" />
+                              {/if}
+                            </button>
                             <!-- Cancel (not implemented) -->
                             <button
                               class="p-3 rounded-xl text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 active:scale-95 transition-all"
@@ -254,6 +328,206 @@
                           </div>
                         </td>
                       </tr>
+                      <!-- Expandable detail row -->
+                      {#if expandedId === inv.id}
+                        <tr class="bg-zinc-50 border-b border-zinc-200">
+                          <td colspan="5" class="px-4 py-4">
+                            <div
+                              class="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden"
+                            >
+                              <!-- Items -->
+                              <table class="w-full text-xs">
+                                <thead>
+                                  <tr
+                                    class="bg-zinc-50 border-b border-zinc-100"
+                                  >
+                                    <th
+                                      class="text-left py-2 px-3 text-zinc-400 font-medium"
+                                      >Artículo</th
+                                    >
+                                    <th
+                                      class="text-right py-2 px-3 text-zinc-400 font-medium"
+                                      >Ud.</th
+                                    >
+                                    <th
+                                      class="text-right py-2 px-3 text-zinc-400 font-medium"
+                                      >Precio</th
+                                    >
+                                    <th
+                                      class="text-right py-2 px-3 text-zinc-400 font-medium"
+                                      >Total</th
+                                    >
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {#each inv.items ?? [] as item}
+                                    <tr class="border-b border-zinc-50">
+                                      <td class="py-1.5 px-3 text-zinc-700"
+                                        >{item.product_name}</td
+                                      >
+                                      <td
+                                        class="py-1.5 px-3 text-zinc-500 text-right"
+                                        >{parseInt(String(item.quantity))}</td
+                                      >
+                                      <td
+                                        class="py-1.5 px-3 text-zinc-500 text-right tabular-nums"
+                                        >{formatCurrency(
+                                          item.price_gross_unit,
+                                        )}</td
+                                      >
+                                      <td
+                                        class="py-1.5 px-3 text-zinc-700 text-right tabular-nums font-medium"
+                                      >
+                                        {formatCurrency(
+                                          new Big(item.price_gross_unit)
+                                            .times(
+                                              parseInt(String(item.quantity)),
+                                            )
+                                            .toFixed(2),
+                                        )}
+                                      </td>
+                                    </tr>
+                                    {#if item.discount_type && item.discount_value}
+                                      <tr class="border-b border-zinc-50">
+                                        <td
+                                          colspan="3"
+                                          class="py-0.5 px-3 text-zinc-400 text-xs pl-6"
+                                        >
+                                          Dto. {item.discount_type === "percent"
+                                            ? `-${parseFloat(item.discount_value)}%`
+                                            : `-${formatCurrency(item.discount_value)}`}
+                                        </td>
+                                        <td
+                                          class="py-0.5 px-3 text-red-500 text-right tabular-nums text-xs"
+                                        >
+                                          -{formatCurrency(
+                                            item.discount_type === "percent"
+                                              ? new Big(item.price_gross_unit)
+                                                  .times(
+                                                    parseInt(
+                                                      String(item.quantity),
+                                                    ),
+                                                  )
+                                                  .times(
+                                                    new Big(
+                                                      item.discount_value,
+                                                    ),
+                                                  )
+                                                  .div(100)
+                                                  .toFixed(2)
+                                              : item.discount_value,
+                                          )}
+                                        </td>
+                                      </tr>
+                                    {/if}
+                                  {/each}
+                                </tbody>
+                              </table>
+                              <!-- Totals -->
+                              <div
+                                class="border-t border-zinc-200 px-3 py-2 space-y-1"
+                              >
+                                {#if inv.discount_type && inv.discount_value}
+                                  <div
+                                    class="flex justify-between text-xs text-zinc-500"
+                                  >
+                                    <span>Subtotal</span>
+                                    <span class="tabular-nums">
+                                      {formatCurrency(
+                                        new Big(inv.total_gross)
+                                          .plus(
+                                            inv.discount_type === "fixed"
+                                              ? new Big(inv.discount_value)
+                                              : new Big(inv.total_gross)
+                                                  .div(
+                                                    new Big(1).minus(
+                                                      new Big(
+                                                        inv.discount_value,
+                                                      ).div(100),
+                                                    ),
+                                                  )
+                                                  .minus(
+                                                    new Big(inv.total_gross),
+                                                  ),
+                                          )
+                                          .toFixed(2),
+                                      )} &euro;
+                                    </span>
+                                  </div>
+                                  <div
+                                    class="flex justify-between text-xs text-red-500"
+                                  >
+                                    <span>
+                                      Descuento {inv.discount_type === "percent"
+                                        ? `-${parseFloat(inv.discount_value)}%`
+                                        : ""}
+                                    </span>
+                                    <span class="tabular-nums">
+                                      -{formatCurrency(
+                                        inv.discount_type === "fixed"
+                                          ? inv.discount_value
+                                          : new Big(inv.total_gross)
+                                              .div(
+                                                new Big(1).minus(
+                                                  new Big(
+                                                    inv.discount_value,
+                                                  ).div(100),
+                                                ),
+                                              )
+                                              .minus(new Big(inv.total_gross))
+                                              .toFixed(2),
+                                      )} &euro;
+                                    </span>
+                                  </div>
+                                {/if}
+                                <div
+                                  class="flex justify-between text-sm font-bold text-zinc-900"
+                                >
+                                  <span>TOTAL</span>
+                                  <span class="tabular-nums"
+                                    >{formatCurrency(inv.total_gross)} &euro;</span
+                                  >
+                                </div>
+                                <!-- Tax breakdown -->
+                                {#each taxBreakdown(inv) as tb}
+                                  <div
+                                    class="flex justify-between text-[11px] text-zinc-400"
+                                  >
+                                    <span>IGIC {tb.ratePct}%</span>
+                                    <span class="tabular-nums"
+                                      >Base {tb.base} &euro; &middot; Imp. {tb.tax}
+                                      &euro;</span
+                                    >
+                                  </div>
+                                {/each}
+                                <!-- Payment -->
+                                {#if inv.payments?.[0]}
+                                  <div
+                                    class="flex justify-between text-xs text-zinc-500 pt-1 border-t border-zinc-100"
+                                  >
+                                    <span
+                                      >{inv.payments[0].method === "cash"
+                                        ? "Efectivo"
+                                        : "Tarjeta"}</span
+                                    >
+                                    <span class="tabular-nums">
+                                      {#if inv.payments[0].method === "cash" && inv.payments[0].change && parseFloat(inv.payments[0].change) > 0}
+                                        Entregado: {formatCurrency(
+                                          inv.payments[0].tendered ?? "0",
+                                        )} &euro; &middot; Cambio: {formatCurrency(
+                                          inv.payments[0].change,
+                                        )} &euro;
+                                      {:else}
+                                        {formatCurrency(inv.total_gross)} &euro;
+                                      {/if}
+                                    </span>
+                                  </div>
+                                {/if}
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      {/if}
                     {/each}
                   </tbody>
                 </table>
