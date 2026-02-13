@@ -78,6 +78,46 @@ export function registerInvoiceRectify(
           .json({ error: "Cannot rectify a rectificativa." });
       }
 
+      // 2b. Check already-rectified quantities
+      const existingRectificativas = await invoiceService.readByQuery({
+        filter: {
+          original_invoice_id: { _eq: original_invoice_id },
+          invoice_type: { _eq: "rectificativa" },
+        },
+        fields: ["id", "items.product_id", "items.product_name", "items.quantity"],
+      });
+
+      // Build map: "productId|productName" → already rectified qty (positive)
+      const alreadyRectified = new Map<string, number>();
+      for (const rect of existingRectificativas) {
+        for (const ri of (rect as any).items ?? []) {
+          const key = `${ri.product_id ?? ""}|${ri.product_name}`;
+          const prev = alreadyRectified.get(key) ?? 0;
+          alreadyRectified.set(key, prev + Math.abs(parseInt(String(ri.quantity))));
+        }
+      }
+
+      // Validate requested quantities don't exceed remaining
+      const originalItems = (original.items as any[]) ?? [];
+      for (const reqItem of items) {
+        const key = `${reqItem.product_id ?? ""}|${reqItem.product_name}`;
+        const origItem = originalItems.find(
+          (oi: any) =>
+            `${oi.product_id ?? ""}|${oi.product_name}` === key,
+        );
+        const origQty = origItem
+          ? Math.abs(parseInt(String(origItem.quantity)))
+          : 0;
+        const rectifiedQty = alreadyRectified.get(key) ?? 0;
+        const remaining = origQty - rectifiedQty;
+
+        if (Math.abs(reqItem.quantity) > remaining) {
+          return res.status(400).json({
+            error: `"${reqItem.product_name}": solo quedan ${remaining} unidades por rectificar (solicitadas: ${Math.abs(reqItem.quantity)}).`,
+          });
+        }
+      }
+
       // 3. Generate invoice number with R prefix
       const tenantService = new ItemsService("tenants", {
         schema,
@@ -171,22 +211,20 @@ export function registerInvoiceRectify(
         },
       });
 
-      // 10. Check if full rectification → mark original as rectificada
-      const originalItems = (original.items as any[]) ?? [];
-      const isFullRectification =
-        items.length === originalItems.length &&
-        items.every((rectItem) => {
-          const origItem = originalItems.find(
-            (oi: any) =>
-              oi.product_id === rectItem.product_id &&
-              oi.product_name === rectItem.product_name,
-          );
-          return (
-            origItem &&
-            Math.abs(rectItem.quantity) ===
-              Math.abs(parseInt(String(origItem.quantity)))
-          );
-        });
+      // 10. Check if full rectification (cumulative) → mark original as rectificada
+      // Add current request quantities to already-rectified map
+      for (const reqItem of items) {
+        const key = `${reqItem.product_id ?? ""}|${reqItem.product_name}`;
+        const prev = alreadyRectified.get(key) ?? 0;
+        alreadyRectified.set(key, prev + Math.abs(reqItem.quantity));
+      }
+
+      const isFullRectification = originalItems.every((origItem: any) => {
+        const key = `${origItem.product_id ?? ""}|${origItem.product_name}`;
+        const origQty = Math.abs(parseInt(String(origItem.quantity)));
+        const totalRectified = alreadyRectified.get(key) ?? 0;
+        return totalRectified >= origQty;
+      });
 
       if (isFullRectification) {
         await invoiceService.updateOne(original_invoice_id, {

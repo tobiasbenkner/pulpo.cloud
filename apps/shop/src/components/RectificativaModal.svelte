@@ -3,6 +3,7 @@
   import {
     isRectificativaModalOpen,
     rectificativaInvoice,
+    shiftInvoices,
     createRectificativa,
   } from "../stores/registerStore";
   import { shouldPrintReceipt } from "../stores/cartStore";
@@ -44,6 +45,8 @@
   >([]);
 
   // Derived
+  let allRectified = $derived(selectedItems.length === 0);
+
   let hasValidSelection = $derived(
     reason !== "" && selectedItems.some((s) => s.selected),
   );
@@ -71,12 +74,39 @@
   }
 
   function initItems(inv: Invoice) {
-    selectedItems = (inv.items ?? []).map((item) => ({
-      item,
-      selected: true,
-      quantity: Math.abs(parseInt(String(item.quantity))),
-      maxQuantity: Math.abs(parseInt(String(item.quantity))),
-    }));
+    // Check already-rectified quantities from existing rectificativas
+    const allInvoices = shiftInvoices.get();
+    const alreadyRectified = new Map<string, number>();
+    for (const other of allInvoices) {
+      if (
+        (other as any).invoice_type !== "rectificativa" ||
+        (other as any).original_invoice_id !== inv.id
+      )
+        continue;
+      for (const ri of other.items ?? []) {
+        const key = `${ri.product_id ?? ""}|${ri.product_name}`;
+        const prev = alreadyRectified.get(key) ?? 0;
+        alreadyRectified.set(
+          key,
+          prev + Math.abs(parseInt(String(ri.quantity))),
+        );
+      }
+    }
+
+    selectedItems = (inv.items ?? [])
+      .map((item) => {
+        const key = `${item.product_id ?? ""}|${item.product_name}`;
+        const origQty = Math.abs(parseInt(String(item.quantity)));
+        const rectified = alreadyRectified.get(key) ?? 0;
+        const remaining = Math.max(0, origQty - rectified);
+        return {
+          item,
+          selected: remaining > 0,
+          quantity: remaining,
+          maxQuantity: remaining,
+        };
+      })
+      .filter((s) => s.maxQuantity > 0);
   }
 
   function toggleItem(index: number) {
@@ -260,6 +290,28 @@
                 </p>
               {/if}
 
+              {#if allRectified}
+                <div class="flex flex-col items-center py-6">
+                  <div
+                    class="w-14 h-14 rounded-full bg-zinc-100 text-zinc-400 flex items-center justify-center mb-4"
+                  >
+                    <Check class="w-7 h-7" />
+                  </div>
+                  <p class="text-sm text-zinc-500 font-medium mb-1">
+                    Todas las posiciones ya han sido rectificadas.
+                  </p>
+                  <p class="text-xs text-zinc-400 mb-6">
+                    No quedan artículos por devolver.
+                  </p>
+                  <button
+                    class="px-8 py-3 rounded-xl bg-zinc-800 text-white font-medium hover:bg-zinc-700 transition-colors"
+                    onclick={closeModal}
+                  >
+                    Cerrar
+                  </button>
+                </div>
+              {:else}
+
               <!-- Reason dropdown -->
               <div class="mb-4">
                 <label
@@ -441,6 +493,7 @@
                   Continuar
                 </button>
               </div>
+              {/if}
             {:else if view === "confirm"}
               <h3
                 class="text-2xl font-bold text-center text-zinc-900 mb-6"
