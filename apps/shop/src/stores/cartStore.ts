@@ -14,7 +14,7 @@ import type {
   Customer,
 } from "../types/shop";
 import { taxRates } from "./taxStore";
-import { printReceipt } from "./printerStore";
+import { printInvoice } from "./printerStore";
 
 // --- TYPEN ---
 
@@ -265,9 +265,6 @@ export const completeTransaction = async (
   const type = customer ? "invoice" : "ticket";
   const change = new Big(tendered).minus(new Big(total)).toFixed(2);
 
-  // Totals snapshot VOR dem Cart-Reset
-  const totalsSnapshot = { ...totals, items: [...totals.items] };
-
   // Invoice über Extension-Endpoint erstellen (invoice_number wird server-seitig gesetzt)
   let invoice: any;
   try {
@@ -327,14 +324,7 @@ export const completeTransaction = async (
 
   if (shouldPrintReceipt.get()) {
     // Fire-and-forget: nicht awaiten, damit UI nicht blockiert
-    printReceipt({
-      totals: totalsSnapshot,
-      invoiceNumber,
-      method,
-      total,
-      tendered,
-      change,
-    });
+    printInvoice(invoice);
   }
 
   cartItems.set({});

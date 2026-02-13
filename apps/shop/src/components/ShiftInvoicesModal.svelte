@@ -6,7 +6,7 @@
     loadShiftInvoices,
     swapPaymentMethod,
   } from "../stores/registerStore";
-  import { printReceipt } from "../stores/printerStore";
+  import { printInvoice } from "../stores/printerStore";
   import type { Invoice } from "@pulpo/cms";
   import { X, FileText, Printer, CreditCard, Banknote } from "lucide-svelte";
   import RefundIcon from "./icons/RefundIcon.svelte";
@@ -14,12 +14,15 @@
   let isOpen = $state(false);
   let isVisible = $state(false);
   let loading = $state(false);
-  let invoices = $state<Invoice[]>([]);
+  let invoices = $state<readonly Invoice[]>([]);
   let swapping = $state<string | null>(null);
 
   function formatTime(iso: string): string {
     const d = new Date(iso);
-    return d.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
+    return d.toLocaleTimeString("es-ES", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   }
 
   function formatCurrency(value: string): string {
@@ -72,36 +75,7 @@
   }
 
   function handlePrint(inv: Invoice) {
-    const items = (inv.items ?? []).map((item) => ({
-      productName: item.product_name,
-      quantity: item.quantity,
-      priceGrossUnit: item.price_gross_unit,
-      taxRateSnapshot: item.tax_rate_snapshot,
-      priceNetUnitPrecise: item.price_net_unit_precise,
-      rowTotalGross: item.row_total_gross,
-      rowTotalNetPrecise: item.row_total_net_precise,
-    }));
-
-    const payment = inv.payments?.[0];
-    const method = payment?.method ?? "cash";
-
-    printReceipt({
-      totals: {
-        gross: inv.total_gross,
-        net: inv.total_net,
-        tax: inv.total_tax,
-        subtotal: inv.total_gross,
-        discountTotal: "0.00",
-        count: items.reduce((sum, i) => sum + i.quantity, 0),
-        items,
-        taxBreakdown: [],
-      },
-      invoiceNumber: inv.invoice_number,
-      method,
-      total: inv.total_gross,
-      tendered: payment?.tendered ?? inv.total_gross,
-      change: payment?.change ?? "0.00",
-    });
+    printInvoice(inv);
   }
 
   onMount(() => {
@@ -173,38 +147,67 @@
                 >
                   <FileText class="w-7 h-7" />
                 </div>
-                <p class="text-sm text-zinc-500 font-medium">Sin facturas en este turno</p>
+                <p class="text-sm text-zinc-500 font-medium">
+                  Sin facturas en este turno
+                </p>
               </div>
             {:else}
               <div class="max-h-[60vh] overflow-y-auto -mx-2 px-2">
                 <table class="w-full text-sm">
                   <thead>
                     <tr class="border-b border-zinc-200">
-                      <th class="text-left py-2 px-2 text-zinc-400 font-medium text-xs uppercase tracking-wide">Hora</th>
-                      <th class="text-left py-2 px-2 text-zinc-400 font-medium text-xs uppercase tracking-wide">Nº</th>
-                      <th class="text-right py-2 px-2 text-zinc-400 font-medium text-xs uppercase tracking-wide">Importe</th>
-                      <th class="text-center py-2 px-2 text-zinc-400 font-medium text-xs uppercase tracking-wide">Pago</th>
-                      <th class="text-right py-2 px-2 text-zinc-400 font-medium text-xs uppercase tracking-wide">Acciones</th>
+                      <th
+                        class="text-left py-2 px-2 text-zinc-400 font-medium text-xs uppercase tracking-wide"
+                        >Hora</th
+                      >
+                      <th
+                        class="text-left py-2 px-2 text-zinc-400 font-medium text-xs uppercase tracking-wide"
+                        >Nº</th
+                      >
+                      <th
+                        class="text-right py-2 px-2 text-zinc-400 font-medium text-xs uppercase tracking-wide"
+                        >Importe</th
+                      >
+                      <th
+                        class="text-center py-2 px-2 text-zinc-400 font-medium text-xs uppercase tracking-wide"
+                        >Pago</th
+                      >
+                      <th
+                        class="text-right py-2 px-2 text-zinc-400 font-medium text-xs uppercase tracking-wide"
+                        >Acciones</th
+                      >
                     </tr>
                   </thead>
                   <tbody>
                     {#each invoices as inv (inv.id)}
                       {@const payment = inv.payments?.[0]}
                       {@const method = payment?.method ?? "cash"}
-                      <tr class="border-b border-zinc-100 hover:bg-zinc-50 transition-colors">
-                        <td class="py-3 px-2 text-zinc-700 font-mono">{formatTime(inv.date_created)}</td>
-                        <td class="py-3 px-2 text-zinc-700 font-medium">{inv.invoice_number}</td>
-                        <td class="py-3 px-2 text-zinc-900 font-bold text-right tabular-nums">{formatCurrency(inv.total_gross)} &euro;</td>
+                      <tr
+                        class="border-b border-zinc-100 hover:bg-zinc-50 transition-colors"
+                      >
+                        <td class="py-3 px-2 text-zinc-700 font-mono"
+                          >{formatTime(inv.date_created)}</td
+                        >
+                        <td class="py-3 px-2 text-zinc-700 font-medium"
+                          >{inv.invoice_number}</td
+                        >
+                        <td
+                          class="py-3 px-2 text-zinc-900 font-bold text-right tabular-nums"
+                          >{formatCurrency(inv.total_gross)} &euro;</td
+                        >
                         <td class="py-3 px-2 text-center">
                           <span
-                            class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold {method === 'cash'
+                            class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold {method ===
+                            'cash'
                               ? 'bg-emerald-100 text-emerald-700'
                               : 'bg-blue-100 text-blue-700'}"
                           >
                             {method === "cash" ? "Ef." : "Tarj."}
                           </span>
                           {#if method === "cash" && payment?.change && parseFloat(payment.change) > 0}
-                            <div class="text-[10px] text-zinc-400 mt-0.5">Cambio: {formatCurrency(payment.change)} &euro;</div>
+                            <div class="text-[10px] text-zinc-400 mt-0.5">
+                              Cambio: {formatCurrency(payment.change)} &euro;
+                            </div>
                           {/if}
                         </td>
                         <td class="py-3 px-2">
@@ -220,7 +223,9 @@
                             <!-- Swap payment method -->
                             <button
                               class="p-3 rounded-xl text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 active:scale-95 transition-all disabled:opacity-40"
-                              title={method === "cash" ? "Cambiar a tarjeta" : "Cambiar a efectivo"}
+                              title={method === "cash"
+                                ? "Cambiar a tarjeta"
+                                : "Cambiar a efectivo"}
                               onclick={() => handleSwapPayment(inv)}
                               disabled={swapping === inv.id}
                             >

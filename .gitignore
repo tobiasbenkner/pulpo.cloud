@@ -1,6 +1,7 @@
 # Turbo
 .turbo
 .wrangler
+todo.md
 
 # dependencies
 node_modules

@@ -1,8 +1,9 @@
 import { atom } from "nanostores";
 import { getAuthClient, getStoredToken } from "@pulpo/auth";
 import { getProfile, getTenant, imageUrl } from "@pulpo/cms";
-import type { Tenant } from "@pulpo/cms";
+import type { Tenant, Invoice } from "@pulpo/cms";
 import type { CartTotals, ClosureReport } from "../types/shop";
+import Big from "big.js";
 import data from "../data.json";
 
 // --- TYPES ---
@@ -152,9 +153,10 @@ function buildReceipt(receiptData: {
   // Items
   lines.push(separatorLine());
   for (const item of totals.items) {
-    const prefix = `${String(item.quantity).padStart(2)}x `;
+    const qty = parseInt(String(item.quantity), 10);
+    const prefix = `${String(qty).padStart(2)}x `;
     lines.push(twoColTable(`${prefix}${item.productName}`, item.rowTotalGross));
-    if (item.quantity > 1) {
+    if (qty > 1) {
       lines.push(
         twoColTable(`    @ ${parseFloat(item.priceGrossUnit).toFixed(2)}`, ""),
       );
@@ -284,12 +286,79 @@ export async function printReceipt(receiptData: {
   await sendPrintJob(job);
 }
 
-export async function reprintLastReceipt(): Promise<void> {
-  if (!lastPrintJob) {
-    console.warn("No previous print job to reprint");
-    return;
+export async function printInvoice(invoice: Invoice): Promise<void> {
+  const ZERO = new Big(0);
+  const HUNDRED = new Big(100);
+
+  // Map InvoiceItems → CartTotalsItems
+  const items = (invoice.items ?? []).map((item) => ({
+    productName: item.product_name,
+    quantity: item.quantity,
+    priceGrossUnit: item.price_gross_unit,
+    taxRateSnapshot: item.tax_rate_snapshot,
+    priceNetUnitPrecise: item.price_net_unit_precise,
+    rowTotalGross: item.row_total_gross,
+    rowTotalNetPrecise: item.row_total_net_precise,
+    discountType: item.discount_type,
+    discountValue: item.discount_value,
+  }));
+
+  // Tax breakdown: group by tax_rate_snapshot, sum tax per group
+  const taxMap = new Map<string, Big>();
+  for (const item of invoice.items ?? []) {
+    const rate = item.tax_rate_snapshot; // percentage string e.g. "7.00"
+    const rowTax = new Big(item.row_total_gross).minus(
+      new Big(item.row_total_net_precise),
+    );
+    if (rowTax.gt(ZERO)) {
+      taxMap.set(rate, (taxMap.get(rate) ?? ZERO).plus(rowTax));
+    }
   }
-  await sendPrintJob(lastPrintJob);
+  const taxBreakdown = Array.from(taxMap.entries())
+    .sort(([a], [b]) => new Big(a).cmp(new Big(b)))
+    .map(([ratePct, amount]) => ({
+      rate: new Big(ratePct).div(HUNDRED).toString(), // "7.00" → "0.07"
+      amount: amount.toFixed(2),
+    }));
+
+  // Discount
+  const gross = new Big(invoice.total_gross);
+  let discountTotal = ZERO;
+  if (invoice.discount_type && invoice.discount_value) {
+    if (invoice.discount_type === "fixed") {
+      discountTotal = new Big(invoice.discount_value);
+    } else {
+      // percent: subtotal = gross / (1 - pct/100), discount = subtotal - gross
+      const pct = new Big(invoice.discount_value);
+      const subtotal = gross.div(new Big(1).minus(pct.div(HUNDRED)));
+      discountTotal = subtotal.minus(gross);
+    }
+  }
+
+  const subtotal = gross.plus(discountTotal);
+
+  const payment = invoice.payments?.[0];
+  const method = payment?.method ?? "cash";
+
+  await printReceipt({
+    totals: {
+      gross: invoice.total_gross,
+      net: invoice.total_net,
+      tax: invoice.total_tax,
+      subtotal: subtotal.toFixed(2),
+      discountTotal: discountTotal.toFixed(2),
+      discountType: invoice.discount_type ?? null,
+      discountValue: invoice.discount_value ?? null,
+      count: items.reduce((sum, i) => sum + i.quantity, 0),
+      items,
+      taxBreakdown,
+    },
+    invoiceNumber: invoice.invoice_number,
+    method,
+    total: invoice.total_gross,
+    tendered: payment?.tendered ?? invoice.total_gross,
+    change: payment?.change ?? "0.00",
+  });
 }
 
 // --- CLOSURE REPORT ---

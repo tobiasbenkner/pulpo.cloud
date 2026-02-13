@@ -4,14 +4,15 @@
     lastTransaction,
     swapLastTransactionMethod,
   } from "../stores/cartStore";
-  import { reprintLastReceipt } from "../stores/printerStore";
+  import { printInvoice } from "../stores/printerStore";
+  import { getAuthClient } from "@pulpo/auth";
+  import { getInvoice } from "@pulpo/cms";
   import type { TransactionResult } from "../types/shop";
   import { ArrowLeftRight, Banknote, CreditCard, Printer } from "lucide-svelte";
 
   let tx = $state<TransactionResult | null>(null);
   let swapFlash = $state(false);
   let swapping = $state(false);
-  let reprintFlash = $state(false);
 
   onMount(() => {
     return lastTransaction.subscribe((v) => (tx = v));
@@ -31,11 +32,15 @@
     }
   }
 
-  function handleReprint() {
+  async function handleReprint() {
     if (!tx) return;
-    reprintLastReceipt();
-    reprintFlash = true;
-    setTimeout(() => (reprintFlash = false), 200);
+    try {
+      const client = getAuthClient();
+      const invoice = await getInvoice(client as any, tx.invoiceId);
+      await printInvoice(invoice);
+    } catch (e) {
+      console.error("Failed to reprint:", e);
+    }
   }
 </script>
 
@@ -141,9 +146,7 @@
 
       <!-- DRUCK BUTTON -->
       <button
-        class="flex-none p-2 rounded-md border transition-all shadow-sm {reprintFlash
-          ? 'bg-emerald-300 scale-95 text-emerald-700 border-emerald-200'
-          : 'bg-emerald-100 text-emerald-700 border-emerald-200 hover:bg-emerald-200 hover:border-emerald-300'} active:scale-95"
+        class="flex-none p-2 rounded-md border transition-all shadow-sm bg-emerald-100 text-emerald-700 border-emerald-200 hover:bg-emerald-200 hover:border-emerald-300 active:scale-95"
         title="Reimprimir ticket"
         onclick={handleReprint}
       >
