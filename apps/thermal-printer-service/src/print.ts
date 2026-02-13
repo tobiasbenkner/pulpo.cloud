@@ -46,7 +46,7 @@ export async function print(printJob: PrintJobElectron) {
 
       try {
         let printer = new Printer(device, {
-          encoding: printerSettings.encoding,
+          encoding: printerSettings.encoding ?? "CP858",
           width: printerSettings.width,
         });
 

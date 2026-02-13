@@ -22,7 +22,7 @@ export async function openCashDrawer(printerSettings: PrinterSettingsElectron) {
 
       try {
         let printer = new Printer(device, {
-          encoding: "GB18030",
+          encoding: "CP858",
         });
         await printer.cashdraw(2).cashdraw(5).close();
         resolve({});
