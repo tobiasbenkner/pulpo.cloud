@@ -1,6 +1,6 @@
 {
   "name": "@pulpocloud/thermal-printer-service",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Standalone thermal printer service",
   "main": "dist/index.js",
   "bin": {
