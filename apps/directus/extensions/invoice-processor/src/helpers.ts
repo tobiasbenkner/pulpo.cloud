@@ -1,29 +1,13 @@
-import type {
-  EndpointContext,
-  UsersServiceConstructor,
-} from "./types";
+import type { EndpointContext } from "./types";
 
 export async function getTenantFromUser(
-  req: Record<string, unknown>,
+  userId: string,
   context: EndpointContext,
 ): Promise<string | null> {
-  const accountability = req.accountability as
-    | { user?: string }
-    | undefined;
-  if (!accountability?.user) return null;
+  const row = await (context.database as any)("directus_users")
+    .select("tenant")
+    .where("id", userId)
+    .first();
 
-  const { services, database, getSchema } = context;
-  const UsersService = services.UsersService as UsersServiceConstructor;
-
-  const schema = await getSchema();
-  const usersService = new UsersService({
-    schema,
-    knex: database,
-  });
-
-  const user = (await usersService.readOne(accountability.user, {
-    fields: ["tenant"],
-  })) as { tenant?: string };
-
-  return user.tenant ?? null;
+  return row?.tenant ?? null;
 }

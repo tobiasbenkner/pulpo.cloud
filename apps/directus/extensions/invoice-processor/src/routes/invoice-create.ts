@@ -77,11 +77,15 @@ export function registerInvoiceCreate(
       };
 
       // 1. Authenticate & resolve tenant
-      const tenant = await getTenantFromUser(req, context);
+      const userId = (req as any).accountability?.user;
+      if (!userId) {
+        return res.status(401).json({ error: "Nicht authentifiziert." });
+      }
+      const tenant = await getTenantFromUser(userId, context);
       if (!tenant) {
         return res
           .status(401)
-          .json({ error: "Nicht authentifiziert oder kein Tenant zugewiesen." });
+          .json({ error: "Kein Tenant zugewiesen." });
       }
 
       const schema = await getSchema();
