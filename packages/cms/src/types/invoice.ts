@@ -3,7 +3,10 @@ export interface Invoice {
   date_created: string;
   invoice_number: string;
   tenant: string;
-  status: "draft" | "paid" | "cancelled";
+  status: "draft" | "paid" | "cancelled" | "rectificada";
+  invoice_type: "normal" | "rectificativa";
+  original_invoice_id: string | null;
+  rectification_reason: string | null;
   total_net: string;
   total_tax: string;
   total_gross: string;

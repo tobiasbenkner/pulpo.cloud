@@ -23,6 +23,9 @@ export async function createInvoice(
     | "chain_hash"
     | "qr_url"
     | "generation_date"
+    | "invoice_type"
+    | "original_invoice_id"
+    | "rectification_reason"
     | "items"
     | "payments"
   > & {
@@ -45,7 +48,7 @@ export async function getInvoices(
   client: Client,
   query?: {
     tenant?: string;
-    status?: Invoice["status"];
+    status?: Invoice["status"] | Invoice["status"][];
     dateFrom?: string;
     dateTo?: string;
     closureId?: string;
@@ -53,7 +56,11 @@ export async function getInvoices(
 ) {
   const filter: any = {};
   if (query?.tenant) filter.tenant = { _eq: query.tenant };
-  if (query?.status) filter.status = { _eq: query.status };
+  if (query?.status) {
+    filter.status = Array.isArray(query.status)
+      ? { _in: query.status }
+      : { _eq: query.status };
+  }
   if (query?.closureId) filter.closure_id = { _eq: query.closureId };
   if (query?.dateFrom || query?.dateTo) {
     filter.date_created = {};
@@ -77,6 +84,35 @@ export async function getInvoice(client: Client, id: string) {
       fields: ["*", { items: ["*"] }, { payments: ["*"] }],
     }),
   );
+}
+
+/** Rectify (fully or partially cancel) an invoice via invoice-processor extension endpoint */
+export async function rectifyInvoice(
+  client: Client,
+  data: {
+    original_invoice_id: string;
+    reason: string;
+    reason_detail?: string;
+    items: {
+      product_id: string | null;
+      product_name: string;
+      quantity: number;
+      tax_rate_snapshot: string;
+      price_gross_unit: string;
+      price_net_unit_precise: string;
+      row_total_net_precise: string;
+      row_total_gross: string;
+      discount_type: "percent" | "fixed" | null;
+      discount_value: string | null;
+    }[];
+  },
+): Promise<{ rectificativa: Invoice; original: Invoice }> {
+  return (client as any).request(() => ({
+    method: "POST",
+    path: "/invoice-processor/invoices/rectify",
+    body: JSON.stringify(data),
+    headers: { "Content-Type": "application/json" },
+  }));
 }
 
 export async function updateInvoicePaymentMethod(

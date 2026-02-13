@@ -5,6 +5,8 @@
     shiftInvoices,
     loadShiftInvoices,
     swapPaymentMethod,
+    isRectificativaModalOpen,
+    rectificativaInvoice,
   } from "../stores/registerStore";
   import { printInvoice } from "../stores/printerStore";
   import type { Invoice } from "@pulpo/cms";
@@ -119,6 +121,18 @@
     } finally {
       swapping = null;
     }
+  }
+
+  function handleRectificativa(inv: Invoice) {
+    rectificativaInvoice.set(inv);
+    isRectificativaModalOpen.set(true);
+  }
+
+  function canRectify(inv: Invoice): boolean {
+    return (
+      inv.status === "paid" &&
+      (inv as any).invoice_type !== "rectificativa"
+    );
   }
 
   function handlePrint(inv: Invoice) {
@@ -241,8 +255,21 @@
                             >{formatTime(inv.date_created)}</td
                           >
                           <td class="py-3 px-2">
-                            <div class="text-zinc-700 font-medium">
-                              {inv.invoice_number}
+                            <div class="flex items-center gap-1.5">
+                              <span class="text-zinc-700 font-medium">
+                                {inv.invoice_number}
+                              </span>
+                              {#if (inv as any).invoice_type === "rectificativa"}
+                                <span
+                                  class="px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide bg-red-100 text-red-700 rounded"
+                                  >RECT</span
+                                >
+                              {:else if inv.status === "rectificada"}
+                                <span
+                                  class="px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide bg-zinc-200 text-zinc-500 rounded"
+                                  >ANULADA</span
+                                >
+                              {/if}
                             </div>
                             <div
                               class="text-[10px] text-zinc-400 mt-0.5 truncate max-w-[180px]"
@@ -251,7 +278,7 @@
                             </div>
                           </td>
                           <td
-                            class="py-3 px-2 text-zinc-900 font-bold text-right tabular-nums"
+                            class="py-3 px-2 font-bold text-right tabular-nums {parseFloat(inv.total_gross) < 0 ? 'text-red-600' : 'text-zinc-900'}"
                             >{formatCurrency(inv.total_gross)} &euro;</td
                           >
                           <td class="py-3 px-2 text-center">
@@ -313,12 +340,18 @@
                                   <Eye class="w-5 h-5" />
                                 {/if}
                               </button>
-                              <!-- Cancel (not implemented) -->
+                              <!-- Rectificativa -->
                               <button
-                                class="p-3 rounded-xl text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 active:scale-95 transition-all"
-                                title="Anular (no implementado)"
-                                onclick={() =>
-                                  alert("Anulación no implementada")}
+                                class="p-3 rounded-xl active:scale-95 transition-all {canRectify(inv)
+                                  ? 'text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100'
+                                  : 'text-zinc-200 cursor-not-allowed'}"
+                                title={canRectify(inv)
+                                  ? "Anular / Rectificativa"
+                                  : inv.status === "rectificada"
+                                    ? "Factura anulada"
+                                    : "No se puede rectificar"}
+                                disabled={!canRectify(inv)}
+                                onclick={() => handleRectificativa(inv)}
                               >
                                 <RefundIcon class="w-5 h-5" />
                               </button>

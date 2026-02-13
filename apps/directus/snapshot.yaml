@@ -4604,6 +4604,8 @@ fields:
             value: paid
           - text: cancelled
             value: cancelled
+          - text: rectificada
+            value: rectificada
       readonly: false
       required: false
       searchable: true
@@ -5077,6 +5079,132 @@ fields:
       validation: null
       validation_message: null
       width: full
+  - collection: invoices
+    field: invoice_type
+    type: string
+    meta:
+      collection: invoices
+      conditions: null
+      display: null
+      display_options: null
+      field: invoice_type
+      group: null
+      hidden: false
+      interface: select-dropdown
+      note: null
+      options:
+        choices:
+          - text: normal
+            value: normal
+          - text: rectificativa
+            value: rectificativa
+      readonly: false
+      required: true
+      searchable: true
+      sort: 7
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: invoice_type
+      table: invoices
+      data_type: character varying
+      default_value: normal
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: invoices
+    field: original_invoice_id
+    type: uuid
+    meta:
+      collection: invoices
+      conditions: null
+      display: null
+      display_options: null
+      field: original_invoice_id
+      group: null
+      hidden: false
+      interface: select-dropdown-m2o
+      note: null
+      options: null
+      readonly: false
+      required: false
+      searchable: true
+      sort: 8
+      special:
+        - m2o
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: original_invoice_id
+      table: invoices
+      data_type: uuid
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: invoices
+      foreign_key_column: id
+  - collection: invoices
+    field: rectification_reason
+    type: string
+    meta:
+      collection: invoices
+      conditions: null
+      display: null
+      display_options: null
+      field: rectification_reason
+      group: null
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: false
+      searchable: true
+      sort: 9
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: rectification_reason
+      table: invoices
+      data_type: character varying
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
   - collection: languages
     field: id
     type: uuid
@@ -10632,6 +10760,27 @@ relations:
       constraint_name: invoices_closure_id_foreign
       on_update: NO ACTION
       on_delete: SET NULL
+  - collection: invoices
+    field: original_invoice_id
+    related_collection: invoices
+    meta:
+      junction_field: null
+      many_collection: invoices
+      many_field: original_invoice_id
+      one_allowed_collections: null
+      one_collection: invoices
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: null
+      sort_field: null
+    schema:
+      table: invoices
+      column: original_invoice_id
+      foreign_key_table: invoices
+      foreign_key_column: id
+      constraint_name: invoices_original_invoice_id_foreign
+      on_update: NO ACTION
+      on_delete: NO ACTION
   - collection: languages
     field: tenant
     related_collection: tenants

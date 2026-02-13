@@ -80,6 +80,22 @@ export interface TransactionResult {
   paymentId: number;
 }
 
+export type RectificationReason =
+  | "error_factura"
+  | "devolucion_producto"
+  | "factura_duplicada"
+  | "otros";
+
+export const RECTIFICATION_REASONS: {
+  value: RectificationReason;
+  label: string;
+}[] = [
+  { value: "error_factura", label: "Error en factura" },
+  { value: "devolucion_producto", label: "Devolución de producto" },
+  { value: "factura_duplicada", label: "Factura duplicada" },
+  { value: "otros", label: "Otros" },
+];
+
 export interface ClosureReport {
   periodStart: string;
   periodEnd: string;

@@ -78,6 +78,26 @@ export function decrementStock(
   );
 }
 
+export function incrementStock(
+  returnedItems: { productId: string; quantity: number }[],
+) {
+  const current = categories.get();
+  const increments = new Map(
+    returnedItems.map((i) => [i.productId, i.quantity]),
+  );
+
+  categories.set(
+    current.map((cat) => ({
+      ...cat,
+      products: cat.products.map((p) => {
+        const qty = increments.get(p.id);
+        if (qty == null || p.stock == null) return p;
+        return { ...p, stock: p.stock + qty };
+      }),
+    })),
+  );
+}
+
 export async function loadProducts() {
   if (isLoading.get()) return;
 

@@ -5,6 +5,7 @@ import { getAuthClient } from "@pulpo/auth";
 import {
   getInvoices,
   updateInvoicePaymentMethod,
+  rectifyInvoice,
   openClosure,
   closeClosure,
   getLastClosure,
@@ -41,6 +42,9 @@ export const closureLoading = atom<boolean>(false);
 
 export const isShiftInvoicesModalOpen = atom<boolean>(false);
 export const shiftInvoices = atom<Invoice[]>([]);
+
+export const isRectificativaModalOpen = atom<boolean>(false);
+export const rectificativaInvoice = atom<Invoice | null>(null);
 
 // --- ACTIONS ---
 
@@ -122,7 +126,7 @@ export async function generateClosureReport(): Promise<ClosureReport> {
     const expectedCash = new Big(start).plus(totalCash);
 
     const taxBreakdown = Array.from(taxMap.entries())
-      .filter(([, v]) => v.tax.gt(0))
+      .filter(([, v]) => !v.tax.eq(0))
       .sort(([a], [b]) => new Big(a).cmp(new Big(b)))
       .map(([rate, v]) => ({
         rate,
@@ -231,11 +235,42 @@ export async function loadShiftInvoices(): Promise<void> {
   const closureId = currentClosureId.get();
 
   const invoices = await getInvoices(client as any, {
-    status: "paid",
+    status: ["paid", "rectificada"],
     closureId: closureId || undefined,
   });
 
   shiftInvoices.set(invoices as Invoice[]);
+}
+
+export async function createRectificativa(data: {
+  original_invoice_id: string;
+  reason: string;
+  reason_detail?: string;
+  items: {
+    product_id: string | null;
+    product_name: string;
+    quantity: number;
+    tax_rate_snapshot: string;
+    price_gross_unit: string;
+    price_net_unit_precise: string;
+    row_total_net_precise: string;
+    row_total_gross: string;
+    discount_type: "percent" | "fixed" | null;
+    discount_value: string | null;
+  }[];
+}): Promise<{ rectificativa: Invoice; original: Invoice }> {
+  const client = getAuthClient();
+  const result = await rectifyInvoice(client as any, data);
+
+  // Update local shift invoices list
+  const current = shiftInvoices.get();
+  const updated = current.map((inv) =>
+    inv.id === result.original.id ? (result.original as Invoice) : inv,
+  );
+  updated.unshift(result.rectificativa as Invoice);
+  shiftInvoices.set(updated);
+
+  return result as { rectificativa: Invoice; original: Invoice };
 }
 
 export async function swapPaymentMethod(

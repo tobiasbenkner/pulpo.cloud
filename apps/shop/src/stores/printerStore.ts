@@ -373,6 +373,152 @@ export async function printInvoice(invoice: Invoice): Promise<void> {
   });
 }
 
+// --- RECTIFICATIVA ---
+
+export async function printRectificativa(
+  rectificativa: Invoice,
+  originalInvoiceNumber: string,
+): Promise<void> {
+  const ZERO = new Big(0);
+  const HUNDRED = new Big(100);
+
+  const t = tenant.get();
+  const lines: PrintLine[] = [];
+
+  // Header
+  if (t) {
+    if (t.invoice_image) {
+      const token = getStoredToken()?.access_token ?? "";
+      const url = imageUrl(t.invoice_image).replace(
+        "access_token=",
+        `access_token=${token}`,
+      );
+      lines.push({ ...DEFAULTS, type: "image", text: url, align: "CT" });
+      lines.push(emptyLine());
+    }
+    lines.push(textLine(t.name, { align: "CT", fontSize: "big", style: "B" }));
+    lines.push(textLine(t.street, { align: "CT" }));
+    lines.push(textLine(`${t.postcode} ${t.city}`, { align: "CT" }));
+  }
+
+  lines.push(emptyLine());
+
+  // Rectificativa info
+  lines.push(
+    textLine("RECTIFICATIVA", {
+      align: "CT",
+      fontSize: "big",
+      style: "B",
+    }),
+  );
+  lines.push(emptyLine());
+
+  const now = new Date();
+  const fecha =
+    now.toLocaleDateString("es-ES", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    }) +
+    " " +
+    now.toLocaleTimeString("es-ES", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+  lines.push(textLine(`Rectificativa: #${rectificativa.invoice_number}`));
+  lines.push(textLine(`Factura original: #${originalInvoiceNumber}`));
+  lines.push(textLine(`Fecha:  ${fecha}`));
+  if (rectificativa.rectification_reason) {
+    lines.push(textLine(`Motivo: ${rectificativa.rectification_reason}`));
+  }
+  lines.push(emptyLine());
+
+  // Items (negative quantities)
+  lines.push(separatorLine());
+  for (const item of rectificativa.items ?? []) {
+    const qty = parseInt(String(item.quantity), 10); // negative
+    const rowGross = new Big(item.row_total_gross); // negative
+    lines.push(
+      twoColTable(`${String(qty).padStart(3)}x ${item.product_name}`, rowGross.toFixed(2)),
+    );
+  }
+
+  lines.push(separatorLine());
+
+  // Total (negative)
+  lines.push(
+    twoColTable(
+      "TOTAL",
+      `${rectificativa.total_gross} EUR`,
+      "B",
+      "B",
+    ),
+  );
+  lines.push(emptyLine());
+
+  // Tax breakdown
+  const taxMap = new Map<string, Big>();
+  for (const item of rectificativa.items ?? []) {
+    const rate = item.tax_rate_snapshot;
+    const rowTax = new Big(item.row_total_gross).minus(
+      new Big(item.row_total_net_precise),
+    );
+    taxMap.set(rate, (taxMap.get(rate) ?? ZERO).plus(rowTax));
+  }
+
+  const netByRate = new Map<string, number>();
+  for (const item of rectificativa.items ?? []) {
+    const rate = item.tax_rate_snapshot;
+    const prev = netByRate.get(rate) ?? 0;
+    netByRate.set(rate, prev + parseFloat(item.row_total_net_precise));
+  }
+
+  for (const [ratePct, taxAmount] of Array.from(taxMap.entries()).sort(
+    ([a], [b]) => new Big(a).cmp(new Big(b)),
+  )) {
+    const pct = parseFloat(ratePct).toFixed(0);
+    const base = netByRate.get(ratePct) ?? 0;
+    lines.push(
+      tableLine([
+        {
+          text: `IGIC ${pct.padStart(4)}%`,
+          align: "LEFT",
+          width: 0.3,
+          style: "NORMAL",
+        },
+        {
+          text: `Base ${base.toFixed(2).padStart(7)}`,
+          align: "RIGHT",
+          width: 0.35,
+          style: "NORMAL",
+        },
+        {
+          text: `Imp. ${taxAmount.toFixed(2).padStart(7)}`,
+          align: "RIGHT",
+          width: 0.35,
+          style: "NORMAL",
+        },
+      ]),
+    );
+  }
+
+  // Footer
+  lines.push(separatorLine());
+  lines.push(emptyLine());
+  lines.push(emptyLine());
+
+  const { serviceUrl, ...printerSettings } = data.printer;
+
+  const job: PrintJob = {
+    printer: printerSettings as PrintJob["printer"],
+    document: lines,
+    open: false, // don't open drawer for rectificativa
+  };
+
+  await sendPrintJob(job);
+}
+
 // --- CLOSURE REPORT ---
 
 function formatClosureDate(iso: string): string {
