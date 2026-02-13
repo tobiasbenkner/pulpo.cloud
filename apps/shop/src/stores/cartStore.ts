@@ -15,6 +15,7 @@ import type {
 } from "../types/shop";
 import { taxRates } from "./taxStore";
 import { printInvoice } from "./printerStore";
+import { decrementStock } from "./productStore";
 
 // --- TYPEN ---
 
@@ -282,6 +283,7 @@ export const completeTransaction = async (
       discount_type: totals.discountType,
       discount_value: totals.discountValue,
       items: totals.items.map((item) => ({
+        product_id: item.productId,
         product_name: item.productName,
         quantity: item.quantity,
         tax_rate_snapshot: item.taxRateSnapshot,
@@ -331,6 +333,13 @@ export const completeTransaction = async (
     // Fire-and-forget: nicht awaiten, damit UI nicht blockiert
     printInvoice(invoice);
   }
+
+  decrementStock(
+    totals.items.map((item) => ({
+      productId: item.productId,
+      quantity: item.quantity,
+    })),
+  );
 
   cartItems.set({});
   globalDiscount.set(null);
@@ -411,6 +420,7 @@ export const cartTotals = computed(
 
       const priceGrossUnit = new Big(item.priceGross);
       computedItems.push({
+        productId: item.id,
         productName: item.name,
         quantity: item.quantity,
         priceGrossUnit: priceGrossUnit.toFixed(4),

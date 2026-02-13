@@ -23,6 +23,7 @@ export interface Invoice {
 export interface InvoiceItem {
   id: string;
   invoice_id: string;
+  product_id: string | null;
   product_name: string;
   quantity: number;
   tax_rate_snapshot: string;

@@ -32,6 +32,7 @@ export interface TaxBreakdownEntry {
 }
 
 export interface CartTotalsItem {
+  productId: string;
   productName: string;
   quantity: number;
   priceGrossUnit: string;

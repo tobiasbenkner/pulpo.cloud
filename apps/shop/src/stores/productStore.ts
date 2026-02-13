@@ -42,6 +42,42 @@ function mapCmsToShopProduct(
   };
 }
 
+const REFRESH_INTERVAL = 15 * 60 * 1000; // 15 minutes
+
+export function startAutoRefresh(): () => void {
+  const interval = setInterval(() => loadProducts(), REFRESH_INTERVAL);
+
+  function onVisibilityChange() {
+    if (document.visibilityState === "visible") {
+      loadProducts();
+    }
+  }
+  document.addEventListener("visibilitychange", onVisibilityChange);
+
+  return () => {
+    clearInterval(interval);
+    document.removeEventListener("visibilitychange", onVisibilityChange);
+  };
+}
+
+export function decrementStock(
+  soldItems: { productId: string; quantity: number }[],
+) {
+  const current = categories.get();
+  const decrements = new Map(soldItems.map((i) => [i.productId, i.quantity]));
+
+  categories.set(
+    current.map((cat) => ({
+      ...cat,
+      products: cat.products.map((p) => {
+        const qty = decrements.get(p.id);
+        if (qty == null || p.stock == null) return p;
+        return { ...p, stock: Math.max(0, p.stock - qty) };
+      }),
+    })),
+  );
+}
+
 export async function loadProducts() {
   if (isLoading.get()) return;
 

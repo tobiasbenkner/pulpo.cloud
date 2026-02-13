@@ -1,5 +1,5 @@
 version: 1
-directus: 11.15.1
+directus: 11.15.2
 vendor: postgres
 collections:
   - collection: actions
@@ -3889,6 +3889,47 @@ fields:
       has_auto_increment: false
       foreign_key_table: null
       foreign_key_column: null
+  - collection: invoice_items
+    field: product_id
+    type: uuid
+    meta:
+      collection: invoice_items
+      conditions: null
+      display: null
+      display_options: null
+      field: product_id
+      group: null
+      hidden: false
+      interface: select-dropdown-m2o
+      note: null
+      options: null
+      readonly: false
+      required: true
+      searchable: true
+      sort: 13
+      special:
+        - m2o
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: product_id
+      table: invoice_items
+      data_type: uuid
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: products
+      foreign_key_column: id
   - collection: invoice_payments
     field: id
     type: integer
@@ -7241,13 +7282,13 @@ fields:
       readonly: false
       required: true
       searchable: true
-      sort: 4
+      sort: 5
       special:
         - m2o
       translations: null
       validation: null
       validation_message: null
-      width: full
+      width: half
     schema:
       name: category
       table: products
@@ -7433,7 +7474,7 @@ fields:
       readonly: false
       required: false
       searchable: true
-      sort: 5
+      sort: 7
       special:
         - alias
         - no-data
@@ -7529,7 +7570,7 @@ fields:
       display: null
       display_options: null
       field: stock
-      group: finance
+      group: null
       hidden: false
       interface: input
       note: null
@@ -7537,12 +7578,12 @@ fields:
       readonly: false
       required: false
       searchable: true
-      sort: 4
+      sort: 6
       special: null
       translations: null
       validation: null
       validation_message: null
-      width: full
+      width: half
     schema:
       name: stock
       table: products
@@ -10484,6 +10525,27 @@ relations:
       foreign_key_table: tenants
       foreign_key_column: id
       constraint_name: invoice_items_tenant_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+  - collection: invoice_items
+    field: product_id
+    related_collection: products
+    meta:
+      junction_field: null
+      many_collection: invoice_items
+      many_field: product_id
+      one_allowed_collections: null
+      one_collection: products
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: null
+      sort_field: null
+    schema:
+      table: invoice_items
+      column: product_id
+      foreign_key_table: products
+      foreign_key_column: id
+      constraint_name: invoice_items_product_id_foreign
       on_update: NO ACTION
       on_delete: SET NULL
   - collection: invoice_payments

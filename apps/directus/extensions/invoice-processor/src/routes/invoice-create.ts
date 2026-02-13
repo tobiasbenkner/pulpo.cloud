@@ -83,9 +83,7 @@ export function registerInvoiceCreate(
       }
       const tenant = await getTenantFromUser(userId, context);
       if (!tenant) {
-        return res
-          .status(401)
-          .json({ error: "Kein Tenant zugewiesen." });
+        return res.status(401).json({ error: "Kein Tenant zugewiesen." });
       }
 
       const schema = await getSchema();
@@ -102,8 +100,7 @@ export function registerInvoiceCreate(
       };
 
       // 3. Generate invoice number
-      const { invoice_number, new_count } =
-        generateInvoiceNumber(tenantRecord);
+      const { invoice_number, new_count } = generateInvoiceNumber(tenantRecord);
 
       // 4. Find open closure for this tenant
       const closureService = new ItemsService("cash_register_closures", {
@@ -150,7 +147,21 @@ export function registerInvoiceCreate(
         last_invoice_number: new_count,
       });
 
-      // 7. Return full invoice
+      // 7. Decrement product stock (minimum 0)
+      for (const item of items) {
+        const productId = item.product_id as string | undefined;
+        const quantity = item.quantity as number | undefined;
+        if (!productId || !quantity) continue;
+        const db = database as any;
+        await db("products")
+          .where("id", productId)
+          .whereNotNull("stock")
+          .update({
+            stock: db.raw("GREATEST(stock - ?, 0)", [Math.round(quantity)]),
+          });
+      }
+
+      // 8. Return full invoice
       const invoice = await invoiceService.readOne(invoiceId, {
         fields: ["*", "items.*", "payments.*"],
       });

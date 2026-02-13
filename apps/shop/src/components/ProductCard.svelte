@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Product } from "../types/shop";
   import { addToCart } from "../stores/cartStore";
+  import { TriangleAlert } from "lucide-svelte";
 
   interface Props {
     product: Product;
@@ -36,18 +37,13 @@
   let imgError = $state(false);
 
   function handleClick() {
-    if (!isOutOfStock) {
-      addToCart(product);
-    }
+    addToCart(product);
   }
 </script>
 
 <button
-  class="product-card group relative flex flex-col w-full bg-white rounded-2xl border transition-all duration-300 overflow-hidden text-left shadow-[0_2px_8px_rgba(0,0,0,0.04)] {isOutOfStock
-    ? 'border-zinc-100 opacity-60 cursor-not-allowed grayscale'
-    : 'border-zinc-100 hover:border-blue-400/50 hover:shadow-xl hover:-translate-y-1'}"
+  class="product-card group relative flex flex-col w-full bg-white rounded-2xl border transition-all duration-300 overflow-hidden text-left shadow-[0_2px_8px_rgba(0,0,0,0.04)] border-zinc-100 hover:border-blue-400/50 hover:shadow-xl hover:-translate-y-1"
   data-category={product.category}
-  disabled={isOutOfStock}
   onclick={handleClick}
 >
   <!-- 1. BILD BEREICH -->
@@ -116,7 +112,9 @@
         <span class="text-[10px] text-zinc-400 font-medium">Disponible</span>
       {/if}
 
-      {#if !isOutOfStock}
+      {#if isOutOfStock}
+        <TriangleAlert class="w-4 h-4 text-orange-400" />
+      {:else}
         <svg
           class="w-4 h-4 text-zinc-300 group-hover:text-blue-500 transition-colors transform group-hover:translate-x-0.5"
           fill="none"
