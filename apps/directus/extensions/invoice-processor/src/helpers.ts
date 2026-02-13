@@ -5,6 +5,7 @@ export function generateInvoiceNumber(
     invoice_prefix?: string;
     timezone?: string;
     last_invoice_number?: number;
+    last_rectificativa_number?: number;
   },
   options?: { rectificativa?: boolean },
 ): { invoice_number: string; new_count: number } {
@@ -25,8 +26,11 @@ export function generateInvoiceNumber(
   const day = parts.find((p) => p.type === "day")!.value;
   const fullDateString = `${year}${month}${day}`;
 
-  // Counter
-  const currentCount = tenantRecord.last_invoice_number || 0;
+  // Counter — separate series for rectificativas
+  const isRect = options?.rectificativa ?? false;
+  const currentCount = isRect
+    ? tenantRecord.last_rectificativa_number || 0
+    : tenantRecord.last_invoice_number || 0;
   const newCount = currentCount + 1;
   const paddedCount = newCount.toString().padStart(4, "0");
 
@@ -46,7 +50,7 @@ export function generateInvoiceNumber(
   }
 
   // Prepend "R" for rectificativa
-  if (options?.rectificativa) {
+  if (isRect) {
     invoice_number = `R${invoice_number}`;
   }
 

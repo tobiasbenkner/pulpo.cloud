@@ -127,6 +127,7 @@ export function registerInvoiceRectify(
         invoice_prefix?: string;
         timezone?: string;
         last_invoice_number?: number;
+        last_rectificativa_number?: number;
       };
       const { invoice_number, new_count } = generateInvoiceNumber(
         tenantRecord,
@@ -232,9 +233,9 @@ export function registerInvoiceRectify(
         });
       }
 
-      // 11. Update tenant counter
+      // 11. Update tenant rectificativa counter
       await tenantService.updateOne(tenant, {
-        last_invoice_number: new_count,
+        last_rectificativa_number: new_count,
       });
 
       // 12. Increment stock for returned items
