@@ -24,10 +24,12 @@ A **Point-of-Sale (POS) application** built with Astro 5 + Tailwind CSS v4 + nan
 ### Key Directories
 
 - `src/pages/` — Single page app (`index.astro` is the only route)
-- `src/components/` — Astro components (ProductCard, CartSidebar, modals)
+- `src/components/` — Svelte 5 components (ProductCard, CartSidebar, modals)
 - `src/stores/cartStore.ts` — Cart state, discounts, transactions, computed totals
 - `src/stores/taxStore.ts` — Tax rates (loaded from CMS at startup)
-- `src/stores/productStore.ts` — Product loading from CMS API
+- `src/stores/productStore.ts` — Product loading, stock management, auto-refresh
+- `src/stores/printerStore.ts` — Thermal printing via `printInvoice(invoice)`
+- `src/stores/registerStore.ts` — Cash register open/close state
 - `src/types/shop.ts` — TypeScript interfaces (Product, CartItem, Customer, etc.)
 - `src/layouts/ShopLayout.astro` — Master layout with product grid + 340px cart sidebar + modal layers
 
@@ -39,9 +41,9 @@ A **Point-of-Sale (POS) application** built with Astro 5 + Tailwind CSS v4 + nan
 
 **Computed:** `cartTotals` derives subtotal, discount, gross, net, tax, taxBreakdown, per-item invoice data, and count from `cartItems` + `globalDiscount` + `taxRates`
 
-### Cross-Component Communication
+### Svelte 5 Runes
 
-Components communicate via `window.shop` and `window.cartActions` objects exposed by inline `<script>` tags in `ShopLayout.astro`. Components subscribe to nanostores for reactive DOM updates.
+Components use Svelte 5 runes (`$state`, `$derived`, `$props`). The `svelte.config.js` does NOT set `runes: true` globally — runes mode is inferred per-component. Nanostore subscriptions happen via `onMount` with manual `.subscribe()` calls, assigning to `$state` variables for template reactivity.
 
 ### Tax System
 
@@ -112,10 +114,28 @@ Two levels, both support `"percent"` or `"fixed"` types:
 
 **Invoice structure** (Directus `invoices` collection, all monetary fields are `string`):
 - `Invoice`: header with `total_net`, `total_tax`, `total_gross`, `invoice_number`, `tenant`, `status` (`draft`/`paid`/`cancelled`), VeriFactu fields (`previous_record_hash`, `chain_hash`, `qr_url`, `generation_date`). `invoice_number` and VeriFactu fields are generated server-side via Directus hooks/flows.
-- `InvoiceItem`: per-line with `quantity`, `price_gross_unit` (19,4), `price_net_unit_precise` (19,8), `row_total_net_precise` (19,8), `row_total_gross` (19,2), `tax_rate_snapshot` (5,2 as percentage). Data comes from `cartTotals.items`.
+- `InvoiceItem`: per-line with `product_id`, `quantity`, `price_gross_unit` (19,4), `price_net_unit_precise` (19,8), `row_total_net_precise` (19,8), `row_total_gross` (19,2), `tax_rate_snapshot` (5,2 as percentage), `discount_type`, `discount_value`. Data comes from `cartTotals.items`.
 - `InvoicePayment`: payment method (`cash`/`card`), `amount`, `tendered`, `change`, `tip`
 
-**API** (`@pulpo/cms`): `createInvoice()` creates invoice with nested items and payments in one Directus request. `tenant` is auto-set by Directus. `getInvoices()` and `getInvoice()` read with all relations.
+**API** (`@pulpo/cms`): `createInvoice()` creates invoice with nested items and payments in one Directus request. `tenant` is set server-side by the invoice-processor extension. `getInvoices()` and `getInvoice()` read with all relations.
+
+**Server-side** (`apps/directus/extensions/invoice-processor/`): Custom Directus endpoint extension that handles invoice creation (`POST /invoices`). Generates `invoice_number` from tenant prefix + counter, assigns `tenant` to invoice/items/payments, finds open cash register closure, decrements product stock (`GREATEST(stock - qty, 0)`), and returns the full invoice.
+
+### Printing
+
+All print paths use a single `printInvoice(invoice: Invoice)` function in `printerStore.ts`. It maps `Invoice` data (snake_case) to the internal receipt format, computes tax breakdown from items, and sends ESC/POS commands to a thermal printer service. Three call sites:
+
+1. **Checkout** (`cartStore.completeTransaction`): prints after successful `createInvoice()` API call
+2. **Reprint** (`LastChangeWidget`): loads invoice via `getInvoice()` API, then prints
+3. **Invoice list** (`ShiftInvoicesModal`): prints any invoice from the shift list
+
+### Stock Management
+
+- Products have an optional `stock` field (nullable integer, `null` = no tracking)
+- **Server-side**: invoice-processor decrements stock on invoice creation with `GREATEST(stock - qty, 0)` (never goes negative)
+- **Client-side optimistic update**: `decrementStock()` in productStore immediately reduces displayed stock after a sale
+- **Auto-refresh**: `startAutoRefresh()` polls products every 15 minutes + on `visibilitychange` (tab becomes active). Cleanup via `onDestroy` in `ShopApp.svelte`
+- **Out-of-stock products are still sellable** — they show a warning indicator (orange triangle + "Agotado" label) but are not disabled, since stock may be inaccurate
 
 ### Parked Carts
 
@@ -128,6 +148,5 @@ Carts can be parked (saved) and restored later. A `ParkedCart` stores all `cartI
 
 ### Missing Features
 
-- Invoice persistence (`completeTransaction` → `createInvoice` API call)
 - Rectificativa (invoice correction)
-- Caja cerrar (till closure/end-of-day)
+- Customer assignment to invoices
