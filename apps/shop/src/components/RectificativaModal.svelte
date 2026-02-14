@@ -19,6 +19,7 @@
     AlertTriangle,
     HandCoins,
     CreditCard,
+    Printer,
   } from "lucide-svelte";
   import Big from "big.js";
 
@@ -35,6 +36,7 @@
   let reason = $state<RectificationReason | "">("");
   let reasonDetail = $state("");
   let refundMethod = $state<"cash" | "card">("cash");
+  let printReceipt = $state(false);
   let selectedItems = $state<
     {
       item: InvoiceItem;
@@ -68,6 +70,7 @@
     reason = "";
     reasonDetail = "";
     refundMethod = "cash";
+    printReceipt = shouldPrintReceipt.get();
     selectedItems = [];
     submitting = false;
     resultNumber = "";
@@ -205,7 +208,7 @@
       }
 
       // Print if enabled
-      if (shouldPrintReceipt.get()) {
+      if (printReceipt) {
         await printInvoice(result.rectificativa as Invoice, {
           originalInvoiceNumber: invoice.invoice_number,
         });
@@ -458,6 +461,32 @@
                   </div>
                 </div>
 
+                <!-- Print toggle -->
+                <div class="mb-4">
+                  <button
+                    class="flex items-center gap-3 w-full rounded-xl border px-4 py-3 transition-colors {printReceipt
+                      ? 'border-zinc-300 bg-zinc-50'
+                      : 'border-zinc-200 bg-white'}"
+                    onclick={() => (printReceipt = !printReceipt)}
+                  >
+                    <Printer class="w-4 h-4 {printReceipt ? 'text-zinc-700' : 'text-zinc-300'}" />
+                    <span class="flex-1 text-left text-sm font-medium {printReceipt ? 'text-zinc-700' : 'text-zinc-400'}">
+                      Imprimir ticket
+                    </span>
+                    <div
+                      class="w-10 h-6 rounded-full p-0.5 transition-colors {printReceipt
+                        ? 'bg-zinc-700'
+                        : 'bg-zinc-200'}"
+                    >
+                      <div
+                        class="w-5 h-5 rounded-full bg-white shadow transition-transform {printReceipt
+                          ? 'translate-x-4'
+                          : 'translate-x-0'}"
+                      ></div>
+                    </div>
+                  </button>
+                </div>
+
                 <!-- Refund total -->
                 <div
                   class="flex items-center justify-between bg-red-50 rounded-xl px-4 py-3 mb-6"
@@ -547,7 +576,7 @@
 
               <!-- Warning -->
               <div
-                class="flex items-start gap-3 bg-amber-50 rounded-xl px-4 py-3 mb-6"
+                class="flex items-start gap-3 bg-amber-50 rounded-xl px-4 py-3 mb-4"
               >
                 <AlertTriangle class="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
                 <p class="text-sm text-amber-700">
