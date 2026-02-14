@@ -14,6 +14,7 @@
     totalGross: string;
     cashGross: string;
     cardGross: string;
+    costCenter: string | null;
   }
 
   interface InvoiceCounts {
@@ -78,7 +79,7 @@
   function buildProductRows(invs: Invoice[]): ProductRow[] {
     const map = new Map<
       string,
-      { qty: number; gross: Big; cash: Big; card: Big }
+      { qty: number; gross: Big; cash: Big; card: Big; costCenter: string | null }
     >();
     const ZERO = new Big(0);
 
@@ -93,6 +94,7 @@
           gross: ZERO,
           cash: ZERO,
           card: ZERO,
+          costCenter: (item as any).cost_center ?? null,
         };
         const qty = Math.abs(Number(item.quantity));
         const gross = new Big(item.row_total_gross);
@@ -112,8 +114,25 @@
         totalGross: v.gross.toFixed(2),
         cashGross: v.cash.toFixed(2),
         cardGross: v.card.toFixed(2),
+        costCenter: v.costCenter,
       }))
       .sort((a, b) => b.quantity - a.quantity);
+  }
+
+  function groupByCostCenter(rows: ProductRow[]): [string, ProductRow[]][] {
+    const groups = new Map<string, ProductRow[]>();
+    for (const row of rows) {
+      const key = row.costCenter ?? "";
+      const existing = groups.get(key) ?? [];
+      existing.push(row);
+      groups.set(key, existing);
+    }
+    // Sort: named groups first (alphabetical), then unnamed ("Sin asignar") last
+    return Array.from(groups.entries()).sort(([a], [b]) => {
+      if (a === "" && b !== "") return 1;
+      if (a !== "" && b === "") return -1;
+      return a.localeCompare(b);
+    });
   }
 
   function countInvoiceTypes(invs: Invoice[]): InvoiceCounts {
@@ -184,6 +203,8 @@
 
   let totalInvoiceCounts = $derived(countInvoiceTypes(allInvoices));
   let totalProductRows = $derived(buildProductRows(allInvoices));
+  let totalGrouped = $derived(groupByCostCenter(totalProductRows));
+  let hasCostCenters = $derived(totalGrouped.length > 1 || (totalGrouped.length === 1 && totalGrouped[0][0] !== ""));
 
   async function loadData() {
     loading = true;
@@ -371,27 +392,56 @@
             <span class="text-right">Ef.</span>
             <span class="text-right">Tj.</span>
           </div>
-          {#each totalProductRows as row}
-            <div
-              class="producto-grid px-3 py-2 text-base border-b border-zinc-50 last:border-0"
-            >
-              <span class="text-zinc-800 truncate" title={row.name}
-                >{row.name}</span
+          {#if hasCostCenters}
+            {#each totalGrouped as [group, rows]}
+              <div class="px-3 py-1.5 bg-zinc-100 border-b border-zinc-200">
+                <span class="text-xs font-bold text-zinc-500 uppercase tracking-wider">{group || "Sin asignar"}</span>
+              </div>
+              {#each rows as row}
+                <div
+                  class="producto-grid px-3 py-2 text-base border-b border-zinc-50 last:border-0"
+                >
+                  <span class="text-zinc-800 truncate" title={row.name}
+                    >{row.name}</span
+                  >
+                  <span class="text-right tabular-nums font-bold text-zinc-900"
+                    >{row.quantity}</span
+                  >
+                  <span class="text-right tabular-nums font-bold text-zinc-900"
+                    >{row.totalGross}</span
+                  >
+                  <span class="text-right tabular-nums text-zinc-600"
+                    >{row.cashGross}</span
+                  >
+                  <span class="text-right tabular-nums text-zinc-600"
+                    >{row.cardGross}</span
+                  >
+                </div>
+              {/each}
+            {/each}
+          {:else}
+            {#each totalProductRows as row}
+              <div
+                class="producto-grid px-3 py-2 text-base border-b border-zinc-50 last:border-0"
               >
-              <span class="text-right tabular-nums font-bold text-zinc-900"
-                >{row.quantity}</span
-              >
-              <span class="text-right tabular-nums font-bold text-zinc-900"
-                >{row.totalGross}</span
-              >
-              <span class="text-right tabular-nums text-zinc-600"
-                >{row.cashGross}</span
-              >
-              <span class="text-right tabular-nums text-zinc-600"
-                >{row.cardGross}</span
-              >
-            </div>
-          {/each}
+                <span class="text-zinc-800 truncate" title={row.name}
+                  >{row.name}</span
+                >
+                <span class="text-right tabular-nums font-bold text-zinc-900"
+                  >{row.quantity}</span
+                >
+                <span class="text-right tabular-nums font-bold text-zinc-900"
+                  >{row.totalGross}</span
+                >
+                <span class="text-right tabular-nums text-zinc-600"
+                  >{row.cashGross}</span
+                >
+                <span class="text-right tabular-nums text-zinc-600"
+                  >{row.cardGross}</span
+                >
+              </div>
+            {/each}
+          {/if}
         </div>
       {/if}
     {/if}
@@ -478,6 +528,8 @@
         <!-- Expanded detail -->
         {#if isExpanded}
           {@const closureProducts = buildProductRows(closureInvs)}
+          {@const closureGrouped = groupByCostCenter(closureProducts)}
+          {@const closureHasGroups = closureGrouped.length > 1 || (closureGrouped.length === 1 && closureGrouped[0][0] !== "")}
           <div class="border-b border-zinc-100 px-3 py-2 bg-zinc-50/50">
             {#if closureProducts.length > 0}
               <div
@@ -489,27 +541,56 @@
                 <span class="text-right">Ef.</span>
                 <span class="text-right">Tj.</span>
               </div>
-              {#each closureProducts as row}
-                <div
-                  class="producto-grid py-1.5 text-sm border-t border-zinc-100"
-                >
-                  <span class="text-zinc-700 truncate" title={row.name}
-                    >{row.name}</span
+              {#if closureHasGroups}
+                {#each closureGrouped as [group, rows]}
+                  <div class="py-1 px-3 bg-zinc-100/80 border-t border-zinc-100">
+                    <span class="text-xs font-bold text-zinc-500 uppercase tracking-wider">{group || "Sin asignar"}</span>
+                  </div>
+                  {#each rows as row}
+                    <div
+                      class="producto-grid py-1.5 text-sm border-t border-zinc-100"
+                    >
+                      <span class="text-zinc-700 truncate" title={row.name}
+                        >{row.name}</span
+                      >
+                      <span class="text-right tabular-nums font-bold text-zinc-800"
+                        >{row.quantity}</span
+                      >
+                      <span class="text-right tabular-nums font-bold text-zinc-800"
+                        >{row.totalGross}</span
+                      >
+                      <span class="text-right tabular-nums text-zinc-500"
+                        >{row.cashGross}</span
+                      >
+                      <span class="text-right tabular-nums text-zinc-500"
+                        >{row.cardGross}</span
+                      >
+                    </div>
+                  {/each}
+                {/each}
+              {:else}
+                {#each closureProducts as row}
+                  <div
+                    class="producto-grid py-1.5 text-sm border-t border-zinc-100"
                   >
-                  <span class="text-right tabular-nums font-bold text-zinc-800"
-                    >{row.quantity}</span
-                  >
-                  <span class="text-right tabular-nums font-bold text-zinc-800"
-                    >{row.totalGross}</span
-                  >
-                  <span class="text-right tabular-nums text-zinc-500"
-                    >{row.cashGross}</span
-                  >
-                  <span class="text-right tabular-nums text-zinc-500"
-                    >{row.cardGross}</span
-                  >
-                </div>
-              {/each}
+                    <span class="text-zinc-700 truncate" title={row.name}
+                      >{row.name}</span
+                    >
+                    <span class="text-right tabular-nums font-bold text-zinc-800"
+                      >{row.quantity}</span
+                    >
+                    <span class="text-right tabular-nums font-bold text-zinc-800"
+                      >{row.totalGross}</span
+                    >
+                    <span class="text-right tabular-nums text-zinc-500"
+                      >{row.cashGross}</span
+                    >
+                    <span class="text-right tabular-nums text-zinc-500"
+                      >{row.cardGross}</span
+                    >
+                  </div>
+                {/each}
+              {/if}
             {:else}
               <p class="text-xs text-zinc-400 text-center py-2">
                 Sin productos

@@ -45,6 +45,7 @@ export interface InvoiceItem {
   row_total_gross: string;
   discount_type: "percent" | "fixed" | null;
   discount_value: string | null;
+  cost_center: string | null;
 }
 
 export interface InvoicePayment {

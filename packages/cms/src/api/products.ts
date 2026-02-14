@@ -34,6 +34,7 @@ export async function getCategoriesWithProducts(
         "products.translations.*",
         "products.translations.languages_id.*",
         "products.image.*",
+        "products.cost_center.*",
       ],
       filter: filter,
     }),
@@ -54,6 +55,7 @@ export async function getCategoriesWithProducts(
         category: product.category,
         stock: product.stock ?? null,
         tax_class: product.tax_class ?? null,
+        cost_center: product.cost_center ?? null,
       } as Product;
     });
 

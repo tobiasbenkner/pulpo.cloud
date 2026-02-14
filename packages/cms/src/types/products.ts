@@ -15,6 +15,7 @@ export interface Product {
   stock: number | null;
   tax_class: TaxClass | null;
   price_gross: string;
+  cost_center: { id: string; name: string } | null;
 }
 
 export interface ProductCategory {

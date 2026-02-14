@@ -16,6 +16,7 @@ export interface Product {
   image: string;
   category: string;
   stock?: number;
+  costCenter?: string;
 }
 
 export interface CartItem extends Product {
@@ -42,6 +43,7 @@ export interface CartTotalsItem {
   rowTotalNetPrecise: string;
   discountType: "percent" | "fixed" | null;
   discountValue: string | null;
+  costCenter: string | null;
 }
 
 export interface CartTotals {

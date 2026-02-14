@@ -302,6 +302,7 @@ export const completeTransaction = async (
         row_total_gross: item.rowTotalGross,
         discount_type: item.discountType,
         discount_value: item.discountValue,
+        cost_center: item.costCenter,
       })),
       payments: [
         {
@@ -443,6 +444,7 @@ export const cartTotals = computed(
         discountValue: item.discount
           ? new Big(item.discount.value).toFixed(4)
           : null,
+        costCenter: item.costCenter ?? null,
       });
     });
 

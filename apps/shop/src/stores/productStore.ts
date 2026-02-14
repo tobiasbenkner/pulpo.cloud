@@ -44,6 +44,7 @@ function mapCmsToShopProduct(
     image: buildImageUrl(product.image),
     category: categoryName,
     stock: product.stock ?? undefined,
+    costCenter: product.cost_center?.name ?? undefined,
   };
 }
 
