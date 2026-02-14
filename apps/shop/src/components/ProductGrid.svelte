@@ -14,6 +14,7 @@
   import {
     isClosureModalOpen,
     isShiftInvoicesModalOpen,
+    isXReportModalOpen,
   } from "../stores/registerStore";
   import ProductCard from "./ProductCard.svelte";
   import type { Product } from "../types/shop";
@@ -25,6 +26,8 @@
     LogOut,
     Plus,
     Users,
+    BarChart3,
+    ChartLine,
   } from "lucide-svelte";
 
   let selectedCategory = $state("Todos");
@@ -74,6 +77,11 @@
     isShiftInvoicesModalOpen.set(true);
   }
 
+  function openXReport() {
+    menuOpen = false;
+    isXReportModalOpen.set(true);
+  }
+
   function openCustomerManagement() {
     menuOpen = false;
     customerModalMode.set("manage");
@@ -117,11 +125,19 @@
           </button>
           <button
             class="w-full flex items-center gap-3 px-4 py-3 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors text-left"
+            onclick={openXReport}
+          >
+            <BarChart3 class="w-5 h-5 text-zinc-400" />
+            <span class="font-medium">Informe X</span>
+          </button>
+          <button
+            class="w-full flex items-center gap-3 px-4 py-3 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors text-left"
             onclick={openShiftInvoicesModal}
           >
             <FileText class="w-5 h-5 text-zinc-400" />
             <span class="font-medium">Facturas</span>
           </button>
+          <div class="border-t border-zinc-100 my-1"></div>
           <button
             class="w-full flex items-center gap-3 px-4 py-3 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors text-left"
             onclick={openCustomerManagement}
@@ -129,6 +145,13 @@
             <Users class="w-5 h-5 text-zinc-400" />
             <span class="font-medium">Clientes</span>
           </button>
+          <a
+            href="/reports"
+            class="w-full flex items-center gap-3 px-4 py-3 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors text-left"
+          >
+            <ChartLine class="w-5 h-5 text-zinc-400" />
+            <span class="font-medium">Informes</span>
+          </a>
           <div class="border-t border-zinc-100 my-1"></div>
           <a
             href="/logout"

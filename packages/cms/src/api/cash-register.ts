@@ -71,6 +71,22 @@ export async function getOpenClosure(client: Client) {
   return results[0] ?? null;
 }
 
+/** Get all closed closures for a specific date */
+export async function getClosuresForDate(client: Client, date: string) {
+  const dayStart = `${date}T00:00:00`;
+  const dayEnd = `${date}T23:59:59`;
+
+  return await client.request(
+    readItems("cash_register_closures", {
+      filter: {
+        status: { _eq: "closed" },
+        period_start: { _gte: dayStart, _lte: dayEnd },
+      },
+      sort: ["-period_start"],
+    }),
+  );
+}
+
 /** Get the last closed closure */
 export async function getLastClosure(client: Client) {
   const results = await client.request(

@@ -10,8 +10,9 @@ import {
   closeClosure,
   getLastClosure,
   getOpenClosure,
+  getClosuresForDate,
 } from "@pulpo/cms";
-import type { Invoice } from "@pulpo/cms";
+import type { Invoice, CashRegisterClosure } from "@pulpo/cms";
 import type { ClosureReport } from "../types/shop";
 import { lastTransaction } from "./cartStore";
 
@@ -45,6 +46,8 @@ export const shiftInvoices = atom<Invoice[]>([]);
 
 export const isRectificativaModalOpen = atom<boolean>(false);
 export const rectificativaInvoice = atom<Invoice | null>(null);
+
+export const isXReportModalOpen = atom<boolean>(false);
 
 // --- ACTIONS ---
 
@@ -272,6 +275,13 @@ export async function createRectificativa(data: {
   shiftInvoices.set(updated);
 
   return result as { rectificativa: Invoice; original: Invoice };
+}
+
+export async function loadDailyClosures(
+  date: string,
+): Promise<CashRegisterClosure[]> {
+  const client = getAuthClient();
+  return await getClosuresForDate(client as any, date);
 }
 
 export async function swapPaymentMethod(
