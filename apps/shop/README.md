@@ -13,7 +13,3 @@ Funktioniert bereits
 
 3. Caja cerrar (Tagesabschluss)
    Kein Kassenschluss, kein Schichtmanagement, keine Z-/X-Berichte, keine Tagesuebersicht.
-
----
-
-Das dringendste waere vermutlich Punkt 4 (.env anlegen damit Steuern funktionieren) und Punkt 1 (Invoices tatsaechlich ans Backend schicken). Womit willst du weitermachen?

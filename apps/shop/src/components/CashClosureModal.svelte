@@ -12,7 +12,7 @@
   import Big from "big.js";
   import type { ClosureReport } from "../types/shop";
 
-  type View = "loading" | "warning" | "summary" | "count" | "done";
+  type View = "loading" | "warning" | "summary" | "count" | "confirm" | "done";
 
   let currentView = $state<View>("loading");
   let isOpen = $state(false);
@@ -23,20 +23,29 @@
   let finalizing = $state(false);
   let expectedCashValue = $state(0);
   let tax = $state("IGIC");
+  let confirmMode = $state<"sin_recuento" | "recuento">("recuento");
 
   // Numpad state
   let numpadOpen = $state(false);
+  let numpadMode = $state<"qty" | "total">("qty");
   let editingCents = $state(0);
   let qtyInputValue = $state(0);
   let numpadLabel = $state("");
 
+  // Manual total input (in cents)
+  let manualTotalCents = $state<number | null>(null);
+  let totalInputCents = $state(0);
+
   // Denomination quantities keyed by cents
   let denomQtys = $state<Record<number, number>>({});
 
-  const bills = [500, 200, 100, 50, 20, 10, 5];
-  const coins = [200, 100, 50, 20, 10, 5, 2, 1];
-  const billCents = bills.map((v) => v * 100);
-  const coinCents = coins;
+  const col1 = [500, 200, 100, 50, 20]; // big bills (cents)
+  const col2 = [10, 5]; // small bills (euros) + euro coins + 50ct
+  const col2coins = [200, 100, 50]; // 2€, 1€, 50ct
+  const col3 = [20, 10, 5, 2, 1]; // small coins (cents)
+  const col1Cents = col1.map((v) => v * 100);
+  const col2Cents = [...col2.map((v) => v * 100), ...col2coins];
+  const col3Cents = col3;
 
   function denomLabel(cents: number, isBill: boolean): string {
     if (isBill) return `${cents / 100} \u20AC`;
@@ -45,11 +54,15 @@
 
   // --- Derived ---
 
-  let totalCountedCents = $derived(
+  let denomCountedCents = $derived(
     Object.entries(denomQtys).reduce(
       (sum, [c, qty]) => sum + parseInt(c) * qty,
       0,
     ),
+  );
+
+  let totalCountedCents = $derived(
+    manualTotalCents !== null ? manualTotalCents : denomCountedCents,
   );
 
   let countedEur = $derived((totalCountedCents / 100).toFixed(2));
@@ -94,6 +107,7 @@
 
   function resetDenominations() {
     denomQtys = {};
+    manualTotalCents = null;
   }
 
   function checkWarnings(): string | null {
@@ -153,33 +167,70 @@
   // --- Numpad ---
 
   function showQtyNumpad(cents: number, label: string) {
+    numpadMode = "qty";
     editingCents = cents;
     qtyInputValue = denomQtys[cents] ?? 0;
     numpadLabel = label;
     numpadOpen = true;
   }
 
-  function hideQtyNumpad() {
+  function showTotalNumpad() {
+    numpadMode = "total";
+    totalInputCents = manualTotalCents ?? 0;
+    numpadLabel = "Importe total";
+    numpadOpen = true;
+  }
+
+  function hideNumpad() {
     numpadOpen = false;
   }
 
   function numpadDigit(val: number) {
-    if (qtyInputValue.toString().length >= 4) return;
-    qtyInputValue = qtyInputValue * 10 + val;
+    if (numpadMode === "qty") {
+      if (qtyInputValue.toString().length >= 4) return;
+      qtyInputValue = qtyInputValue * 10 + val;
+    } else {
+      if (totalInputCents.toString().length >= 8) return;
+      totalInputCents = totalInputCents * 10 + val;
+    }
   }
 
   function numpadClear() {
-    qtyInputValue = 0;
+    if (numpadMode === "qty") {
+      qtyInputValue = 0;
+    } else {
+      totalInputCents = 0;
+    }
   }
 
   function numpadBackspace() {
-    qtyInputValue = Math.floor(qtyInputValue / 10);
+    if (numpadMode === "qty") {
+      qtyInputValue = Math.floor(qtyInputValue / 10);
+    } else {
+      totalInputCents = Math.floor(totalInputCents / 10);
+    }
   }
 
   function numpadConfirm() {
-    denomQtys[editingCents] = qtyInputValue;
-    hideQtyNumpad();
+    if (numpadMode === "qty") {
+      denomQtys[editingCents] = qtyInputValue;
+    } else {
+      // Clear denominations first, then set manual total
+      denomQtys = {};
+      manualTotalCents = totalInputCents;
+    }
+    hideNumpad();
   }
+
+  let numpadDisplay = $derived(
+    numpadMode === "qty"
+      ? String(qtyInputValue)
+      : (totalInputCents / 100).toFixed(2),
+  );
+
+  let numpadDisplayLabel = $derived(
+    numpadMode === "qty" ? "Cantidad" : "Importe",
+  );
 
   function handleKeydown(e: KeyboardEvent) {
     if (!numpadOpen) return;
@@ -194,19 +245,21 @@
       numpadConfirm();
     } else if (e.key === "Escape") {
       e.preventDefault();
-      hideQtyNumpad();
+      hideNumpad();
     }
   }
 
   // --- Denomination +/- ---
 
   function denomPlus(cents: number) {
+    manualTotalCents = null;
     denomQtys[cents] = (denomQtys[cents] ?? 0) + 1;
   }
 
   function denomMinus(cents: number) {
     const current = denomQtys[cents] ?? 0;
     if (current > 0) {
+      manualTotalCents = null;
       denomQtys[cents] = current - 1;
     }
   }
@@ -219,15 +272,43 @@
     qty: number;
   }[] {
     const result: { cents: number; label: string; qty: number }[] = [];
-    for (const cents of billCents) {
+    for (const cents of col1Cents) {
       const qty = denomQtys[cents] ?? 0;
       if (qty > 0) result.push({ cents, label: denomLabel(cents, true), qty });
     }
-    for (const cents of coinCents) {
+    for (const cents of col2Cents) {
+      const qty = denomQtys[cents] ?? 0;
+      const isBill = cents >= 500;
+      if (qty > 0)
+        result.push({ cents, label: denomLabel(cents, isBill), qty });
+    }
+    for (const cents of col3Cents) {
       const qty = denomQtys[cents] ?? 0;
       if (qty > 0) result.push({ cents, label: denomLabel(cents, false), qty });
     }
     return result;
+  }
+
+  // --- Confirm OK (skip counting, use expected amount) ---
+
+  async function handleConfirmOk() {
+    finalizing = true;
+    const expectedStr = report?.expectedCash ?? "0.00";
+
+    try {
+      if (shouldPrint && report) {
+        printClosureReport(report, expectedStr, "0.00");
+      }
+
+      await finalizeClosure(expectedStr, []);
+
+      doneDiffText = "Diferencia: +0.00 \u20AC";
+      doneDiffColor = "text-zinc-500";
+      currentView = "done";
+    } catch (e) {
+      console.error("Closure failed:", e);
+      finalizing = false;
+    }
   }
 
   // --- Finalize ---
@@ -310,7 +391,7 @@
       >
         <!-- Modal Panel -->
         <div
-          class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg {isVisible
+          class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-2xl {isVisible
             ? 'opacity-100 translate-y-0 sm:scale-100'
             : 'opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95'}"
         >
@@ -517,124 +598,98 @@
               </div>
 
               <!-- Expected / Counted / Difference -->
-              <div class="bg-zinc-900 rounded-2xl p-4 mb-4 shadow-inner">
-                <div class="flex justify-between items-end mb-3">
-                  <span class="text-zinc-400 text-xs uppercase font-bold"
+              <div
+                class="bg-zinc-900 rounded-xl px-4 py-2.5 mb-4 shadow-inner flex items-center gap-4"
+              >
+                <div class="flex-1">
+                  <span class="text-zinc-500 text-[10px] uppercase font-bold"
                     >Esperado</span
                   >
-                  <span class="text-xl font-mono text-white"
-                    >{report?.expectedCash ?? "0.00"} &euro;</span
-                  >
+                  <div class="text-sm font-mono text-white">
+                    {report?.expectedCash ?? "0.00"} &euro;
+                  </div>
                 </div>
-                <div class="h-px bg-zinc-700 my-2"></div>
-                <div class="flex justify-between items-end mb-3">
-                  <span class="text-zinc-400 text-xs uppercase font-bold"
-                    >Contado</span
-                  >
-                  <span class="text-3xl font-mono text-white"
-                    >{countedEur} &euro;</span
-                  >
-                </div>
-                <div class="h-px bg-zinc-700 my-2"></div>
-                <div class="flex justify-between items-end">
-                  <span class="text-zinc-400 text-xs uppercase font-bold"
+                <div class="w-px h-8 bg-zinc-700"></div>
+                <button
+                  class="flex-1 cursor-pointer rounded-lg px-2 py-1 -mx-2 hover:bg-white/10 active:bg-white/15 transition-colors"
+                  onclick={showTotalNumpad}
+                >
+                  <div class="flex items-center gap-1">
+                    <span class="text-zinc-500 text-[10px] uppercase font-bold"
+                      >Contado</span
+                    >
+                    <svg
+                      class="w-3 h-3 text-zinc-500"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                      />
+                    </svg>
+                  </div>
+                  <div class="text-lg font-mono font-bold text-white">
+                    {countedEur} &euro;
+                  </div>
+                </button>
+                <div class="w-px h-8 bg-zinc-700"></div>
+                <div class="flex-1 text-right">
+                  <span class="text-zinc-500 text-[10px] uppercase font-bold"
                     >Diferencia</span
                   >
-                  <span class="text-xl font-bold {differenceColor}"
-                    >{differenceFormatted}</span
-                  >
+                  <div class="text-sm font-bold {differenceColor}">
+                    {differenceFormatted}
+                  </div>
                 </div>
               </div>
 
-              <!-- Denomination Counting -->
-              <div class="max-h-[340px] overflow-y-auto mb-4 -mx-1 px-1">
-                <!-- Bills -->
-                <div class="mb-3">
-                  <div
-                    class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2"
-                  >
-                    Billetes
-                  </div>
-                  <div class="space-y-1.5">
-                    {#each billCents as cents}
-                      {@const label = denomLabel(cents, true)}
-                      {@const qty = denomQtys[cents] ?? 0}
-                      {@const sub = (qty * cents) / 100}
-                      <div class="flex items-center gap-2">
-                        <span
-                          class="w-14 text-sm font-bold text-zinc-700 text-right"
-                          >{label}</span
-                        >
-                        <button
-                          class="w-8 h-8 flex items-center justify-center rounded-lg bg-zinc-100 text-zinc-500 hover:bg-zinc-200 active:scale-95 transition-colors text-lg font-bold leading-none"
-                          onclick={() => denomMinus(cents)}>&minus;</button
-                        >
-                        <span
-                          class="w-10 text-center text-sm font-bold text-zinc-900 tabular-nums cursor-pointer hover:bg-blue-50 hover:text-blue-700 rounded-lg py-1 transition-colors select-none"
-                          role="button"
-                          tabindex="0"
-                          onclick={() => showQtyNumpad(cents, label)}
-                          onkeydown={(e) => {
-                            if (e.key === "Enter" || e.key === " ")
-                              showQtyNumpad(cents, label);
-                          }}>{qty}</span
-                        >
-                        <button
-                          class="w-8 h-8 flex items-center justify-center rounded-lg bg-zinc-100 text-zinc-500 hover:bg-zinc-200 active:scale-95 transition-colors text-lg font-bold leading-none"
-                          onclick={() => denomPlus(cents)}>+</button
-                        >
-                        <span
-                          class="flex-1 text-right text-sm font-mono {sub > 0
-                            ? 'text-zinc-900'
-                            : 'text-zinc-400'}">{sub.toFixed(2)}</span
-                        >
+              <!-- Denomination Counting: 3 columns -->
+              <div class="max-h-[300px] overflow-y-auto mb-4 -mx-1 px-1">
+                <div class="grid grid-cols-3 gap-3">
+                  {#each [{ cents: col1Cents, header: "Billetes" }, { cents: col2Cents, header: "Monedas" }, { cents: col3Cents, header: "Céntimos" }] as col}
+                    <div>
+                      <div
+                        class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2"
+                      >
+                        {col.header}
                       </div>
-                    {/each}
-                  </div>
-                </div>
-                <!-- Coins -->
-                <div>
-                  <div
-                    class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2"
-                  >
-                    Monedas
-                  </div>
-                  <div class="space-y-1.5">
-                    {#each coinCents as cents}
-                      {@const label = denomLabel(cents, false)}
-                      {@const qty = denomQtys[cents] ?? 0}
-                      {@const sub = (qty * cents) / 100}
-                      <div class="flex items-center gap-2">
-                        <span
-                          class="w-14 text-sm font-bold text-zinc-700 text-right"
-                          >{label}</span
-                        >
-                        <button
-                          class="w-8 h-8 flex items-center justify-center rounded-lg bg-zinc-100 text-zinc-500 hover:bg-zinc-200 active:scale-95 transition-colors text-lg font-bold leading-none"
-                          onclick={() => denomMinus(cents)}>&minus;</button
-                        >
-                        <span
-                          class="w-10 text-center text-sm font-bold text-zinc-900 tabular-nums cursor-pointer hover:bg-blue-50 hover:text-blue-700 rounded-lg py-1 transition-colors select-none"
-                          role="button"
-                          tabindex="0"
-                          onclick={() => showQtyNumpad(cents, label)}
-                          onkeydown={(e) => {
-                            if (e.key === "Enter" || e.key === " ")
-                              showQtyNumpad(cents, label);
-                          }}>{qty}</span
-                        >
-                        <button
-                          class="w-8 h-8 flex items-center justify-center rounded-lg bg-zinc-100 text-zinc-500 hover:bg-zinc-200 active:scale-95 transition-colors text-lg font-bold leading-none"
-                          onclick={() => denomPlus(cents)}>+</button
-                        >
-                        <span
-                          class="flex-1 text-right text-sm font-mono {sub > 0
-                            ? 'text-zinc-900'
-                            : 'text-zinc-400'}">{sub.toFixed(2)}</span
-                        >
+                      <div class="space-y-1">
+                        {#each col.cents as cents}
+                          {@const isBill = cents >= 500}
+                          {@const label = denomLabel(cents, isBill)}
+                          {@const qty = denomQtys[cents] ?? 0}
+                          <div class="flex items-center gap-1">
+                            <span
+                              class="w-12 text-xs font-bold text-zinc-700 text-right shrink-0"
+                              >{label}</span
+                            >
+                            <button
+                              class="w-8 h-8 flex items-center justify-center rounded-lg bg-zinc-100 text-zinc-500 hover:bg-zinc-200 active:scale-95 transition-colors text-base font-bold leading-none"
+                              onclick={() => denomMinus(cents)}>&minus;</button
+                            >
+                            <span
+                              class="w-8 text-center text-sm font-bold text-zinc-900 tabular-nums cursor-pointer hover:bg-blue-50 hover:text-blue-700 rounded py-0.5 transition-colors select-none"
+                              role="button"
+                              tabindex="0"
+                              onclick={() => showQtyNumpad(cents, label)}
+                              onkeydown={(e) => {
+                                if (e.key === "Enter" || e.key === " ")
+                                  showQtyNumpad(cents, label);
+                              }}>{qty}</span
+                            >
+                            <button
+                              class="w-8 h-8 flex items-center justify-center rounded-lg bg-zinc-100 text-zinc-500 hover:bg-zinc-200 active:scale-95 transition-colors text-base font-bold leading-none"
+                              onclick={() => denomPlus(cents)}>+</button
+                            >
+                          </div>
+                        {/each}
                       </div>
-                    {/each}
-                  </div>
+                    </div>
+                  {/each}
                 </div>
               </div>
 
@@ -686,13 +741,26 @@
                 </div>
               </button>
 
-              <button
-                class="w-full bg-emerald-600 text-white font-bold text-xl py-4 rounded-2xl shadow-lg shadow-emerald-200 transition-all active:scale-[0.98] disabled:opacity-50"
-                onclick={handleFinalize}
-                disabled={finalizing}
-              >
-                {finalizing ? "Guardando..." : "Cerrar caja"}
-              </button>
+              <div class="flex gap-3">
+                <button
+                  class="flex-1 bg-zinc-200 text-zinc-700 font-bold text-base py-4 rounded-2xl hover:bg-zinc-300 active:scale-[0.98] transition-all"
+                  onclick={() => {
+                    confirmMode = "sin_recuento";
+                    currentView = "confirm";
+                  }}
+                >
+                  Sin recuento
+                </button>
+                <button
+                  class="flex-1 bg-emerald-600 text-white font-bold text-base py-4 rounded-2xl shadow-lg shadow-emerald-200 transition-all active:scale-[0.98]"
+                  onclick={() => {
+                    confirmMode = "recuento";
+                    currentView = "confirm";
+                  }}
+                >
+                  Confirmar recuento
+                </button>
+              </div>
 
               <!-- QTY NUMPAD OVERLAY -->
               {#if numpadOpen}
@@ -703,7 +771,7 @@
                   <div class="flex items-center justify-between mb-4">
                     <button
                       class="text-sm font-bold text-zinc-500 hover:text-zinc-800 flex items-center gap-1 py-2 pr-4 pl-0"
-                      onclick={hideQtyNumpad}
+                      onclick={hideNumpad}
                     >
                       <svg
                         class="w-5 h-5"
@@ -732,10 +800,10 @@
                     <p
                       class="text-zinc-400 text-xs uppercase font-bold mb-1 tracking-wide"
                     >
-                      Cantidad
+                      {numpadDisplayLabel}
                     </p>
                     <div class="text-5xl font-mono text-white tracking-tight">
-                      {qtyInputValue}
+                      {numpadDisplay}{numpadMode === "total" ? " \u20AC" : ""}
                     </div>
                   </div>
 
@@ -786,6 +854,55 @@
                   </button>
                 </div>
               {/if}
+            </div>
+
+            <!-- VIEW: CONFIRM -->
+          {:else if currentView === "confirm"}
+            <div class="px-8 py-8">
+              <div class="flex justify-center mb-4">
+                <div
+                  class="w-14 h-14 rounded-full bg-red-100 text-red-600 flex items-center justify-center"
+                >
+                  <svg
+                    class="w-7 h-7"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"
+                    />
+                  </svg>
+                </div>
+              </div>
+              <h3 class="text-xl font-bold text-center text-zinc-900 mb-2">
+                ¿Cerrar la caja?
+              </h3>
+              <p class="text-sm text-center text-zinc-500 mb-6">
+                Esta acción no se puede deshacer. Se cerrará el turno actual y
+                no se podrán registrar más ventas hasta abrir una nueva caja.
+              </p>
+              <div class="flex gap-3">
+                <button
+                  class="flex-1 py-3 rounded-xl border-2 border-zinc-200 text-zinc-600 font-bold text-sm hover:bg-zinc-50 transition-colors"
+                  onclick={() => (currentView = "count")}
+                >
+                  Volver
+                </button>
+                <button
+                  class="flex-1 py-3 rounded-xl bg-red-600 text-white font-bold text-sm hover:bg-red-700 transition-colors disabled:opacity-50"
+                  onclick={() =>
+                    confirmMode === "sin_recuento"
+                      ? handleConfirmOk()
+                      : handleFinalize()}
+                  disabled={finalizing}
+                >
+                  {finalizing ? "Cerrando..." : "Sí, cerrar caja"}
+                </button>
+              </div>
             </div>
 
             <!-- VIEW: DONE -->
