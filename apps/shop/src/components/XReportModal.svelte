@@ -164,6 +164,15 @@
                     >{report.transactionCount}</span
                   >
                 </div>
+                <div class="flex gap-3 text-xs text-zinc-400 pl-1">
+                  <span>{report.ticketCount} tickets</span>
+                  <span>{report.facturaCount} facturas</span>
+                  {#if report.rectificativaCount > 0}
+                    <span class="text-red-400"
+                      >{report.rectificativaCount} rectif.</span
+                    >
+                  {/if}
+                </div>
                 <div class="h-px bg-zinc-100"></div>
                 <div class="flex justify-between text-sm">
                   <span class="text-zinc-500">Bruto</span>
@@ -221,7 +230,6 @@
                   {/each}
                 </div>
               {/if}
-
             </div>
           {/if}
         </div>

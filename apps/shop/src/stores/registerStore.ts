@@ -88,11 +88,17 @@ export async function generateClosureReport(): Promise<ClosureReport> {
     let totalCash = ZERO;
     let totalCard = ZERO;
     let totalChange = ZERO;
+    let ticketCount = 0;
+    let facturaCount = 0;
+    let rectificativaCount = 0;
 
     // Tax breakdown: rate (percentage string) -> { net, tax }
     const taxMap = new Map<string, { net: Big; tax: Big }>();
 
     for (const inv of invoices) {
+      if (inv.invoice_type === "ticket") ticketCount++;
+      else if (inv.invoice_type === "factura") facturaCount++;
+      else if (inv.invoice_type === "rectificativa") rectificativaCount++;
       totalGross = totalGross.plus(new Big(inv.total_gross));
       totalNet = totalNet.plus(new Big(inv.total_net));
       totalTax = totalTax.plus(new Big(inv.total_tax));
@@ -141,6 +147,9 @@ export async function generateClosureReport(): Promise<ClosureReport> {
       periodStart: pStart || new Date().toISOString(),
       periodEnd: new Date().toISOString(),
       transactionCount: invoices.length,
+      ticketCount,
+      facturaCount,
+      rectificativaCount,
       totalGross: totalGross.toFixed(2),
       totalNet: totalNet.toFixed(2),
       totalTax: totalTax.toFixed(2),

@@ -122,6 +122,9 @@ export interface ClosureReport {
   periodStart: string;
   periodEnd: string;
   transactionCount: number;
+  ticketCount: number;
+  facturaCount: number;
+  rectificativaCount: number;
   totalGross: string;
   totalNet: string;
   totalTax: string;
