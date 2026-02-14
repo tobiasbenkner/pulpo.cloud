@@ -119,8 +119,16 @@ function buildReceipt(receiptData: {
     city: string | null;
   };
 }): PrintLine[] {
-  const { totals, invoiceNumber, method, total, tendered, change, rectificativa, customer } =
-    receiptData;
+  const {
+    totals,
+    invoiceNumber,
+    method,
+    total,
+    tendered,
+    change,
+    rectificativa,
+    customer,
+  } = receiptData;
   const isRect = !!rectificativa;
   const t = tenant.get();
   const lines: PrintLine[] = [];
@@ -137,6 +145,7 @@ function buildReceipt(receiptData: {
       lines.push(emptyLine());
     }
     lines.push(textLine(t.name, { align: "CT", fontSize: "big", style: "B" }));
+    if (t.nif) lines.push(textLine(`NIF: ${t.nif}`, { align: "CT" }));
     lines.push(textLine(t.street, { align: "CT" }));
     lines.push(textLine(`${t.postcode} ${t.city}`, { align: "CT" }));
   }
@@ -184,9 +193,11 @@ function buildReceipt(receiptData: {
 
   if (isRect) {
     lines.push(textLine(`Rectificativa: #${invoiceNumber}`));
-    lines.push(textLine(`Factura original: #${rectificativa.originalInvoiceNumber}`));
+    lines.push(
+      textLine(`Factura original: #${rectificativa.originalInvoiceNumber}`),
+    );
   } else {
-    lines.push(textLine(`Ticket: #${invoiceNumber}`));
+    lines.push(textLine(`Ticket: ${invoiceNumber}`));
   }
   lines.push(textLine(`Fecha:  ${fecha}`));
   lines.push(emptyLine());
@@ -280,7 +291,8 @@ function buildReceipt(receiptData: {
   // Payment
   lines.push(separatorLine());
   if (isRect) {
-    const label = method === "cash" ? "Devolución en efectivo" : "Devolución por tarjeta";
+    const label =
+      method === "cash" ? "Devolución en efectivo" : "Devolución por tarjeta";
     lines.push(twoColTable(label, `${total} EUR`));
   } else if (method === "cash") {
     lines.push(twoColTable("Efectivo", tendered));
@@ -362,6 +374,7 @@ export async function printInvoice(
 
   // Map InvoiceItems → CartTotalsItems
   const items = (invoice.items ?? []).map((item) => ({
+    productId: item.product_id ?? "",
     productName: item.product_name,
     quantity: item.quantity,
     priceGrossUnit: item.price_gross_unit,

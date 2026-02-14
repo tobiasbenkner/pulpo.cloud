@@ -23,6 +23,7 @@ export type OpeningHour = {
 export type Tenant = {
   id: string;
   name: string;
+  nif: string | null;
   street: string;
   postcode: string;
   city: string;
