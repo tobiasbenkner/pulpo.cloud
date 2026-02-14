@@ -6,12 +6,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This app is part of the `pulpo.cloud` pnpm monorepo. Run commands from the monorepo root or use the filter flag.
 
-| Command | Description |
-|---------|-------------|
-| `pnpm --filter @pulpo/shop dev` | Start dev server (Astro) |
-| `pnpm --filter @pulpo/shop build` | Build for production |
-| `pnpm --filter @pulpo/shop preview` | Preview production build |
-| `pnpm check-types` | TypeScript type checking (monorepo-wide) |
+| Command                             | Description                              |
+| ----------------------------------- | ---------------------------------------- |
+| `pnpm --filter @pulpo/shop dev`     | Start dev server (Astro)                 |
+| `pnpm --filter @pulpo/shop build`   | Build for production                     |
+| `pnpm --filter @pulpo/shop preview` | Preview production build                 |
+| `pnpm check-types`                  | TypeScript type checking (monorepo-wide) |
 
 No test framework is configured for this app.
 
@@ -50,6 +50,7 @@ Components use Svelte 5 runes (`$state`, `$derived`, `$props`). The `svelte.conf
 IGIC (Canary Islands) tax system with dynamic rates loaded from Directus CMS.
 
 **Tax Classes** (`TaxClassCode` in `types/shop.ts`):
+
 - `STD` (7%) — Standard IGIC rate
 - `RED` (3%) — Reduced rate
 - `INC` (9.5%) — Incrementado rate
@@ -58,6 +59,7 @@ IGIC (Canary Islands) tax system with dynamic rates loaded from Directus CMS.
 - `ZERO` (0%) — Zero-rated / exempt
 
 **How rates are determined:**
+
 1. At app start, `productStore.loadProducts()` triggers `taxStore.loadTaxRates(postcode)`
 2. The postcode comes from `PUBLIC_TENANT_POSTCODE` env var (e.g. `35001`)
 3. `getTaxRulesForPostcode()` in `@pulpo/cms` loads all `tax_zones` sorted by priority, matches the postcode against each zone's regex, then loads `tax_rules` for the matched zone
@@ -65,6 +67,7 @@ IGIC (Canary Islands) tax system with dynamic rates loaded from Directus CMS.
 5. If the API call fails, `taxRates` remains empty and all rates default to `"0"` via `rates[item.taxClass] ?? "0"`
 
 **CMS Collections** (Directus):
+
 - `tax_classes` — Tax class definitions with `code` (e.g. `STD`, `RED`)
 - `tax_zones` — Geographic zones with `regex` for postcode matching and `priority` for ordering
 - `tax_rules` — Links a `tax_zone_id` + `tax_class_id` to a `rate` and `surcharge`
@@ -73,16 +76,17 @@ IGIC (Canary Islands) tax system with dynamic rates loaded from Directus CMS.
 
 All monetary values and tax rates flow as **strings** from DB to frontend. No `number` type for decimals anywhere in the chain.
 
-| Layer | Type | Example |
-|-------|------|---------|
-| Directus DB | `decimal(19,x)` | `"3.5000"` |
-| CMS types (`@pulpo/cms`) | `string` | `"3.5000"` |
-| Shop stores | `string` | `"3.5000"` |
-| Arithmetic | `big.js` (`Big`) | full precision |
-| Output / DB write | `string` via `.toFixed(n)` | `"3.27102804"` |
-| UI display | `string` via `.toFixed(2)` | `"3.50"` |
+| Layer                    | Type                       | Example        |
+| ------------------------ | -------------------------- | -------------- |
+| Directus DB              | `decimal(19,x)`            | `"3.5000"`     |
+| CMS types (`@pulpo/cms`) | `string`                   | `"3.5000"`     |
+| Shop stores              | `string`                   | `"3.5000"`     |
+| Arithmetic               | `big.js` (`Big`)           | full precision |
+| Output / DB write        | `string` via `.toFixed(n)` | `"3.27102804"` |
+| UI display               | `string` via `.toFixed(2)` | `"3.50"`       |
 
 DB field precisions:
+
 - `price_gross`: `decimal(19,4)` → `.toFixed(4)`
 - `price_net_unit_precise`, `row_total_net_precise`: `decimal(19,8)` → `.toFixed(8)`
 - `row_total_gross`: `decimal(19,2)` → `.toFixed(2)`
@@ -103,16 +107,19 @@ All arithmetic uses `big.js` for precision (20 decimal places internally). Price
 ### Discounts
 
 Two levels, both support `"percent"` or `"fixed"` types:
+
 - **Item-level**: Stored as `CartItem.discount`, applied before subtotal
 - **Global**: Stored in `globalDiscount` atom, applied to the subtotal
 
 ### Invoice System
 
 **Transaction types** (determined by customer presence):
+
 - No customer selected → `"ticket"` (simplified receipt)
 - Customer selected → `"invoice"` (full invoice with customer data)
 
 **Invoice structure** (Directus `invoices` collection, all monetary fields are `string`):
+
 - `Invoice`: header with `total_net`, `total_tax`, `total_gross`, `invoice_number`, `tenant`, `status` (`draft`/`paid`/`cancelled`), VeriFactu fields (`previous_record_hash`, `chain_hash`, `qr_url`, `generation_date`). `invoice_number` and VeriFactu fields are generated server-side via Directus hooks/flows.
 - `InvoiceItem`: per-line with `product_id`, `quantity`, `price_gross_unit` (19,4), `price_net_unit_precise` (19,8), `row_total_net_precise` (19,8), `row_total_gross` (19,2), `tax_rate_snapshot` (5,2 as percentage), `discount_type`, `discount_value`. Data comes from `cartTotals.items`.
 - `InvoicePayment`: payment method (`cash`/`card`), `amount`, `tendered`, `change`, `tip`
@@ -141,6 +148,31 @@ All print paths use a single `printInvoice(invoice: Invoice)` function in `print
 
 Carts can be parked (saved) and restored later. A `ParkedCart` stores all `cartItems`, the `customer`, and the `globalDiscount` so the full state is preserved.
 
+### Cash Register & Closures (`registerStore.ts`)
+
+The register must be opened before sales can happen. `ShopApp.svelte` renders `OpenRegister` when closed, `ProductGrid` when open.
+
+**State** (persistent): `isRegisterOpen`, `currentClosureId`, `startingCash`, `periodStart`
+
+**Lifecycle**:
+
+1. `openRegister(startAmount)` — creates a `register_closures` record in Directus, stores the closure ID
+2. Sales accumulate against the open closure
+3. `generateClosureReport()` — fetches shift invoices, aggregates totals + tax breakdown into `ClosureReport`
+4. `finalizeClosure(countedCash, denominationCount)` — closes the shift (server calculates expected cash, stores difference)
+5. `syncRegisterState()` — on app boot, reconciles localStorage with backend (restores open closure if state was lost)
+
+**Rectificativa** (corrective invoice): `createRectificativa()` creates a negative invoice referencing the original. `swapPaymentMethod()` changes cash ↔ card on an existing invoice.
+
+### Component Patterns
+
+**Two types of modals coexist:**
+
+- **Astro modals** (`CheckoutModal.astro`, `DiscountModal.astro`): Static HTML always in DOM (`display: hidden`), toggled via `<script>` blocks that subscribe to nanostores. Use CSS transitions (opacity/scale).
+- **Svelte modals** (`CashClosureModal.svelte`, `ShiftInvoicesModal.svelte`): Standard Svelte components with `$state` visibility. Use `{#if}` blocks.
+
+**Nanostore → Svelte reactivity pattern**: All components use manual `.subscribe()` in `onMount`, assigning to `$state` variables. The subscription is cleaned up in the returned teardown function. This is the standard bridge between nanostores and Svelte 5 runes.
+
 ### Environment Variables
 
 - `PUBLIC_TENANT_POSTCODE` — Tenant postcode for tax zone lookup (e.g. `35001`)
@@ -148,5 +180,4 @@ Carts can be parked (saved) and restored later. A `ParkedCart` stores all `cartI
 
 ### Missing Features
 
-- Rectificativa (invoice correction)
 - Customer assignment to invoices

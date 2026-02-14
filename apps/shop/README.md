@@ -11,13 +11,6 @@ Funktioniert bereits
 - Freier Betrag (CustomAmountModal)
 - Letzter Wechselgeld-Widget mit Methodentausch
 
-Fehlt noch
-
-1. Invoice-Persistierung (Backend-Integration)
-   completeTransaction() speichert nur lokal in localStorage. Die createInvoice() API aus @pulpo/cms wird nirgends aufgerufen. D.h. Rechnungen/Tickets landen nie in Directus.
-
-2. Rectificativa (Rechnungskorrektur)
-   Kein Code fuer Stornos, Retouren oder Korrekturrechnungen vorhanden.
 
 3. Caja cerrar (Tagesabschluss)
    Kein Kassenschluss, kein Schichtmanagement, keine Z-/X-Berichte, keine Tagesuebersicht.
