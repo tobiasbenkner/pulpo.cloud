@@ -7,7 +7,6 @@
     loadProducts,
   } from "../stores/productStore";
   import {
-    isCustomAmountOpen,
     isCustomerModalOpen,
     customerModalMode,
   } from "../stores/cartStore";
@@ -24,7 +23,6 @@
     Lock,
     FileText,
     LogOut,
-    Plus,
     Users,
     BarChart3,
     ChartLine,
@@ -61,10 +59,6 @@
 
   function selectCategory(cat: string) {
     selectedCategory = cat;
-  }
-
-  function openCustomAmount() {
-    isCustomAmountOpen.set(true);
   }
 
   function openClosureModal() {
@@ -208,26 +202,6 @@
       <div
         class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 pb-20"
       >
-        <!-- BUTTON: FREIER BETRAG -->
-        <button
-          class="group flex flex-col h-full bg-zinc-50 rounded-2xl border-2 border-dashed border-zinc-300 overflow-hidden active:scale-95 active:bg-zinc-100 active:border-zinc-400 text-left hover:border-zinc-400 hover:bg-zinc-100 transition-all min-h-[140px]"
-          onclick={openCustomAmount}
-        >
-          <div
-            class="flex-1 flex flex-col items-center justify-center p-4 text-zinc-400 group-hover:text-zinc-600"
-          >
-            <div
-              class="w-12 h-12 rounded-full bg-zinc-200 group-hover:bg-zinc-300 flex items-center justify-center mb-2 transition-colors"
-            >
-              <Plus class="w-6 h-6" />
-            </div>
-            <span class="font-bold text-xs uppercase tracking-wide text-center"
-              >Importe<br />libre</span
-            >
-          </div>
-        </button>
-
-        <!-- PRODUKTE -->
         {#each filteredProducts as product (product.id)}
           <ProductCard {product} />
         {/each}

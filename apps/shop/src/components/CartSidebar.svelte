@@ -6,6 +6,7 @@
     isPaymentModalOpen,
     isDiscountModalOpen,
     isCustomerModalOpen,
+    isCustomAmountOpen,
     customerModalMode,
     globalDiscount,
     selectedCustomer,
@@ -24,7 +25,7 @@
   import type { ParkedCart } from "../stores/cartStore";
   import Big from "big.js";
   import LastChangeWidget from "./LastChangeWidget.svelte";
-  import { SquareParking, UserRound, X as XIcon } from "lucide-svelte";
+  import { SquareParking, UserRound, Plus, X as XIcon } from "lucide-svelte";
 
   let items = $state<Record<string, CartItem>>({});
   let totals = $state<CartTotals>({
@@ -493,28 +494,37 @@
 
       <!-- 2. Bereich: Gro\u00DFe Buttons -->
       <div class="flex flex-col gap-3">
-        <!-- Rabatt Button -->
-        <button
-          onclick={() => isDiscountModalOpen.set({ itemId: "GLOBAL" })}
-          class="w-full py-3 rounded-xl border-2 font-bold text-sm transition-all flex items-center justify-center gap-2 active:scale-[0.98] {hasDiscount
-            ? 'border-solid border-orange-200 bg-orange-50 text-orange-700 hover:bg-orange-100'
-            : 'border-dashed border-zinc-300 text-zinc-500 hover:border-zinc-400 hover:bg-zinc-100 hover:text-zinc-800'}"
-        >
-          <svg
-            class="w-4 h-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
+        <!-- Descuento + Importe libre -->
+        <div class="flex gap-2">
+          <button
+            onclick={() => isDiscountModalOpen.set({ itemId: "GLOBAL" })}
+            class="flex-1 py-3 rounded-xl border-2 font-bold text-sm transition-all flex items-center justify-center gap-2 active:scale-[0.98] {hasDiscount
+              ? 'border-solid border-orange-200 bg-orange-50 text-orange-700 hover:bg-orange-100'
+              : 'border-dashed border-zinc-300 text-zinc-500 hover:border-zinc-400 hover:bg-zinc-100 hover:text-zinc-800'}"
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
-            />
-          </svg>
-          <span>{hasDiscount ? "Editar descuento" : "Descuento"}</span>
-        </button>
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+              />
+            </svg>
+            <span>{hasDiscount ? "Descuento" : "Descuento"}</span>
+          </button>
+          <button
+            class="flex-1 py-3 rounded-xl border-2 border-dashed border-zinc-300 text-zinc-500 hover:border-zinc-400 hover:bg-zinc-100 hover:text-zinc-800 font-bold text-sm transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
+            onclick={() => isCustomAmountOpen.set(true)}
+          >
+            <Plus class="w-4 h-4" />
+            <span>Libre</span>
+          </button>
+        </div>
 
         <!-- Kunde -->
         <button
@@ -533,7 +543,10 @@
           {#if customer}
             <button
               class="ml-1 p-0.5 rounded-full hover:bg-blue-200 transition-colors"
-              onclick={(e) => { e.stopPropagation(); setCustomer(null); }}
+              onclick={(e) => {
+                e.stopPropagation();
+                setCustomer(null);
+              }}
               title="Quitar cliente"
             >
               <XIcon class="w-5 h-5" />
