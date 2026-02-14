@@ -19,6 +19,14 @@ export async function createInvoice(
     | "invoice_number"
     | "tenant"
     | "closure_id"
+    | "customer_id"
+    | "customer_name"
+    | "customer_nif"
+    | "customer_street"
+    | "customer_zip"
+    | "customer_city"
+    | "customer_email"
+    | "customer_phone"
     | "previous_record_hash"
     | "chain_hash"
     | "qr_url"
@@ -29,6 +37,14 @@ export async function createInvoice(
     | "items"
     | "payments"
   > & {
+    customer_id?: string | null;
+    customer_name?: string | null;
+    customer_nif?: string | null;
+    customer_street?: string | null;
+    customer_zip?: string | null;
+    customer_city?: string | null;
+    customer_email?: string | null;
+    customer_phone?: string | null;
     items: Omit<InvoiceItem, "id" | "invoice_id">[];
     payments: Omit<InvoicePayment, "id" | "date_created" | "invoice_id">[];
   },

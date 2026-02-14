@@ -3,7 +3,7 @@ import Layout from "../layouts/Layout.astro";
 import CartSidebar from "../components/CartSidebar.svelte";
 import CheckoutModal from "../components/CheckoutModal.astro";
 import CustomAmountModal from "../components/CustomAmountModal.astro";
-import CustomerModal from "../components/CustomerModal.astro";
+import CustomerModal from "../components/CustomerModal.svelte";
 import DiscountModal from "../components/DiscountModal.astro";
 import QuantityModal from "../components/QuantityModal.astro";
 import CashClosureModal from "../components/CashClosureModal.svelte";
@@ -21,7 +21,7 @@ import ShopApp from "../components/ShopApp.svelte";
   <!-- Modals -->
   <CheckoutModal />
   <CustomAmountModal />
-  <CustomerModal />
+  <CustomerModal client:only="svelte" />
   <DiscountModal />
   <QuantityModal />
   <CashClosureModal client:only="svelte" />

@@ -370,6 +370,7 @@
   import {
     isPaymentModalOpen,
     isCustomerModalOpen,
+    customerModalMode,
     cartTotals,
     completeTransaction,
     selectedCustomer,
@@ -552,9 +553,10 @@
   });
 
   // --- CUSTOMER & TOTALS ---
-  customerSelector?.addEventListener("click", () =>
-    isCustomerModalOpen.set(true),
-  );
+  customerSelector?.addEventListener("click", () => {
+    customerModalMode.set("select");
+    isCustomerModalOpen.set(true);
+  });
 
   selectedCustomer.subscribe((cust) => {
     if (cust) {

@@ -2569,7 +2569,7 @@ fields:
       translations: null
       validation: null
       validation_message: null
-      width: full
+      width: half
     schema:
       name: tenant
       table: customers
@@ -2578,7 +2578,7 @@ fields:
       max_length: null
       numeric_precision: null
       numeric_scale: null
-      is_nullable: true
+      is_nullable: false
       is_unique: false
       is_indexed: false
       is_primary_key: false
@@ -2604,46 +2604,6 @@ fields:
       readonly: false
       required: false
       searchable: true
-      sort: 4
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      name: nif
-      table: customers
-      data_type: character varying
-      default_value: null
-      max_length: 255
-      numeric_precision: null
-      numeric_scale: null
-      is_nullable: true
-      is_unique: false
-      is_indexed: false
-      is_primary_key: false
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: null
-      foreign_key_column: null
-  - collection: customers
-    field: zip_code
-    type: string
-    meta:
-      collection: customers
-      conditions: null
-      display: null
-      display_options: null
-      field: zip_code
-      group: null
-      hidden: false
-      interface: input
-      note: null
-      options: null
-      readonly: false
-      required: false
-      searchable: true
       sort: 5
       special: null
       translations: null
@@ -2651,7 +2611,7 @@ fields:
       validation_message: null
       width: full
     schema:
-      name: zip_code
+      name: nif
       table: customers
       data_type: character varying
       default_value: null
@@ -2684,7 +2644,7 @@ fields:
       readonly: false
       required: false
       searchable: true
-      sort: 6
+      sort: 12
       special:
         - cast-boolean
       translations: null
@@ -2695,6 +2655,286 @@ fields:
       name: apply_surcharge
       table: customers
       data_type: boolean
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: customers
+    field: name
+    type: string
+    meta:
+      collection: customers
+      conditions: null
+      display: null
+      display_options: null
+      field: name
+      group: null
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: true
+      searchable: true
+      sort: 4
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: name
+      table: customers
+      data_type: character varying
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: customers
+    field: street
+    type: string
+    meta:
+      collection: customers
+      conditions: null
+      display: null
+      display_options: null
+      field: street
+      group: null
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: false
+      searchable: true
+      sort: 6
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: street
+      table: customers
+      data_type: character varying
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: customers
+    field: city
+    type: string
+    meta:
+      collection: customers
+      conditions: null
+      display: null
+      display_options: null
+      field: city
+      group: null
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: false
+      searchable: true
+      sort: 7
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: city
+      table: customers
+      data_type: character varying
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: customers
+    field: zip
+    type: string
+    meta:
+      collection: customers
+      conditions: null
+      display: null
+      display_options: null
+      field: zip
+      group: null
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: false
+      searchable: true
+      sort: 8
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: zip
+      table: customers
+      data_type: character varying
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: customers
+    field: email
+    type: string
+    meta:
+      collection: customers
+      conditions: null
+      display: null
+      display_options: null
+      field: email
+      group: null
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: false
+      searchable: true
+      sort: 9
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: email
+      table: customers
+      data_type: character varying
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: customers
+    field: phone
+    type: string
+    meta:
+      collection: customers
+      conditions: null
+      display: null
+      display_options: null
+      field: phone
+      group: null
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: false
+      searchable: true
+      sort: 10
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: phone
+      table: customers
+      data_type: character varying
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: customers
+    field: notes
+    type: text
+    meta:
+      collection: customers
+      conditions: null
+      display: null
+      display_options: null
+      field: notes
+      group: null
+      hidden: false
+      interface: input-multiline
+      note: null
+      options: null
+      readonly: false
+      required: false
+      searchable: true
+      sort: 11
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: notes
+      table: customers
+      data_type: text
       default_value: null
       max_length: null
       numeric_precision: null
@@ -4364,7 +4604,7 @@ fields:
       translations: null
       validation: null
       validation_message: null
-      width: full
+      width: half
     schema:
       name: date_created
       table: invoices
@@ -4399,7 +4639,7 @@ fields:
       readonly: false
       required: true
       searchable: true
-      sort: 5
+      sort: 6
       special: null
       translations: null
       validation: null
@@ -4565,7 +4805,7 @@ fields:
       translations: null
       validation: null
       validation_message: null
-      width: full
+      width: half
     schema:
       name: tenant
       table: invoices
@@ -4917,7 +5157,7 @@ fields:
       readonly: false
       required: false
       searchable: true
-      sort: 6
+      sort: 7
       special:
         - alias
         - no-data
@@ -4936,20 +5176,20 @@ fields:
       display_options: null
       field: closure_id
       group: null
-      hidden: false
+      hidden: true
       interface: select-dropdown-m2o
       note: null
       options: null
       readonly: false
       required: true
       searchable: true
-      sort: 4
+      sort: 5
       special:
         - m2o
       translations: null
       validation: null
       validation_message: null
-      width: full
+      width: half
     schema:
       name: closure_id
       table: invoices
@@ -5101,12 +5341,12 @@ fields:
       readonly: false
       required: true
       searchable: true
-      sort: 7
+      sort: 4
       special: null
       translations: null
       validation: null
       validation_message: null
-      width: full
+      width: half
     schema:
       name: invoice_type
       table: invoices
@@ -5133,7 +5373,7 @@ fields:
       display: null
       display_options: null
       field: original_invoice_id
-      group: null
+      group: verifactu
       hidden: false
       interface: select-dropdown-m2o
       note: null
@@ -5141,7 +5381,7 @@ fields:
       readonly: false
       required: false
       searchable: true
-      sort: 8
+      sort: 5
       special:
         - m2o
       translations: null
@@ -5174,7 +5414,7 @@ fields:
       display: null
       display_options: null
       field: rectification_reason
-      group: null
+      group: verifactu
       hidden: false
       interface: input
       note: null
@@ -5182,7 +5422,7 @@ fields:
       readonly: false
       required: false
       searchable: true
-      sort: 9
+      sort: 6
       special: null
       translations: null
       validation: null
@@ -5190,6 +5430,353 @@ fields:
       width: full
     schema:
       name: rectification_reason
+      table: invoices
+      data_type: character varying
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: invoices
+    field: customer
+    type: alias
+    meta:
+      collection: invoices
+      conditions: null
+      display: null
+      display_options: null
+      field: customer
+      group: tabs
+      hidden: false
+      interface: group-raw
+      note: null
+      options: null
+      readonly: false
+      required: false
+      searchable: true
+      sort: 6
+      special:
+        - alias
+        - no-data
+        - group
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+  - collection: invoices
+    field: customer_id
+    type: uuid
+    meta:
+      collection: invoices
+      conditions: null
+      display: null
+      display_options: null
+      field: customer_id
+      group: customer
+      hidden: false
+      interface: select-dropdown-m2o
+      note: null
+      options: null
+      readonly: false
+      required: false
+      searchable: true
+      sort: 1
+      special:
+        - m2o
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: customer_id
+      table: invoices
+      data_type: uuid
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: customers
+      foreign_key_column: id
+  - collection: invoices
+    field: customer_name
+    type: string
+    meta:
+      collection: invoices
+      conditions: null
+      display: null
+      display_options: null
+      field: customer_name
+      group: customer
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: false
+      searchable: true
+      sort: 3
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: customer_name
+      table: invoices
+      data_type: character varying
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: invoices
+    field: customer_nif
+    type: string
+    meta:
+      collection: invoices
+      conditions: null
+      display: null
+      display_options: null
+      field: customer_nif
+      group: customer
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: false
+      searchable: true
+      sort: 2
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: customer_nif
+      table: invoices
+      data_type: character varying
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: invoices
+    field: customer_street
+    type: string
+    meta:
+      collection: invoices
+      conditions: null
+      display: null
+      display_options: null
+      field: customer_street
+      group: customer
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: false
+      searchable: true
+      sort: 4
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: customer_street
+      table: invoices
+      data_type: character varying
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: invoices
+    field: customer_zip
+    type: string
+    meta:
+      collection: invoices
+      conditions: null
+      display: null
+      display_options: null
+      field: customer_zip
+      group: customer
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: false
+      searchable: true
+      sort: 5
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: customer_zip
+      table: invoices
+      data_type: character varying
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: invoices
+    field: customer_city
+    type: string
+    meta:
+      collection: invoices
+      conditions: null
+      display: null
+      display_options: null
+      field: customer_city
+      group: customer
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: false
+      searchable: true
+      sort: 6
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: customer_city
+      table: invoices
+      data_type: character varying
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: invoices
+    field: customer_email
+    type: string
+    meta:
+      collection: invoices
+      conditions: null
+      display: null
+      display_options: null
+      field: customer_email
+      group: customer
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: false
+      searchable: true
+      sort: 7
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: customer_email
+      table: invoices
+      data_type: character varying
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: invoices
+    field: customer_phone
+    type: string
+    meta:
+      collection: invoices
+      conditions: null
+      display: null
+      display_options: null
+      field: customer_phone
+      group: customer
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: false
+      searchable: true
+      sort: 8
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: customer_phone
       table: invoices
       data_type: character varying
       default_value: null
@@ -10526,7 +11113,7 @@ relations:
       foreign_key_column: id
       constraint_name: customers_tenant_foreign
       on_update: NO ACTION
-      on_delete: SET NULL
+      on_delete: NO ACTION
   - collection: directus_files
     field: tenant
     related_collection: tenants
@@ -10821,6 +11408,27 @@ relations:
       constraint_name: invoices_original_invoice_id_foreign
       on_update: NO ACTION
       on_delete: NO ACTION
+  - collection: invoices
+    field: customer_id
+    related_collection: customers
+    meta:
+      junction_field: null
+      many_collection: invoices
+      many_field: customer_id
+      one_allowed_collections: null
+      one_collection: customers
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: null
+      sort_field: null
+    schema:
+      table: invoices
+      column: customer_id
+      foreign_key_table: customers
+      foreign_key_column: id
+      constraint_name: invoices_customer_id_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
   - collection: languages
     field: tenant
     related_collection: tenants

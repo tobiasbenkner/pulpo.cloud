@@ -61,10 +61,13 @@ export interface Customer {
   id: string;
   name: string;
   nif: string;
-  address: string;
-  zip: string;
-  city: string;
-  email?: string;
+  street: string | null;
+  zip: string | null;
+  city: string | null;
+  email: string | null;
+  phone: string | null;
+  notes: string | null;
+  date_created?: string;
 }
 
 export interface TransactionResult {

@@ -6,12 +6,12 @@
     error,
     loadProducts,
   } from "../stores/productStore";
-  import { isCustomAmountOpen } from "../stores/cartStore";
+  import { isCustomAmountOpen, isCustomerModalOpen, customerModalMode } from "../stores/cartStore";
   import { isClosureModalOpen, isShiftInvoicesModalOpen } from "../stores/registerStore";
   import ProductCard from "./ProductCard.svelte";
   import type { Product } from "../types/shop";
   import type { ShopCategory } from "../stores/productStore";
-  import { ShoppingBag, Lock, FileText, LogOut, Plus } from "lucide-svelte";
+  import { ShoppingBag, Lock, FileText, LogOut, Plus, Users } from "lucide-svelte";
 
   let selectedCategory = $state("Todos");
   let storeCategories = $state<ShopCategory[]>([]);
@@ -56,6 +56,12 @@
     menuOpen = false;
     isShiftInvoicesModalOpen.set(true);
   }
+
+  function openCustomerManagement() {
+    menuOpen = false;
+    customerModalMode.set("manage");
+    isCustomerModalOpen.set(true);
+  }
 </script>
 
 <main class="h-full flex flex-col relative overflow-hidden bg-zinc-50">
@@ -98,6 +104,13 @@
           >
             <FileText class="w-5 h-5 text-zinc-400" />
             <span class="font-medium">Facturas</span>
+          </button>
+          <button
+            class="w-full flex items-center gap-3 px-4 py-3 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors text-left"
+            onclick={openCustomerManagement}
+          >
+            <Users class="w-5 h-5 text-zinc-400" />
+            <span class="font-medium">Clientes</span>
           </button>
           <div class="border-t border-zinc-100 my-1"></div>
           <a

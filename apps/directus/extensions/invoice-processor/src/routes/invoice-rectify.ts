@@ -32,8 +32,13 @@ export function registerInvoiceRectify(
 
   router.post("/invoices/rectify", async (req, res) => {
     try {
-      const { original_invoice_id, reason, reason_detail, payment_method, items } =
-        req.body as RectifyBody;
+      const {
+        original_invoice_id,
+        reason,
+        reason_detail,
+        payment_method,
+        items,
+      } = req.body as RectifyBody;
 
       if (!original_invoice_id || !reason || !items?.length) {
         return res
@@ -84,7 +89,12 @@ export function registerInvoiceRectify(
           original_invoice_id: { _eq: original_invoice_id },
           invoice_type: { _eq: "rectificativa" },
         },
-        fields: ["id", "items.product_id", "items.product_name", "items.quantity"],
+        fields: [
+          "id",
+          "items.product_id",
+          "items.product_name",
+          "items.quantity",
+        ],
       });
 
       // Build map: "productId|productName" → already rectified qty (positive)
@@ -93,7 +103,10 @@ export function registerInvoiceRectify(
         for (const ri of (rect as any).items ?? []) {
           const key = `${ri.product_id ?? ""}|${ri.product_name}`;
           const prev = alreadyRectified.get(key) ?? 0;
-          alreadyRectified.set(key, prev + Math.abs(parseInt(String(ri.quantity))));
+          alreadyRectified.set(
+            key,
+            prev + Math.abs(parseInt(String(ri.quantity))),
+          );
         }
       }
 
@@ -102,8 +115,7 @@ export function registerInvoiceRectify(
       for (const reqItem of items) {
         const key = `${reqItem.product_id ?? ""}|${reqItem.product_name}`;
         const origItem = originalItems.find(
-          (oi: any) =>
-            `${oi.product_id ?? ""}|${oi.product_name}` === key,
+          (oi: any) => `${oi.product_id ?? ""}|${oi.product_name}` === key,
         );
         const origQty = origItem
           ? Math.abs(parseInt(String(origItem.quantity)))
@@ -184,7 +196,7 @@ export function registerInvoiceRectify(
         ? `${reason}: ${reason_detail}`
         : reason;
 
-      // 9. Create rectificativa
+      // 9. Create rectificativa (copy customer snapshot from original)
       const rectificativaId = await invoiceService.createOne({
         tenant,
         invoice_number,
@@ -198,6 +210,14 @@ export function registerInvoiceRectify(
         total_gross: totalGross.toFixed(2),
         discount_type: null,
         discount_value: null,
+        customer_id: original.customer_id ?? null,
+        customer_name: original.customer_name ?? null,
+        customer_nif: original.customer_nif ?? null,
+        customer_street: original.customer_street ?? null,
+        customer_zip: original.customer_zip ?? null,
+        customer_city: original.customer_city ?? null,
+        customer_email: original.customer_email ?? null,
+        customer_phone: original.customer_phone ?? null,
         items: { create: negatedItems },
         payments: {
           create: [

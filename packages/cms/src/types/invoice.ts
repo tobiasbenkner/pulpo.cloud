@@ -13,6 +13,15 @@ export interface Invoice {
   discount_type: "percent" | "fixed" | null;
   discount_value: string | null;
   closure_id: string | null;
+  // Customer
+  customer_id: string | null;
+  customer_name: string | null;
+  customer_nif: string | null;
+  customer_street: string | null;
+  customer_zip: string | null;
+  customer_city: string | null;
+  customer_email: string | null;
+  customer_phone: string | null;
   // VeriFactu
   previous_record_hash: string | null;
   chain_hash: string | null;

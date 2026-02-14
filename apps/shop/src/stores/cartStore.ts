@@ -68,6 +68,7 @@ export const globalDiscount = persistentAtom<{
 export const isPaymentModalOpen = atom<boolean>(false);
 export const isCustomAmountOpen = atom<boolean>(false);
 export const isCustomerModalOpen = atom<boolean>(false);
+export const customerModalMode = atom<"select" | "manage">("select");
 export const isDiscountModalOpen = atom<{ itemId: string | null }>({
   itemId: null,
 });
@@ -282,6 +283,14 @@ export const completeTransaction = async (
       total_gross: totals.gross,
       discount_type: totals.discountType,
       discount_value: totals.discountValue,
+      customer_id: customer?.id ?? null,
+      customer_name: customer?.name ?? null,
+      customer_nif: customer?.nif ?? null,
+      customer_street: customer?.street ?? null,
+      customer_zip: customer?.zip ?? null,
+      customer_city: customer?.city ?? null,
+      customer_email: customer?.email ?? null,
+      customer_phone: customer?.phone ?? null,
       items: totals.items.map((item) => ({
         product_id: item.productId,
         product_name: item.productName,

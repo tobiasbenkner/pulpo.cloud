@@ -18,6 +18,14 @@ export function registerInvoiceCreate(
         total_gross,
         discount_type,
         discount_value,
+        customer_id,
+        customer_name,
+        customer_nif,
+        customer_street,
+        customer_zip,
+        customer_city,
+        customer_email,
+        customer_phone,
         items,
         payments,
       } = req.body as {
@@ -27,6 +35,14 @@ export function registerInvoiceCreate(
         total_gross: string;
         discount_type?: "percent" | "fixed" | null;
         discount_value?: string | null;
+        customer_id?: string | null;
+        customer_name?: string | null;
+        customer_nif?: string | null;
+        customer_street?: string | null;
+        customer_zip?: string | null;
+        customer_city?: string | null;
+        customer_email?: string | null;
+        customer_phone?: string | null;
         items: Record<string, unknown>[];
         payments: Record<string, unknown>[];
       };
@@ -89,6 +105,14 @@ export function registerInvoiceCreate(
         total_gross,
         discount_type: discount_type ?? null,
         discount_value: discount_value ?? null,
+        customer_id: customer_id ?? null,
+        customer_name: customer_name ?? null,
+        customer_nif: customer_nif ?? null,
+        customer_street: customer_street ?? null,
+        customer_zip: customer_zip ?? null,
+        customer_city: customer_city ?? null,
+        customer_email: customer_email ?? null,
+        customer_phone: customer_phone ?? null,
         items: {
           create: items.map((item) => ({ ...item, tenant })),
         },

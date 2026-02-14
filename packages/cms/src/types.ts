@@ -8,3 +8,4 @@ export * from "./types/event";
 export * from "./types/products";
 export * from "./types/tax";
 export * from "./types/invoice";
+export * from "./types/customer";

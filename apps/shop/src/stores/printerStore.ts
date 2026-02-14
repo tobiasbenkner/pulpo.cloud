@@ -111,8 +111,15 @@ function buildReceipt(receiptData: {
   rectificativa?: {
     originalInvoiceNumber: string;
   };
+  customer?: {
+    name: string;
+    nif: string | null;
+    street: string | null;
+    zip: string | null;
+    city: string | null;
+  };
 }): PrintLine[] {
-  const { totals, invoiceNumber, method, total, tendered, change, rectificativa } =
+  const { totals, invoiceNumber, method, total, tendered, change, rectificativa, customer } =
     receiptData;
   const isRect = !!rectificativa;
   const t = tenant.get();
@@ -135,6 +142,19 @@ function buildReceipt(receiptData: {
   }
 
   lines.push(emptyLine());
+
+  // Customer data
+  if (customer) {
+    lines.push(separatorLine());
+    lines.push(textLine(`Cliente: ${customer.name}`, { style: "B" }));
+    if (customer.nif) lines.push(textLine(`NIF: ${customer.nif}`));
+    if (customer.street) lines.push(textLine(customer.street));
+    if (customer.zip || customer.city) {
+      const location = [customer.zip, customer.city].filter(Boolean).join(" ");
+      lines.push(textLine(location));
+    }
+    lines.push(emptyLine());
+  }
 
   // Rectificativa header
   if (isRect) {
@@ -309,6 +329,14 @@ export async function printReceipt(receiptData: {
   total: string;
   tendered: string;
   change: string;
+  rectificativa?: { originalInvoiceNumber: string };
+  customer?: {
+    name: string;
+    nif: string | null;
+    street: string | null;
+    zip: string | null;
+    city: string | null;
+  };
 }): Promise<void> {
   const document = buildReceipt(receiptData);
 
@@ -402,6 +430,15 @@ export async function printInvoice(
     rectificativa: isRect
       ? {
           originalInvoiceNumber: options?.originalInvoiceNumber ?? "—",
+        }
+      : undefined,
+    customer: invoice.customer_name
+      ? {
+          name: invoice.customer_name,
+          nif: invoice.customer_nif ?? null,
+          street: invoice.customer_street ?? null,
+          zip: invoice.customer_zip ?? null,
+          city: invoice.customer_city ?? null,
         }
       : undefined,
   });

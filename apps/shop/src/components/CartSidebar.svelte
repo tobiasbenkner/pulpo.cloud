@@ -5,7 +5,11 @@
     cartTotals,
     isPaymentModalOpen,
     isDiscountModalOpen,
+    isCustomerModalOpen,
+    customerModalMode,
     globalDiscount,
+    selectedCustomer,
+    setCustomer,
     addToCart,
     decreaseQuantity,
     parkCurrentCart,
@@ -15,11 +19,11 @@
     isQuantityModalOpen,
   } from "../stores/cartStore";
   import { isRegisterOpen } from "../stores/registerStore";
-  import type { CartItem, CartTotals } from "../types/shop";
+  import type { CartItem, CartTotals, Customer } from "../types/shop";
   import type { ParkedCart } from "../stores/cartStore";
   import Big from "big.js";
   import LastChangeWidget from "./LastChangeWidget.svelte";
-  import { SquareParking } from "lucide-svelte";
+  import { SquareParking, UserRound, X as XIcon } from "lucide-svelte";
 
   let items = $state<Record<string, CartItem>>({});
   let totals = $state<CartTotals>({
@@ -39,6 +43,7 @@
     null,
   );
   let registerOpen = $state(false);
+  let customer = $state<Customer | null>(null);
   let showParked = $state(false);
   let scrollTop = $state(0);
 
@@ -55,6 +60,7 @@
         if (Object.keys(v).length === 0) showParked = false;
       }),
       globalDiscount.subscribe((v) => (discount = v)),
+      selectedCustomer.subscribe((v) => (customer = v)),
       isRegisterOpen.subscribe((v) => (registerOpen = v)),
     ];
     return () => unsubs.forEach((u) => u());
@@ -505,6 +511,31 @@
             />
           </svg>
           <span>{hasDiscount ? "Editar descuento" : "Descuento"}</span>
+        </button>
+
+        <!-- Kunde -->
+        <button
+          class="w-full py-3 rounded-xl border-2 font-bold text-sm transition-all flex items-center justify-center gap-2 active:scale-[0.98] {customer
+            ? 'border-solid border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100'
+            : 'border-dashed border-zinc-300 text-zinc-500 hover:border-zinc-400 hover:bg-zinc-100 hover:text-zinc-800'}"
+          onclick={() => {
+            customerModalMode.set("select");
+            isCustomerModalOpen.set(true);
+          }}
+        >
+          <UserRound class="w-4 h-4" />
+          <span class="truncate">
+            {customer ? customer.name : "Cliente"}
+          </span>
+          {#if customer}
+            <button
+              class="ml-1 p-0.5 rounded-full hover:bg-blue-200 transition-colors"
+              onclick={(e) => { e.stopPropagation(); setCustomer(null); }}
+              title="Quitar cliente"
+            >
+              <XIcon class="w-5 h-5" />
+            </button>
+          {/if}
         </button>
 
         <!-- Checkout Button -->

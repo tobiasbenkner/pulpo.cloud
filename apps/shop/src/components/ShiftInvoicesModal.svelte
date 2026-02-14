@@ -279,6 +279,13 @@
                                 >
                               {/if}
                             </div>
+                            {#if inv.customer_name}
+                              <div
+                                class="text-[10px] text-blue-600 font-medium mt-0.5 truncate max-w-[180px]"
+                              >
+                                {inv.customer_name}
+                              </div>
+                            {/if}
                             <div
                               class="text-[10px] text-zinc-400 mt-0.5 truncate max-w-[180px]"
                             >
@@ -575,6 +582,43 @@
                                           {formatCurrency(inv.total_gross)} &euro;
                                         {/if}
                                       </span>
+                                    </div>
+                                  {/if}
+                                  {#if inv.customer_name}
+                                    <div
+                                      class="pt-1 border-t border-zinc-100 space-y-0.5"
+                                    >
+                                      <div
+                                        class="flex justify-between text-xs text-zinc-600"
+                                      >
+                                        <span class="font-medium"
+                                          >{inv.customer_name}</span
+                                        >
+                                        {#if inv.customer_nif}
+                                          <span class="text-zinc-400"
+                                            >NIF: {inv.customer_nif}</span
+                                          >
+                                        {/if}
+                                      </div>
+                                      {#if inv.customer_street || inv.customer_zip || inv.customer_city}
+                                        <div class="text-[11px] text-zinc-400">
+                                          {[
+                                            inv.customer_street,
+                                            [inv.customer_zip, inv.customer_city]
+                                              .filter(Boolean)
+                                              .join(" "),
+                                          ]
+                                            .filter(Boolean)
+                                            .join(", ")}
+                                        </div>
+                                      {/if}
+                                      {#if inv.customer_email || inv.customer_phone}
+                                        <div class="text-[11px] text-zinc-400">
+                                          {[inv.customer_email, inv.customer_phone]
+                                            .filter(Boolean)
+                                            .join(" · ")}
+                                        </div>
+                                      {/if}
                                     </div>
                                   {/if}
                                   {#if inv.rectification_reason}
