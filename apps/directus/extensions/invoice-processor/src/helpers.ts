@@ -1,13 +1,16 @@
 import type { EndpointContext } from "./types";
 
+export type InvoiceSeries = "ticket" | "factura" | "rectificativa";
+
 export function generateInvoiceNumber(
   tenantRecord: {
     invoice_prefix?: string;
     timezone?: string;
-    last_invoice_number?: number;
+    last_ticket_number?: number;
+    last_factura_number?: number;
     last_rectificativa_number?: number;
   },
-  options?: { rectificativa?: boolean },
+  series: InvoiceSeries = "ticket",
 ): { invoice_number: string; new_count: number } {
   const rawPrefix = tenantRecord.invoice_prefix;
   const timeZone = tenantRecord.timezone || "Europe/Madrid";
@@ -26,11 +29,13 @@ export function generateInvoiceNumber(
   const day = parts.find((p) => p.type === "day")!.value;
   const fullDateString = `${year}${month}${day}`;
 
-  // Counter — separate series for rectificativas
-  const isRect = options?.rectificativa ?? false;
-  const currentCount = isRect
-    ? tenantRecord.last_rectificativa_number || 0
-    : tenantRecord.last_invoice_number || 0;
+  // Counter — separate series for each type
+  const currentCount =
+    series === "rectificativa"
+      ? tenantRecord.last_rectificativa_number || 0
+      : series === "factura"
+        ? tenantRecord.last_factura_number || 0
+        : tenantRecord.last_ticket_number || 0;
   const newCount = currentCount + 1;
   const paddedCount = newCount.toString().padStart(4, "0");
 
@@ -49,9 +54,11 @@ export function generateInvoiceNumber(
     invoice_number = `${formatString}${paddedCount}`;
   }
 
-  // Prepend "R" for rectificativa
-  if (isRect) {
-    invoice_number = `R${invoice_number}`;
+  // Prepend series prefix
+  if (series === "rectificativa") {
+    invoice_number = `R-${invoice_number}`;
+  } else if (series === "factura") {
+    invoice_number = `F-${invoice_number}`;
   }
 
   return { invoice_number, new_count: newCount };

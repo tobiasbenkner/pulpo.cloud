@@ -152,20 +152,7 @@ function buildReceipt(receiptData: {
 
   lines.push(emptyLine());
 
-  // Customer data
-  if (customer) {
-    lines.push(separatorLine());
-    lines.push(textLine(`Cliente: ${customer.name}`, { style: "B" }));
-    if (customer.nif) lines.push(textLine(`NIF: ${customer.nif}`));
-    if (customer.street) lines.push(textLine(customer.street));
-    if (customer.zip || customer.city) {
-      const location = [customer.zip, customer.city].filter(Boolean).join(" ");
-      lines.push(textLine(location));
-    }
-    lines.push(emptyLine());
-  }
-
-  // Rectificativa header
+  // Factura / Rectificativa header
   if (isRect) {
     lines.push(
       textLine("RECTIFICATIVA", {
@@ -175,9 +162,18 @@ function buildReceipt(receiptData: {
       }),
     );
     lines.push(emptyLine());
+  } else if (customer) {
+    lines.push(
+      textLine("FACTURA", {
+        align: "CT",
+        fontSize: "big",
+        style: "B",
+      }),
+    );
+    lines.push(emptyLine());
   }
 
-  // Ticket / Rectificativa info
+  // Invoice number & date
   const now = new Date();
   const fecha =
     now.toLocaleDateString("es-ES", {
@@ -192,14 +188,28 @@ function buildReceipt(receiptData: {
     });
 
   if (isRect) {
-    lines.push(textLine(`Rectificativa: #${invoiceNumber}`));
+    lines.push(textLine(`Rectificativa: ${invoiceNumber}`));
     lines.push(
-      textLine(`Factura original: #${rectificativa.originalInvoiceNumber}`),
+      textLine(`Factura original: ${rectificativa.originalInvoiceNumber}`),
     );
   } else {
-    lines.push(textLine(`Ticket: ${invoiceNumber}`));
+    const label = customer ? "Factura" : "Ticket";
+    lines.push(textLine(`${label}: ${invoiceNumber}`));
   }
   lines.push(textLine(`Fecha:  ${fecha}`));
+
+  // Customer data
+  if (customer) {
+    lines.push(emptyLine());
+    lines.push(textLine(`Cliente: ${customer.name}`, { style: "B" }));
+    if (customer.nif) lines.push(textLine(`NIF: ${customer.nif}`));
+    if (customer.street) lines.push(textLine(customer.street));
+    if (customer.zip || customer.city) {
+      const location = [customer.zip, customer.city].filter(Boolean).join(" ");
+      lines.push(textLine(location));
+    }
+  }
+
   lines.push(emptyLine());
 
   // Items

@@ -5334,8 +5334,10 @@ fields:
       note: null
       options:
         choices:
-          - text: normal
-            value: normal
+          - text: ticket
+            value: ticket
+          - text: factura
+            value: factura
           - text: rectificativa
             value: rectificativa
       readonly: false
@@ -5351,7 +5353,7 @@ fields:
       name: invoice_type
       table: invoices
       data_type: character varying
-      default_value: normal
+      default_value: ticket
       max_length: 255
       numeric_precision: null
       numeric_scale: null
@@ -10677,47 +10679,6 @@ fields:
       foreign_key_table: null
       foreign_key_column: null
   - collection: tenants
-    field: last_invoice_number
-    type: integer
-    meta:
-      collection: tenants
-      conditions: null
-      display: null
-      display_options: null
-      field: last_invoice_number
-      group: invoices
-      hidden: false
-      interface: input
-      note: null
-      options:
-        min: 0
-      readonly: false
-      required: true
-      searchable: true
-      sort: 2
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      name: last_invoice_number
-      table: tenants
-      data_type: integer
-      default_value: 0
-      max_length: null
-      numeric_precision: 32
-      numeric_scale: 0
-      is_nullable: true
-      is_unique: false
-      is_indexed: false
-      is_primary_key: false
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: null
-      foreign_key_column: null
-  - collection: tenants
     field: invoices
     type: alias
     meta:
@@ -10807,7 +10768,7 @@ fields:
       readonly: false
       required: false
       searchable: true
-      sort: 4
+      sort: 5
       special: null
       translations: null
       validation: null
@@ -10847,7 +10808,7 @@ fields:
       readonly: false
       required: false
       searchable: true
-      sort: 5
+      sort: 6
       special:
         - file
       translations: null
@@ -10888,7 +10849,7 @@ fields:
       readonly: false
       required: false
       searchable: true
-      sort: 3
+      sort: 4
       special: null
       translations: null
       validation: null
@@ -10899,6 +10860,86 @@ fields:
       table: tenants
       data_type: integer
       default_value: null
+      max_length: null
+      numeric_precision: 32
+      numeric_scale: 0
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: tenants
+    field: last_ticket_number
+    type: integer
+    meta:
+      collection: tenants
+      conditions: null
+      display: null
+      display_options: null
+      field: last_ticket_number
+      group: invoices
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: false
+      searchable: true
+      sort: 2
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: last_ticket_number
+      table: tenants
+      data_type: integer
+      default_value: null
+      max_length: null
+      numeric_precision: 32
+      numeric_scale: 0
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: tenants
+    field: last_factura_number
+    type: integer
+    meta:
+      collection: tenants
+      conditions: null
+      display: null
+      display_options: null
+      field: last_factura_number
+      group: invoices
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: false
+      searchable: true
+      sort: 3
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: last_factura_number
+      table: tenants
+      data_type: integer
+      default_value: 0
       max_length: null
       numeric_precision: 32
       numeric_scale: 0

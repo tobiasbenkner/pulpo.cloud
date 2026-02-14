@@ -1,6 +1,10 @@
 import type { Router } from "express";
 import type { EndpointContext, ServiceConstructor } from "../types";
-import { getTenantFromUser, generateInvoiceNumber } from "../helpers";
+import {
+  getTenantFromUser,
+  generateInvoiceNumber,
+  type InvoiceSeries,
+} from "../helpers";
 
 export function registerInvoiceCreate(
   router: Router,
@@ -59,7 +63,7 @@ export function registerInvoiceCreate(
 
       const schema = await getSchema();
 
-      // 2. Read tenant to get invoice_prefix, timezone, last_invoice_number
+      // 2. Read tenant to get invoice_prefix, timezone, last_ticket_number
       const tenantService = new ItemsService("tenants", {
         schema,
         knex: database,
@@ -67,11 +71,16 @@ export function registerInvoiceCreate(
       const tenantRecord = (await tenantService.readOne(tenant)) as {
         invoice_prefix?: string;
         timezone?: string;
-        last_invoice_number?: number;
+        last_ticket_number?: number;
+        last_factura_number?: number;
       };
 
-      // 3. Generate invoice number
-      const { invoice_number, new_count } = generateInvoiceNumber(tenantRecord);
+      // 3. Determine series and generate invoice number
+      const series: InvoiceSeries = customer_id ? "factura" : "ticket";
+      const { invoice_number, new_count } = generateInvoiceNumber(
+        tenantRecord,
+        series,
+      );
 
       // 4. Find open closure for this tenant
       const closureService = new ItemsService("cash_register_closures", {
@@ -98,6 +107,7 @@ export function registerInvoiceCreate(
       const invoiceId = await invoiceService.createOne({
         tenant,
         invoice_number,
+        invoice_type: series,
         closure_id: closureId,
         status,
         total_net,
@@ -121,9 +131,10 @@ export function registerInvoiceCreate(
         },
       });
 
-      // 6. Update tenant's last_invoice_number
+      // 6. Update tenant's counter for the series
       await tenantService.updateOne(tenant, {
-        last_invoice_number: new_count,
+        [series === "factura" ? "last_factura_number" : "last_ticket_number"]:
+          new_count,
       });
 
       // 7. Decrement product stock (minimum 0)

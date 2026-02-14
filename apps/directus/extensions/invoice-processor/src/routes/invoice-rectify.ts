@@ -138,12 +138,12 @@ export function registerInvoiceRectify(
       const tenantRecord = (await tenantService.readOne(tenant)) as {
         invoice_prefix?: string;
         timezone?: string;
-        last_invoice_number?: number;
+        last_ticket_number?: number;
         last_rectificativa_number?: number;
       };
       const { invoice_number, new_count } = generateInvoiceNumber(
         tenantRecord,
-        { rectificativa: true },
+        "rectificativa",
       );
 
       // 4. Find open closure

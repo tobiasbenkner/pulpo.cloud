@@ -4,7 +4,7 @@ export interface Invoice {
   invoice_number: string;
   tenant: string;
   status: "draft" | "paid" | "cancelled" | "rectificada";
-  invoice_type: "normal" | "rectificativa";
+  invoice_type: "ticket" | "factura" | "rectificativa";
   original_invoice_id: string | null;
   rectification_reason: string | null;
   total_net: string;
