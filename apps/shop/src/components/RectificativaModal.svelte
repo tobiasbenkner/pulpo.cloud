@@ -79,8 +79,8 @@
     const alreadyRectified = new Map<string, number>();
     for (const other of allInvoices) {
       if (
-        (other as any).invoice_type !== "rectificativa" ||
-        (other as any).original_invoice_id !== inv.id
+        other.invoice_type !== "rectificativa" ||
+        other.original_invoice_id !== inv.id
       )
         continue;
       for (const ri of other.items ?? []) {
@@ -183,11 +183,9 @@
 
     try {
       const items = buildItemsPayload();
-      const reasonLabel =
-        RECTIFICATION_REASONS.find((r) => r.value === reason)?.label ?? reason;
       const result = await createRectificativa({
         original_invoice_id: invoice.id,
-        reason: reasonLabel,
+        reason: reason as string,
         reason_detail: reason === "otros" ? reasonDetail : undefined,
         payment_method: refundMethod,
         items,
@@ -279,9 +277,7 @@
 
           <div class="px-8 py-8">
             {#if view === "select"}
-              <h3
-                class="text-2xl font-bold text-center text-zinc-900 mb-1"
-              >
+              <h3 class="text-2xl font-bold text-center text-zinc-900 mb-1">
                 Rectificativa
               </h3>
               {#if invoice}
@@ -311,193 +307,188 @@
                   </button>
                 </div>
               {:else}
-
-              <!-- Reason dropdown -->
-              <div class="mb-4">
-                <label
-                  for="rect-reason"
-                  class="block text-sm font-medium text-zinc-700 mb-1"
-                  >Motivo <span class="text-red-400">*</span></label
-                >
-                <select
-                  id="rect-reason"
-                  class="w-full rounded-xl border border-zinc-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-300"
-                  bind:value={reason}
-                >
-                  <option value="" disabled>Seleccionar motivo...</option>
-                  {#each RECTIFICATION_REASONS as r}
-                    <option value={r.value}>{r.label}</option>
-                  {/each}
-                </select>
-              </div>
-
-              {#if reason === "otros"}
+                <!-- Reason dropdown -->
                 <div class="mb-4">
-                  <textarea
-                    class="w-full rounded-xl border border-zinc-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-300 resize-none"
-                    rows="2"
-                    placeholder="Descripción del motivo..."
-                    bind:value={reasonDetail}
-                  ></textarea>
+                  <label
+                    for="rect-reason"
+                    class="block text-sm font-medium text-zinc-700 mb-1"
+                    >Motivo <span class="text-red-400">*</span></label
+                  >
+                  <select
+                    id="rect-reason"
+                    class="w-full rounded-xl border border-zinc-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-300"
+                    bind:value={reason}
+                  >
+                    <option value="" disabled>Seleccionar motivo...</option>
+                    {#each RECTIFICATION_REASONS as r}
+                      <option value={r.value}>{r.label}</option>
+                    {/each}
+                  </select>
                 </div>
-              {/if}
 
-              <!-- Items list -->
-              <div class="mb-4">
-                <p
-                  class="text-xs font-medium text-zinc-400 uppercase tracking-wide mb-2"
-                >
-                  Posiciones
-                </p>
-                <div
-                  class="border border-zinc-200 rounded-xl overflow-hidden divide-y divide-zinc-100"
-                >
-                  {#each selectedItems as s, i}
-                    <div
-                      class="flex items-center gap-3 px-4 py-3 transition-colors {s.selected
-                        ? 'bg-white'
-                        : 'bg-zinc-50 opacity-50'}"
-                    >
-                      <!-- Checkbox -->
-                      <button
-                        class="w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors {s.selected
-                          ? 'border-zinc-700 bg-zinc-700 text-white'
-                          : 'border-zinc-300 bg-white'}"
-                        onclick={() => toggleItem(i)}
-                      >
-                        {#if s.selected}
-                          <Check class="w-3 h-3" />
-                        {/if}
-                      </button>
+                {#if reason === "otros"}
+                  <div class="mb-4">
+                    <textarea
+                      class="w-full rounded-xl border border-zinc-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-300 resize-none"
+                      rows="2"
+                      placeholder="Descripción del motivo..."
+                      bind:value={reasonDetail}
+                    ></textarea>
+                  </div>
+                {/if}
 
-                      <!-- Product info -->
-                      <div class="flex-1 min-w-0">
-                        <div
-                          class="text-sm text-zinc-800 font-medium truncate"
-                        >
-                          {s.item.product_name}
-                        </div>
-                        <div class="text-xs text-zinc-400">
-                          @ {formatCurrency(s.item.price_gross_unit)} &euro;
-                        </div>
-                      </div>
-
-                      <!-- Quantity controls -->
-                      {#if s.selected}
-                        <div
-                          class="flex items-center gap-1 shrink-0"
-                        >
-                          <button
-                            class="w-8 h-8 rounded-lg bg-zinc-100 text-zinc-600 flex items-center justify-center text-lg font-bold hover:bg-zinc-200 transition-colors disabled:opacity-30"
-                            disabled={s.quantity <= 1}
-                            onclick={() => adjustQuantity(i, -1)}
-                          >
-                            -
-                          </button>
-                          <span
-                            class="w-8 text-center text-sm font-bold tabular-nums"
-                            >{s.quantity}</span
-                          >
-                          <button
-                            class="w-8 h-8 rounded-lg bg-zinc-100 text-zinc-600 flex items-center justify-center text-lg font-bold hover:bg-zinc-200 transition-colors disabled:opacity-30"
-                            disabled={s.quantity >= s.maxQuantity}
-                            onclick={() => adjustQuantity(i, 1)}
-                          >
-                            +
-                          </button>
-                        </div>
-                      {/if}
-
-                      <!-- Row total -->
+                <!-- Items list -->
+                <div class="mb-4">
+                  <p
+                    class="text-xs font-medium text-zinc-400 uppercase tracking-wide mb-2"
+                  >
+                    Posiciones
+                  </p>
+                  <div
+                    class="border border-zinc-200 rounded-xl overflow-hidden divide-y divide-zinc-100"
+                  >
+                    {#each selectedItems as s, i}
                       <div
-                        class="text-sm font-bold tabular-nums text-right w-16 shrink-0"
+                        class="flex items-center gap-3 px-4 py-3 transition-colors {s.selected
+                          ? 'bg-white'
+                          : 'bg-zinc-50 opacity-50'}"
                       >
-                        {#if s.selected}
-                          {(() => {
-                            const ratio = new Big(s.quantity).div(
-                              s.maxQuantity,
-                            );
-                            return new Big(s.item.row_total_gross)
-                              .times(ratio)
-                              .toFixed(2);
-                          })()}
-                        {:else}
-                          <span class="text-zinc-300"
-                            >{formatCurrency(s.item.row_total_gross)}</span
+                        <!-- Checkbox -->
+                        <button
+                          class="w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors {s.selected
+                            ? 'border-zinc-700 bg-zinc-700 text-white'
+                            : 'border-zinc-300 bg-white'}"
+                          onclick={() => toggleItem(i)}
+                        >
+                          {#if s.selected}
+                            <Check class="w-3 h-3" />
+                          {/if}
+                        </button>
+
+                        <!-- Product info -->
+                        <div class="flex-1 min-w-0">
+                          <div
+                            class="text-sm text-zinc-800 font-medium truncate"
                           >
+                            {s.item.product_name}
+                          </div>
+                          <div class="text-xs text-zinc-400">
+                            @ {formatCurrency(s.item.price_gross_unit)} &euro;
+                          </div>
+                        </div>
+
+                        <!-- Quantity controls -->
+                        {#if s.selected}
+                          <div class="flex items-center gap-1 shrink-0">
+                            <button
+                              class="w-8 h-8 rounded-lg bg-zinc-100 text-zinc-600 flex items-center justify-center text-lg font-bold hover:bg-zinc-200 transition-colors disabled:opacity-30"
+                              disabled={s.quantity <= 1}
+                              onclick={() => adjustQuantity(i, -1)}
+                            >
+                              -
+                            </button>
+                            <span
+                              class="w-8 text-center text-sm font-bold tabular-nums"
+                              >{s.quantity}</span
+                            >
+                            <button
+                              class="w-8 h-8 rounded-lg bg-zinc-100 text-zinc-600 flex items-center justify-center text-lg font-bold hover:bg-zinc-200 transition-colors disabled:opacity-30"
+                              disabled={s.quantity >= s.maxQuantity}
+                              onclick={() => adjustQuantity(i, 1)}
+                            >
+                              +
+                            </button>
+                          </div>
                         {/if}
+
+                        <!-- Row total -->
+                        <div
+                          class="text-sm font-bold tabular-nums text-right w-16 shrink-0"
+                        >
+                          {#if s.selected}
+                            {(() => {
+                              const ratio = new Big(s.quantity).div(
+                                s.maxQuantity,
+                              );
+                              return new Big(s.item.row_total_gross)
+                                .times(ratio)
+                                .toFixed(2);
+                            })()}
+                          {:else}
+                            <span class="text-zinc-300"
+                              >{formatCurrency(s.item.row_total_gross)}</span
+                            >
+                          {/if}
+                        </div>
                       </div>
-                    </div>
-                  {/each}
+                    {/each}
+                  </div>
                 </div>
-              </div>
 
-              <!-- Payment method -->
-              <div class="mb-4">
-                <p
-                  class="text-xs font-medium text-zinc-400 uppercase tracking-wide mb-2"
-                >
-                  Devolución por
-                </p>
+                <!-- Payment method -->
+                <div class="mb-4">
+                  <p
+                    class="text-xs font-medium text-zinc-400 uppercase tracking-wide mb-2"
+                  >
+                    Devolución por
+                  </p>
+                  <div
+                    class="inline-flex rounded-xl border border-zinc-200 overflow-hidden text-sm font-bold"
+                  >
+                    <button
+                      class="flex items-center gap-2 px-4 py-2.5 transition-colors {refundMethod ===
+                      'cash'
+                        ? 'bg-emerald-100 text-emerald-700'
+                        : 'text-zinc-400 hover:bg-zinc-50 hover:text-zinc-600'}"
+                      onclick={() => (refundMethod = "cash")}
+                    >
+                      <HandCoins class="w-4 h-4" />
+                      Efectivo
+                    </button>
+                    <button
+                      class="flex items-center gap-2 px-4 py-2.5 border-l border-zinc-200 transition-colors {refundMethod ===
+                      'card'
+                        ? 'bg-blue-100 text-blue-700'
+                        : 'text-zinc-400 hover:bg-zinc-50 hover:text-zinc-600'}"
+                      onclick={() => (refundMethod = "card")}
+                    >
+                      <CreditCard class="w-4 h-4" />
+                      Tarjeta
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Refund total -->
                 <div
-                  class="inline-flex rounded-xl border border-zinc-200 overflow-hidden text-sm font-bold"
+                  class="flex items-center justify-between bg-red-50 rounded-xl px-4 py-3 mb-6"
                 >
-                  <button
-                    class="flex items-center gap-2 px-4 py-2.5 transition-colors {refundMethod ===
-                    'cash'
-                      ? 'bg-emerald-100 text-emerald-700'
-                      : 'text-zinc-400 hover:bg-zinc-50 hover:text-zinc-600'}"
-                    onclick={() => (refundMethod = "cash")}
+                  <span class="text-sm font-medium text-red-700"
+                    >Importe a devolver</span
                   >
-                    <HandCoins class="w-4 h-4" />
-                    Efectivo
+                  <span class="text-lg font-bold text-red-700 tabular-nums"
+                    >-{refundTotal} &euro;</span
+                  >
+                </div>
+
+                <!-- Actions -->
+                <div class="flex gap-3">
+                  <button
+                    class="flex-1 py-3 rounded-xl border border-zinc-200 text-zinc-600 font-medium hover:bg-zinc-50 transition-colors"
+                    onclick={closeModal}
+                  >
+                    Cancelar
                   </button>
                   <button
-                    class="flex items-center gap-2 px-4 py-2.5 border-l border-zinc-200 transition-colors {refundMethod ===
-                    'card'
-                      ? 'bg-blue-100 text-blue-700'
-                      : 'text-zinc-400 hover:bg-zinc-50 hover:text-zinc-600'}"
-                    onclick={() => (refundMethod = "card")}
+                    class="flex-1 py-3 rounded-xl bg-zinc-800 text-white font-medium hover:bg-zinc-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    disabled={!hasValidSelection}
+                    onclick={goToConfirm}
                   >
-                    <CreditCard class="w-4 h-4" />
-                    Tarjeta
+                    Continuar
                   </button>
                 </div>
-              </div>
-
-              <!-- Refund total -->
-              <div
-                class="flex items-center justify-between bg-red-50 rounded-xl px-4 py-3 mb-6"
-              >
-                <span class="text-sm font-medium text-red-700"
-                  >Importe a devolver</span
-                >
-                <span class="text-lg font-bold text-red-700 tabular-nums"
-                  >-{refundTotal} &euro;</span
-                >
-              </div>
-
-              <!-- Actions -->
-              <div class="flex gap-3">
-                <button
-                  class="flex-1 py-3 rounded-xl border border-zinc-200 text-zinc-600 font-medium hover:bg-zinc-50 transition-colors"
-                  onclick={closeModal}
-                >
-                  Cancelar
-                </button>
-                <button
-                  class="flex-1 py-3 rounded-xl bg-zinc-800 text-white font-medium hover:bg-zinc-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                  disabled={!hasValidSelection}
-                  onclick={goToConfirm}
-                >
-                  Continuar
-                </button>
-              </div>
               {/if}
             {:else if view === "confirm"}
-              <h3
-                class="text-2xl font-bold text-center text-zinc-900 mb-6"
-              >
+              <h3 class="text-2xl font-bold text-center text-zinc-900 mb-6">
                 Confirmar rectificativa
               </h3>
 
@@ -529,17 +520,13 @@
                 </div>
                 <div class="divide-y divide-zinc-50">
                   {#each selectedItems.filter((s) => s.selected) as s}
-                    <div
-                      class="flex items-center justify-between px-4 py-2"
-                    >
+                    <div class="flex items-center justify-between px-4 py-2">
                       <span class="text-sm text-zinc-700"
                         >{s.quantity}x {s.item.product_name}</span
                       >
                       <span class="text-sm font-medium tabular-nums">
                         -{(() => {
-                          const ratio = new Big(s.quantity).div(
-                            s.maxQuantity,
-                          );
+                          const ratio = new Big(s.quantity).div(s.maxQuantity);
                           return new Big(s.item.row_total_gross)
                             .times(ratio)
                             .toFixed(2);
@@ -562,12 +549,10 @@
               <div
                 class="flex items-start gap-3 bg-amber-50 rounded-xl px-4 py-3 mb-6"
               >
-                <AlertTriangle
-                  class="w-5 h-5 text-amber-500 shrink-0 mt-0.5"
-                />
+                <AlertTriangle class="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
                 <p class="text-sm text-amber-700">
-                  Esta acción es irreversible. Se creará una rectificativa
-                  y se ajustará el stock.
+                  Esta acción es irreversible. Se creará una rectificativa y se
+                  ajustará el stock.
                 </p>
               </div>
 

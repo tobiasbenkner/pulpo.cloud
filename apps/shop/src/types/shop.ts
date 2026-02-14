@@ -96,6 +96,25 @@ export const RECTIFICATION_REASONS: {
   { value: "otros", label: "Otros" },
 ];
 
+export function resolveRectificationReason(reason: string | null): string | null {
+  if (!reason) return null;
+  // Match by value: "devolucion_producto" → "Devolución de producto"
+  const byValue = RECTIFICATION_REASONS.find((r) => r.value === reason);
+  if (byValue) return byValue.label;
+  // Match by label (already resolved): "Devolución de producto" → keep as-is
+  const byLabel = RECTIFICATION_REASONS.find((r) => r.label === reason);
+  if (byLabel) return byLabel.label;
+  // "value: detail" or "label: detail"
+  const match = reason.match(/^(.+?):\s*(.+)$/);
+  if (match) {
+    const base =
+      RECTIFICATION_REASONS.find((r) => r.value === match[1]) ??
+      RECTIFICATION_REASONS.find((r) => r.label === match[1]);
+    if (base) return `${base.label}: ${match[2]}`;
+  }
+  return reason;
+}
+
 export interface ClosureReport {
   periodStart: string;
   periodEnd: string;

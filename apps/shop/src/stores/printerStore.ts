@@ -110,7 +110,6 @@ function buildReceipt(receiptData: {
   change: string;
   rectificativa?: {
     originalInvoiceNumber: string;
-    reason: string | null;
   };
 }): PrintLine[] {
   const { totals, invoiceNumber, method, total, tendered, change, rectificativa } =
@@ -170,9 +169,6 @@ function buildReceipt(receiptData: {
     lines.push(textLine(`Ticket: #${invoiceNumber}`));
   }
   lines.push(textLine(`Fecha:  ${fecha}`));
-  if (isRect && rectificativa.reason) {
-    lines.push(textLine(`Motivo: ${rectificativa.reason}`));
-  }
   lines.push(emptyLine());
 
   // Items
@@ -334,7 +330,7 @@ export async function printInvoice(
 ): Promise<void> {
   const ZERO = new Big(0);
   const HUNDRED = new Big(100);
-  const isRect = (invoice as any).invoice_type === "rectificativa";
+  const isRect = invoice.invoice_type === "rectificativa";
 
   // Map InvoiceItems → CartTotalsItems
   const items = (invoice.items ?? []).map((item) => ({
@@ -406,7 +402,6 @@ export async function printInvoice(
     rectificativa: isRect
       ? {
           originalInvoiceNumber: options?.originalInvoiceNumber ?? "—",
-          reason: invoice.rectification_reason ?? null,
         }
       : undefined,
   });

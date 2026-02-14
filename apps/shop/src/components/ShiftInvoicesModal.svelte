@@ -20,6 +20,7 @@
     EyeOff,
   } from "lucide-svelte";
   import RefundIcon from "./icons/RefundIcon.svelte";
+  import { resolveRectificationReason } from "../types/shop";
   import Big from "big.js";
 
   let isOpen = $state(false);
@@ -130,13 +131,13 @@
 
   function canRectify(inv: Invoice): boolean {
     return (
-      inv.status === "paid" && (inv as any).invoice_type !== "rectificativa"
+      inv.status === "paid" && inv.invoice_type !== "rectificativa"
     );
   }
 
   function handlePrint(inv: Invoice) {
-    if ((inv as any).invoice_type === "rectificativa") {
-      const originalId = (inv as any).original_invoice_id;
+    if (inv.invoice_type === "rectificativa") {
+      const originalId = inv.original_invoice_id;
       const original = invoices.find((i) => i.id === originalId);
       printInvoice(inv, {
         originalInvoiceNumber: original?.invoice_number ?? "—",
@@ -266,7 +267,7 @@
                               <span class="text-zinc-700 font-medium">
                                 {inv.invoice_number}
                               </span>
-                              {#if (inv as any).invoice_type === "rectificativa"}
+                              {#if inv.invoice_type === "rectificativa"}
                                 <span
                                   class="px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide bg-red-100 text-red-700 rounded"
                                   >RECT</span
@@ -576,14 +577,15 @@
                                       </span>
                                     </div>
                                   {/if}
-                                  {#if (inv as any).rectification_reason}
+                                  {#if inv.rectification_reason}
                                     <div
                                       class="flex justify-between text-xs text-zinc-500 pt-1 border-t border-zinc-100"
                                     >
                                       <span>Motivo</span>
                                       <span
-                                        >{(inv as any)
-                                          .rectification_reason}</span
+                                        >{resolveRectificationReason(
+                                          inv.rectification_reason,
+                                        )}</span
                                       >
                                     </div>
                                   {/if}
