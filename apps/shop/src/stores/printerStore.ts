@@ -108,9 +108,14 @@ function buildReceipt(receiptData: {
   total: string;
   tendered: string;
   change: string;
+  rectificativa?: {
+    originalInvoiceNumber: string;
+    reason: string | null;
+  };
 }): PrintLine[] {
-  const { totals, invoiceNumber, method, total, tendered, change } =
+  const { totals, invoiceNumber, method, total, tendered, change, rectificativa } =
     receiptData;
+  const isRect = !!rectificativa;
   const t = tenant.get();
   const lines: PrintLine[] = [];
 
@@ -132,7 +137,19 @@ function buildReceipt(receiptData: {
 
   lines.push(emptyLine());
 
-  // Ticket info
+  // Rectificativa header
+  if (isRect) {
+    lines.push(
+      textLine("RECTIFICATIVA", {
+        align: "CT",
+        fontSize: "big",
+        style: "B",
+      }),
+    );
+    lines.push(emptyLine());
+  }
+
+  // Ticket / Rectificativa info
   const now = new Date();
   const fecha =
     now.toLocaleDateString("es-ES", {
@@ -146,15 +163,23 @@ function buildReceipt(receiptData: {
       minute: "2-digit",
     });
 
-  lines.push(textLine(`Ticket: #${invoiceNumber}`));
+  if (isRect) {
+    lines.push(textLine(`Rectificativa: #${invoiceNumber}`));
+    lines.push(textLine(`Factura original: #${rectificativa.originalInvoiceNumber}`));
+  } else {
+    lines.push(textLine(`Ticket: #${invoiceNumber}`));
+  }
   lines.push(textLine(`Fecha:  ${fecha}`));
+  if (isRect && rectificativa.reason) {
+    lines.push(textLine(`Motivo: ${rectificativa.reason}`));
+  }
   lines.push(emptyLine());
 
   // Items
   lines.push(separatorLine());
   for (const item of totals.items) {
     const qty = parseInt(String(item.quantity), 10);
-    const prefix = `${String(qty).padStart(2)}x `;
+    const prefix = `${String(qty).padStart(isRect ? 3 : 2)}x `;
     const hasDiscount = !!(item.discountType && item.discountValue);
     const originalGross = new Big(item.priceGrossUnit).times(qty);
 
@@ -172,7 +197,7 @@ function buildReceipt(receiptData: {
           : `    Dto.`;
       lines.push(twoColTable(label, `-${discountAmount.toFixed(2)}`));
     }
-    if (qty > 1) {
+    if (Math.abs(qty) > 1) {
       lines.push(
         twoColTable(`    @ ${parseFloat(item.priceGrossUnit).toFixed(2)}`, ""),
       );
@@ -238,7 +263,10 @@ function buildReceipt(receiptData: {
 
   // Payment
   lines.push(separatorLine());
-  if (method === "cash") {
+  if (isRect) {
+    const label = method === "cash" ? "Devolución en efectivo" : "Devolución por tarjeta";
+    lines.push(twoColTable(label, `${total} EUR`));
+  } else if (method === "cash") {
     lines.push(twoColTable("Efectivo", tendered));
     if (parseFloat(change) > 0) {
       lines.push(twoColTable("Cambio", change));
@@ -249,7 +277,9 @@ function buildReceipt(receiptData: {
 
   // Footer
   lines.push(emptyLine());
-  lines.push(textLine("Gracias!", { align: "CT", style: "B" }));
+  if (!isRect) {
+    lines.push(textLine("Gracias!", { align: "CT", style: "B" }));
+  }
   lines.push(emptyLine());
 
   return lines;
@@ -298,9 +328,13 @@ export async function printReceipt(receiptData: {
   await sendPrintJob(job);
 }
 
-export async function printInvoice(invoice: Invoice): Promise<void> {
+export async function printInvoice(
+  invoice: Invoice,
+  options?: { originalInvoiceNumber?: string },
+): Promise<void> {
   const ZERO = new Big(0);
   const HUNDRED = new Big(100);
+  const isRect = (invoice as any).invoice_type === "rectificativa";
 
   // Map InvoiceItems → CartTotalsItems
   const items = (invoice.items ?? []).map((item) => ({
@@ -318,18 +352,18 @@ export async function printInvoice(invoice: Invoice): Promise<void> {
   // Tax breakdown: group by tax_rate_snapshot, sum tax per group
   const taxMap = new Map<string, Big>();
   for (const item of invoice.items ?? []) {
-    const rate = item.tax_rate_snapshot; // percentage string e.g. "7.00"
+    const rate = item.tax_rate_snapshot;
     const rowTax = new Big(item.row_total_gross).minus(
       new Big(item.row_total_net_precise),
     );
-    if (rowTax.gt(ZERO)) {
+    if (!rowTax.eq(ZERO)) {
       taxMap.set(rate, (taxMap.get(rate) ?? ZERO).plus(rowTax));
     }
   }
   const taxBreakdown = Array.from(taxMap.entries())
     .sort(([a], [b]) => new Big(a).cmp(new Big(b)))
     .map(([ratePct, amount]) => ({
-      rate: new Big(ratePct).div(HUNDRED).toString(), // "7.00" → "0.07"
+      rate: new Big(ratePct).div(HUNDRED).toString(),
       amount: amount.toFixed(2),
     }));
 
@@ -340,7 +374,6 @@ export async function printInvoice(invoice: Invoice): Promise<void> {
     if (invoice.discount_type === "fixed") {
       discountTotal = new Big(invoice.discount_value);
     } else {
-      // percent: subtotal = gross / (1 - pct/100), discount = subtotal - gross
       const pct = new Big(invoice.discount_value);
       const subtotal = gross.div(new Big(1).minus(pct.div(HUNDRED)));
       discountTotal = subtotal.minus(gross);
@@ -370,154 +403,13 @@ export async function printInvoice(invoice: Invoice): Promise<void> {
     total: invoice.total_gross,
     tendered: payment?.tendered ?? invoice.total_gross,
     change: payment?.change ?? "0.00",
+    rectificativa: isRect
+      ? {
+          originalInvoiceNumber: options?.originalInvoiceNumber ?? "—",
+          reason: invoice.rectification_reason ?? null,
+        }
+      : undefined,
   });
-}
-
-// --- RECTIFICATIVA ---
-
-export async function printRectificativa(
-  rectificativa: Invoice,
-  originalInvoiceNumber: string,
-  options?: { openDrawer?: boolean },
-): Promise<void> {
-  const ZERO = new Big(0);
-  const HUNDRED = new Big(100);
-
-  const t = tenant.get();
-  const lines: PrintLine[] = [];
-
-  // Header
-  if (t) {
-    if (t.invoice_image) {
-      const token = getStoredToken()?.access_token ?? "";
-      const url = imageUrl(t.invoice_image).replace(
-        "access_token=",
-        `access_token=${token}`,
-      );
-      lines.push({ ...DEFAULTS, type: "image", text: url, align: "CT" });
-      lines.push(emptyLine());
-    }
-    lines.push(textLine(t.name, { align: "CT", fontSize: "big", style: "B" }));
-    lines.push(textLine(t.street, { align: "CT" }));
-    lines.push(textLine(`${t.postcode} ${t.city}`, { align: "CT" }));
-  }
-
-  lines.push(emptyLine());
-
-  // Rectificativa info
-  lines.push(
-    textLine("RECTIFICATIVA", {
-      align: "CT",
-      fontSize: "big",
-      style: "B",
-    }),
-  );
-  lines.push(emptyLine());
-
-  const now = new Date();
-  const fecha =
-    now.toLocaleDateString("es-ES", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    }) +
-    " " +
-    now.toLocaleTimeString("es-ES", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-
-  lines.push(textLine(`Rectificativa: #${rectificativa.invoice_number}`));
-  lines.push(textLine(`Factura original: #${originalInvoiceNumber}`));
-  lines.push(textLine(`Fecha:  ${fecha}`));
-  if (rectificativa.rectification_reason) {
-    lines.push(textLine(`Motivo: ${rectificativa.rectification_reason}`));
-  }
-  lines.push(emptyLine());
-
-  // Items (negative quantities)
-  lines.push(separatorLine());
-  for (const item of rectificativa.items ?? []) {
-    const qty = parseInt(String(item.quantity), 10); // negative
-    const rowGross = new Big(item.row_total_gross); // negative
-    lines.push(
-      twoColTable(`${String(qty).padStart(3)}x ${item.product_name}`, rowGross.toFixed(2)),
-    );
-  }
-
-  lines.push(separatorLine());
-
-  // Total (negative)
-  lines.push(
-    twoColTable(
-      "TOTAL",
-      `${rectificativa.total_gross} EUR`,
-      "B",
-      "B",
-    ),
-  );
-  lines.push(emptyLine());
-
-  // Tax breakdown
-  const taxMap = new Map<string, Big>();
-  for (const item of rectificativa.items ?? []) {
-    const rate = item.tax_rate_snapshot;
-    const rowTax = new Big(item.row_total_gross).minus(
-      new Big(item.row_total_net_precise),
-    );
-    taxMap.set(rate, (taxMap.get(rate) ?? ZERO).plus(rowTax));
-  }
-
-  const netByRate = new Map<string, number>();
-  for (const item of rectificativa.items ?? []) {
-    const rate = item.tax_rate_snapshot;
-    const prev = netByRate.get(rate) ?? 0;
-    netByRate.set(rate, prev + parseFloat(item.row_total_net_precise));
-  }
-
-  for (const [ratePct, taxAmount] of Array.from(taxMap.entries()).sort(
-    ([a], [b]) => new Big(a).cmp(new Big(b)),
-  )) {
-    const pct = parseFloat(ratePct).toFixed(0);
-    const base = netByRate.get(ratePct) ?? 0;
-    lines.push(
-      tableLine([
-        {
-          text: `IGIC ${pct.padStart(4)}%`,
-          align: "LEFT",
-          width: 0.3,
-          style: "NORMAL",
-        },
-        {
-          text: `Base ${base.toFixed(2).padStart(7)}`,
-          align: "RIGHT",
-          width: 0.35,
-          style: "NORMAL",
-        },
-        {
-          text: `Imp. ${taxAmount.toFixed(2).padStart(7)}`,
-          align: "RIGHT",
-          width: 0.35,
-          style: "NORMAL",
-        },
-      ]),
-    );
-  }
-
-  // Footer
-  lines.push(separatorLine());
-  lines.push(emptyLine());
-  lines.push(emptyLine());
-
-  const { serviceUrl, ...printerSettings } = data.printer;
-
-  const job: PrintJob = {
-    printer: printerSettings as PrintJob["printer"],
-    document: lines,
-    open: options?.openDrawer ?? false,
-  };
-
-  await sendPrintJob(job);
 }
 
 // --- CLOSURE REPORT ---

@@ -130,13 +130,20 @@
 
   function canRectify(inv: Invoice): boolean {
     return (
-      inv.status === "paid" &&
-      (inv as any).invoice_type !== "rectificativa"
+      inv.status === "paid" && (inv as any).invoice_type !== "rectificativa"
     );
   }
 
   function handlePrint(inv: Invoice) {
-    printInvoice(inv);
+    if ((inv as any).invoice_type === "rectificativa") {
+      const originalId = (inv as any).original_invoice_id;
+      const original = invoices.find((i) => i.id === originalId);
+      printInvoice(inv, {
+        originalInvoiceNumber: original?.invoice_number ?? "—",
+      });
+    } else {
+      printInvoice(inv);
+    }
   }
 
   onMount(() => {
@@ -278,7 +285,11 @@
                             </div>
                           </td>
                           <td
-                            class="py-3 px-2 font-bold text-right tabular-nums {parseFloat(inv.total_gross) < 0 ? 'text-red-600' : 'text-zinc-900'}"
+                            class="py-3 px-2 font-bold text-right tabular-nums {parseFloat(
+                              inv.total_gross,
+                            ) < 0
+                              ? 'text-red-600'
+                              : 'text-zinc-900'}"
                             >{formatCurrency(inv.total_gross)} &euro;</td
                           >
                           <td class="py-3 px-2 text-center">
@@ -342,7 +353,9 @@
                               </button>
                               <!-- Rectificativa -->
                               <button
-                                class="p-3 rounded-xl active:scale-95 transition-all {canRectify(inv)
+                                class="p-3 rounded-xl active:scale-95 transition-all {canRectify(
+                                  inv,
+                                )
                                   ? 'text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100'
                                   : 'text-zinc-200 cursor-not-allowed'}"
                                 title={canRectify(inv)
@@ -561,6 +574,17 @@
                                           {formatCurrency(inv.total_gross)} &euro;
                                         {/if}
                                       </span>
+                                    </div>
+                                  {/if}
+                                  {#if (inv as any).rectification_reason}
+                                    <div
+                                      class="flex justify-between text-xs text-zinc-500 pt-1 border-t border-zinc-100"
+                                    >
+                                      <span>Motivo</span>
+                                      <span
+                                        >{(inv as any)
+                                          .rectification_reason}</span
+                                      >
                                     </div>
                                   {/if}
                                 </div>

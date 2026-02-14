@@ -7,7 +7,7 @@
     createRectificativa,
   } from "../stores/registerStore";
   import { shouldPrintReceipt } from "../stores/cartStore";
-  import { printRectificativa } from "../stores/printerStore";
+  import { printInvoice } from "../stores/printerStore";
   import { incrementStock } from "../stores/productStore";
   import { RECTIFICATION_REASONS } from "../types/shop";
   import type { RectificationReason } from "../types/shop";
@@ -183,9 +183,11 @@
 
     try {
       const items = buildItemsPayload();
+      const reasonLabel =
+        RECTIFICATION_REASONS.find((r) => r.value === reason)?.label ?? reason;
       const result = await createRectificativa({
         original_invoice_id: invoice.id,
-        reason: reason as string,
+        reason: reasonLabel,
         reason_detail: reason === "otros" ? reasonDetail : undefined,
         payment_method: refundMethod,
         items,
@@ -206,11 +208,9 @@
 
       // Print if enabled
       if (shouldPrintReceipt.get()) {
-        await printRectificativa(
-          result.rectificativa as Invoice,
-          invoice.invoice_number,
-          { openDrawer: refundMethod === "cash" },
-        );
+        await printInvoice(result.rectificativa as Invoice, {
+          originalInvoiceNumber: invoice.invoice_number,
+        });
       }
 
       view = "done";
