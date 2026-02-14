@@ -4,7 +4,7 @@ import { getCategoriesWithProducts, imageUrl } from "@pulpo/cms";
 import type { ProductCategory as CmsCategory } from "@pulpo/cms";
 import type { Product } from "../types/shop";
 import { loadTaxRates } from "./taxStore";
-import { loadTenant } from "./printerStore";
+import { loadTenant, tenant as tenantAtom } from "./printerStore";
 
 export interface ShopCategory {
   id: string;
@@ -121,12 +121,24 @@ export async function loadProducts() {
 
     categories.set(mapped);
 
-    const postcode = "35010";
-    if (postcode) {
-      loadTaxRates(postcode);
+    await loadTenant();
+
+    const t = tenantAtom.get();
+    const missing: string[] = [];
+    if (!t?.name) missing.push("nombre");
+    if (!t?.nif) missing.push("NIF");
+    if (!t?.street) missing.push("dirección");
+    if (!t?.postcode) missing.push("código postal");
+    if (!t?.city) missing.push("ciudad");
+
+    if (missing.length > 0) {
+      const msg = `Datos de empresa incompletos: faltan ${missing.join(", ")}. Configure los datos del negocio para poder facturar correctamente.`;
+      console.error(msg);
+      error.set(msg);
+      return;
     }
 
-    loadTenant();
+    loadTaxRates(t!.postcode);
   } catch (e: any) {
     console.error("Failed to load products:", e);
     error.set(e.message || "Failed to load products");

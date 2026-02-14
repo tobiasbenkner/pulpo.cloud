@@ -6,12 +6,26 @@
     error,
     loadProducts,
   } from "../stores/productStore";
-  import { isCustomAmountOpen, isCustomerModalOpen, customerModalMode } from "../stores/cartStore";
-  import { isClosureModalOpen, isShiftInvoicesModalOpen } from "../stores/registerStore";
+  import {
+    isCustomAmountOpen,
+    isCustomerModalOpen,
+    customerModalMode,
+  } from "../stores/cartStore";
+  import {
+    isClosureModalOpen,
+    isShiftInvoicesModalOpen,
+  } from "../stores/registerStore";
   import ProductCard from "./ProductCard.svelte";
   import type { Product } from "../types/shop";
   import type { ShopCategory } from "../stores/productStore";
-  import { ShoppingBag, Lock, FileText, LogOut, Plus, Users } from "lucide-svelte";
+  import {
+    ShoppingBag,
+    Lock,
+    FileText,
+    LogOut,
+    Plus,
+    Users,
+  } from "lucide-svelte";
 
   let selectedCategory = $state("Todos");
   let storeCategories = $state<ShopCategory[]>([]);
@@ -31,7 +45,10 @@
     };
   });
 
-  let categoryNames = $derived(["Todos", ...storeCategories.map((c) => c.name)]);
+  let categoryNames = $derived([
+    "Todos",
+    ...storeCategories.map((c) => c.name),
+  ]);
 
   let filteredProducts = $derived.by(() => {
     const all: Product[] = storeCategories.flatMap((c) => c.products);
@@ -154,8 +171,8 @@
     {:else if storeError}
       <div class="flex items-center justify-center h-full text-red-500">
         <div class="text-center">
-          <p class="text-sm font-medium mb-2">Error al cargar</p>
-          <p class="text-xs text-zinc-400">{storeError}</p>
+          <p class="text-lg font-medium mb-2">Error al cargar</p>
+          <p class="text-base text-zinc-400">{storeError}</p>
           <button
             class="mt-3 px-4 py-2 bg-zinc-900 text-white rounded-lg text-xs font-bold hover:bg-zinc-800"
             onclick={() => loadProducts()}

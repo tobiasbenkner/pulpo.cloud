@@ -11,15 +11,8 @@ Funktioniert bereits
 - Freier Betrag (CustomAmountModal)
 - Letzter Wechselgeld-Widget mit Methodentausch
 
-
 3. Caja cerrar (Tagesabschluss)
    Kein Kassenschluss, kein Schichtmanagement, keine Z-/X-Berichte, keine Tagesuebersicht.
-
-4. .env-Datei fehlt
-   PUBLIC_TENANT_POSTCODE ist nirgends gesetzt -- d.h. loadTaxRates() wird aktuell nie aufgerufen und alle Steuersaetze sind 0%.
-
-5. Kundenverwaltung nur lokal
-   CustomerModal hat Dummy-Kunden und ein Formular, aber nichts wird in Directus persistiert oder von dort geladen.
 
 ---
 
