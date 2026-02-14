@@ -114,9 +114,23 @@
                 <div class="text-xs text-blue-600">Factura (Completa)</div>
               </div>
             </div>
-            <button class="text-sm font-bold text-blue-600 hover:underline pl-2"
-              >Cambiar</button
+            <button
+              id="remove-customer-btn"
+              class="hidden p-2.5 rounded-xl text-zinc-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+              title="Quitar cliente"
             >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                ><path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"></path></svg
+              >
+            </button>
           </div>
 
           <!-- PREIS -->
@@ -374,6 +388,7 @@
     cartTotals,
     completeTransaction,
     selectedCustomer,
+    setCustomer,
     shouldPrintReceipt,
   } from "../stores/cartStore";
 
@@ -553,6 +568,13 @@
   });
 
   // --- CUSTOMER & TOTALS ---
+  const removeCustomerBtn = document.getElementById("remove-customer-btn");
+
+  removeCustomerBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    setCustomer(null);
+  });
+
   customerSelector?.addEventListener("click", () => {
     customerModalMode.set("select");
     isCustomerModalOpen.set(true);
@@ -564,6 +586,7 @@
       hasCustomerDiv?.classList.remove("hidden");
       hasCustomerDiv?.classList.add("flex");
       if (custDisplayName) custDisplayName.innerText = cust.name;
+      removeCustomerBtn?.classList.remove("hidden");
 
       customerSelector?.classList.add("border-blue-200", "bg-blue-50");
       customerSelector?.classList.remove("border-zinc-200", "bg-zinc-50");
@@ -571,6 +594,7 @@
       noCustomerDiv?.classList.remove("hidden");
       hasCustomerDiv?.classList.add("hidden");
       hasCustomerDiv?.classList.remove("flex");
+      removeCustomerBtn?.classList.add("hidden");
 
       customerSelector?.classList.remove("border-blue-200", "bg-blue-50");
       customerSelector?.classList.add("border-zinc-200", "bg-zinc-50");
