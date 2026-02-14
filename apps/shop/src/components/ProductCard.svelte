@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Product } from "../types/shop";
   import { addToCart } from "../stores/cartStore";
+  import { stockEditProduct } from "../stores/productStore";
   import { TriangleAlert } from "lucide-svelte";
 
   interface Props {
@@ -36,15 +37,44 @@
 
   let imgError = $state(false);
 
-  function handleClick() {
-    addToCart(product);
+  const LONG_PRESS_MS = 500;
+  let pressTimer: ReturnType<typeof setTimeout> | null = null;
+  let didLongPress = false;
+
+  function onPointerDown() {
+    didLongPress = false;
+    pressTimer = setTimeout(() => {
+      didLongPress = true;
+      stockEditProduct.set(product);
+    }, LONG_PRESS_MS);
+  }
+
+  function onPointerUp() {
+    if (pressTimer) {
+      clearTimeout(pressTimer);
+      pressTimer = null;
+    }
+    if (!didLongPress) {
+      addToCart(product);
+    }
+  }
+
+  function onPointerCancel() {
+    if (pressTimer) {
+      clearTimeout(pressTimer);
+      pressTimer = null;
+    }
   }
 </script>
 
 <button
-  class="product-card group relative flex flex-col w-full bg-white rounded-2xl border transition-all duration-300 overflow-hidden text-left shadow-[0_2px_8px_rgba(0,0,0,0.04)] border-zinc-100 hover:border-blue-400/50 hover:shadow-xl hover:-translate-y-1"
+  class="product-card group relative flex flex-col w-full bg-white rounded-2xl border transition-all duration-300 overflow-hidden text-left shadow-[0_2px_8px_rgba(0,0,0,0.04)] border-zinc-100 hover:border-blue-400/50 hover:shadow-xl hover:-translate-y-1 select-none touch-manipulation"
   data-category={product.category}
-  onclick={handleClick}
+  onpointerdown={onPointerDown}
+  onpointerup={onPointerUp}
+  onpointercancel={onPointerCancel}
+  onpointerleave={onPointerCancel}
+  oncontextmenu={(e) => e.preventDefault()}
 >
   <!-- 1. BILD BEREICH -->
   <div

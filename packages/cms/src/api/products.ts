@@ -1,7 +1,17 @@
-import { readItems } from "@directus/sdk";
+import { readItems, updateItem } from "@directus/sdk";
 import type { RestClient, DirectusClient } from "@directus/sdk";
 import type { Product, ProductCategory, Schema } from "../types";
 import { reduceTranslations } from "../i18n";
+
+type Client = DirectusClient<Schema> & RestClient<Schema>;
+
+export async function updateProductStock(
+  client: Client,
+  productId: string,
+  stock: number | null,
+): Promise<void> {
+  await client.request(updateItem("products", productId, { stock }));
+}
 
 export async function getCategoriesWithProducts(
   client: DirectusClient<Schema> & RestClient<Schema>,

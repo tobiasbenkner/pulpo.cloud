@@ -1,6 +1,10 @@
 import { atom } from "nanostores";
 import { getAuthClient, getStoredToken } from "@pulpo/auth";
-import { getCategoriesWithProducts, imageUrl } from "@pulpo/cms";
+import {
+  getCategoriesWithProducts,
+  imageUrl,
+  updateProductStock,
+} from "@pulpo/cms";
 import type { ProductCategory as CmsCategory } from "@pulpo/cms";
 import type { Product } from "../types/shop";
 import { loadTaxRates } from "./taxStore";
@@ -15,6 +19,7 @@ export interface ShopCategory {
 export const categories = atom<ShopCategory[]>([]);
 export const isLoading = atom(false);
 export const error = atom<string | null>(null);
+export const stockEditProduct = atom<Product | null>(null);
 
 function resolveTranslation(translations: Record<string, string>): string {
   return translations["es"] || Object.values(translations)[0] || "";
@@ -94,6 +99,21 @@ export function incrementStock(
         if (qty == null || p.stock == null) return p;
         return { ...p, stock: p.stock + qty };
       }),
+    })),
+  );
+}
+
+export async function setStock(productId: string, stock: number | null) {
+  const client = getAuthClient();
+  await updateProductStock(client as any, productId, stock);
+
+  const current = categories.get();
+  categories.set(
+    current.map((cat) => ({
+      ...cat,
+      products: cat.products.map((p) =>
+        p.id === productId ? { ...p, stock: stock ?? undefined } : p,
+      ),
     })),
   );
 }
