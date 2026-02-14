@@ -7,7 +7,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "deploy": "wrangler pages deploy dist --project-name=pulpo-agenda --branch=main"
+    "deploy:old": "wrangler pages deploy dist --project-name=pulpo-agenda --branch=main",
+    "deploy": "docker build -t pulpocloud/agenda . && docker push pulpocloud/agenda"
   },
   "dependencies": {
     "@astrojs/svelte": "^7.2.4",
