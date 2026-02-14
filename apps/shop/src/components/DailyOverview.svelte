@@ -230,7 +230,7 @@
       <ChevronLeft class="w-5 h-5" />
     </button>
     <span
-      class="text-sm font-bold text-zinc-900 min-w-[180px] text-center capitalize"
+      class="text-base font-bold text-zinc-900 min-w-[180px] text-center capitalize"
     >
       {formatDate(selectedDate)}
     </span>
@@ -260,58 +260,58 @@
       <!-- KPI row -->
       <div class="grid grid-cols-6 gap-2 mb-3">
         <div class="bg-white rounded-lg border border-zinc-200 px-3 py-2">
-          <div class="text-[10px] text-zinc-400 uppercase tracking-wide">
+          <div class="text-xs text-zinc-400 uppercase tracking-wide">
             Bruto
           </div>
-          <div class="text-lg font-extrabold text-zinc-900 tabular-nums">
+          <div class="text-xl font-extrabold text-zinc-900 tabular-nums">
             {summary.totalGross}
-            <span class="text-xs font-normal text-zinc-400">&euro;</span>
+            <span class="text-sm font-normal text-zinc-400">&euro;</span>
           </div>
         </div>
         <div class="bg-white rounded-lg border border-zinc-200 px-3 py-2">
-          <div class="text-[10px] text-zinc-400 uppercase tracking-wide">
+          <div class="text-xs text-zinc-400 uppercase tracking-wide">
             Neto
           </div>
-          <div class="text-lg font-bold text-zinc-700 tabular-nums">
+          <div class="text-xl font-bold text-zinc-700 tabular-nums">
             {summary.totalNet}
-            <span class="text-xs font-normal text-zinc-400">&euro;</span>
+            <span class="text-sm font-normal text-zinc-400">&euro;</span>
           </div>
         </div>
         <div class="bg-white rounded-lg border border-zinc-200 px-3 py-2">
-          <div class="text-[10px] text-zinc-400 uppercase tracking-wide">
+          <div class="text-xs text-zinc-400 uppercase tracking-wide">
             Impuestos
           </div>
-          <div class="text-lg font-bold text-zinc-700 tabular-nums">
+          <div class="text-xl font-bold text-zinc-700 tabular-nums">
             {summary.totalTax}
-            <span class="text-xs font-normal text-zinc-400">&euro;</span>
+            <span class="text-sm font-normal text-zinc-400">&euro;</span>
           </div>
         </div>
         <div class="bg-white rounded-lg border border-zinc-200 px-3 py-2">
-          <div class="text-[10px] text-zinc-400 uppercase tracking-wide">
+          <div class="text-xs text-zinc-400 uppercase tracking-wide">
             Efectivo
           </div>
-          <div class="text-lg font-bold text-zinc-700 tabular-nums">
+          <div class="text-xl font-bold text-zinc-700 tabular-nums">
             {summary.totalCash}
-            <span class="text-xs font-normal text-zinc-400">&euro;</span>
+            <span class="text-sm font-normal text-zinc-400">&euro;</span>
           </div>
         </div>
         <div class="bg-white rounded-lg border border-zinc-200 px-3 py-2">
-          <div class="text-[10px] text-zinc-400 uppercase tracking-wide">
+          <div class="text-xs text-zinc-400 uppercase tracking-wide">
             Tarjeta
           </div>
-          <div class="text-lg font-bold text-zinc-700 tabular-nums">
+          <div class="text-xl font-bold text-zinc-700 tabular-nums">
             {summary.totalCard}
-            <span class="text-xs font-normal text-zinc-400">&euro;</span>
+            <span class="text-sm font-normal text-zinc-400">&euro;</span>
           </div>
         </div>
         <div class="bg-white rounded-lg border border-zinc-200 px-3 py-2">
-          <div class="text-[10px] text-zinc-400 uppercase tracking-wide">
+          <div class="text-xs text-zinc-400 uppercase tracking-wide">
             Trans.
           </div>
-          <div class="text-lg font-bold text-zinc-700 tabular-nums">
+          <div class="text-xl font-bold text-zinc-700 tabular-nums">
             {summary.transactionCount}
           </div>
-          <div class="flex gap-1.5 text-[10px] text-zinc-400 mt-0.5">
+          <div class="flex gap-1.5 text-xs text-zinc-400 mt-0.5">
             <span>{totalInvoiceCounts.tickets} tick.</span>
             <span>{totalInvoiceCounts.facturas} fact.</span>
             {#if totalInvoiceCounts.rectificativas > 0}
@@ -328,7 +328,7 @@
         <div class="flex flex-wrap gap-x-4 gap-y-1">
           {#if summary.taxBreakdown.length > 0}
             {#each summary.taxBreakdown as entry}
-              <span class="text-xs text-zinc-400">
+              <span class="text-sm text-zinc-400">
                 {tax}
                 {parseFloat(entry.rate).toFixed(0)}%:
                 <span class="font-medium text-zinc-600">Base {entry.net}</span>
@@ -348,7 +348,7 @@
         onclick={() => (totalProductsExpanded = !totalProductsExpanded)}
       >
         <span
-          class="text-[10px] uppercase font-bold text-zinc-400 tracking-wider"
+          class="text-xs uppercase font-bold text-zinc-400 tracking-wider"
         >
           Productos del d&iacute;a ({totalProductRows.length})
         </span>
@@ -363,7 +363,7 @@
           class="mb-4 bg-white rounded-lg border border-zinc-200 overflow-hidden"
         >
           <div
-            class="producto-grid text-[10px] uppercase tracking-wider text-zinc-400 font-bold border-b border-zinc-200 bg-zinc-50 px-3 py-1.5"
+            class="producto-grid text-xs uppercase tracking-wider text-zinc-400 font-bold border-b border-zinc-200 bg-zinc-50 px-3 py-2"
           >
             <span>Producto</span>
             <span class="text-right">Uds.</span>
@@ -373,7 +373,7 @@
           </div>
           {#each totalProductRows as row}
             <div
-              class="producto-grid px-3 py-1.5 text-sm border-b border-zinc-50 last:border-0"
+              class="producto-grid px-3 py-2 text-base border-b border-zinc-50 last:border-0"
             >
               <span class="text-zinc-800 truncate" title={row.name}
                 >{row.name}</span
@@ -398,14 +398,14 @@
 
     <!-- Turnos -->
     <div
-      class="text-[10px] uppercase font-bold text-zinc-400 tracking-wider mb-2 px-2"
+      class="text-xs uppercase font-bold text-zinc-400 tracking-wider mb-2 px-2"
     >
       Turnos ({closures.length})
     </div>
     <div class="bg-white rounded-lg border border-zinc-200 overflow-hidden">
       <!-- Header -->
       <div
-        class="turno-grid text-[10px] uppercase tracking-wider text-zinc-400 font-bold border-b border-zinc-200 bg-zinc-50 px-3 py-1.5"
+        class="turno-grid text-xs uppercase tracking-wider text-zinc-400 font-bold border-b border-zinc-200 bg-zinc-50 px-3 py-2"
       >
         <span>Turno</span>
         <span>Horario</span>
@@ -422,19 +422,19 @@
         {@const isExpanded = expandedClosures.has(closure.id)}
         <!-- Row -->
         <button
-          class="turno-grid w-full px-3 py-2 text-left text-sm hover:bg-zinc-50 transition-colors border-b border-zinc-100 last:border-0"
+          class="turno-grid w-full px-3 py-2.5 text-left text-base hover:bg-zinc-50 transition-colors border-b border-zinc-100 last:border-0"
           onclick={() => toggleClosure(closure.id)}
         >
-          <span class="text-xs font-bold text-zinc-500"
+          <span class="text-sm font-bold text-zinc-500"
             >T{closures.length - i}</span
           >
-          <span class="text-xs text-zinc-400 tabular-nums">
+          <span class="text-sm text-zinc-400 tabular-nums">
             {formatTime(closure.period_start)}&ndash;{closure.period_end
               ? formatTime(closure.period_end)
               : "..."}
           </span>
           <span
-            class="flex justify-center gap-1 text-[10px] text-zinc-400 tabular-nums"
+            class="flex justify-center gap-1 text-xs text-zinc-400 tabular-nums"
           >
             <span>{counts.tickets}t</span>
             <span>{counts.facturas}f</span>
@@ -445,13 +445,13 @@
           <span class="text-right font-bold text-zinc-900 tabular-nums"
             >{closure.total_gross ?? "0.00"}</span
           >
-          <span class="text-right text-xs text-zinc-600 tabular-nums"
+          <span class="text-right text-sm text-zinc-600 tabular-nums"
             >{closure.total_cash ?? "0.00"}</span
           >
-          <span class="text-right text-xs text-zinc-600 tabular-nums"
+          <span class="text-right text-sm text-zinc-600 tabular-nums"
             >{closure.total_card ?? "0.00"}</span
           >
-          <span class="text-right text-xs tabular-nums">
+          <span class="text-right text-sm tabular-nums">
             {#if closure.difference !== null}
               {@const diff = parseFloat(closure.difference)}
               <span
@@ -481,7 +481,7 @@
           <div class="border-b border-zinc-100 px-3 py-2 bg-zinc-50/50">
             {#if closureProducts.length > 0}
               <div
-                class="producto-grid text-[10px] uppercase tracking-wider text-zinc-400 font-bold py-1"
+                class="producto-grid text-xs uppercase tracking-wider text-zinc-400 font-bold py-1.5"
               >
                 <span>Producto</span>
                 <span class="text-right">Uds.</span>
@@ -491,7 +491,7 @@
               </div>
               {#each closureProducts as row}
                 <div
-                  class="producto-grid py-1 text-xs border-t border-zinc-100"
+                  class="producto-grid py-1.5 text-sm border-t border-zinc-100"
                 >
                   <span class="text-zinc-700 truncate" title={row.name}
                     >{row.name}</span
@@ -525,13 +525,13 @@
 <style>
   .turno-grid {
     display: grid;
-    grid-template-columns: 2rem 7rem 5rem 1fr 1fr 1fr 4rem 1.5rem;
+    grid-template-columns: 2.5rem 8rem 5.5rem 1fr 1fr 1fr 4.5rem 1.5rem;
     align-items: center;
     gap: 0.5rem;
   }
   .producto-grid {
     display: grid;
-    grid-template-columns: 1fr 3.5rem 5rem 5rem 5rem;
+    grid-template-columns: 1fr 3.5rem 5.5rem 5.5rem 5.5rem;
     align-items: center;
     gap: 0.5rem;
   }
