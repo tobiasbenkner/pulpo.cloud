@@ -8,6 +8,7 @@
   } from "../stores/registerStore";
   import { cartItems, parkedCarts } from "../stores/cartStore";
   import { printClosureReport } from "../stores/printerStore";
+  import { taxName } from "../stores/taxStore";
   import Big from "big.js";
   import type { ClosureReport } from "../types/shop";
 
@@ -21,6 +22,7 @@
   let shouldPrint = $state(true);
   let finalizing = $state(false);
   let expectedCashValue = $state(0);
+  let tax = $state("IGIC");
 
   // Numpad state
   let numpadOpen = $state(false);
@@ -264,6 +266,7 @@
   // --- Store subscription ---
 
   onMount(() => {
+    const unsubTax = taxName.subscribe((v) => (tax = v));
     const unsub = isClosureModalOpen.subscribe((open) => {
       if (open) {
         resetDenominations();
@@ -283,7 +286,10 @@
         hideModalAnim();
       }
     });
-    return unsub;
+    return () => {
+      unsub();
+      unsubTax();
+    };
   });
 </script>
 
@@ -463,7 +469,7 @@
                   {#each report.taxBreakdown as entry}
                     <div class="flex justify-between text-sm">
                       <span class="text-zinc-500"
-                        >IGIC {parseFloat(entry.rate).toFixed(0)}%</span
+                        >{tax} {parseFloat(entry.rate).toFixed(0)}%</span
                       >
                       <span class="text-zinc-700 font-mono"
                         >Base {entry.net} &nbsp; Imp. {entry.tax}</span

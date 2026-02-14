@@ -3,6 +3,7 @@ import { getAuthClient, getStoredToken } from "@pulpo/auth";
 import { getProfile, getTenant, imageUrl } from "@pulpo/cms";
 import type { Tenant, Invoice } from "@pulpo/cms";
 import type { CartTotals, ClosureReport } from "../types/shop";
+import { taxName } from "./taxStore";
 import Big from "big.js";
 import data from "../data.json";
 
@@ -273,7 +274,7 @@ function buildReceipt(receiptData: {
     lines.push(
       tableLine([
         {
-          text: `IGIC ${pct.padStart(4)}%`,
+          text: `${taxName.get()} ${pct.padStart(4)}%`,
           align: "LEFT",
           width: 0.3,
           style: "NORMAL",
@@ -530,7 +531,7 @@ function buildClosureReport(
       lines.push(
         tableLine([
           {
-            text: `IGIC ${pct.padStart(4)}%`,
+            text: `${taxName.get()} ${pct.padStart(4)}%`,
             align: "LEFT",
             width: 0.3,
             style: "NORMAL",

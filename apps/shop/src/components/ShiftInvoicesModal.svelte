@@ -21,6 +21,7 @@
   } from "lucide-svelte";
   import RefundIcon from "./icons/RefundIcon.svelte";
   import { resolveRectificationReason } from "../types/shop";
+  import { taxName } from "../stores/taxStore";
   import Big from "big.js";
 
   let isOpen = $state(false);
@@ -29,6 +30,7 @@
   let invoices = $state<readonly Invoice[]>([]);
   let swapping = $state<string | null>(null);
   let expandedId = $state<string | null>(null);
+  let tax = $state("IGIC");
 
   function itemPreview(inv: Invoice): string {
     const items = inv.items ?? [];
@@ -161,8 +163,11 @@
       invoices = v;
     });
 
+    const unsubTax = taxName.subscribe((v) => (tax = v));
+
     return () => {
       unsubModal();
+      unsubTax();
       unsubInvoices();
     };
   });
@@ -554,7 +559,7 @@
                                     <div
                                       class="flex justify-between text-[11px] text-zinc-400"
                                     >
-                                      <span>IGIC {tb.ratePct}%</span>
+                                      <span>{tax} {tb.ratePct}%</span>
                                       <span class="tabular-nums"
                                         >Base {tb.base} &euro; &middot; Imp. {tb.tax}
                                         &euro;</span

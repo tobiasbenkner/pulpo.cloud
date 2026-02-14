@@ -19,6 +19,7 @@
     isQuantityModalOpen,
   } from "../stores/cartStore";
   import { isRegisterOpen } from "../stores/registerStore";
+  import { taxName } from "../stores/taxStore";
   import type { CartItem, CartTotals, Customer } from "../types/shop";
   import type { ParkedCart } from "../stores/cartStore";
   import Big from "big.js";
@@ -46,6 +47,7 @@
   let customer = $state<Customer | null>(null);
   let showParked = $state(false);
   let scrollTop = $state(0);
+  let tax = $state("IGIC");
 
   let entries = $derived(Object.entries(items));
   let parkedIds = $derived(Object.keys(parked));
@@ -62,6 +64,7 @@
       globalDiscount.subscribe((v) => (discount = v)),
       selectedCustomer.subscribe((v) => (customer = v)),
       isRegisterOpen.subscribe((v) => (registerOpen = v)),
+      taxName.subscribe((v) => (tax = v)),
     ];
     return () => unsubs.forEach((u) => u());
   });
@@ -470,7 +473,7 @@
             <div
               class="flex justify-between text-zinc-400 text-[10px] uppercase tracking-wide"
             >
-              <span>IGIC {formatTaxRate(entry.rate)}%</span>
+              <span>{tax} {formatTaxRate(entry.rate)}%</span>
               <span class="font-mono">{entry.amount} &euro;</span>
             </div>
           {/each}
