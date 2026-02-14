@@ -503,6 +503,12 @@
               <!-- Totals -->
               <div class="space-y-2 mb-4">
                 <div class="flex justify-between text-sm">
+                  <span class="text-zinc-500">Apertura</span>
+                  <span class="font-medium text-zinc-700"
+                    >{report?.startingCash ?? "0.00"} EUR</span
+                  >
+                </div>
+                <div class="flex justify-between text-sm">
                   <span class="text-zinc-500">Transacciones</span>
                   <span class="font-bold text-zinc-900"
                     >{report?.transactionCount ?? 0}</span
@@ -597,10 +603,15 @@
                 </button>
               </div>
 
-              <!-- Expected / Counted / Difference -->
+              <!-- Starting Cash + Expected / Counted / Difference -->
               <div
                 class="bg-zinc-900 rounded-xl px-4 py-2.5 mb-4 shadow-inner flex items-center gap-4"
               >
+                <div class="shrink-0">
+                  <span class="text-zinc-500 text-[10px] uppercase font-bold">Apertura</span>
+                  <div class="text-sm font-mono text-zinc-400">{report?.startingCash ?? "0.00"} &euro;</div>
+                </div>
+                <div class="w-px h-8 bg-zinc-700"></div>
                 <div class="flex-1">
                   <span class="text-zinc-500 text-[10px] uppercase font-bold"
                     >Esperado</span
