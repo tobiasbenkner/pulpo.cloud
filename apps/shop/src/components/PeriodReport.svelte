@@ -2,14 +2,16 @@
   import { onMount } from "svelte";
   import { taxName } from "../stores/taxStore";
   import { getAuthClient } from "@pulpo/auth";
-  import { getReport, getReportPdfUrl, getReportExcelUrl, DIRECTUS_URL } from "@pulpo/cms";
-  import type { AggregatedReport, ClosureProductBreakdown } from "@pulpo/cms";
   import {
-    ChevronLeft,
-    ChevronRight,
-    ChevronDown,
-    Download,
-  } from "lucide-svelte";
+    getReport,
+    getReportPdfUrl,
+    getReportExcelUrl,
+    DIRECTUS_URL,
+  } from "@pulpo/cms";
+  import type { AggregatedReport, ClosureProductBreakdown } from "@pulpo/cms";
+  import { ChevronDown, Download } from "lucide-svelte";
+
+  type ReportPeriod = "daily" | "weekly" | "monthly" | "quarterly" | "yearly";
 
   interface CostCenterGroup {
     name: string;
@@ -20,57 +22,20 @@
     totalCard: string;
   }
 
+  let {
+    period,
+    params,
+    label,
+  }: {
+    period: ReportPeriod;
+    params: Record<string, string>;
+    label: string;
+  } = $props();
+
   let loading = $state(false);
-  let selectedDate = $state(todayStr());
   let report = $state<AggregatedReport | null>(null);
   let tax = $state("IGIC");
-  let expandedClosures = $state<Set<string>>(new Set());
   let totalProductsExpanded = $state(false);
-
-  function todayStr(): string {
-    const d = new Date();
-    return d.toISOString().slice(0, 10);
-  }
-
-  function formatDate(dateStr: string): string {
-    const d = new Date(dateStr + "T12:00:00");
-    return d.toLocaleDateString("es-ES", {
-      weekday: "long",
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  }
-
-  function formatTime(iso: string): string {
-    const d = new Date(iso);
-    return d.toLocaleTimeString("es-ES", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  }
-
-  function prevDay() {
-    const d = new Date(selectedDate + "T12:00:00");
-    d.setDate(d.getDate() - 1);
-    selectedDate = d.toISOString().slice(0, 10);
-    loadData();
-  }
-
-  function nextDay() {
-    const d = new Date(selectedDate + "T12:00:00");
-    d.setDate(d.getDate() + 1);
-    if (d.toISOString().slice(0, 10) > todayStr()) return;
-    selectedDate = d.toISOString().slice(0, 10);
-    loadData();
-  }
-
-  function toggleClosure(id: string) {
-    const next = new Set(expandedClosures);
-    if (next.has(id)) next.delete(id);
-    else next.add(id);
-    expandedClosures = next;
-  }
 
   function groupByCostCenter(
     products: ClosureProductBreakdown[],
@@ -110,13 +75,10 @@
       });
   }
 
-  let isToday = $derived(selectedDate === todayStr());
-
   let summary = $derived(report?.summary ?? null);
   let invoiceCounts = $derived(report?.invoice_counts ?? null);
   let taxBreakdown = $derived(report?.tax_breakdown ?? []);
   let productBreakdown = $derived(report?.product_breakdown ?? []);
-  let shifts = $derived(report?.shifts ?? []);
 
   let totalGrouped = $derived(groupByCostCenter(productBreakdown));
   let hasCostCenters = $derived(
@@ -125,11 +87,10 @@
   );
 
   function downloadFile(type: "pdf" | "excel") {
-    const params = { date: selectedDate };
     const path =
       type === "pdf"
-        ? getReportPdfUrl("daily", params)
-        : getReportExcelUrl("daily", params);
+        ? getReportPdfUrl(period, params)
+        : getReportExcelUrl(period, params);
 
     const token = localStorage.getItem("directus_auth");
     const parsed = token ? JSON.parse(token) : null;
@@ -138,59 +99,56 @@
     const url = `${DIRECTUS_URL}${path}&access_token=${accessToken}`;
     const a = document.createElement("a");
     a.href = url;
-    a.download = `informe-diario-${selectedDate}.${type === "pdf" ? "pdf" : "xlsx"}`;
+    a.download = `informe-${period}.${type === "pdf" ? "pdf" : "xlsx"}`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
   }
 
-  async function loadData() {
+  export async function loadData() {
     loading = true;
-    expandedClosures = new Set();
     totalProductsExpanded = false;
     try {
       const client = getAuthClient();
-      report = await getReport(client as any, "daily", {
-        date: selectedDate,
-      });
+      report = await getReport(client as any, period, params);
     } catch (e) {
-      console.error("Failed to load daily report:", e);
+      console.error(`Failed to load ${period} report:`, e);
       report = null;
     } finally {
       loading = false;
     }
   }
 
+  let mounted = false;
+
   onMount(() => {
     const unsubTax = taxName.subscribe((v) => (tax = v));
+    mounted = true;
     loadData();
     return () => {
       unsubTax();
     };
   });
+
+  // Reload when params change (skip initial mount, handled by onMount)
+  let prevParams = $state("");
+  $effect(() => {
+    const current = JSON.stringify(params);
+    if (mounted && prevParams && prevParams !== current) {
+      loadData();
+    }
+    prevParams = current;
+  });
 </script>
 
 <div class="max-w-4xl mx-auto px-4 py-6">
-  <!-- Date navigation -->
-  <div class="flex items-center justify-center gap-4 mb-6">
-    <button
-      class="p-2.5 rounded-xl bg-white border border-zinc-200 text-zinc-500 hover:bg-zinc-50 hover:border-zinc-300 active:scale-95 transition-all shadow-sm"
-      onclick={prevDay}
-    >
-      <ChevronLeft class="w-5 h-5" />
-    </button>
+  <!-- Period label -->
+  <div class="flex items-center justify-center mb-6">
     <span
-      class="text-lg font-bold text-zinc-900 min-w-[220px] text-center capitalize"
+      class="text-lg font-bold text-zinc-900 text-center capitalize"
     >
-      {formatDate(selectedDate)}
+      {label}
     </span>
-    <button
-      class="p-2.5 rounded-xl bg-white border border-zinc-200 text-zinc-500 hover:bg-zinc-50 hover:border-zinc-300 active:scale-95 transition-all shadow-sm disabled:opacity-30 disabled:cursor-not-allowed disabled:shadow-none"
-      onclick={nextDay}
-      disabled={isToday}
-    >
-      <ChevronRight class="w-5 h-5" />
-    </button>
   </div>
 
   {#if loading}
@@ -201,7 +159,7 @@
     </div>
   {:else if !summary || summary.transaction_count === 0}
     <div class="text-center py-16">
-      <p class="text-zinc-400">No hay turnos cerrados en este d&iacute;a.</p>
+      <p class="text-zinc-400">No hay datos para este per&iacute;odo.</p>
     </div>
   {:else}
     <!-- Download buttons -->
@@ -227,7 +185,6 @@
       <div
         class="bg-white rounded-2xl border border-zinc-200 shadow-sm mb-6 overflow-hidden"
       >
-        <!-- Hero: Total Bruto -->
         <div class="px-5 pt-5 pb-4">
           <div
             class="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1"
@@ -242,7 +199,6 @@
           </div>
         </div>
 
-        <!-- Secondary metrics -->
         <div class="grid grid-cols-5 border-t border-zinc-100">
           <div class="px-4 py-3">
             <div
@@ -307,7 +263,6 @@
           </div>
         </div>
 
-        <!-- Tax breakdown -->
         {#if taxBreakdown.length > 0}
           <div
             class="flex flex-wrap gap-x-5 gap-y-1 px-5 py-3 border-t border-zinc-100 bg-zinc-50/60"
@@ -336,7 +291,7 @@
           <span
             class="text-xs uppercase font-bold text-zinc-400 tracking-wider group-hover:text-zinc-600 transition-colors"
           >
-            Productos del d&iacute;a
+            Productos
             <span class="text-zinc-300 font-normal ml-1"
               >{productBreakdown.length}</span
             >
@@ -421,212 +376,10 @@
         {/if}
       </div>
     {/if}
-
-    <!-- Turnos section -->
-    {#if shifts.length > 0}
-      <div class="mb-6">
-        <div
-          class="text-xs uppercase font-bold text-zinc-400 tracking-wider mb-2 px-1"
-        >
-          Turnos
-          <span class="text-zinc-300 font-normal ml-1">{shifts.length}</span>
-        </div>
-        <div
-          class="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden"
-        >
-          <div
-            class="turno-grid text-[11px] uppercase tracking-wider text-zinc-400 font-semibold border-b border-zinc-200 bg-zinc-50 px-4 py-2.5"
-          >
-            <span>Turno</span>
-            <span>Horario</span>
-            <span class="text-right">Trans.</span>
-            <span class="text-right">Bruto</span>
-            <span class="text-right">Ef.</span>
-            <span class="text-right">Tj.</span>
-            <span class="text-right">Dif.</span>
-            <span></span>
-          </div>
-          {#each shifts as shift, i}
-            {@const counts = shift.invoice_counts}
-            {@const totalTx =
-              counts.tickets + counts.facturas + counts.rectificativas}
-            {@const isExpanded = expandedClosures.has(shift.id)}
-            <button
-              class="turno-grid w-full px-4 py-3 text-left text-sm hover:bg-zinc-50/80 transition-colors {i <
-                shifts.length - 1 || isExpanded
-                ? 'border-b border-zinc-100'
-                : ''}"
-              onclick={() => toggleClosure(shift.id)}
-            >
-              <span class="font-bold text-zinc-500"
-                >T{shifts.length - i}</span
-              >
-              <span class="text-zinc-400 tabular-nums">
-                {formatTime(shift.period_start)}&ndash;{shift.period_end
-                  ? formatTime(shift.period_end)
-                  : "..."}
-              </span>
-              <span class="text-right">
-                <span class="font-bold text-zinc-700 tabular-nums"
-                  >{totalTx}</span
-                >
-                <span
-                  class="flex justify-end gap-1.5 text-xs text-zinc-400 tabular-nums"
-                >
-                  <span>{counts.tickets} tick.</span>
-                  <span>{counts.facturas} fact.</span>
-                  {#if counts.rectificativas > 0}
-                    <span class="text-red-500"
-                      >{counts.rectificativas} rect.</span
-                    >
-                  {/if}
-                </span>
-              </span>
-              <span class="text-right font-bold text-zinc-900 tabular-nums"
-                >{shift.total_gross}</span
-              >
-              <span class="text-right text-zinc-500 tabular-nums"
-                >{shift.total_cash}</span
-              >
-              <span class="text-right text-zinc-500 tabular-nums"
-                >{shift.total_card}</span
-              >
-              <span class="text-right tabular-nums">
-                {#if shift.difference !== null}
-                  {@const diff = parseFloat(shift.difference)}
-                  <span
-                    class="font-bold {Math.abs(diff) < 0.005
-                      ? 'text-zinc-300'
-                      : diff > 0
-                        ? 'text-emerald-600'
-                        : 'text-red-600'}"
-                  >
-                    {diff >= 0 ? "+" : ""}{diff.toFixed(2)}
-                  </span>
-                {:else}
-                  <span class="text-zinc-300">&mdash;</span>
-                {/if}
-              </span>
-              <span class="flex justify-end">
-                <ChevronDown
-                  class="w-4 h-4 text-zinc-300 transition-transform {isExpanded
-                    ? 'rotate-180'
-                    : ''}"
-                />
-              </span>
-            </button>
-            {#if isExpanded}
-              {@const shiftProducts = shift.product_breakdown}
-              {@const shiftGrouped = groupByCostCenter(shiftProducts)}
-              {@const shiftHasGroups =
-                shiftGrouped.length > 1 ||
-                (shiftGrouped.length === 1 && shiftGrouped[0].name !== "")}
-              <div class="border-b border-zinc-100 bg-zinc-50/30">
-                {#if shiftProducts.length > 0}
-                  <div
-                    class="producto-grid text-[11px] uppercase tracking-wider text-zinc-400 font-semibold px-4 py-2 border-b border-zinc-100"
-                  >
-                    <span>Producto</span>
-                    <span class="text-right">Uds.</span>
-                    <span class="text-right">Total</span>
-                    <span class="text-right">Ef.</span>
-                    <span class="text-right">Tj.</span>
-                  </div>
-                  {#if shiftHasGroups}
-                    {#each shiftGrouped as group}
-                      <div
-                        class="producto-grid px-4 py-1.5 bg-zinc-100/60 border-b border-zinc-100 text-base font-bold text-zinc-600"
-                      >
-                        <span class="uppercase tracking-wider text-xs"
-                          >{group.name || "Sin asignar"}</span
-                        >
-                        <span class="text-right tabular-nums"
-                          >{group.totalQty}</span
-                        >
-                        <span class="text-right tabular-nums"
-                          >{group.totalGross}</span
-                        >
-                        <span class="text-right tabular-nums"
-                          >{group.totalCash}</span
-                        >
-                        <span class="text-right tabular-nums"
-                          >{group.totalCard}</span
-                        >
-                      </div>
-                      {#each group.rows as row, j}
-                        <div
-                          class="producto-grid px-4 py-1 text-sm text-zinc-600 {j %
-                            2 ===
-                          0
-                            ? ''
-                            : 'bg-zinc-50/50'}"
-                        >
-                          <span class="truncate" title={row.product_name}
-                            >{row.product_name}</span
-                          >
-                          <span class="text-right tabular-nums"
-                            >{row.quantity}</span
-                          >
-                          <span class="text-right tabular-nums"
-                            >{row.total_gross}</span
-                          >
-                          <span class="text-right tabular-nums"
-                            >{row.cash_gross}</span
-                          >
-                          <span class="text-right tabular-nums"
-                            >{row.card_gross}</span
-                          >
-                        </div>
-                      {/each}
-                    {/each}
-                  {:else}
-                    {#each shiftProducts as row, j}
-                      <div
-                        class="producto-grid px-4 py-1 text-sm text-zinc-600 {j %
-                          2 ===
-                        0
-                          ? ''
-                          : 'bg-zinc-50/50'}"
-                      >
-                        <span class="truncate" title={row.product_name}
-                          >{row.product_name}</span
-                        >
-                        <span class="text-right tabular-nums"
-                          >{row.quantity}</span
-                        >
-                        <span class="text-right tabular-nums"
-                          >{row.total_gross}</span
-                        >
-                        <span class="text-right tabular-nums"
-                          >{row.cash_gross}</span
-                        >
-                        <span class="text-right tabular-nums"
-                          >{row.card_gross}</span
-                        >
-                      </div>
-                    {/each}
-                  {/if}
-                {:else}
-                  <p class="text-sm text-zinc-400 text-center py-4">
-                    Sin productos
-                  </p>
-                {/if}
-              </div>
-            {/if}
-          {/each}
-        </div>
-      </div>
-    {/if}
   {/if}
 </div>
 
 <style>
-  .turno-grid {
-    display: grid;
-    grid-template-columns: 2.5rem 7.5rem 7rem 1fr 1fr 1fr 4.5rem 1.5rem;
-    align-items: center;
-    gap: 0.5rem;
-  }
   .producto-grid {
     display: grid;
     grid-template-columns: 1fr 3.5rem 5.5rem 5.5rem 5.5rem;

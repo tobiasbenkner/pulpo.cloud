@@ -1,3 +1,5 @@
+import type { ClosureProductBreakdown, InvoiceTypeCounts } from "./report";
+
 export interface CashRegisterClosure {
   id: string;
   date_created: string;
@@ -20,4 +22,6 @@ export interface CashRegisterClosure {
   denomination_count:
     | { cents: number; label: string; qty: number }[]
     | null;
+  product_breakdown: ClosureProductBreakdown[] | null;
+  invoice_type_counts: InvoiceTypeCounts | null;
 }

@@ -5,19 +5,28 @@
   import { loadProducts } from "../stores/productStore";
   import { ArrowLeft } from "lucide-svelte";
   import DailyOverview from "./DailyOverview.svelte";
+  import WeeklyReport from "./WeeklyReport.svelte";
+  import MonthlyReport from "./MonthlyReport.svelte";
+  import QuarterlyReport from "./QuarterlyReport.svelte";
+  import YearlyReport from "./YearlyReport.svelte";
 
   initAuthClient(DIRECTUS_URL);
 
   let state: "loading" | "ready" = $state("loading");
   let activeTab = $state("day");
 
-  const tabs = [{ id: "day", label: "Día" }];
+  const tabs = [
+    { id: "day", label: "D\u00EDa" },
+    { id: "week", label: "Semana" },
+    { id: "month", label: "Mes" },
+    { id: "quarter", label: "Trimestre" },
+    { id: "year", label: "A\u00F1o" },
+  ];
 
   onMount(async () => {
     try {
       await checkAuthentication();
       state = "ready";
-      // Load products to initialize tenant + tax info
       loadProducts();
     } catch {
       window.location.href = "/login";
@@ -73,6 +82,14 @@
     <div class="flex-1 overflow-y-auto">
       {#if activeTab === "day"}
         <DailyOverview />
+      {:else if activeTab === "week"}
+        <WeeklyReport />
+      {:else if activeTab === "month"}
+        <MonthlyReport />
+      {:else if activeTab === "quarter"}
+        <QuarterlyReport />
+      {:else if activeTab === "year"}
+        <YearlyReport />
       {/if}
     </div>
   </div>

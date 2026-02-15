@@ -23,7 +23,7 @@ A **Point-of-Sale (POS) application** built with Astro 5 + Tailwind CSS v4 + nan
 
 ### Key Directories
 
-- `src/pages/` — Single page app (`index.astro` is the only route)
+- `src/pages/` — Two routes: `index.astro` (POS) and `reports/index.astro` (daily reports)
 - `src/components/` — Svelte 5 components (ProductCard, CartSidebar, modals)
 - `src/stores/cartStore.ts` — Cart state, discounts, transactions, computed totals
 - `src/stores/taxStore.ts` — Tax rates and tax name (IGIC/IVA/IPSI) loaded from CMS at startup
@@ -140,7 +140,7 @@ Each type has its own numbering series as required by Spanish invoicing regulati
 **Invoice structure** (Directus `invoices` collection, all monetary fields are `string`):
 
 - `Invoice`: header with `total_net`, `total_tax`, `total_gross`, `invoice_number`, `invoice_type`, `tenant`, `status` (`draft`/`paid`/`cancelled`/`rectificada`), customer snapshot fields, VeriFactu fields (`previous_record_hash`, `chain_hash`, `qr_url`, `generation_date`). `invoice_number`, `invoice_type`, and VeriFactu fields are generated server-side via the invoice-processor extension.
-- `InvoiceItem`: per-line with `product_id`, `quantity`, `price_gross_unit` (19,4), `price_net_unit_precise` (19,8), `row_total_net_precise` (19,8), `row_total_gross` (19,2), `tax_rate_snapshot` (5,2 as percentage), `discount_type`, `discount_value`. Data comes from `cartTotals.items`.
+- `InvoiceItem`: per-line with `product_id`, `quantity`, `price_gross_unit` (19,4), `price_net_unit_precise` (19,8), `row_total_net_precise` (19,8), `row_total_gross` (19,2), `tax_rate_snapshot` (5,2 as percentage), `discount_type`, `discount_value`, `cost_center` (string snapshot, nullable). Data comes from `cartTotals.items`.
 - `InvoicePayment`: payment method (`cash`/`card`), `amount`, `tendered`, `change`, `tip`
 
 **API** (`@pulpo/cms`): `createInvoice()` creates invoice with nested items and payments in one Directus request. `tenant` is set server-side by the invoice-processor extension. `getInvoices()` and `getInvoice()` read with all relations. Customer CRUD via `getCustomers()`, `searchCustomers()`, `createCustomer()`, `updateCustomer()`, `deleteCustomer()`.
@@ -175,9 +175,17 @@ All print paths use a single `printInvoice(invoice: Invoice)` function in `print
 
 Carts can be parked (saved) and restored later. A `ParkedCart` stores all `cartItems`, the `customer`, and the `globalDiscount` so the full state is preserved.
 
+### Cost Centers
+
+Products can be assigned to a cost center (e.g. "Bar", "Cocina", "Terraza") for reporting purposes.
+
+**Data flow**: Directus `cost_centers` collection (id, name) → M2O on `products.cost_center` → CMS API fetches as `cost_center: { id, name } | null` → `productStore` maps to `costCenter: string` (name only) on shop `Product` → `cartTotals` passes as `costCenter: string | null` on `CartTotalsItem` → `completeTransaction()` sends as `cost_center` string to API → invoice-processor spreads it into `invoice_items` via `{ ...item, tenant }`.
+
+**DailyOverview grouping**: `groupByCostCenter()` groups `ProductRow[]` by cost center name, computes per-group totals (quantity, gross, cash, card). Groups are sorted alphabetically, unnamed products go last as "Sin asignar". Group headers show aggregated totals, product rows show individual details.
+
 ### Cash Register & Closures (`registerStore.ts`)
 
-The register must be opened before sales can happen. `ShopApp.svelte` renders `OpenRegister` when closed, `ProductGrid` when open.
+The register must be opened before sales can happen. `ShopApp.svelte` renders `OpenRegister` when closed, `ProductGrid` when open. The `OpenRegister` component also provides a "Ver informes" link to access reports without opening the register.
 
 **State** (persistent): `isRegisterOpen`, `currentClosureId`, `startingCash`, `periodStart`
 
@@ -212,3 +220,22 @@ The tenant postcode (used for tax zone lookup) is loaded dynamically from the te
 - **Three views**: list (with search), create, edit — all with Directus CRUD via `@pulpo/cms`
 - **Customer selector** in CartSidebar between discount and checkout buttons
 - **Denormalization**: customer data is snapshotted on invoices at creation time
+
+### Daily Reports (`/reports`)
+
+**Page**: `src/pages/reports/index.astro` — standalone page with `DailyOverview.svelte` component.
+
+**`DailyOverview.svelte`**: Day-by-day report showing shift closures and aggregated data for a selected date.
+
+**Layout** (top to bottom):
+1. **Date navigation** — prev/next day buttons with formatted date
+2. **Summary card** — hero total bruto (large), secondary metrics row (neto, impuestos, efectivo, tarjeta, transacciones with ticket/factura/rectificativa breakdown), tax breakdown footer
+3. **Productos del día** — collapsible product table grouped by cost center (if any). Each group header shows name + aggregated totals. Product rows show name, quantity, total, cash, card
+4. **Turnos** — list of shift closures with time range, transaction count + type breakdown (ticket/factura/rectificativa), bruto, cash, card, difference. Each turno is expandable to show its product breakdown (same cost center grouping as above)
+
+**Data loading**: `loadDailyClosures(date)` fetches closures, then `getInvoices()` per closure. All computation (product aggregation, cost center grouping, invoice type counting) happens client-side.
+
+**Key functions**:
+- `buildProductRows(invoices)` — aggregates invoice items into product rows (skips rectificativas), tracks payment method per product
+- `groupByCostCenter(rows)` — groups products by cost center with per-group totals
+- `countInvoiceTypes(invoices)` — counts tickets, facturas, rectificativas

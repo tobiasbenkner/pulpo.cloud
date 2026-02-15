@@ -1,0 +1,55 @@
+import type { DirectusClient, RestClient } from "@directus/sdk";
+import type { AggregatedReport, Schema } from "../types";
+
+type Client = DirectusClient<Schema> & RestClient<Schema>;
+
+type ReportPeriod = "daily" | "weekly" | "monthly" | "quarterly" | "yearly";
+
+type ReportParams =
+  | { date: string }
+  | { year: string; month: string }
+  | { year: string; quarter: string }
+  | { year: string };
+
+function buildQueryString(params: ReportParams): string {
+  return Object.entries(params)
+    .map(([k, v]) => `${k}=${encodeURIComponent(v)}`)
+    .join("&");
+}
+
+/** Fetch an aggregated report from the server */
+export async function getReport(
+  client: Client,
+  period: ReportPeriod,
+  params: ReportParams,
+): Promise<AggregatedReport> {
+  const qs = buildQueryString(params);
+  return (client as any).request(() => ({
+    method: "GET",
+    path: `/invoice-processor/reports/${period}?${qs}`,
+  }));
+}
+
+/** Get the URL for downloading a report PDF */
+export function getReportPdfUrl(period: ReportPeriod, params: ReportParams): string {
+  const qs = buildQueryString(params);
+  return `/invoice-processor/reports/${period}/pdf?${qs}`;
+}
+
+/** Get the URL for downloading a report Excel */
+export function getReportExcelUrl(period: ReportPeriod, params: ReportParams): string {
+  const qs = buildQueryString(params);
+  return `/invoice-processor/reports/${period}/excel?${qs}`;
+}
+
+/** Trigger backfill of product_breakdown on existing closures */
+export async function backfillClosures(
+  client: Client,
+): Promise<{ success: boolean; updated: number }> {
+  return (client as any).request(() => ({
+    method: "POST",
+    path: "/invoice-processor/reports/backfill",
+    body: JSON.stringify({}),
+    headers: { "Content-Type": "application/json" },
+  }));
+}
