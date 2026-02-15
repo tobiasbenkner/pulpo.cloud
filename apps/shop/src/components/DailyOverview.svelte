@@ -17,6 +17,15 @@
     costCenter: string | null;
   }
 
+  interface CostCenterGroup {
+    name: string;
+    rows: ProductRow[];
+    totalQty: number;
+    totalGross: string;
+    totalCash: string;
+    totalCard: string;
+  }
+
   interface InvoiceCounts {
     tickets: number;
     facturas: number;
@@ -79,7 +88,13 @@
   function buildProductRows(invs: Invoice[]): ProductRow[] {
     const map = new Map<
       string,
-      { qty: number; gross: Big; cash: Big; card: Big; costCenter: string | null }
+      {
+        qty: number;
+        gross: Big;
+        cash: Big;
+        card: Big;
+        costCenter: string | null;
+      }
     >();
     const ZERO = new Big(0);
 
@@ -119,7 +134,8 @@
       .sort((a, b) => b.quantity - a.quantity);
   }
 
-  function groupByCostCenter(rows: ProductRow[]): [string, ProductRow[]][] {
+  function groupByCostCenter(rows: ProductRow[]): CostCenterGroup[] {
+    const ZERO = new Big(0);
     const groups = new Map<string, ProductRow[]>();
     for (const row of rows) {
       const key = row.costCenter ?? "";
@@ -128,11 +144,32 @@
       groups.set(key, existing);
     }
     // Sort: named groups first (alphabetical), then unnamed ("Sin asignar") last
-    return Array.from(groups.entries()).sort(([a], [b]) => {
-      if (a === "" && b !== "") return 1;
-      if (a !== "" && b === "") return -1;
-      return a.localeCompare(b);
-    });
+    return Array.from(groups.entries())
+      .sort(([a], [b]) => {
+        if (a === "" && b !== "") return 1;
+        if (a !== "" && b === "") return -1;
+        return a.localeCompare(b);
+      })
+      .map(([name, rows]) => {
+        let qty = 0;
+        let gross = ZERO;
+        let cash = ZERO;
+        let card = ZERO;
+        for (const r of rows) {
+          qty += r.quantity;
+          gross = gross.plus(new Big(r.totalGross));
+          cash = cash.plus(new Big(r.cashGross));
+          card = card.plus(new Big(r.cardGross));
+        }
+        return {
+          name,
+          rows,
+          totalQty: qty,
+          totalGross: gross.toFixed(2),
+          totalCash: cash.toFixed(2),
+          totalCard: card.toFixed(2),
+        };
+      });
   }
 
   function countInvoiceTypes(invs: Invoice[]): InvoiceCounts {
@@ -204,7 +241,10 @@
   let totalInvoiceCounts = $derived(countInvoiceTypes(allInvoices));
   let totalProductRows = $derived(buildProductRows(allInvoices));
   let totalGrouped = $derived(groupByCostCenter(totalProductRows));
-  let hasCostCenters = $derived(totalGrouped.length > 1 || (totalGrouped.length === 1 && totalGrouped[0][0] !== ""));
+  let hasCostCenters = $derived(
+    totalGrouped.length > 1 ||
+      (totalGrouped.length === 1 && totalGrouped[0].name !== ""),
+  );
 
   async function loadData() {
     loading = true;
@@ -241,22 +281,22 @@
   });
 </script>
 
-<div class="max-w-4xl mx-auto px-4 py-4">
+<div class="max-w-4xl mx-auto px-4 py-6">
   <!-- Date navigation -->
-  <div class="flex items-center justify-center gap-3 mb-4">
+  <div class="flex items-center justify-center gap-4 mb-6">
     <button
-      class="p-2 rounded-lg bg-zinc-100 text-zinc-600 hover:bg-zinc-200 active:scale-95 transition-all"
+      class="p-2.5 rounded-xl bg-white border border-zinc-200 text-zinc-500 hover:bg-zinc-50 hover:border-zinc-300 active:scale-95 transition-all shadow-sm"
       onclick={prevDay}
     >
       <ChevronLeft class="w-5 h-5" />
     </button>
     <span
-      class="text-base font-bold text-zinc-900 min-w-[180px] text-center capitalize"
+      class="text-lg font-bold text-zinc-900 min-w-[220px] text-center capitalize"
     >
       {formatDate(selectedDate)}
     </span>
     <button
-      class="p-2 rounded-lg bg-zinc-100 text-zinc-600 hover:bg-zinc-200 active:scale-95 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+      class="p-2.5 rounded-xl bg-white border border-zinc-200 text-zinc-500 hover:bg-zinc-50 hover:border-zinc-300 active:scale-95 transition-all shadow-sm disabled:opacity-30 disabled:cursor-not-allowed disabled:shadow-none"
       onclick={nextDay}
       disabled={isToday}
     >
@@ -265,340 +305,390 @@
   </div>
 
   {#if loading}
-    <div class="flex items-center justify-center py-12">
+    <div class="flex items-center justify-center py-16">
       <div
-        class="w-8 h-8 border-2 border-zinc-300 border-t-zinc-600 rounded-full animate-spin"
+        class="w-8 h-8 border-2 border-zinc-200 border-t-zinc-500 rounded-full animate-spin"
       ></div>
     </div>
   {:else if closures.length === 0}
-    <div class="text-center py-12">
-      <p class="text-zinc-400 text-sm">
-        No hay turnos cerrados en este d&iacute;a.
-      </p>
+    <div class="text-center py-16">
+      <p class="text-zinc-400">No hay turnos cerrados en este d&iacute;a.</p>
     </div>
   {:else}
     {#if summary}
-      <!-- KPI row -->
-      <div class="grid grid-cols-6 gap-2 mb-3">
-        <div class="bg-white rounded-lg border border-zinc-200 px-3 py-2">
-          <div class="text-xs text-zinc-400 uppercase tracking-wide">
-            Bruto
+      <!-- Summary card -->
+      <div
+        class="bg-white rounded-2xl border border-zinc-200 shadow-sm mb-6 overflow-hidden"
+      >
+        <!-- Hero: Total Bruto -->
+        <div class="px-5 pt-5 pb-4">
+          <div
+            class="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1"
+          >
+            Total bruto
           </div>
-          <div class="text-xl font-extrabold text-zinc-900 tabular-nums">
+          <div
+            class="text-4xl font-extrabold text-zinc-900 tabular-nums tracking-tight"
+          >
             {summary.totalGross}
-            <span class="text-sm font-normal text-zinc-400">&euro;</span>
+            <span class="text-lg font-medium text-zinc-300">&euro;</span>
           </div>
         </div>
-        <div class="bg-white rounded-lg border border-zinc-200 px-3 py-2">
-          <div class="text-xs text-zinc-400 uppercase tracking-wide">
-            Neto
-          </div>
-          <div class="text-xl font-bold text-zinc-700 tabular-nums">
-            {summary.totalNet}
-            <span class="text-sm font-normal text-zinc-400">&euro;</span>
-          </div>
-        </div>
-        <div class="bg-white rounded-lg border border-zinc-200 px-3 py-2">
-          <div class="text-xs text-zinc-400 uppercase tracking-wide">
-            Impuestos
-          </div>
-          <div class="text-xl font-bold text-zinc-700 tabular-nums">
-            {summary.totalTax}
-            <span class="text-sm font-normal text-zinc-400">&euro;</span>
-          </div>
-        </div>
-        <div class="bg-white rounded-lg border border-zinc-200 px-3 py-2">
-          <div class="text-xs text-zinc-400 uppercase tracking-wide">
-            Efectivo
-          </div>
-          <div class="text-xl font-bold text-zinc-700 tabular-nums">
-            {summary.totalCash}
-            <span class="text-sm font-normal text-zinc-400">&euro;</span>
-          </div>
-        </div>
-        <div class="bg-white rounded-lg border border-zinc-200 px-3 py-2">
-          <div class="text-xs text-zinc-400 uppercase tracking-wide">
-            Tarjeta
-          </div>
-          <div class="text-xl font-bold text-zinc-700 tabular-nums">
-            {summary.totalCard}
-            <span class="text-sm font-normal text-zinc-400">&euro;</span>
-          </div>
-        </div>
-        <div class="bg-white rounded-lg border border-zinc-200 px-3 py-2">
-          <div class="text-xs text-zinc-400 uppercase tracking-wide">
-            Trans.
-          </div>
-          <div class="text-xl font-bold text-zinc-700 tabular-nums">
-            {summary.transactionCount}
-          </div>
-          <div class="flex gap-1.5 text-xs text-zinc-400 mt-0.5">
-            <span>{totalInvoiceCounts.tickets} tick.</span>
-            <span>{totalInvoiceCounts.facturas} fact.</span>
-            {#if totalInvoiceCounts.rectificativas > 0}
-              <span class="text-red-400"
-                >{totalInvoiceCounts.rectificativas} rect.</span
-              >
-            {/if}
-          </div>
-        </div>
-      </div>
 
-      <!-- Tax breakdown + total products toggle -->
-      <div class="flex items-center justify-between mb-4 px-1">
-        <div class="flex flex-wrap gap-x-4 gap-y-1">
-          {#if summary.taxBreakdown.length > 0}
+        <!-- Secondary metrics -->
+        <div class="grid grid-cols-5 border-t border-zinc-100">
+          <div class="px-4 py-3">
+            <div
+              class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider"
+            >
+              Neto
+            </div>
+            <div class="text-lg font-bold text-zinc-700 tabular-nums">
+              {summary.totalNet}
+            </div>
+          </div>
+          <div class="px-4 py-3">
+            <div
+              class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider"
+            >
+              Impuestos
+            </div>
+            <div class="text-lg font-bold text-zinc-700 tabular-nums">
+              {summary.totalTax}
+            </div>
+          </div>
+          <div class="px-4 py-3">
+            <div
+              class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider"
+            >
+              Efectivo
+            </div>
+            <div class="text-lg font-bold text-zinc-700 tabular-nums">
+              {summary.totalCash}
+            </div>
+          </div>
+          <div class="px-4 py-3">
+            <div
+              class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider"
+            >
+              Tarjeta
+            </div>
+            <div class="text-lg font-bold text-zinc-700 tabular-nums">
+              {summary.totalCard}
+            </div>
+          </div>
+          <div class="px-4 py-3">
+            <div
+              class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider"
+            >
+              Transacciones
+            </div>
+            <div class="text-lg font-bold text-zinc-700 tabular-nums">
+              {summary.transactionCount}
+            </div>
+            <div class="flex gap-1.5 text-xs text-zinc-400 mt-0.5">
+              <span>{totalInvoiceCounts.tickets} tick.</span>
+              <span>{totalInvoiceCounts.facturas} fact.</span>
+              {#if totalInvoiceCounts.rectificativas > 0}
+                <span class="text-red-500"
+                  >{totalInvoiceCounts.rectificativas} rect.</span
+                >
+              {/if}
+            </div>
+          </div>
+        </div>
+
+        <!-- Tax breakdown -->
+        {#if summary.taxBreakdown.length > 0}
+          <div
+            class="flex flex-wrap gap-x-5 gap-y-1 px-5 py-3 border-t border-zinc-100 bg-zinc-50/60"
+          >
             {#each summary.taxBreakdown as entry}
               <span class="text-sm text-zinc-400">
                 {tax}
                 {parseFloat(entry.rate).toFixed(0)}%:
-                <span class="font-medium text-zinc-600">Base {entry.net}</span>
-                <span class="text-zinc-300 mx-0.5">&middot;</span>
-                <span class="font-medium text-zinc-600">Imp. {entry.tax}</span>
+                <span class="font-semibold text-zinc-600">{entry.net}</span>
+                <span class="text-zinc-300 mx-0.5">+</span>
+                <span class="font-semibold text-zinc-600">{entry.tax}</span>
               </span>
             {/each}
-          {/if}
-        </div>
+          </div>
+        {/if}
       </div>
     {/if}
 
-    <!-- Total products (collapsible) -->
+    <!-- Products section -->
     {#if totalProductRows.length > 0}
-      <button
-        class="w-full flex items-center justify-between px-2 py-1.5 mb-1 rounded-lg hover:bg-zinc-100 transition-colors"
-        onclick={() => (totalProductsExpanded = !totalProductsExpanded)}
-      >
-        <span
-          class="text-xs uppercase font-bold text-zinc-400 tracking-wider"
+      <div class="mb-6">
+        <button
+          class="w-full flex items-center justify-between px-1 py-2 mb-2 group"
+          onclick={() => (totalProductsExpanded = !totalProductsExpanded)}
         >
-          Productos del d&iacute;a ({totalProductRows.length})
-        </span>
-        <ChevronDown
-          class="w-4 h-4 text-zinc-400 transition-transform {totalProductsExpanded
-            ? 'rotate-180'
-            : ''}"
-        />
-      </button>
-      {#if totalProductsExpanded}
-        <div
-          class="mb-4 bg-white rounded-lg border border-zinc-200 overflow-hidden"
-        >
-          <div
-            class="producto-grid text-xs uppercase tracking-wider text-zinc-400 font-bold border-b border-zinc-200 bg-zinc-50 px-3 py-2"
+          <span
+            class="text-xs uppercase font-bold text-zinc-400 tracking-wider group-hover:text-zinc-600 transition-colors"
           >
-            <span>Producto</span>
-            <span class="text-right">Uds.</span>
-            <span class="text-right">Total</span>
-            <span class="text-right">Ef.</span>
-            <span class="text-right">Tj.</span>
-          </div>
-          {#if hasCostCenters}
-            {#each totalGrouped as [group, rows]}
-              <div class="px-3 py-1.5 bg-zinc-100 border-b border-zinc-200">
-                <span class="text-xs font-bold text-zinc-500 uppercase tracking-wider">{group || "Sin asignar"}</span>
-              </div>
-              {#each rows as row}
+            Productos del d&iacute;a
+            <span class="text-zinc-300 font-normal ml-1"
+              >{totalProductRows.length}</span
+            >
+          </span>
+          <ChevronDown
+            class="w-4 h-4 text-zinc-300 group-hover:text-zinc-500 transition-all {totalProductsExpanded
+              ? 'rotate-180'
+              : ''}"
+          />
+        </button>
+        {#if totalProductsExpanded}
+          <div
+            class="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden"
+          >
+            <div
+              class="producto-grid text-[11px] uppercase tracking-wider text-zinc-400 font-semibold border-b border-zinc-200 bg-zinc-50 px-4 py-2.5"
+            >
+              <span>Producto</span>
+              <span class="text-right">Uds.</span>
+              <span class="text-right">Total</span>
+              <span class="text-right">Ef.</span>
+              <span class="text-right">Tj.</span>
+            </div>
+            {#if hasCostCenters}
+              {#each totalGrouped as group}
                 <div
-                  class="producto-grid px-3 py-2 text-base border-b border-zinc-50 last:border-0"
+                  class="producto-grid px-4 py-2 bg-zinc-50 border-b border-zinc-200 text-base font-bold text-zinc-600"
                 >
-                  <span class="text-zinc-800 truncate" title={row.name}
-                    >{row.name}</span
+                  <span class="uppercase tracking-wider text-xs"
+                    >{group.name || "Sin asignar"}</span
                   >
-                  <span class="text-right tabular-nums font-bold text-zinc-900"
-                    >{row.quantity}</span
+                  <span class="text-right tabular-nums">{group.totalQty}</span>
+                  <span class="text-right tabular-nums">{group.totalGross}</span
                   >
-                  <span class="text-right tabular-nums font-bold text-zinc-900"
-                    >{row.totalGross}</span
+                  <span class="text-right tabular-nums">{group.totalCash}</span>
+                  <span class="text-right tabular-nums">{group.totalCard}</span>
+                </div>
+                {#each group.rows as row, j}
+                  <div
+                    class="producto-grid px-4 py-1.5 text-sm text-zinc-600 {j %
+                      2 ===
+                    0
+                      ? 'bg-white'
+                      : 'bg-zinc-50/50'}"
                   >
-                  <span class="text-right tabular-nums text-zinc-600"
-                    >{row.cashGross}</span
-                  >
-                  <span class="text-right tabular-nums text-zinc-600"
-                    >{row.cardGross}</span
-                  >
+                    <span class="truncate" title={row.name}>{row.name}</span>
+                    <span class="text-right tabular-nums">{row.quantity}</span>
+                    <span class="text-right tabular-nums">{row.totalGross}</span
+                    >
+                    <span class="text-right tabular-nums">{row.cashGross}</span>
+                    <span class="text-right tabular-nums">{row.cardGross}</span>
+                  </div>
+                {/each}
+              {/each}
+            {:else}
+              {#each totalProductRows as row, j}
+                <div
+                  class="producto-grid px-4 py-1.5 text-sm text-zinc-600 {j %
+                    2 ===
+                  0
+                    ? 'bg-white'
+                    : 'bg-zinc-50/50'}"
+                >
+                  <span class="truncate" title={row.name}>{row.name}</span>
+                  <span class="text-right tabular-nums">{row.quantity}</span>
+                  <span class="text-right tabular-nums">{row.totalGross}</span>
+                  <span class="text-right tabular-nums">{row.cashGross}</span>
+                  <span class="text-right tabular-nums">{row.cardGross}</span>
                 </div>
               {/each}
-            {/each}
-          {:else}
-            {#each totalProductRows as row}
-              <div
-                class="producto-grid px-3 py-2 text-base border-b border-zinc-50 last:border-0"
-              >
-                <span class="text-zinc-800 truncate" title={row.name}
-                  >{row.name}</span
-                >
-                <span class="text-right tabular-nums font-bold text-zinc-900"
-                  >{row.quantity}</span
-                >
-                <span class="text-right tabular-nums font-bold text-zinc-900"
-                  >{row.totalGross}</span
-                >
-                <span class="text-right tabular-nums text-zinc-600"
-                  >{row.cashGross}</span
-                >
-                <span class="text-right tabular-nums text-zinc-600"
-                  >{row.cardGross}</span
-                >
-              </div>
-            {/each}
-          {/if}
-        </div>
-      {/if}
+            {/if}
+          </div>
+        {/if}
+      </div>
     {/if}
 
-    <!-- Turnos -->
-    <div
-      class="text-xs uppercase font-bold text-zinc-400 tracking-wider mb-2 px-2"
-    >
-      Turnos ({closures.length})
-    </div>
-    <div class="bg-white rounded-lg border border-zinc-200 overflow-hidden">
-      <!-- Header -->
+    <!-- Turnos section -->
+    <div class="mb-6">
       <div
-        class="turno-grid text-xs uppercase tracking-wider text-zinc-400 font-bold border-b border-zinc-200 bg-zinc-50 px-3 py-2"
+        class="text-xs uppercase font-bold text-zinc-400 tracking-wider mb-2 px-1"
       >
-        <span>Turno</span>
-        <span>Horario</span>
-        <span class="text-center">Tipo</span>
-        <span class="text-right">Bruto</span>
-        <span class="text-right">Ef.</span>
-        <span class="text-right">Tj.</span>
-        <span class="text-right">Dif.</span>
-        <span></span>
+        Turnos
+        <span class="text-zinc-300 font-normal ml-1">{closures.length}</span>
       </div>
-      {#each closures as closure, i}
-        {@const closureInvs = invoicesByClosure.get(closure.id) ?? []}
-        {@const counts = countInvoiceTypes(closureInvs)}
-        {@const isExpanded = expandedClosures.has(closure.id)}
-        <!-- Row -->
-        <button
-          class="turno-grid w-full px-3 py-2.5 text-left text-base hover:bg-zinc-50 transition-colors border-b border-zinc-100 last:border-0"
-          onclick={() => toggleClosure(closure.id)}
+      <div
+        class="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden"
+      >
+        <div
+          class="turno-grid text-[11px] uppercase tracking-wider text-zinc-400 font-semibold border-b border-zinc-200 bg-zinc-50 px-4 py-2.5"
         >
-          <span class="text-sm font-bold text-zinc-500"
-            >T{closures.length - i}</span
+          <span>Turno</span>
+          <span>Horario</span>
+          <span class="text-right">Trans.</span>
+          <span class="text-right">Bruto</span>
+          <span class="text-right">Ef.</span>
+          <span class="text-right">Tj.</span>
+          <span class="text-right">Dif.</span>
+          <span></span>
+        </div>
+        {#each closures as closure, i}
+          {@const closureInvs = invoicesByClosure.get(closure.id) ?? []}
+          {@const counts = countInvoiceTypes(closureInvs)}
+          {@const totalTx =
+            counts.tickets + counts.facturas + counts.rectificativas}
+          {@const isExpanded = expandedClosures.has(closure.id)}
+          <button
+            class="turno-grid w-full px-4 py-3 text-left text-sm hover:bg-zinc-50/80 transition-colors {i <
+              closures.length - 1 || isExpanded
+              ? 'border-b border-zinc-100'
+              : ''}"
+            onclick={() => toggleClosure(closure.id)}
           >
-          <span class="text-sm text-zinc-400 tabular-nums">
-            {formatTime(closure.period_start)}&ndash;{closure.period_end
-              ? formatTime(closure.period_end)
-              : "..."}
-          </span>
-          <span
-            class="flex justify-center gap-1 text-xs text-zinc-400 tabular-nums"
-          >
-            <span>{counts.tickets}t</span>
-            <span>{counts.facturas}f</span>
-            {#if counts.rectificativas > 0}
-              <span class="text-red-400">{counts.rectificativas}r</span>
-            {/if}
-          </span>
-          <span class="text-right font-bold text-zinc-900 tabular-nums"
-            >{closure.total_gross ?? "0.00"}</span
-          >
-          <span class="text-right text-sm text-zinc-600 tabular-nums"
-            >{closure.total_cash ?? "0.00"}</span
-          >
-          <span class="text-right text-sm text-zinc-600 tabular-nums"
-            >{closure.total_card ?? "0.00"}</span
-          >
-          <span class="text-right text-sm tabular-nums">
-            {#if closure.difference !== null}
-              {@const diff = parseFloat(closure.difference)}
+            <span class="font-bold text-zinc-500">T{closures.length - i}</span>
+            <span class="text-zinc-400 tabular-nums">
+              {formatTime(closure.period_start)}&ndash;{closure.period_end
+                ? formatTime(closure.period_end)
+                : "..."}
+            </span>
+            <span class="text-right">
+              <span class="font-bold text-zinc-700 tabular-nums">{totalTx}</span
+              >
               <span
-                class="font-bold {Math.abs(diff) < 0.005
-                  ? 'text-zinc-300'
-                  : diff > 0
-                    ? 'text-emerald-600'
-                    : 'text-red-600'}"
+                class="flex justify-end gap-1.5 text-xs text-zinc-400 tabular-nums"
               >
-                {diff >= 0 ? "+" : ""}{diff.toFixed(2)}
+                <span>{counts.tickets} tick.</span>
+                <span>{counts.facturas} fact.</span>
+                {#if counts.rectificativas > 0}
+                  <span class="text-red-500">{counts.rectificativas} rect.</span
+                  >
+                {/if}
               </span>
-            {:else}
-              <span class="text-zinc-300">&mdash;</span>
-            {/if}
-          </span>
-          <span class="flex justify-end">
-            <ChevronDown
-              class="w-4 h-4 text-zinc-400 transition-transform {isExpanded
-                ? 'rotate-180'
-                : ''}"
-            />
-          </span>
-        </button>
-        <!-- Expanded detail -->
-        {#if isExpanded}
-          {@const closureProducts = buildProductRows(closureInvs)}
-          {@const closureGrouped = groupByCostCenter(closureProducts)}
-          {@const closureHasGroups = closureGrouped.length > 1 || (closureGrouped.length === 1 && closureGrouped[0][0] !== "")}
-          <div class="border-b border-zinc-100 px-3 py-2 bg-zinc-50/50">
-            {#if closureProducts.length > 0}
-              <div
-                class="producto-grid text-xs uppercase tracking-wider text-zinc-400 font-bold py-1.5"
-              >
-                <span>Producto</span>
-                <span class="text-right">Uds.</span>
-                <span class="text-right">Total</span>
-                <span class="text-right">Ef.</span>
-                <span class="text-right">Tj.</span>
-              </div>
-              {#if closureHasGroups}
-                {#each closureGrouped as [group, rows]}
-                  <div class="py-1 px-3 bg-zinc-100/80 border-t border-zinc-100">
-                    <span class="text-xs font-bold text-zinc-500 uppercase tracking-wider">{group || "Sin asignar"}</span>
-                  </div>
-                  {#each rows as row}
+            </span>
+            <span class="text-right font-bold text-zinc-900 tabular-nums"
+              >{closure.total_gross ?? "0.00"}</span
+            >
+            <span class="text-right text-zinc-500 tabular-nums"
+              >{closure.total_cash ?? "0.00"}</span
+            >
+            <span class="text-right text-zinc-500 tabular-nums"
+              >{closure.total_card ?? "0.00"}</span
+            >
+            <span class="text-right tabular-nums">
+              {#if closure.difference !== null}
+                {@const diff = parseFloat(closure.difference)}
+                <span
+                  class="font-bold {Math.abs(diff) < 0.005
+                    ? 'text-zinc-300'
+                    : diff > 0
+                      ? 'text-emerald-600'
+                      : 'text-red-600'}"
+                >
+                  {diff >= 0 ? "+" : ""}{diff.toFixed(2)}
+                </span>
+              {:else}
+                <span class="text-zinc-300">&mdash;</span>
+              {/if}
+            </span>
+            <span class="flex justify-end">
+              <ChevronDown
+                class="w-4 h-4 text-zinc-300 transition-transform {isExpanded
+                  ? 'rotate-180'
+                  : ''}"
+              />
+            </span>
+          </button>
+          {#if isExpanded}
+            {@const closureProducts = buildProductRows(closureInvs)}
+            {@const closureGrouped = groupByCostCenter(closureProducts)}
+            {@const closureHasGroups =
+              closureGrouped.length > 1 ||
+              (closureGrouped.length === 1 && closureGrouped[0].name !== "")}
+            <div class="border-b border-zinc-100 bg-zinc-50/30">
+              {#if closureProducts.length > 0}
+                <div
+                  class="producto-grid text-[11px] uppercase tracking-wider text-zinc-400 font-semibold px-4 py-2 border-b border-zinc-100"
+                >
+                  <span>Producto</span>
+                  <span class="text-right">Uds.</span>
+                  <span class="text-right">Total</span>
+                  <span class="text-right">Ef.</span>
+                  <span class="text-right">Tj.</span>
+                </div>
+                {#if closureHasGroups}
+                  {#each closureGrouped as group}
                     <div
-                      class="producto-grid py-1.5 text-sm border-t border-zinc-100"
+                      class="producto-grid px-4 py-1.5 bg-zinc-100/60 border-b border-zinc-100 text-base font-bold text-zinc-600"
                     >
-                      <span class="text-zinc-700 truncate" title={row.name}
-                        >{row.name}</span
+                      <span class="uppercase tracking-wider text-xs"
+                        >{group.name || "Sin asignar"}</span
                       >
-                      <span class="text-right tabular-nums font-bold text-zinc-800"
-                        >{row.quantity}</span
+                      <span class="text-right tabular-nums"
+                        >{group.totalQty}</span
                       >
-                      <span class="text-right tabular-nums font-bold text-zinc-800"
+                      <span class="text-right tabular-nums"
+                        >{group.totalGross}</span
+                      >
+                      <span class="text-right tabular-nums"
+                        >{group.totalCash}</span
+                      >
+                      <span class="text-right tabular-nums"
+                        >{group.totalCard}</span
+                      >
+                    </div>
+                    {#each group.rows as row, j}
+                      <div
+                        class="producto-grid px-4 py-1 text-sm text-zinc-600 {j %
+                          2 ===
+                        0
+                          ? ''
+                          : 'bg-zinc-50/50'}"
+                      >
+                        <span class="truncate" title={row.name}>{row.name}</span
+                        >
+                        <span class="text-right tabular-nums"
+                          >{row.quantity}</span
+                        >
+                        <span class="text-right tabular-nums"
+                          >{row.totalGross}</span
+                        >
+                        <span class="text-right tabular-nums"
+                          >{row.cashGross}</span
+                        >
+                        <span class="text-right tabular-nums"
+                          >{row.cardGross}</span
+                        >
+                      </div>
+                    {/each}
+                  {/each}
+                {:else}
+                  {#each closureProducts as row, j}
+                    <div
+                      class="producto-grid px-4 py-1 text-sm text-zinc-600 {j %
+                        2 ===
+                      0
+                        ? ''
+                        : 'bg-zinc-50/50'}"
+                    >
+                      <span class="truncate" title={row.name}>{row.name}</span>
+                      <span class="text-right tabular-nums">{row.quantity}</span
+                      >
+                      <span class="text-right tabular-nums"
                         >{row.totalGross}</span
                       >
-                      <span class="text-right tabular-nums text-zinc-500"
+                      <span class="text-right tabular-nums"
                         >{row.cashGross}</span
                       >
-                      <span class="text-right tabular-nums text-zinc-500"
+                      <span class="text-right tabular-nums"
                         >{row.cardGross}</span
                       >
                     </div>
                   {/each}
-                {/each}
+                {/if}
               {:else}
-                {#each closureProducts as row}
-                  <div
-                    class="producto-grid py-1.5 text-sm border-t border-zinc-100"
-                  >
-                    <span class="text-zinc-700 truncate" title={row.name}
-                      >{row.name}</span
-                    >
-                    <span class="text-right tabular-nums font-bold text-zinc-800"
-                      >{row.quantity}</span
-                    >
-                    <span class="text-right tabular-nums font-bold text-zinc-800"
-                      >{row.totalGross}</span
-                    >
-                    <span class="text-right tabular-nums text-zinc-500"
-                      >{row.cashGross}</span
-                    >
-                    <span class="text-right tabular-nums text-zinc-500"
-                      >{row.cardGross}</span
-                    >
-                  </div>
-                {/each}
+                <p class="text-sm text-zinc-400 text-center py-4">
+                  Sin productos
+                </p>
               {/if}
-            {:else}
-              <p class="text-xs text-zinc-400 text-center py-2">
-                Sin productos
-              </p>
-            {/if}
-          </div>
-        {/if}
-      {/each}
+            </div>
+          {/if}
+        {/each}
+      </div>
     </div>
   {/if}
 </div>
@@ -606,7 +696,7 @@
 <style>
   .turno-grid {
     display: grid;
-    grid-template-columns: 2.5rem 8rem 5.5rem 1fr 1fr 1fr 4.5rem 1.5rem;
+    grid-template-columns: 2.5rem 7.5rem 7rem 1fr 1fr 1fr 4.5rem 1.5rem;
     align-items: center;
     gap: 0.5rem;
   }

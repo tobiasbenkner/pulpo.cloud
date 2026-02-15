@@ -2,6 +2,7 @@
 .turbo
 .wrangler
 todo.md
+.playwright-mcp
 
 # dependencies
 node_modules
