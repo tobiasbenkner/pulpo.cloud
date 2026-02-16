@@ -14,6 +14,7 @@ services:
       CORS_HEADERS: Content-Type,Authorization
       CORS_CREDENTIALS: true
       
+      PUBLIC_URL: http://localhost:8055
       KEY: "dein-super-geheimer-key"
       SECRET: "dein-super-geheimes-secret"
       ADMIN_EMAIL: "admin@example.com"

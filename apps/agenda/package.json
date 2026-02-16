@@ -7,7 +7,6 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "deploy:old": "wrangler pages deploy dist --project-name=pulpo-agenda --branch=main",
     "deploy": "docker build -t pulpocloud/agenda . && docker push pulpocloud/agenda"
   },
   "dependencies": {
@@ -24,10 +23,7 @@
     "nanostores": "^1.1.0",
     "svelte": "^5.46.1",
     "tailwindcss": "^4.1.18",
-    "typescript": "^5.9.3"
-  },
-  "devDependencies": {
-    "sharp": "^0.34.5",
-    "wrangler": "^4.60.0"
+    "typescript": "^5.9.3",
+    "sharp": "^0.34.5"
   }
 }
