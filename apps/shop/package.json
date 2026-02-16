@@ -7,7 +7,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "deploy": "wrangler pages deploy dist --project-name=pulpo-shop --branch=main"
+    "deploy": "docker build -t pulpocloud/shop . && docker push pulpocloud/shop"
   },
   "dependencies": {
     "@astrojs/svelte": "^7.2.5",
@@ -27,7 +27,6 @@
     "@tailwindcss/typography": "^0.5.19",
     "@types/big.js": "^6.2.2",
     "sharp": "^0.34.5",
-    "typescript": "^5.9.3",
-    "wrangler": "^4.60.0"
+    "typescript": "^5.9.3"
   }
 }

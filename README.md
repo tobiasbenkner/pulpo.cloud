@@ -39,7 +39,7 @@ Reservation management app with calendar views, time slot management, and arriva
 
 ### Shop (`@pulpo/shop`)
 
-Full point-of-sale system with product catalog, stock management, shopping cart, multi-region Spanish tax calculation (IGIC/IVA/IPSI), invoice generation (tickets & facturas), cash register workflows, thermal printer integration, and daily reporting. Deployed to Cloudflare Pages.
+Full point-of-sale system with product catalog, stock management, shopping cart, multi-region Spanish tax calculation (IGIC/IVA/IPSI), invoice generation (tickets & facturas), cash register workflows, thermal printer integration, and daily reporting. Deployed as Docker image.
 
 ### Thermal Printer Service
 
