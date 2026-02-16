@@ -19,31 +19,78 @@ No test framework is configured for this app.
 
 ### Overview
 
-A **Point-of-Sale (POS) application** built with Astro 5 + Tailwind CSS v4 + nanostores. Products and tax rates are loaded from Directus CMS at startup. State is client-side with localStorage persistence.
+A **Point-of-Sale (POS) application** built with Astro 5 + Tailwind CSS v4 + nanostores. Products and tax rates are loaded from Directus CMS at startup. State is client-side with localStorage persistence. Authentication is handled by `@pulpo/auth`.
 
 ### Key Directories
 
-- `src/pages/` — Two routes: `index.astro` (POS) and `reports/index.astro` (daily reports)
-- `src/components/` — Svelte 5 components (ProductCard, CartSidebar, modals)
-- `src/stores/cartStore.ts` — Cart state, discounts, transactions, computed totals
-- `src/stores/taxStore.ts` — Tax rates and tax name (IGIC/IVA/IPSI) loaded from CMS at startup
-- `src/stores/productStore.ts` — Product loading, stock management, auto-refresh
-- `src/stores/printerStore.ts` — Thermal printing via `printInvoice(invoice)`
-- `src/stores/registerStore.ts` — Cash register open/close state
+- `src/pages/` — Seven routes (see Pages section below)
+- `src/components/` — Svelte 5 and Astro components (modals, product grid, cart, reports)
+- `src/stores/` — nanostores for cart, products, tax, printing, register
 - `src/types/shop.ts` — TypeScript interfaces (Product, CartItem, Customer, etc.)
-- `src/layouts/ShopLayout.astro` — Master layout with product grid + 340px cart sidebar + modal layers
+- `src/layouts/Layout.astro` — Master layout with auth initialization
+- `src/styles/` — Global CSS
+- `src/data/` — Static data files
+- `src/assets/` — Images and assets
+
+### Pages
+
+| Route | Description |
+|---|---|
+| `index.astro` | Main POS page (product grid + cart sidebar) |
+| `reports.astro` | Reports page with daily/weekly/monthly/quarterly/yearly tabs |
+| `login.astro` | Login form (via `@pulpo/auth`) |
+| `logout.astro` | Logout |
+| `forgot-password.astro` | Password reset request |
+| `reset-password.astro` | Password reset form |
+| `support.astro` | Support page |
+
+### Components
+
+**Astro components** (static HTML in DOM, toggled via nanostore subscriptions):
+- `Cart.astro` — Cart sidebar wrapper
+- `CheckoutModal.astro` — Payment checkout modal
+- `CustomAmountModal.astro` — Custom amount entry modal
+- `DiscountModal.astro` — Discount entry modal
+- `ProductCard.astro` — Product card (static shell)
+- `QuantityModal.astro` — Quantity adjustment modal
+
+**Svelte components** (interactive, runes-based):
+- `ShopApp.svelte` — Main POS app shell (auth, product loading, register state)
+- `ProductGrid.svelte` — Product grid with category filtering
+- `ProductCard.svelte` — Interactive product card
+- `CartSidebar.svelte` — Cart items, totals, customer selector
+- `OpenRegister.svelte` — Register opening form
+- `LastChangeWidget.svelte` — Last transaction display + reprint
+- `CustomerModal.svelte` — Customer CRUD (select/manage modes)
+- `CashClosureModal.svelte` — Cash register closure wizard
+- `ShiftInvoicesModal.svelte` — Invoice list for current shift
+- `RectificativaModal.svelte` — Corrective invoice creation
+- `StockEditModal.svelte` — Stock adjustment
+- `XReportModal.svelte` — X report (mid-shift summary)
+
+**Report components:**
+- `ReportsApp.svelte` — Reports shell with tab navigation (day/week/month/quarter/year)
+- `DailyOverview.svelte` — Day-by-day report with shift closures
+- `PeriodReport.svelte` — Generic period report component (used by all period types)
+- `WeeklyReport.svelte` — Week navigator + PeriodReport
+- `MonthlyReport.svelte` — Month navigator + PeriodReport
+- `QuarterlyReport.svelte` — Quarter navigator + PeriodReport
+- `YearlyReport.svelte` — Year navigator + PeriodReport
+
+**Icons:**
+- `icons/RefundIcon.svelte`
 
 ### State Management (nanostores)
 
 **Persistent (localStorage):** `cartItems`, `lastTransaction`, `parkedCarts`, `globalDiscount`, `shouldPrintReceipt`
 
-**Session (in-memory atoms):** modal open states, `selectedCustomer`, `taxRates`, `taxLoaded`, `taxName`
+**Session (in-memory atoms):** modal open states (`isClosureModalOpen`, `isShiftInvoicesModalOpen`, `isRectificativaModalOpen`, `isXReportModalOpen`), `selectedCustomer`, `taxRates`, `taxLoaded`, `taxName`
 
 **Computed:** `cartTotals` derives subtotal, discount, gross, net, tax, taxBreakdown, per-item invoice data, and count from `cartItems` + `globalDiscount` + `taxRates`
 
 ### Svelte 5 Runes
 
-Components use Svelte 5 runes (`$state`, `$derived`, `$props`). The `svelte.config.js` does NOT set `runes: true` globally — runes mode is inferred per-component. Nanostore subscriptions happen via `onMount` with manual `.subscribe()` calls, assigning to `$state` variables for template reactivity.
+Components use Svelte 5 runes (`$state`, `$derived`, `$props`, `$effect`). The `svelte.config.js` does NOT set `runes: true` globally — runes mode is inferred per-component. Nanostore subscriptions happen via `onMount` with manual `.subscribe()` calls, assigning to `$state` variables for template reactivity.
 
 ### Tax System
 
@@ -181,8 +228,6 @@ Products can be assigned to a cost center (e.g. "Bar", "Cocina", "Terraza") for 
 
 **Data flow**: Directus `cost_centers` collection (id, name) → M2O on `products.cost_center` → CMS API fetches as `cost_center: { id, name } | null` → `productStore` maps to `costCenter: string` (name only) on shop `Product` → `cartTotals` passes as `costCenter: string | null` on `CartTotalsItem` → `completeTransaction()` sends as `cost_center` string to API → invoice-processor spreads it into `invoice_items` via `{ ...item, tenant }`.
 
-**DailyOverview grouping**: `groupByCostCenter()` groups `ProductRow[]` by cost center name, computes per-group totals (quantity, gross, cash, card). Groups are sorted alphabetically, unnamed products go last as "Sin asignar". Group headers show aggregated totals, product rows show individual details.
-
 ### Cash Register & Closures (`registerStore.ts`)
 
 The register must be opened before sales can happen. `ShopApp.svelte` renders `OpenRegister` when closed, `ProductGrid` when open. The `OpenRegister` component also provides a "Ver informes" link to access reports without opening the register.
@@ -199,14 +244,40 @@ The register must be opened before sales can happen. `ShopApp.svelte` renders `O
 
 **Rectificativa** (corrective invoice): `createRectificativa()` creates a negative invoice referencing the original. `swapPaymentMethod()` changes cash ↔ card on an existing invoice.
 
+### Reports (`/reports`)
+
+**Page**: `src/pages/reports.astro` — standalone page with `ReportsApp.svelte` component.
+
+**`ReportsApp.svelte`**: Shell with tab navigation between five report periods (day, week, month, quarter, year). Handles authentication and product loading on mount.
+
+**`DailyOverview.svelte`**: Day-by-day report showing shift closures and aggregated data for a selected date.
+
+**Daily layout** (top to bottom):
+1. **Date navigation** — prev/next day buttons with formatted date
+2. **Summary card** — hero total bruto (large), secondary metrics row (neto, impuestos, efectivo, tarjeta, transacciones with ticket/factura/rectificativa breakdown), tax breakdown footer
+3. **Productos del día** — collapsible product table grouped by cost center (if any). Each group header shows name + aggregated totals. Product rows show name, quantity, total, cash, card
+4. **Turnos** — list of shift closures with time range, transaction count + type breakdown (ticket/factura/rectificativa), bruto, cash, card, difference. Each turno is expandable to show its product breakdown (same cost center grouping as above)
+
+**Period reports** (weekly, monthly, quarterly, yearly): Each has a navigator component (e.g. `WeeklyReport.svelte`) providing prev/next navigation and a label, wrapping the shared `PeriodReport.svelte` component. `PeriodReport` calls `getReport(client, period, params)` from `@pulpo/cms` which returns an `AggregatedReport` with summary, invoice counts, tax breakdown, and product breakdown. All grouping/formatting happens client-side.
+
+**Data loading**:
+- Daily: `loadDailyClosures(date)` fetches closures, then `getInvoices()` per closure. All computation (product aggregation, cost center grouping, invoice type counting) happens client-side.
+- Period: `getReport(client, period, params)` returns server-aggregated `AggregatedReport` data.
+
 ### Component Patterns
 
 **Two types of modals coexist:**
 
-- **Astro modals** (`CheckoutModal.astro`, `DiscountModal.astro`): Static HTML always in DOM (`display: hidden`), toggled via `<script>` blocks that subscribe to nanostores. Use CSS transitions (opacity/scale).
-- **Svelte modals** (`CashClosureModal.svelte`, `ShiftInvoicesModal.svelte`, `CustomerModal.svelte`): Standard Svelte components with `$state` visibility. Use `{#if}` blocks.
+- **Astro modals** (`CheckoutModal.astro`, `DiscountModal.astro`, `CustomAmountModal.astro`, `QuantityModal.astro`): Static HTML always in DOM (`display: hidden`), toggled via `<script>` blocks that subscribe to nanostores. Use CSS transitions (opacity/scale).
+- **Svelte modals** (`CashClosureModal.svelte`, `ShiftInvoicesModal.svelte`, `CustomerModal.svelte`, `RectificativaModal.svelte`, `StockEditModal.svelte`, `XReportModal.svelte`): Standard Svelte components with `$state` visibility. Use `{#if}` blocks.
 
-**Nanostore → Svelte reactivity pattern**: All components use manual `.subscribe()` in `onMount`, assigning to `$state` variables. The subscription is cleaned up in the returned teardown function. This is the standard bridge between nanostores and Svelte 5 runes.
+**Nanostore → Svelte reactivity pattern**: All components use manual `.subscribe()` in `onMount`, assigning to `$state` variables for template reactivity. The subscription is cleaned up in the returned teardown function. This is the standard bridge between nanostores and Svelte 5 runes.
+
+### Authentication
+
+Authentication is handled by `@pulpo/auth` (workspace package). `Layout.astro` initializes the auth client on every page. Protected pages (POS, reports) check authentication on mount and redirect to `/login` if unauthenticated.
+
+**Auth pages**: `login.astro`, `logout.astro`, `forgot-password.astro`, `reset-password.astro` — all use components from `@pulpo/auth`.
 
 ### Environment Variables
 
@@ -221,21 +292,6 @@ The tenant postcode (used for tax zone lookup) is loaded dynamically from the te
 - **Customer selector** in CartSidebar between discount and checkout buttons
 - **Denormalization**: customer data is snapshotted on invoices at creation time
 
-### Daily Reports (`/reports`)
+### Deployment
 
-**Page**: `src/pages/reports/index.astro` — standalone page with `DailyOverview.svelte` component.
-
-**`DailyOverview.svelte`**: Day-by-day report showing shift closures and aggregated data for a selected date.
-
-**Layout** (top to bottom):
-1. **Date navigation** — prev/next day buttons with formatted date
-2. **Summary card** — hero total bruto (large), secondary metrics row (neto, impuestos, efectivo, tarjeta, transacciones with ticket/factura/rectificativa breakdown), tax breakdown footer
-3. **Productos del día** — collapsible product table grouped by cost center (if any). Each group header shows name + aggregated totals. Product rows show name, quantity, total, cash, card
-4. **Turnos** — list of shift closures with time range, transaction count + type breakdown (ticket/factura/rectificativa), bruto, cash, card, difference. Each turno is expandable to show its product breakdown (same cost center grouping as above)
-
-**Data loading**: `loadDailyClosures(date)` fetches closures, then `getInvoices()` per closure. All computation (product aggregation, cost center grouping, invoice type counting) happens client-side.
-
-**Key functions**:
-- `buildProductRows(invoices)` — aggregates invoice items into product rows (skips rectificativas), tracks payment method per product
-- `groupByCostCenter(rows)` — groups products by cost center with per-group totals
-- `countInvoiceTypes(invoices)` — counts tickets, facturas, rectificativas
+Deployed as a Docker container. `pnpm --filter @pulpo/shop deploy` builds the Docker image and pushes to `pulpocloud/shop`.
