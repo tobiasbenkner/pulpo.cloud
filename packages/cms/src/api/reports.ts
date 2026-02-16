@@ -30,18 +30,6 @@ export async function getReport(
   }));
 }
 
-/** Get the URL for downloading a report PDF */
-export function getReportPdfUrl(period: ReportPeriod, params: ReportParams): string {
-  const qs = buildQueryString(params);
-  return `/invoice-processor/reports/${period}/pdf?${qs}`;
-}
-
-/** Get the URL for downloading a report Excel */
-export function getReportExcelUrl(period: ReportPeriod, params: ReportParams): string {
-  const qs = buildQueryString(params);
-  return `/invoice-processor/reports/${period}/excel?${qs}`;
-}
-
 /** Trigger backfill of product_breakdown on existing closures */
 export async function backfillClosures(
   client: Client,

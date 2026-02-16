@@ -5,17 +5,7 @@ import Big from "big.js";
 import {
   computeProductBreakdown,
   computeInvoiceTypeCounts,
-  aggregateClosures,
 } from "../helpers/report-aggregator";
-import { generateReportPdf } from "../helpers/pdf-generator";
-import { sendDailyReportEmail } from "../helpers/email-sender";
-
-function getTaxNameFromPostcode(postcode: string): string {
-  if (/^(35|38)\d{3}$/.test(postcode)) return "IGIC";
-  if (/^51\d{3}$/.test(postcode)) return "IPSI";
-  if (/^52\d{3}$/.test(postcode)) return "IPSI";
-  return "IVA";
-}
 
 export function registerCashRegisterClose(
   router: Router,
@@ -158,74 +148,6 @@ export function registerCashRegisterClose(
       const updatedClosure = await closureService.readOne(
         openClosure.id as string,
       );
-
-      // Fire-and-forget: send daily report email if tenant has report_emails
-      (async () => {
-        try {
-          const tenantService = new ItemsService("tenants", {
-            schema,
-            knex: database,
-          });
-          const tenantRecord = (await tenantService.readOne(tenant)) as Record<
-            string,
-            any
-          >;
-          if (
-            !tenantRecord.report_emails ||
-            tenantRecord.report_emails.length === 0
-          )
-            return;
-
-          // Get the date of this closure for the daily report
-          const closureDate = (
-            (updatedClosure as Record<string, any>).period_start as string
-          ).slice(0, 10);
-          const dayStart = `${closureDate}T00:00:00`;
-          const dayEnd = `${closureDate}T23:59:59`;
-
-          // Load all closures for this day
-          const dayClosures = await closureService.readByQuery({
-            filter: {
-              tenant: { _eq: tenant },
-              status: { _eq: "closed" },
-              period_start: { _gte: dayStart, _lte: dayEnd },
-            },
-            sort: ["-period_start"],
-            limit: -1,
-          });
-
-          const taxName = getTaxNameFromPostcode(tenantRecord.postcode ?? "");
-          const report = aggregateClosures(
-            dayClosures,
-            {
-              type: "daily",
-              label: new Date(closureDate + "T12:00:00").toLocaleDateString(
-                "es-ES",
-                { day: "2-digit", month: "2-digit", year: "numeric" },
-              ),
-              from: dayStart,
-              to: dayEnd,
-            },
-            true,
-          );
-
-          const pdfBuffer = await generateReportPdf(
-            report,
-            tenantRecord,
-            taxName,
-          );
-          await sendDailyReportEmail(
-            services,
-            database,
-            schema,
-            tenantRecord,
-            report,
-            pdfBuffer,
-          );
-        } catch (emailErr) {
-          console.error("Failed to send daily report email:", emailErr);
-        }
-      })();
 
       return res.json({ success: true, closure: updatedClosure });
     } catch (error: unknown) {

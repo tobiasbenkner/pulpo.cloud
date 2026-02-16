@@ -7,7 +7,7 @@ WORKDIR /build/extensions/invoice-processor
 RUN npm ci
 RUN npm run build
 
-FROM directus/directus:11.15.2
+FROM directus/directus:11.15.3
 
 COPY --from=builder /build/extensions/invoice-processor/dist /directus/extensions/invoice-processor/dist
 COPY --from=builder /build/extensions/invoice-processor/package.json /directus/extensions/invoice-processor/package.json

@@ -2,14 +2,9 @@
   import { onMount } from "svelte";
   import { taxName } from "../stores/taxStore";
   import { getAuthClient } from "@pulpo/auth";
-  import {
-    getReport,
-    getReportPdfUrl,
-    getReportExcelUrl,
-    DIRECTUS_URL,
-  } from "@pulpo/cms";
+  import { getReport } from "@pulpo/cms";
   import type { AggregatedReport, ClosureProductBreakdown } from "@pulpo/cms";
-  import { ChevronDown, Download } from "lucide-svelte";
+  import { ChevronDown } from "lucide-svelte";
 
   type ReportPeriod = "daily" | "weekly" | "monthly" | "quarterly" | "yearly";
 
@@ -86,25 +81,6 @@
       (totalGrouped.length === 1 && totalGrouped[0].name !== ""),
   );
 
-  function downloadFile(type: "pdf" | "excel") {
-    const path =
-      type === "pdf"
-        ? getReportPdfUrl(period, params)
-        : getReportExcelUrl(period, params);
-
-    const token = localStorage.getItem("directus_auth");
-    const parsed = token ? JSON.parse(token) : null;
-    const accessToken = parsed?.access_token ?? "";
-
-    const url = `${DIRECTUS_URL}${path}&access_token=${accessToken}`;
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `informe-${period}.${type === "pdf" ? "pdf" : "xlsx"}`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  }
-
   export async function loadData() {
     loading = true;
     totalProductsExpanded = false;
@@ -162,24 +138,6 @@
       <p class="text-zinc-400">No hay datos para este per&iacute;odo.</p>
     </div>
   {:else}
-    <!-- Download buttons -->
-    <div class="flex justify-end gap-2 mb-4">
-      <button
-        class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-zinc-500 bg-white border border-zinc-200 rounded-lg hover:bg-zinc-50 hover:border-zinc-300 transition-all active:scale-95"
-        onclick={() => downloadFile("pdf")}
-      >
-        <Download class="w-3.5 h-3.5" />
-        PDF
-      </button>
-      <button
-        class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-zinc-500 bg-white border border-zinc-200 rounded-lg hover:bg-zinc-50 hover:border-zinc-300 transition-all active:scale-95"
-        onclick={() => downloadFile("excel")}
-      >
-        <Download class="w-3.5 h-3.5" />
-        Excel
-      </button>
-    </div>
-
     {#if summary}
       <!-- Summary card -->
       <div

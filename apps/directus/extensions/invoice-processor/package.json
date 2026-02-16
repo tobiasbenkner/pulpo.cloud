@@ -31,8 +31,6 @@
 		"typescript": "^5.9.3"
 	},
 	"dependencies": {
-		"big.js": "^7.0.1",
-		"pdfmake": "^0.2.18",
-		"exceljs": "^4.4.0"
+		"big.js": "^7.0.1"
 	}
 }

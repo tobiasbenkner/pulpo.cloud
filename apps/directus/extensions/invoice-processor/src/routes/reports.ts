@@ -7,8 +7,6 @@ import {
   computeInvoiceTypeCounts,
   type AggregatedReport,
 } from "../helpers/report-aggregator";
-import { generateReportPdf } from "../helpers/pdf-generator";
-import { generateReportExcel } from "../helpers/excel-generator";
 
 type PeriodType = "daily" | "weekly" | "monthly" | "quarterly" | "yearly";
 
@@ -106,13 +104,6 @@ function getDateRange(
   throw new Error(`Unknown period type: ${type}`);
 }
 
-function getTaxNameFromPostcode(postcode: string): string {
-  if (/^(35|38)\d{3}$/.test(postcode)) return "IGIC";
-  if (/^51\d{3}$/.test(postcode)) return "IPSI";
-  if (/^52\d{3}$/.test(postcode)) return "IPSI";
-  return "IVA";
-}
-
 export function registerReports(router: Router, context: EndpointContext) {
   const { services, database, getSchema } = context;
   const ItemsService = services.ItemsService as ServiceConstructor;
@@ -133,59 +124,6 @@ export function registerReports(router: Router, context: EndpointContext) {
         return res.json(report);
       } catch (error: unknown) {
         console.error(`Error generating ${periodType} report:`, error);
-        const message =
-          error instanceof Error ? error.message : "Unknown error";
-        return res.status(500).json({ error: message });
-      }
-    });
-
-    // GET /reports/:period/pdf
-    router.get(`/reports/${periodType}/pdf`, async (req, res) => {
-      try {
-        const { report, tenant } = await buildReportWithTenant(
-          periodType,
-          req.query as any,
-          req,
-        );
-        const taxName = getTaxNameFromPostcode(tenant.postcode ?? "");
-        const pdfBuffer = await generateReportPdf(report, tenant, taxName);
-        const filename = `informe-${periodType}-${report.period.from.slice(0, 10)}.pdf`;
-        res.setHeader("Content-Type", "application/pdf");
-        res.setHeader(
-          "Content-Disposition",
-          `attachment; filename="${filename}"`,
-        );
-        return res.send(pdfBuffer);
-      } catch (error: unknown) {
-        console.error(`Error generating ${periodType} PDF:`, error);
-        const message =
-          error instanceof Error ? error.message : "Unknown error";
-        return res.status(500).json({ error: message });
-      }
-    });
-
-    // GET /reports/:period/excel
-    router.get(`/reports/${periodType}/excel`, async (req, res) => {
-      try {
-        const { report, tenant } = await buildReportWithTenant(
-          periodType,
-          req.query as any,
-          req,
-        );
-        const taxName = getTaxNameFromPostcode(tenant.postcode ?? "");
-        const excelBuffer = await generateReportExcel(report, tenant, taxName);
-        const filename = `informe-${periodType}-${report.period.from.slice(0, 10)}.xlsx`;
-        res.setHeader(
-          "Content-Type",
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        );
-        res.setHeader(
-          "Content-Disposition",
-          `attachment; filename="${filename}"`,
-        );
-        return res.send(excelBuffer);
-      } catch (error: unknown) {
-        console.error(`Error generating ${periodType} Excel:`, error);
         const message =
           error instanceof Error ? error.message : "Unknown error";
         return res.status(500).json({ error: message });
@@ -312,51 +250,4 @@ export function registerReports(router: Router, context: EndpointContext) {
     );
   }
 
-  // Helper: build report with tenant data
-  async function buildReportWithTenant(
-    periodType: PeriodType,
-    params: Record<string, string>,
-    req: any,
-  ): Promise<{ report: AggregatedReport; tenant: Record<string, any> }> {
-    const userId = req.accountability?.user;
-    if (!userId) throw new Error("Nicht authentifiziert.");
-    const tenantId = await getTenantFromUser(userId, context);
-    if (!tenantId) throw new Error("Kein Tenant zugewiesen.");
-
-    const schema = await getSchema();
-    const tenantService = new ItemsService("tenants", {
-      schema,
-      knex: database,
-    });
-    const tenant = (await tenantService.readOne(tenantId)) as Record<
-      string,
-      any
-    >;
-    const timezone = tenant.timezone || "Europe/Madrid";
-
-    const { from, to, label } = getDateRange(periodType, params, timezone);
-
-    const closureService = new ItemsService("cash_register_closures", {
-      schema,
-      knex: database,
-    });
-
-    const closures = await closureService.readByQuery({
-      filter: {
-        tenant: { _eq: tenantId },
-        status: { _eq: "closed" },
-        period_start: { _gte: from, _lte: to },
-      },
-      sort: ["-period_start"],
-      limit: -1,
-    });
-
-    const report = aggregateClosures(
-      closures,
-      { type: periodType, label, from, to },
-      periodType === "daily",
-    );
-
-    return { report, tenant };
-  }
 }
