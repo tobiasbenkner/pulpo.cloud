@@ -4,89 +4,30 @@
     "name": "shifts",
     "type": "base",
     "fields": {
-      "opening": {
-        "type": "number",
-        "required": false,
-        "noDecimal": true
-      },
-      "cash": {
-        "type": "number",
-        "required": false,
-        "noDecimal": true
-      },
-      "card": {
-        "type": "number",
-        "required": false,
-        "noDecimal": true
-      },
-      "open": {
-        "type": "date",
-        "required": false
-      },
-      "close": {
-        "type": "date",
-        "required": false
-      },
-      "tenant": {
-        "type": "relation",
-        "required": true,
-        "collectionId": "cxsstanpakxvb3c"
-      },
+      "opening": { "type": "number", "required": false, "noDecimal": true },
+      "cash": { "type": "number", "required": false, "noDecimal": true },
+      "card": { "type": "number", "required": false, "noDecimal": true },
+      "open": { "type": "date", "required": false },
+      "close": { "type": "date", "required": false },
+      "tenant": { "type": "relation", "required": true, "collectionId": "cxsstanpakxvb3c" },
       "detail": {
         "type": "json",
         "required": false,
         "structure": {
-          "card": {
-            "type": "number",
-            "description": "Kartenzahlungen (Cent)"
-          },
-          "card_refund": {
-            "type": "number",
-            "description": "Kartenrückerstattungen (Cent)"
-          },
-          "cash": {
-            "type": "number",
-            "description": "Barzahlungen (Cent)"
-          },
-          "cash_refund": {
-            "type": "number",
-            "description": "Barrückerstattungen (Cent)"
-          },
-          "count_bill": {
-            "type": "number",
-            "description": "Anzahl Rechnungen"
-          },
-          "count_corrections": {
-            "type": "number",
-            "description": "Anzahl Korrekturen"
-          },
-          "count_invoice": {
-            "type": "number",
-            "description": "Anzahl Fakturen"
-          },
-          "count_total": {
-            "type": "number",
-            "description": "Gesamtanzahl"
-          },
-          "tax_amount": {
-            "type": "number",
-            "description": "Steuerbetrag (Cent)"
-          },
-          "tax_base": {
-            "type": "number",
-            "description": "Steuerbasis (Cent)"
-          },
-          "tax_rate": {
-            "type": "number",
-            "description": "Steuersatz (%)"
-          }
+          "card": { "type": "number", "description": "Kartenzahlungen (Cent)" },
+          "card_refund": { "type": "number", "description": "Kartenrückerstattungen (Cent)" },
+          "cash": { "type": "number", "description": "Barzahlungen (Cent)" },
+          "cash_refund": { "type": "number", "description": "Barrückerstattungen (Cent)" },
+          "count_bill": { "type": "number", "description": "Anzahl Rechnungen" },
+          "count_corrections": { "type": "number", "description": "Anzahl Korrekturen" },
+          "count_invoice": { "type": "number", "description": "Anzahl Fakturen" },
+          "count_total": { "type": "number", "description": "Gesamtanzahl" },
+          "tax_amount": { "type": "number", "description": "Steuerbetrag (Cent)" },
+          "tax_base": { "type": "number", "description": "Steuerbasis (Cent)" },
+          "tax_rate": { "type": "number", "description": "Steuersatz (%)" }
         }
       },
-      "profit": {
-        "type": "number",
-        "required": false,
-        "noDecimal": false
-      }
+      "profit": { "type": "number", "required": false, "noDecimal": false }
     }
   },
   "orders": {
@@ -94,150 +35,49 @@
     "name": "orders",
     "type": "base",
     "fields": {
-      "tenant": {
-        "type": "relation",
-        "required": true,
-        "collectionId": "cxsstanpakxvb3c"
-      },
-      "table": {
-        "type": "relation",
-        "required": false,
-        "collectionId": "d1vt7ve4pihnmcy"
-      },
-      "discount_percent": {
-        "type": "number",
-        "required": false,
-        "min": 0,
-        "max": 100,
-        "noDecimal": false
-      },
-      "card": {
-        "type": "number",
-        "required": false,
-        "min": 0,
-        "noDecimal": true
-      },
-      "cash": {
-        "type": "number",
-        "required": false,
-        "min": 0,
-        "noDecimal": true
-      },
-      "tips": {
-        "type": "number",
-        "required": false,
-        "min": 0,
-        "noDecimal": true
-      },
-      "shift": {
-        "type": "relation",
-        "required": false,
-        "collectionId": "5p5q7ig7p8i5n5w"
-      },
+      "tenant": { "type": "relation", "required": true, "collectionId": "cxsstanpakxvb3c" },
+      "table": { "type": "relation", "required": false, "collectionId": "d1vt7ve4pihnmcy" },
+      "discount_percent": { "type": "number", "required": false, "min": 0, "max": 100, "noDecimal": false },
+      "card": { "type": "number", "required": false, "min": 0, "noDecimal": true },
+      "cash": { "type": "number", "required": false, "min": 0, "noDecimal": true },
+      "tips": { "type": "number", "required": false, "min": 0, "noDecimal": true },
+      "shift": { "type": "relation", "required": false, "collectionId": "5p5q7ig7p8i5n5w" },
       "items": {
         "type": "json",
         "required": false,
         "structure": {
           "_isArray": true,
           "item": {
-            "id": {
-              "type": "string",
-              "description": "UUID"
-            },
-            "created": {
-              "type": "string",
-              "description": "Datum (ISO)"
-            },
-            "is_paid": {
-              "type": "boolean"
-            },
-            "is_corrected": {
-              "type": "boolean"
-            },
-            "price": {
-              "type": "number",
-              "description": "Preis (Cent)"
-            },
-            "product_id": {
-              "type": "string",
-              "description": "PocketBase Product-ID"
-            },
+            "id": { "type": "string", "description": "UUID" },
+            "created": { "type": "string", "description": "Datum (ISO)" },
+            "is_paid": { "type": "boolean" },
+            "is_corrected": { "type": "boolean" },
+            "price": { "type": "number", "description": "Preis (Cent)" },
+            "product_id": { "type": "string", "description": "PocketBase Product-ID" },
             "product": {
               "type": "object",
               "fields": {
-                "value": {
-                  "type": "string",
-                  "description": "Produktname"
-                },
-                "translations": {
-                  "type": "object|null",
-                  "description": "Übersetzungen"
-                }
+                "value": { "type": "string", "description": "Produktname" },
+                "translations": { "type": "object|null", "description": "Übersetzungen" }
               }
             },
-            "status": {
-              "type": "string",
-              "description": "z.B. 'collection', 'mandated'"
-            },
-            "discount": {
-              "type": "number"
-            },
-            "zone": {
-              "type": "string",
-              "description": "PocketBase Zone-ID"
-            },
-            "customs": {
-              "type": "unknown",
-              "description": "Meist null"
-            },
-            "note": {
-              "type": "string"
-            }
+            "status": { "type": "string", "description": "z.B. 'collection', 'mandated'" },
+            "discount": { "type": "number" },
+            "zone": { "type": "string", "description": "PocketBase Zone-ID" },
+            "customs": { "type": "unknown", "description": "Meist null" },
+            "note": { "type": "string" }
           }
         }
       },
-      "version": {
-        "type": "number",
-        "required": false,
-        "noDecimal": false
-      },
-      "invoice": {
-        "type": "json",
-        "required": false
-      },
-      "closed": {
-        "type": "date",
-        "required": false
-      },
-      "invoices": {
-        "type": "json",
-        "required": false
-      },
-      "client": {
-        "type": "relation",
-        "required": false,
-        "collectionId": "7peeror86g3l1yl"
-      },
-      "corrections": {
-        "type": "relation",
-        "required": false,
-        "collectionId": "5oidehdqh0otovb",
-        "multi": true
-      },
-      "guests": {
-        "type": "number",
-        "required": false,
-        "min": 0,
-        "noDecimal": true
-      },
-      "is_printed": {
-        "type": "bool",
-        "required": false
-      },
-      "deleted_products_after_printed": {
-        "type": "json",
-        "required": false
-      }
+      "version": { "type": "number", "required": false, "noDecimal": false },
+      "invoice": { "type": "json", "required": false },
+      "closed": { "type": "date", "required": false },
+      "invoices": { "type": "json", "required": false },
+      "client": { "type": "relation", "required": false, "collectionId": "7peeror86g3l1yl" },
+      "corrections": { "type": "relation", "required": false, "collectionId": "5oidehdqh0otovb", "multi": true },
+      "guests": { "type": "number", "required": false, "min": 0, "noDecimal": true },
+      "is_printed": { "type": "bool", "required": false },
+      "deleted_products_after_printed": { "type": "json", "required": false }
     }
   }
 }
