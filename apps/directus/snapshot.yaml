@@ -1,5 +1,5 @@
 version: 1
-directus: 11.15.2
+directus: 11.15.3
 vendor: postgres
 collections:
   - collection: actions
@@ -274,14 +274,14 @@ collections:
       collection: invoice_payments
       color: null
       display_template: null
-      group: finance
+      group: null
       hidden: false
       icon: null
       item_duplication_fields: null
       note: null
       preview_url: null
       singleton: false
-      sort: 7
+      sort: null
       sort_field: null
       translations: null
       unarchive_value: null
@@ -4480,7 +4480,7 @@ fields:
       foreign_key_column: null
   - collection: invoice_payments
     field: id
-    type: integer
+    type: uuid
     meta:
       collection: invoice_payments
       conditions: null
@@ -4496,7 +4496,8 @@ fields:
       required: false
       searchable: true
       sort: 1
-      special: null
+      special:
+        - uuid
       translations: null
       validation: null
       validation_message: null
@@ -4504,20 +4505,62 @@ fields:
     schema:
       name: id
       table: invoice_payments
-      data_type: integer
-      default_value: nextval('invoice_payments_id_seq'::regclass)
+      data_type: uuid
+      default_value: null
       max_length: null
-      numeric_precision: 32
-      numeric_scale: 0
+      numeric_precision: null
+      numeric_scale: null
       is_nullable: false
       is_unique: true
       is_indexed: false
       is_primary_key: true
       is_generated: false
       generation_expression: null
-      has_auto_increment: true
+      has_auto_increment: false
       foreign_key_table: null
       foreign_key_column: null
+  - collection: invoice_payments
+    field: user_created
+    type: uuid
+    meta:
+      collection: invoice_payments
+      conditions: null
+      display: user
+      display_options: null
+      field: user_created
+      group: null
+      hidden: true
+      interface: select-dropdown-m2o
+      note: null
+      options:
+        template: '{{avatar}} {{first_name}} {{last_name}}'
+      readonly: true
+      required: false
+      searchable: true
+      sort: 2
+      special:
+        - user-created
+      translations: null
+      validation: null
+      validation_message: null
+      width: half
+    schema:
+      name: user_created
+      table: invoice_payments
+      data_type: uuid
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: directus_users
+      foreign_key_column: id
   - collection: invoice_payments
     field: date_created
     type: timestamp
@@ -4536,7 +4579,7 @@ fields:
       readonly: true
       required: false
       searchable: true
-      sort: 2
+      sort: 3
       special:
         - date-created
       translations: null
@@ -4551,252 +4594,6 @@ fields:
       max_length: null
       numeric_precision: null
       numeric_scale: null
-      is_nullable: true
-      is_unique: false
-      is_indexed: false
-      is_primary_key: false
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: null
-      foreign_key_column: null
-  - collection: invoice_payments
-    field: invoice_id
-    type: uuid
-    meta:
-      collection: invoice_payments
-      conditions: null
-      display: null
-      display_options: null
-      field: invoice_id
-      group: null
-      hidden: false
-      interface: select-dropdown-m2o
-      note: null
-      options: null
-      readonly: false
-      required: true
-      searchable: true
-      sort: 3
-      special:
-        - m2o
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      name: invoice_id
-      table: invoice_payments
-      data_type: uuid
-      default_value: null
-      max_length: null
-      numeric_precision: null
-      numeric_scale: null
-      is_nullable: true
-      is_unique: false
-      is_indexed: false
-      is_primary_key: false
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: invoices
-      foreign_key_column: id
-  - collection: invoice_payments
-    field: method
-    type: string
-    meta:
-      collection: invoice_payments
-      conditions: null
-      display: null
-      display_options: null
-      field: method
-      group: null
-      hidden: false
-      interface: select-dropdown
-      note: null
-      options:
-        choices:
-          - text: cash
-            value: cash
-          - text: card
-            value: card
-      readonly: false
-      required: true
-      searchable: true
-      sort: 5
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      name: method
-      table: invoice_payments
-      data_type: character varying
-      default_value: null
-      max_length: 255
-      numeric_precision: null
-      numeric_scale: null
-      is_nullable: true
-      is_unique: false
-      is_indexed: false
-      is_primary_key: false
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: null
-      foreign_key_column: null
-  - collection: invoice_payments
-    field: amount
-    type: decimal
-    meta:
-      collection: invoice_payments
-      conditions: null
-      display: null
-      display_options: null
-      field: amount
-      group: null
-      hidden: false
-      interface: input
-      note: null
-      options: null
-      readonly: false
-      required: true
-      searchable: true
-      sort: 6
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      name: amount
-      table: invoice_payments
-      data_type: numeric
-      default_value: null
-      max_length: null
-      numeric_precision: 19
-      numeric_scale: 2
-      is_nullable: true
-      is_unique: false
-      is_indexed: false
-      is_primary_key: false
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: null
-      foreign_key_column: null
-  - collection: invoice_payments
-    field: tip
-    type: decimal
-    meta:
-      collection: invoice_payments
-      conditions: null
-      display: null
-      display_options: null
-      field: tip
-      group: null
-      hidden: false
-      interface: input
-      note: null
-      options: null
-      readonly: false
-      required: false
-      searchable: true
-      sort: 9
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      name: tip
-      table: invoice_payments
-      data_type: numeric
-      default_value: null
-      max_length: null
-      numeric_precision: 19
-      numeric_scale: 2
-      is_nullable: true
-      is_unique: false
-      is_indexed: false
-      is_primary_key: false
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: null
-      foreign_key_column: null
-  - collection: invoice_payments
-    field: tendered
-    type: decimal
-    meta:
-      collection: invoice_payments
-      conditions: null
-      display: null
-      display_options: null
-      field: tendered
-      group: null
-      hidden: false
-      interface: input
-      note: null
-      options: null
-      readonly: false
-      required: false
-      searchable: true
-      sort: 7
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      name: tendered
-      table: invoice_payments
-      data_type: numeric
-      default_value: null
-      max_length: null
-      numeric_precision: 19
-      numeric_scale: 2
-      is_nullable: true
-      is_unique: false
-      is_indexed: false
-      is_primary_key: false
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: null
-      foreign_key_column: null
-  - collection: invoice_payments
-    field: change
-    type: decimal
-    meta:
-      collection: invoice_payments
-      conditions: null
-      display: null
-      display_options: null
-      field: change
-      group: null
-      hidden: false
-      interface: input
-      note: null
-      options: null
-      readonly: false
-      required: false
-      searchable: true
-      sort: 8
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      name: change
-      table: invoice_payments
-      data_type: numeric
-      default_value: null
-      max_length: null
-      numeric_precision: 19
-      numeric_scale: 2
       is_nullable: true
       is_unique: false
       is_indexed: false
@@ -4847,6 +4644,252 @@ fields:
       has_auto_increment: false
       foreign_key_table: tenants
       foreign_key_column: id
+  - collection: invoice_payments
+    field: invoice_id
+    type: uuid
+    meta:
+      collection: invoice_payments
+      conditions: null
+      display: null
+      display_options: null
+      field: invoice_id
+      group: null
+      hidden: false
+      interface: select-dropdown-m2o
+      note: null
+      options: null
+      readonly: false
+      required: true
+      searchable: true
+      sort: 5
+      special:
+        - m2o
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: invoice_id
+      table: invoice_payments
+      data_type: uuid
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: invoices
+      foreign_key_column: id
+  - collection: invoice_payments
+    field: method
+    type: string
+    meta:
+      collection: invoice_payments
+      conditions: null
+      display: null
+      display_options: null
+      field: method
+      group: null
+      hidden: false
+      interface: select-dropdown
+      note: null
+      options:
+        choices:
+          - text: cash
+            value: cash
+          - text: card
+            value: card
+      readonly: false
+      required: true
+      searchable: true
+      sort: 6
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: method
+      table: invoice_payments
+      data_type: character varying
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: invoice_payments
+    field: amount
+    type: decimal
+    meta:
+      collection: invoice_payments
+      conditions: null
+      display: null
+      display_options: null
+      field: amount
+      group: null
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: false
+      searchable: true
+      sort: 7
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: amount
+      table: invoice_payments
+      data_type: numeric
+      default_value: null
+      max_length: null
+      numeric_precision: 19
+      numeric_scale: 2
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: invoice_payments
+    field: tendered
+    type: decimal
+    meta:
+      collection: invoice_payments
+      conditions: null
+      display: null
+      display_options: null
+      field: tendered
+      group: null
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: false
+      searchable: true
+      sort: 8
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: tendered
+      table: invoice_payments
+      data_type: numeric
+      default_value: null
+      max_length: null
+      numeric_precision: 19
+      numeric_scale: 2
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: invoice_payments
+    field: change
+    type: decimal
+    meta:
+      collection: invoice_payments
+      conditions: null
+      display: null
+      display_options: null
+      field: change
+      group: null
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: false
+      searchable: true
+      sort: 9
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: change
+      table: invoice_payments
+      data_type: numeric
+      default_value: null
+      max_length: null
+      numeric_precision: 19
+      numeric_scale: 2
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
+  - collection: invoice_payments
+    field: tip
+    type: decimal
+    meta:
+      collection: invoice_payments
+      conditions: null
+      display: null
+      display_options: null
+      field: tip
+      group: null
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: false
+      searchable: true
+      sort: 10
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: tip
+      table: invoice_payments
+      data_type: numeric
+      default_value: null
+      max_length: null
+      numeric_precision: 19
+      numeric_scale: 2
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
   - collection: invoices
     field: id
     type: uuid
@@ -5418,30 +5461,6 @@ fields:
       required: true
       searchable: true
       sort: 1
-      special:
-        - o2m
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-  - collection: invoices
-    field: payments
-    type: alias
-    meta:
-      collection: invoices
-      conditions: null
-      display: null
-      display_options: null
-      field: payments
-      group: tabs
-      hidden: false
-      interface: list-o2m
-      note: null
-      options: null
-      readonly: false
-      required: true
-      searchable: true
-      sort: 3
       special:
         - o2m
       translations: null
@@ -11716,26 +11735,26 @@ relations:
       on_update: NO ACTION
       on_delete: SET NULL
   - collection: invoice_payments
-    field: invoice_id
-    related_collection: invoices
+    field: user_created
+    related_collection: directus_users
     meta:
       junction_field: null
       many_collection: invoice_payments
-      many_field: invoice_id
+      many_field: user_created
       one_allowed_collections: null
-      one_collection: invoices
+      one_collection: directus_users
       one_collection_field: null
       one_deselect_action: nullify
-      one_field: payments
+      one_field: null
       sort_field: null
     schema:
       table: invoice_payments
-      column: invoice_id
-      foreign_key_table: invoices
+      column: user_created
+      foreign_key_table: directus_users
       foreign_key_column: id
-      constraint_name: invoice_payments_invoice_id_foreign
+      constraint_name: invoice_payments_user_created_foreign
       on_update: NO ACTION
-      on_delete: CASCADE
+      on_delete: NO ACTION
   - collection: invoice_payments
     field: tenant
     related_collection: tenants
@@ -11755,6 +11774,27 @@ relations:
       foreign_key_table: tenants
       foreign_key_column: id
       constraint_name: invoice_payments_tenant_foreign
+      on_update: NO ACTION
+      on_delete: SET NULL
+  - collection: invoice_payments
+    field: invoice_id
+    related_collection: invoices
+    meta:
+      junction_field: null
+      many_collection: invoice_payments
+      many_field: invoice_id
+      one_allowed_collections: null
+      one_collection: invoices
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: null
+      sort_field: null
+    schema:
+      table: invoice_payments
+      column: invoice_id
+      foreign_key_table: invoices
+      foreign_key_column: id
+      constraint_name: invoice_payments_invoice_id_foreign
       on_update: NO ACTION
       on_delete: SET NULL
   - collection: invoices
