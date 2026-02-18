@@ -5,11 +5,11 @@ import { persistentMap, persistentAtom } from "@nanostores/persistent";
 import Big from "big.js";
 import { getAuthClient } from "@pulpo/auth";
 import { createInvoice, updateInvoicePaymentMethod } from "@pulpo/cms";
+import { calculateInvoice } from "@pulpo/invoice";
 import type {
   Product,
   CartItem,
   CartTotals,
-  CartTotalsItem,
   TransactionResult,
   Customer,
 } from "../types/shop";
@@ -278,32 +278,17 @@ export const completeTransaction = async (
     const client = getAuthClient();
     invoice = await createInvoice(client, {
       status: "paid",
-      total_net: totals.net,
-      total_tax: totals.tax,
-      total_gross: totals.gross,
-      discount_type: totals.discountType,
-      discount_value: totals.discountValue,
-      customer_id: customer?.id ?? null,
-      customer_name: customer?.name ?? null,
-      customer_nif: customer?.nif ?? null,
-      customer_street: customer?.street ?? null,
-      customer_zip: customer?.zip ?? null,
-      customer_city: customer?.city ?? null,
-      customer_email: customer?.email ?? null,
-      customer_phone: customer?.phone ?? null,
       items: totals.items.map((item) => ({
         product_id: item.productId,
-        product_name: item.productName,
         quantity: item.quantity,
-        tax_rate_snapshot: item.taxRateSnapshot,
-        price_gross_unit: item.priceGrossUnit,
-        price_net_unit_precise: item.priceNetUnitPrecise,
-        row_total_net_precise: item.rowTotalNetPrecise,
-        row_total_gross: item.rowTotalGross,
-        discount_type: item.discountType,
-        discount_value: item.discountValue,
-        cost_center: item.costCenter,
+        discount: item.discountType
+          ? { type: item.discountType, value: Number(item.discountValue) }
+          : null,
       })),
+      discount: totals.discountType
+        ? { type: totals.discountType, value: Number(totals.discountValue) }
+        : null,
+      customer_id: customer?.id ?? null,
       payments: [
         {
           method,
@@ -362,107 +347,15 @@ export const completeTransaction = async (
 export const cartTotals = computed(
   [cartItems, globalDiscount, taxRates],
   (items, globalDisc, rates): CartTotals => {
-    const ZERO = new Big(0);
-    const HUNDRED = new Big(100);
-    let subtotalGross = ZERO;
-    let totalNet = ZERO;
-
-    // 1. Zwischensumme (nach Artikelrabatten)
-    const lineGrossValues: Big[] = [];
-    const itemList = Object.values(items);
-
-    itemList.forEach((item) => {
-      let lineGross = new Big(item.priceGross).times(item.quantity);
-      if (item.discount) {
-        if (item.discount.type === "fixed") {
-          lineGross = lineGross.minus(item.discount.value);
-        } else {
-          lineGross = lineGross.minus(
-            lineGross.times(item.discount.value).div(HUNDRED),
-          );
-        }
-      }
-      if (lineGross.lt(ZERO)) lineGross = ZERO;
-      lineGrossValues.push(lineGross);
-      subtotalGross = subtotalGross.plus(lineGross);
-    });
-
-    // 2. Global Discount
-    let finalTotalGross = subtotalGross;
-    let discountAmount = ZERO;
-
-    if (globalDisc) {
-      if (globalDisc.type === "fixed") {
-        discountAmount = new Big(globalDisc.value);
-        finalTotalGross = finalTotalGross.minus(discountAmount);
-      } else {
-        discountAmount = finalTotalGross.times(globalDisc.value).div(HUNDRED);
-        finalTotalGross = finalTotalGross.minus(discountAmount);
-      }
-    }
-
-    if (finalTotalGross.lt(ZERO)) finalTotalGross = ZERO;
-    if (discountAmount.gt(subtotalGross)) discountAmount = subtotalGross;
-
-    // 3. Steuer rückrechnen (gruppiert nach Rate)
-    const discountRatio = subtotalGross.gt(ZERO)
-      ? finalTotalGross.div(subtotalGross)
-      : new Big(1);
-
-    const taxByRate = new Map<string, Big>();
-    const computedItems: CartTotalsItem[] = [];
-
-    itemList.forEach((item, i) => {
-      const lineGross = lineGrossValues[i];
-      const lineGrossAfterGlobal = lineGross.times(discountRatio);
-      const rateStr = rates[item.taxClass] ?? "0";
-      const rate = new Big(rateStr);
-      const lineNet = lineGrossAfterGlobal.div(new Big(1).plus(rate));
-
-      const rowNetRounded = new Big(lineNet.toFixed(8));
-      totalNet = totalNet.plus(rowNetRounded);
-
-      if (rate.gt(0)) {
-        const prev = taxByRate.get(rateStr) ?? ZERO;
-        const rowTax = lineGrossAfterGlobal.minus(rowNetRounded);
-        taxByRate.set(rateStr, prev.plus(rowTax));
-      }
-
-      const priceGrossUnit = new Big(item.priceGross);
-      computedItems.push({
-        productId: item.id,
-        productName: item.name,
-        quantity: item.quantity,
-        priceGrossUnit: priceGrossUnit.toFixed(4),
-        taxRateSnapshot: rate.times(100).toFixed(2),
-        priceNetUnitPrecise: priceGrossUnit
-          .div(new Big(1).plus(rate))
-          .toFixed(8),
-        rowTotalGross: lineGrossAfterGlobal.toFixed(2),
-        rowTotalNetPrecise: rowNetRounded.toFixed(8),
-        discountType: item.discount?.type ?? null,
-        discountValue: item.discount
-          ? new Big(item.discount.value).toFixed(4)
-          : null,
-        costCenter: item.costCenter ?? null,
-      });
-    });
-
-    const taxBreakdown = Array.from(taxByRate.entries())
-      .sort(([a], [b]) => new Big(a).cmp(new Big(b)))
-      .map(([rate, amount]) => ({ rate, amount: amount.toFixed(2) }));
-
-    return {
-      subtotal: subtotalGross.toFixed(2),
-      discountTotal: discountAmount.toFixed(2),
-      gross: finalTotalGross.toFixed(2),
-      net: totalNet.toFixed(2),
-      tax: finalTotalGross.minus(totalNet).toFixed(2),
-      taxBreakdown,
-      items: computedItems,
-      count: itemList.reduce((sum, item) => sum + item.quantity, 0),
-      discountType: globalDisc?.type ?? null,
-      discountValue: globalDisc ? new Big(globalDisc.value).toFixed(4) : null,
-    };
+    const lines = Object.values(items).map((item) => ({
+      productId: item.id,
+      productName: item.name,
+      priceGross: item.priceGross,
+      taxRate: rates[item.taxClass] ?? "0",
+      quantity: item.quantity,
+      discount: item.discount ?? null,
+      costCenter: item.costCenter ?? null,
+    }));
+    return calculateInvoice(lines, globalDisc ?? null);
   },
 );

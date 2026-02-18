@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "dev": "docker compose up --build",
-    "build": "docker build -t pulpocloud/directus .",
+    "build": "docker build -t pulpocloud/directus -f Dockerfile ../..",
     "deploy": "docker push pulpocloud/directus"
   }
 }

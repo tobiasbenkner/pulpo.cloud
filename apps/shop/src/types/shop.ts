@@ -27,37 +27,11 @@ export interface CartItem extends Product {
   };
 }
 
-export interface TaxBreakdownEntry {
-  rate: string;
-  amount: string;
-}
-
-export interface CartTotalsItem {
-  productId: string;
-  productName: string;
-  quantity: number;
-  priceGrossUnit: string;
-  taxRateSnapshot: string;
-  priceNetUnitPrecise: string;
-  rowTotalGross: string;
-  rowTotalNetPrecise: string;
-  discountType: "percent" | "fixed" | null;
-  discountValue: string | null;
-  costCenter: string | null;
-}
-
-export interface CartTotals {
-  subtotal: string;
-  discountTotal: string;
-  gross: string;
-  net: string;
-  tax: string;
-  taxBreakdown: TaxBreakdownEntry[];
-  items: CartTotalsItem[];
-  count: number;
-  discountType: "percent" | "fixed" | null;
-  discountValue: string | null;
-}
+export type {
+  InvoiceCalculationResult as CartTotals,
+  InvoiceLineResult as CartTotalsItem,
+  TaxBreakdownEntry,
+} from "@pulpo/invoice";
 
 export interface Customer {
   id: string;

@@ -5,48 +5,29 @@ import {
   type DirectusClient,
   type RestClient,
 } from "@directus/sdk";
-import type { Invoice, InvoiceItem, InvoicePayment, Schema } from "../types";
+import type { Invoice, Schema } from "../types";
 
 type Client = DirectusClient<Schema> & RestClient<Schema>;
 
 /** Create invoice via invoice-processor extension endpoint */
 export async function createInvoice(
   client: Client,
-  data: Omit<
-    Invoice,
-    | "id"
-    | "date_created"
-    | "invoice_number"
-    | "tenant"
-    | "closure_id"
-    | "customer_id"
-    | "customer_name"
-    | "customer_nif"
-    | "customer_street"
-    | "customer_zip"
-    | "customer_city"
-    | "customer_email"
-    | "customer_phone"
-    | "previous_record_hash"
-    | "chain_hash"
-    | "qr_url"
-    | "generation_date"
-    | "invoice_type"
-    | "original_invoice_id"
-    | "rectification_reason"
-    | "items"
-    | "payments"
-  > & {
+  data: {
+    status: "paid";
+    items: {
+      product_id: string;
+      quantity: number;
+      discount?: { type: "percent" | "fixed"; value: number } | null;
+    }[];
+    discount?: { type: "percent" | "fixed"; value: number } | null;
     customer_id?: string | null;
-    customer_name?: string | null;
-    customer_nif?: string | null;
-    customer_street?: string | null;
-    customer_zip?: string | null;
-    customer_city?: string | null;
-    customer_email?: string | null;
-    customer_phone?: string | null;
-    items: Omit<InvoiceItem, "id" | "invoice_id">[];
-    payments: Omit<InvoicePayment, "id" | "date_created" | "invoice_id">[];
+    payments: {
+      method: "cash" | "card";
+      amount: string;
+      tendered: string | null;
+      change: string | null;
+      tip: string | null;
+    }[];
   },
 ): Promise<Invoice> {
   const res: { success: boolean; invoice: Invoice } = await (

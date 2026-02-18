@@ -3,7 +3,8 @@
     "baseUrl": ".",
     "paths": {
       "@pulpo/cms": ["./packages/cms/src/index.ts"],
-      "@pulpo/auth": ["./packages/auth/src/index.ts"]
+      "@pulpo/auth": ["./packages/auth/src/index.ts"],
+      "@pulpo/invoice": ["./packages/invoice/src/index.ts"]
     }
   }
 }

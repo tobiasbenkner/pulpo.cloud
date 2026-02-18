@@ -395,6 +395,7 @@ export async function printInvoice(
     rowTotalNetPrecise: item.row_total_net_precise,
     discountType: item.discount_type,
     discountValue: item.discount_value,
+    costCenter: item.cost_center ?? null,
   }));
 
   // Tax breakdown: group by tax_rate_snapshot, sum tax per group
