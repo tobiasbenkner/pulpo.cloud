@@ -1,5 +1,5 @@
 version: 1
-directus: 11.15.3
+directus: 11.15.4
 vendor: postgres
 collections:
   - collection: actions
@@ -6174,7 +6174,17 @@ fields:
       hidden: false
       interface: list-o2m
       note: null
-      options: null
+      options:
+        enableCreate: false
+        enableSelect: false
+        fields:
+          - method
+          - amount
+          - tendered
+          - change
+          - tip
+        layout: table
+        sort: date_created
       readonly: false
       required: true
       searchable: true
@@ -12125,7 +12135,7 @@ relations:
       foreign_key_column: id
       constraint_name: invoice_payments_invoice_id_foreign
       on_update: NO ACTION
-      on_delete: SET NULL
+      on_delete: CASCADE
   - collection: invoices
     field: tenant
     related_collection: tenants

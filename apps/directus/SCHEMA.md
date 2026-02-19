@@ -1,7 +1,7 @@
 # Directus Schema Reference
 
 > Auto-generated from snapshot.yaml — do not edit manually
-> Directus 11.15.3 / PostgreSQL
+> Directus 11.15.4 / PostgreSQL
 
 ## Collection Groups (Folders)
 
