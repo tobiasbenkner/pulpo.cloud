@@ -27,34 +27,57 @@ export function registerCashRegisterOpen(
       }
 
       const schema = await getSchema();
+
+      // === TRANSACTION: lock tenant, check for open closure, create new one ===
+      const txResult = await (database as any).transaction(async (trx: any) => {
+        // Lock tenant row — prevents concurrent open requests
+        const lockedTenant = await trx("tenants").where("id", tenant).forUpdate().first();
+        if (!lockedTenant) {
+          return { error: "Tenant nicht gefunden.", status: 404 };
+        }
+
+        const closureService = new ItemsService("cash_register_closures", {
+          schema,
+          knex: trx,
+        });
+
+        const openClosures = await closureService.readByQuery({
+          filter: {
+            tenant: { _eq: tenant },
+            status: { _eq: "open" },
+          },
+          limit: 1,
+        });
+
+        if (openClosures.length > 0) {
+          return {
+            error:
+              "Es existiert bereits ein offener Kassenabschluss für diesen Tenant. Bitte zuerst schließen.",
+            status: 409,
+          };
+        }
+
+        const newClosureId = await closureService.createOne({
+          tenant,
+          status: "open",
+          period_start: new Date().toISOString(),
+          starting_cash: starting_cash ?? "0.00",
+        });
+
+        return { success: true, closureId: newClosureId };
+      });
+      // === END TRANSACTION ===
+
+      if ("error" in txResult) {
+        return res.status(txResult.status).json({ error: txResult.error });
+      }
+
+      // Read full closure for response (outside transaction)
       const closureService = new ItemsService("cash_register_closures", {
         schema,
         knex: database,
       });
-
-      const openClosures = await closureService.readByQuery({
-        filter: {
-          tenant: { _eq: tenant },
-          status: { _eq: "open" },
-        },
-        limit: 1,
-      });
-
-      if (openClosures.length > 0) {
-        return res.status(409).json({
-          error:
-            "Es existiert bereits ein offener Kassenabschluss für diesen Tenant. Bitte zuerst schließen.",
-        });
-      }
-
-      const newClosureId = await closureService.createOne({
-        tenant,
-        status: "open",
-        period_start: new Date().toISOString(),
-        starting_cash: starting_cash ?? "0.00",
-      });
-
-      const newClosure = await closureService.readOne(newClosureId);
+      const newClosure = await closureService.readOne(txResult.closureId);
 
       return res.json({ success: true, closure: newClosure });
     } catch (error: unknown) {

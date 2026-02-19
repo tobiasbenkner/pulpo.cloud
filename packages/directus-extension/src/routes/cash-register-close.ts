@@ -52,102 +52,120 @@ export function registerCashRegisterClose(
       }
 
       const schema = await getSchema();
+
+      // === TRANSACTION: lock tenant, close register, compute breakdown ===
+      const txResult = await (database as any).transaction(async (trx: any) => {
+        // Lock tenant row — prevents concurrent close requests
+        const lockedTenant = await trx("tenants").where("id", tenant).forUpdate().first();
+        if (!lockedTenant) {
+          return { error: "Tenant nicht gefunden.", status: 404 };
+        }
+
+        const closureService = new ItemsService("cash_register_closures", {
+          schema,
+          knex: trx,
+        });
+
+        const openClosures = await closureService.readByQuery({
+          filter: {
+            tenant: { _eq: tenant },
+            status: { _eq: "open" },
+          },
+          limit: 1,
+        });
+
+        if (openClosures.length === 0) {
+          return {
+            error:
+              "Kein offener Kassenabschluss gefunden. Bitte zuerst einen öffnen.",
+            status: 404,
+          };
+        }
+
+        const openClosure = openClosures[0] as Record<string, unknown>;
+        const closureId = openClosure.id as string;
+
+        // Build update data
+        const updateData: Record<string, unknown> = {
+          status: "closed",
+          period_end: new Date().toISOString(),
+        };
+
+        if (total_gross !== undefined) updateData.total_gross = total_gross;
+        if (total_net !== undefined) updateData.total_net = total_net;
+        if (total_tax !== undefined) updateData.total_tax = total_tax;
+        if (total_cash !== undefined) updateData.total_cash = total_cash;
+        if (total_card !== undefined) updateData.total_card = total_card;
+        if (total_change !== undefined) updateData.total_change = total_change;
+        if (transaction_count !== undefined)
+          updateData.transaction_count = transaction_count;
+        if (tax_breakdown !== undefined)
+          updateData.tax_breakdown = tax_breakdown;
+
+        if (counted_cash !== undefined) {
+          updateData.counted_cash = counted_cash;
+
+          const cashTotal = new Big(
+            total_cash ?? (openClosure.total_cash as string) ?? "0",
+          );
+          const startingCash = new Big(
+            (openClosure.starting_cash as string) ?? "0",
+          );
+          const expectedCash = startingCash.plus(cashTotal);
+          const difference = new Big(counted_cash).minus(expectedCash);
+
+          updateData.expected_cash = expectedCash.toFixed(2);
+          updateData.difference = difference.toFixed(2);
+        }
+
+        if (denomination_count !== undefined) {
+          updateData.denomination_count = denomination_count;
+        }
+
+        // Compute product breakdown + invoice type counts before writing
+        const invoiceService = new ItemsService("invoices", {
+          schema,
+          knex: trx,
+        });
+        const closureInvoices = await invoiceService.readByQuery({
+          filter: {
+            closure_id: { _eq: closureId },
+            status: { _in: ["paid", "rectificada"] },
+          },
+          fields: [
+            "id",
+            "invoice_type",
+            "items.product_name",
+            "items.product_id",
+            "items.cost_center",
+            "items.quantity",
+            "items.row_total_gross",
+            "payments.method",
+          ],
+          limit: -1,
+        });
+
+        updateData.product_breakdown = computeProductBreakdown(closureInvoices);
+        updateData.invoice_type_counts =
+          computeInvoiceTypeCounts(closureInvoices);
+
+        // Single atomic update with all data
+        await closureService.updateOne(closureId, updateData);
+
+        return { success: true, closureId };
+      });
+      // === END TRANSACTION ===
+
+      if ("error" in txResult) {
+        return res.status(txResult.status).json({ error: txResult.error });
+      }
+
+      // Read final closure for response (outside transaction)
       const closureService = new ItemsService("cash_register_closures", {
         schema,
         knex: database,
       });
-
-      const openClosures = await closureService.readByQuery({
-        filter: {
-          tenant: { _eq: tenant },
-          status: { _eq: "open" },
-        },
-        limit: 1,
-      });
-
-      if (openClosures.length === 0) {
-        return res.status(404).json({
-          error:
-            "Kein offener Kassenabschluss gefunden. Bitte zuerst einen öffnen.",
-        });
-      }
-
-      const openClosure = openClosures[0] as Record<string, unknown>;
-
-      const updateData: Record<string, unknown> = {
-        status: "closed",
-        period_end: new Date().toISOString(),
-      };
-
-      // Write report totals
-      if (total_gross !== undefined) updateData.total_gross = total_gross;
-      if (total_net !== undefined) updateData.total_net = total_net;
-      if (total_tax !== undefined) updateData.total_tax = total_tax;
-      if (total_cash !== undefined) updateData.total_cash = total_cash;
-      if (total_card !== undefined) updateData.total_card = total_card;
-      if (total_change !== undefined) updateData.total_change = total_change;
-      if (transaction_count !== undefined)
-        updateData.transaction_count = transaction_count;
-      if (tax_breakdown !== undefined)
-        updateData.tax_breakdown = tax_breakdown;
-
-      if (counted_cash !== undefined) {
-        updateData.counted_cash = counted_cash;
-
-        // total_cash from body (or already on record) for expected_cash calc
-        const cashTotal = new Big(
-          total_cash ?? (openClosure.total_cash as string) ?? "0",
-        );
-        const startingCash = new Big(
-          (openClosure.starting_cash as string) ?? "0",
-        );
-        const expectedCash = startingCash.plus(cashTotal);
-        const difference = new Big(counted_cash).minus(expectedCash);
-
-        updateData.expected_cash = expectedCash.toFixed(2);
-        updateData.difference = difference.toFixed(2);
-      }
-
-      if (denomination_count !== undefined) {
-        updateData.denomination_count = denomination_count;
-      }
-
-      await closureService.updateOne(openClosure.id as string, updateData);
-
-      // Compute product breakdown and invoice type counts
-      const invoiceService = new ItemsService("invoices", {
-        schema,
-        knex: database,
-      });
-      const closureInvoices = await invoiceService.readByQuery({
-        filter: {
-          closure_id: { _eq: openClosure.id },
-          status: { _in: ["paid", "rectificada"] },
-        },
-        fields: [
-          "id",
-          "invoice_type",
-          "items.product_name",
-          "items.product_id",
-          "items.cost_center",
-          "items.quantity",
-          "items.row_total_gross",
-          "payments.method",
-        ],
-        limit: -1,
-      });
-
-      const productBreakdown = computeProductBreakdown(closureInvoices);
-      const invoiceTypeCounts = computeInvoiceTypeCounts(closureInvoices);
-
-      await closureService.updateOne(openClosure.id as string, {
-        product_breakdown: productBreakdown,
-        invoice_type_counts: invoiceTypeCounts,
-      });
-
-      const updatedClosure = await closureService.readOne(
-        openClosure.id as string,
-      );
+      const updatedClosure = await closureService.readOne(txResult.closureId);
 
       return res.json({ success: true, closure: updatedClosure });
     } catch (error: unknown) {
