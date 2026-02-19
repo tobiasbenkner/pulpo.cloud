@@ -56,26 +56,15 @@ export function registerInvoiceCreate(
       }
 
       const schema = await getSchema();
-      const db = database as any;
 
-      // 2. Read tenant record
-      const tenantService = new ItemsService("tenants", {
-        schema,
-        knex: database,
-      });
-      const tenantRecord = (await tenantService.readOne(tenant)) as {
-        invoice_prefix?: string;
-        timezone?: string;
-        last_ticket_number?: number;
-        last_factura_number?: number;
-        postcode?: string;
-        name?: string;
-        nif?: string;
-        street?: string;
-        city?: string;
-      };
+      // 2. Read tenant postcode for tax resolution (outside transaction)
+      const postcodeRow = await (database as any)("tenants")
+        .select("postcode")
+        .where("id", tenant)
+        .first();
+      const postcode: string = postcodeRow?.postcode ?? "";
 
-      // 3. Load products via ItemsService (resolves relations)
+      // 3. Load products (outside transaction, read-only reference data)
       const productIds = requestItems.map((item) => item.product_id);
       const productService = new ItemsService("products", {
         schema,
@@ -103,8 +92,7 @@ export function registerInvoiceCreate(
         }
       }
 
-      // 4. Load tax rates for tenant postcode
-      const postcode = tenantRecord.postcode ?? "";
+      // 4. Load tax rates (outside transaction, read-only reference data)
       const taxRatesByClass = new Map<string, string>();
 
       if (postcode) {
@@ -137,7 +125,7 @@ export function registerInvoiceCreate(
         }
       }
 
-      // 5. Build InvoiceLineInput[] and calculate
+      // 5. Build InvoiceLineInput[] and calculate (pure, no DB)
       const lines: InvoiceLineInput[] = requestItems.map((item) => {
         const product = productMap.get(item.product_id)!;
         const taxClassCode = product.tax_class?.code ?? "NULL";
@@ -156,7 +144,7 @@ export function registerInvoiceCreate(
       const discountInput: InvoiceDiscountInput | null = globalDiscount ?? null;
       const result = calculateInvoice(lines, discountInput);
 
-      // 7. Resolve customer snapshot
+      // 6. Resolve customer snapshot (outside transaction, read-only)
       let customerSnapshot: Record<string, string | null> = {
         customer_id: null,
         customer_name: null,
@@ -198,93 +186,126 @@ export function registerInvoiceCreate(
         }
       }
 
-      // 8. Determine series and generate invoice number
+      // 7. Determine series
       const series: InvoiceSeries = customer_id ? "factura" : "ticket";
-      const { invoice_number, new_count } = generateInvoiceNumber(
-        tenantRecord,
-        series,
-      );
 
-      // 9. Find open closure for this tenant
-      const closureService = new ItemsService("cash_register_closures", {
-        schema,
-        knex: database,
-      });
-      const openClosures = await closureService.readByQuery({
-        filter: {
-          tenant: { _eq: tenant },
-          status: { _eq: "open" },
-        },
-        limit: 1,
-      });
-      const closureId =
-        openClosures.length > 0
-          ? (openClosures[0] as Record<string, unknown>).id
-          : null;
+      // === TRANSACTION: lock tenant, create invoice, update counter, adjust stock ===
+      const invoiceId = await (database as any).transaction(async (trx: any) => {
+        // Lock tenant row — serializes concurrent requests per tenant
+        const lockedTenant = await trx("tenants").where("id", tenant).forUpdate().first();
+        if (!lockedTenant) {
+          throw new Error("Tenant nicht gefunden.");
+        }
 
-      // 10. Create invoice with calculated values
+        // Read tenant record within lock (counter + issuer data)
+        const tenantService = new ItemsService("tenants", { schema, knex: trx });
+        const tenantRecord = (await tenantService.readOne(tenant)) as {
+          invoice_prefix?: string;
+          timezone?: string;
+          last_ticket_number?: number;
+          last_factura_number?: number;
+          name?: string;
+          nif?: string;
+          street?: string;
+          postcode?: string;
+          city?: string;
+        };
+
+        // Generate invoice number (uses locked counter)
+        const { invoice_number, new_count } = generateInvoiceNumber(
+          tenantRecord,
+          series,
+        );
+
+        // Find open closure
+        const closureService = new ItemsService("cash_register_closures", {
+          schema,
+          knex: trx,
+        });
+        const openClosures = await closureService.readByQuery({
+          filter: {
+            tenant: { _eq: tenant },
+            status: { _eq: "open" },
+          },
+          limit: 1,
+        });
+        const closureId =
+          openClosures.length > 0
+            ? (openClosures[0] as Record<string, unknown>).id
+            : null;
+
+        // Create invoice with items + payments
+        const invoiceService = new ItemsService("invoices", {
+          schema,
+          knex: trx,
+        });
+        const id = await invoiceService.createOne({
+          tenant,
+          invoice_number,
+          invoice_type: series,
+          closure_id: closureId,
+          status,
+          total_net: result.net,
+          total_tax: result.tax,
+          total_gross: result.gross,
+          discount_type: result.discountType,
+          discount_value: result.discountValue,
+          issuer_name: tenantRecord.name ?? null,
+          issuer_nif: tenantRecord.nif ?? null,
+          issuer_street: tenantRecord.street ?? null,
+          issuer_zip: tenantRecord.postcode ?? null,
+          issuer_city: tenantRecord.city ?? null,
+          ...customerSnapshot,
+          items: {
+            create: result.items.map((item) => ({
+              product_id: item.productId,
+              product_name: item.productName,
+              quantity: item.quantity,
+              tax_rate_snapshot: item.taxRateSnapshot,
+              price_gross_unit: item.priceGrossUnit,
+              price_net_unit_precise: item.priceNetUnitPrecise,
+              row_total_net_precise: item.rowTotalNetPrecise,
+              row_total_gross: item.rowTotalGross,
+              discount_type: item.discountType,
+              discount_value: item.discountValue,
+              cost_center: item.costCenter,
+              tenant,
+            })),
+          },
+          payments: {
+            create: payments.map((payment) => ({ ...payment, tenant })),
+          },
+        });
+
+        // Update tenant counter
+        await tenantService.updateOne(tenant, {
+          [series === "factura"
+            ? "last_factura_number"
+            : "last_ticket_number"]: new_count,
+        });
+
+        // Decrement product stock (minimum 0)
+        for (const item of requestItems) {
+          if (!item.product_id || !item.quantity) continue;
+          await trx("products")
+            .where("id", item.product_id)
+            .whereNotNull("stock")
+            .update({
+              stock: trx.raw("GREATEST(stock - ?, 0)", [
+                Math.round(item.quantity),
+              ]),
+            });
+        }
+
+        return id;
+      });
+      // === END TRANSACTION ===
+
+      // Read full invoice for response (outside transaction)
       const invoiceService = new ItemsService("invoices", {
         schema,
         knex: database,
       });
-      const invoiceId = await invoiceService.createOne({
-        tenant,
-        invoice_number,
-        invoice_type: series,
-        closure_id: closureId,
-        status,
-        total_net: result.net,
-        total_tax: result.tax,
-        total_gross: result.gross,
-        discount_type: result.discountType,
-        discount_value: result.discountValue,
-        issuer_name: tenantRecord.name ?? null,
-        issuer_nif: tenantRecord.nif ?? null,
-        issuer_street: tenantRecord.street ?? null,
-        issuer_zip: tenantRecord.postcode ?? null,
-        issuer_city: tenantRecord.city ?? null,
-        ...customerSnapshot,
-        items: {
-          create: result.items.map((item) => ({
-            product_id: item.productId,
-            product_name: item.productName,
-            quantity: item.quantity,
-            tax_rate_snapshot: item.taxRateSnapshot,
-            price_gross_unit: item.priceGrossUnit,
-            price_net_unit_precise: item.priceNetUnitPrecise,
-            row_total_net_precise: item.rowTotalNetPrecise,
-            row_total_gross: item.rowTotalGross,
-            discount_type: item.discountType,
-            discount_value: item.discountValue,
-            cost_center: item.costCenter,
-            tenant,
-          })),
-        },
-        payments: {
-          create: payments.map((payment) => ({ ...payment, tenant })),
-        },
-      });
-
-      // 11. Update tenant's counter for the series
-      await tenantService.updateOne(tenant, {
-        [series === "factura" ? "last_factura_number" : "last_ticket_number"]:
-          new_count,
-      });
-
-      // 12. Decrement product stock (minimum 0)
-      for (const item of requestItems) {
-        if (!item.product_id || !item.quantity) continue;
-        await db("products")
-          .where("id", item.product_id)
-          .whereNotNull("stock")
-          .update({
-            stock: db.raw("GREATEST(stock - ?, 0)", [
-              Math.round(item.quantity),
-            ]),
-          });
-      }
-
-      // 13. Return full invoice
       const invoice = await invoiceService.readOne(invoiceId, {
         fields: ["*", "items.*", "payments.*"],
       });
