@@ -36,6 +36,51 @@ interface PBShift extends RecordModel {
   profit: number;
 }
 
+interface InvoiceLine {
+  item_id: string;
+  name: string;
+  quantity: number;
+  weight: number;
+  unit_price: number;
+  total_price: number;
+  discount: number;
+  discount_percent: number;
+  billing: string;
+}
+
+interface TaxSummaryEntry {
+  tax_rate_percentage: number;
+  tax_amount: number;
+  tax_base: number;
+  tax_total: number;
+}
+
+interface PBInvoice {
+  id: string;
+  created: string;
+  invoice_number: number;
+  is_invoice: boolean;
+  is_paid: boolean;
+  lines: InvoiceLine[];
+  tax_summary: TaxSummaryEntry[];
+  total: number;
+  discount: number;
+  cash: number;
+  card: number;
+  hand_over_money: number;
+  change: number;
+  client: {
+    id: string;
+    name: string;
+    tax_id: string;
+    street: string;
+    zip: string;
+    city: string;
+    email: string;
+    phone: string;
+  };
+}
+
 interface OrderItem {
   id: string;
   created: string;
@@ -64,7 +109,7 @@ interface PBOrder extends RecordModel {
   shift: string;
   items: OrderItem[];
   version: number;
-  invoice: unknown;
+  invoice: PBInvoice | null;
   closed: string;
   invoices: unknown;
   client: string;
@@ -107,8 +152,8 @@ const directus = createDirectus(CONFIG.directus.url)
   .with(staticToken(CONFIG.directus.token))
   .with(rest());
 
-// Cent -> Euro
-const toEuro = (cents: number) => Number((cents / 100).toFixed(2));
+// Cent -> Euro string (for decimal precision)
+const toEuro = (cents: number) => (cents / 100).toFixed(2);
 
 // Map: PB Shift ID -> Directus cash_register_closures UUID
 const shiftIdMap = new Map<string, string>();
@@ -153,7 +198,7 @@ async function run() {
           total_gross: toEuro(shift.profit ?? 0),
           transaction_count: detail.count_total ?? 0,
           tax_breakdown: detail.tax_rate
-            ? [{ rate: detail.tax_rate, base: toEuro(detail.tax_base ?? 0), amount: toEuro(detail.tax_amount ?? 0) }]
+            ? [{ rate: String(detail.tax_rate), net: toEuro(detail.tax_base ?? 0), tax: toEuro(detail.tax_amount ?? 0) }]
             : null,
         })
       );
@@ -180,39 +225,78 @@ async function run() {
     console.log(`  > Order ${order.id} (closed: ${order.closed})`);
 
     try {
-      // Closure-ID auflösen
       const closureId = order.shift ? shiftIdMap.get(order.shift) : null;
+      const inv = order.invoice;
 
-      // Items für nested create vorbereiten
-      const items = (order.items ?? []).map((item) => ({
-        tenant: CONFIG.directus.tenant,
-        product_name: item.product?.value ?? "Unbekannt",
-        quantity: 1,
-        price_gross_unit: toEuro(item.price ?? 0),
-        row_total_gross: toEuro(item.price ?? 0),
-        tax_rate_snapshot: 0,
-        price_net_unit_precise: toEuro(item.price ?? 0),
-        row_total_net_precise: toEuro(item.price ?? 0),
-      }));
+      // Use invoice.lines for proper quantities and prices
+      const lines = inv?.lines ?? [];
+      const taxSummary = inv?.tax_summary ?? [];
 
-      // Payments vorbereiten
+      // Build a map: line total_price -> tax rate (best effort matching)
+      // Since we can't directly map lines to tax rates, we compute
+      // invoice-level totals from tax_summary
+      const totalTax = taxSummary.reduce((sum, t) => sum + (t.tax_amount ?? 0), 0);
+      const totalNet = taxSummary.reduce((sum, t) => sum + (t.tax_base ?? 0), 0);
+      const totalGross = inv?.total ?? ((order.cash ?? 0) + (order.card ?? 0));
+
+      // Items from invoice.lines (aggregated with quantity)
+      const items = lines.map((line) => {
+        const lineDiscount = line.discount > 0 ? line.discount : null;
+        const lineDiscountPercent = line.discount_percent > 0 ? line.discount_percent : null;
+
+        return {
+          tenant: CONFIG.directus.tenant,
+          product_name: line.name ?? "Unbekannt",
+          quantity: line.quantity ?? 1,
+          price_gross_unit: toEuro(line.unit_price ?? 0),
+          row_total_gross: toEuro(line.total_price ?? 0),
+          tax_rate_snapshot: 0,
+          price_net_unit_precise: toEuro(line.unit_price ?? 0),
+          row_total_net_precise: toEuro(line.total_price ?? 0),
+          discount_type: lineDiscountPercent ? "percent" : lineDiscount ? "fixed" : null,
+          discount_value: lineDiscountPercent ?? (lineDiscount ? toEuro(lineDiscount) : null),
+        };
+      });
+
+      // Fallback: if no invoice.lines, use order.items
+      if (items.length === 0 && order.items?.length > 0) {
+        for (const item of order.items) {
+          items.push({
+            tenant: CONFIG.directus.tenant,
+            product_name: item.product?.value ?? "Unbekannt",
+            quantity: 1,
+            price_gross_unit: toEuro(item.price ?? 0),
+            row_total_gross: toEuro(item.price ?? 0),
+            tax_rate_snapshot: 0,
+            price_net_unit_precise: toEuro(item.price ?? 0),
+            row_total_net_precise: toEuro(item.price ?? 0),
+            discount_type: null,
+            discount_value: null,
+          });
+        }
+      }
+
+      // Payments
       const payments: any[] = [];
-      if (order.cash > 0) {
+      const cashAmount = inv?.cash ?? order.cash ?? 0;
+      const cardAmount = inv?.card ?? order.card ?? 0;
+
+      if (cashAmount > 0) {
         payments.push({
           tenant: CONFIG.directus.tenant,
           method: "cash",
-          amount: toEuro(order.cash),
-          tendered: toEuro(order.cash),
-          change: 0,
+          amount: toEuro(cashAmount),
+          tendered: toEuro(inv?.hand_over_money ?? cashAmount),
+          change: toEuro(inv?.change ?? 0),
           tip: 0,
         });
       }
-      if (order.card > 0) {
+      if (cardAmount > 0) {
         payments.push({
           tenant: CONFIG.directus.tenant,
           method: "card",
-          amount: toEuro(order.card),
-          tendered: toEuro(order.card),
+          amount: toEuro(cardAmount),
+          tendered: toEuro(cardAmount),
           change: 0,
           tip: 0,
         });
@@ -221,23 +305,31 @@ async function run() {
         payments[payments.length - 1].tip = toEuro(order.tips);
       }
 
-      // Gesamtsumme berechnen
-      const totalGross = toEuro((order.cash ?? 0) + (order.card ?? 0));
+      // Customer data from invoice
+      const client = inv?.client;
+      const hasCustomer = client && client.name;
 
       // Invoice erstellen mit nested items und payments
-      const invoice = await directus.request(
+      await directus.request(
         createItem("invoices", {
           tenant: CONFIG.directus.tenant,
-          invoice_type: "ticket",
+          invoice_type: hasCustomer ? "factura" : "ticket",
           invoice_number: `PB-${order.id}`,
           status: "paid",
           date_created: order.closed || order.created,
           closure_id: closureId || null,
-          total_gross: totalGross,
-          total_net: totalGross,
-          total_tax: 0,
+          total_gross: toEuro(totalGross),
+          total_net: toEuro(totalNet),
+          total_tax: toEuro(totalTax),
           discount_type: order.discount_percent > 0 ? "percent" : null,
           discount_value: order.discount_percent > 0 ? order.discount_percent : null,
+          customer_name: hasCustomer ? client.name : null,
+          customer_nif: hasCustomer ? client.tax_id || null : null,
+          customer_street: hasCustomer ? client.street || null : null,
+          customer_zip: hasCustomer ? client.zip || null : null,
+          customer_city: hasCustomer ? client.city || null : null,
+          customer_email: hasCustomer ? client.email || null : null,
+          customer_phone: hasCustomer ? client.phone || null : null,
           items: items,
           payments: payments,
         })
