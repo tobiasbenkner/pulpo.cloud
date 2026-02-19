@@ -395,6 +395,7 @@
 | last_ticket_number | integer | yes |  |  |
 | last_factura_number | integer | yes |  |  |
 | report_emails | json | yes |  | JSON |
+| simplified_invoice_limit | integer | yes |  |  |
 
 ## Relations
 

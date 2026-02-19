@@ -10,7 +10,8 @@
     setCustomer,
     shouldPrintReceipt,
   } from "../stores/cartStore";
-  import { Printer, X } from "lucide-svelte";
+  import { tenant } from "../stores/printerStore";
+  import { Printer, X, TriangleAlert } from "lucide-svelte";
   import type { Customer } from "../types/shop";
 
   type View = "select" | "cash";
@@ -25,6 +26,7 @@
   let printReceipt = $state(true);
   let processingCard = $state(false);
   let processingCash = $state(false);
+  let simplifiedInvoiceLimit = $state<number | null>(null);
 
   // Derived
   let inputEuro = $derived((inputCents / 100).toFixed(2));
@@ -37,6 +39,11 @@
     isSufficient
       ? `Cambio: ${change.toFixed(2)}€ \u2022 Hecho`
       : "Importe insuficiente",
+  );
+  let showSimplifiedWarning = $derived(
+    !customer &&
+      simplifiedInvoiceLimit !== null &&
+      currentTotal > simplifiedInvoiceLimit,
   );
 
   // Animation helpers
@@ -130,11 +137,16 @@
       printReceipt = val;
     });
 
+    const unsubTenant = tenant.subscribe((t) => {
+      simplifiedInvoiceLimit = t?.simplified_invoice_limit ?? null;
+    });
+
     return () => {
       unsubModal();
       unsubTotals();
       unsubCustomer();
       unsubPrint();
+      unsubTenant();
     };
   });
 
@@ -260,6 +272,21 @@
                   </div>
                 {/if}
               </button>
+
+              <!-- Simplified invoice limit warning -->
+              {#if showSimplifiedWarning}
+                <div
+                  class="flex items-start gap-2.5 p-3 mb-6 rounded-xl bg-amber-50 border border-amber-200 text-amber-800"
+                >
+                  <TriangleAlert class="h-5 w-5 shrink-0 mt-0.5 text-amber-500" />
+                  <div class="text-sm">
+                    <span class="font-semibold"
+                      >Importe superior a {simplifiedInvoiceLimit?.toLocaleString("es-ES")} &euro;.</span
+                    >
+                    Se recomienda asignar un cliente para emitir una factura completa.
+                  </div>
+                </div>
+              {/if}
 
               <!-- Total -->
               <div

@@ -38,6 +38,7 @@ export type Tenant = {
     yelp: string;
   };
   invoice_image: string | null;
+  simplified_invoice_limit: number | null;
   opening_hours: OpeningHour[];
   contacts: Contact[];
 };
