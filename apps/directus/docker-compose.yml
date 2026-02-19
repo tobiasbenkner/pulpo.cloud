@@ -3,7 +3,9 @@ volumes:
 
 services:
   directus:
-    build: . # Nutzt unser Dockerfile von oben
+    build:
+      context: ../..
+      dockerfile: apps/directus/Dockerfile
     container_name: directus
     ports:
       - 8055:8055

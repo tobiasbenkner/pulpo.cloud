@@ -18,31 +18,32 @@ No test framework configured. Testing is manual via the Directus UI and API call
 
 ### Overview
 
-A **Directus CMS instance** running as Docker container with PostgreSQL, Redis, and a custom endpoint extension (`invoice-processor`) that implements the POS backend logic for `@pulpo/shop`.
+A **Directus CMS instance** running as Docker container with PostgreSQL, Redis, and a custom endpoint extension (`pulpo-extension`) that implements the POS backend logic for `@pulpo/shop`. The extension lives at `packages/directus-extension/` as a workspace package and is built into the Docker image.
 
 ### Key Files
 
-- `Dockerfile` — Multi-stage build: compiles invoice-processor extension, installs third-party extensions, runs on `directus/directus:11.15.3`
+- `Dockerfile` — Multi-stage build (context: monorepo root): compiles pulpo-extension with pnpm workspace resolution, installs third-party extensions, runs on `directus/directus:11.15.4`
 - `docker-compose.yml` — Local dev stack: Directus (8055), PostgreSQL, Redis, MailHog (8025)
 - `start.sh` — Entrypoint: bootstraps Directus, optionally applies schema snapshot
 - `export-policies.sh` — Exports roles/policies/permissions to migrations directory
 - `snapshot.yaml` — Full Directus schema snapshot (~12k lines)
 - `migrations/` — JSON exports of roles, policies, permissions, access rules
-- `extensions/invoice-processor/` — Custom endpoint extension
+### Pulpo Extension (`packages/directus-extension/`)
 
-### Invoice Processor Extension (`extensions/invoice-processor/`)
+Custom Directus endpoint extension implementing the full POS backend. Lives as workspace package `pulpo-extension` and is installed as a dependency. All routes are tenant-scoped (tenant derived from authenticated user). All endpoints are available under `/pulpo-extension/`.
 
-Custom Directus endpoint extension implementing the full POS backend. All routes are tenant-scoped (tenant derived from authenticated user).
+Uses `@pulpo/invoice` for server-side invoice calculation — the frontend only sends product IDs + quantities, the backend loads prices/tax rates from DB and calculates totals.
 
 **Source Structure:**
 ```
 src/
-├── index.ts              # Registers 5 route modules
+├── index.ts              # Registers 6 route modules
 ├── types.ts              # Directus service types
 ├── helpers.ts            # Invoice numbering, tenant resolution
 ├── helpers/
 │   └── report-aggregator.ts  # Report computation logic
 └── routes/
+    ├── health.ts               # GET /health
     ├── cash-register-open.ts   # POST /cash-register/open
     ├── cash-register-close.ts  # POST /cash-register/close
     ├── invoice-create.ts       # POST /invoices
@@ -50,13 +51,20 @@ src/
     └── reports.ts              # GET /reports/{period}, POST /reports/backfill
 ```
 
+**Health** (`routes/health.ts`):
+- Returns `{ status, version, timestamp }` — version from `package.json`
+
 **Invoice Creation** (`routes/invoice-create.ts`):
-1. Determines invoice type: `ticket` (no customer) or `factura` (with customer/NIF)
-2. Generates sequential `invoice_number` from tenant prefix + series-specific counter (`last_ticket_number` / `last_factura_number`)
-3. Links to active cash register closure
-4. Creates invoice with nested items and payments in one transaction
-5. Decrements product stock: `GREATEST(stock - qty, 0)`
-6. Snapshots customer data on the invoice
+1. Receives product IDs + quantities + optional discounts (no pre-computed prices)
+2. Loads products from DB (name, price_gross, tax_class, cost_center)
+3. Resolves tax rates via tenant postcode → tax zones → tax rules
+4. Calls `calculateInvoice()` from `@pulpo/invoice` for server-side calculation
+5. Determines invoice type: `ticket` (no customer) or `factura` (with customer/NIF)
+6. Generates sequential `invoice_number` from tenant prefix + series-specific counter
+7. Links to active cash register closure
+8. Creates invoice with nested items and payments
+9. Decrements product stock: `GREATEST(stock - qty, 0)`
+10. Snapshots customer data on the invoice
 
 **Invoice Rectification** (`routes/invoice-rectify.ts`):
 1. Creates negative rectificativa invoice referencing original
@@ -119,4 +127,4 @@ JSON exports in `migrations/`:
 
 ### Deployment
 
-Built as Docker image `pulpocloud/directus`. The Dockerfile compiles the invoice-processor extension, installs third-party extensions, and copies the start script.
+Built as Docker image `pulpocloud/directus`. The Dockerfile uses monorepo root as build context (`docker build -f Dockerfile ../..`), resolves workspace dependencies via pnpm, compiles the pulpo-extension, installs third-party extensions, and copies the start script.

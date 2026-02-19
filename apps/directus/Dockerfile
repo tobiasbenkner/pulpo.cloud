@@ -3,29 +3,29 @@ RUN corepack enable && corepack prepare pnpm@10.8.1 --activate
 
 WORKDIR /build
 
-# Workspace-Config + Shared Package + Extension kopieren
-COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
+# Workspace-Config + Packages kopieren
+COPY pnpm-workspace.yaml package.json pnpm-lock.yaml tsconfig.json ./
 COPY packages/invoice/ packages/invoice/
-COPY apps/directus/extensions/invoice-processor/ apps/directus/extensions/invoice-processor/
+COPY packages/directus-extension/ packages/directus-extension/
 
 # Dependencies installieren (pnpm löst workspace:* auf)
-RUN pnpm install --frozen-lockfile --filter invoice-processor...
+RUN pnpm install --frozen-lockfile --filter pulpo-extension...
 
 # Extension bauen
-WORKDIR /build/apps/directus/extensions/invoice-processor
+WORKDIR /build/packages/directus-extension
 RUN pnpm run build
 
 # --- Production Stage ---
-FROM directus/directus:11.15.3
+FROM directus/directus:11.15.4
 
-COPY --from=builder /build/apps/directus/extensions/invoice-processor/dist /directus/extensions/invoice-processor/dist
-COPY --from=builder /build/apps/directus/extensions/invoice-processor/package.json /directus/extensions/invoice-processor/package.json
+COPY --from=builder /build/packages/directus-extension/dist /directus/extensions/directus-extension/dist
+COPY --from=builder /build/packages/directus-extension/package.json /directus/extensions/directus-extension/package.json
 
 WORKDIR /directus
 RUN pnpm install @timio23/directus-group-tabs@3.0.0 @directus-labs/seo-plugin@1.1.1
 
-# COPY ./snapshot.yaml /directus/snapshot.yaml
-# COPY ./migrations /directus/migrations
+# COPY apps/directus/snapshot.yaml /directus/snapshot.yaml
+# COPY apps/directus/migrations /directus/migrations
 
 COPY apps/directus/start.sh /directus/
 USER root

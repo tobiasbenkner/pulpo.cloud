@@ -33,7 +33,9 @@ apps/           # Astro applications (reusable app templates)
 └── website/    # Standard website template
 
 packages/       # Shared libraries
-└── cms/        # Directus SDK wrapper and types (@pulpo/cms)
+├── cms/                # Directus SDK wrapper and types (@pulpo/cms)
+├── directus-extension/ # Directus endpoint extension (pulpo-extension)
+└── invoice/            # Shared invoice calculation logic (@pulpo/invoice)
 
 websites/       # Client website instances
 ├── beckernet.es/
@@ -58,9 +60,21 @@ Located at `packages/cms/`, provides:
 - Type definitions for all CMS collections
 - API helpers for common queries
 
-Used by apps via workspace dependency:
+### Shared Invoice Package (@pulpo/invoice)
+
+Located at `packages/invoice/`, provides:
+- `calculateInvoice(lines, discount?)` - Pure function for invoice calculation (totals, tax, discounts)
+- Uses `big.js` for precise decimal arithmetic
+- Source-only package (no build step), consumed by both `@pulpo/shop` and `pulpo-extension`
+
+### Directus Extension (pulpo-extension)
+
+Located at `packages/directus-extension/`, a custom Directus endpoint extension implementing the POS backend (invoices, cash register, reports). Built via `directus-extension build` and installed into the Directus Docker image.
+
+All shared packages are used via workspace dependency:
 ```json
 "@pulpo/cms": "workspace:*"
+"@pulpo/invoice": "workspace:*"
 ```
 
 ### Multi-Language Routing Pattern

@@ -67,7 +67,7 @@ collections:
       note: null
       preview_url: null
       singleton: false
-      sort: 8
+      sort: 7
       sort_field: null
       translations: null
       unarchive_value: null
@@ -139,7 +139,7 @@ collections:
       note: null
       preview_url: null
       singleton: false
-      sort: null
+      sort: 9
       sort_field: sort
       translations: null
       unarchive_value: null
@@ -274,14 +274,14 @@ collections:
       collection: invoice_payments
       color: null
       display_template: null
-      group: null
+      group: finance
       hidden: false
       icon: null
       item_duplication_fields: null
       note: null
       preview_url: null
       singleton: false
-      sort: null
+      sort: 8
       sort_field: null
       translations: null
       unarchive_value: null
@@ -8518,7 +8518,7 @@ fields:
       readonly: false
       required: false
       searchable: true
-      sort: 6
+      sort: 7
       special:
         - alias
         - no-data
@@ -8686,6 +8686,46 @@ fields:
       has_auto_increment: false
       foreign_key_table: cost_centers
       foreign_key_column: id
+  - collection: products
+    field: name
+    type: string
+    meta:
+      collection: products
+      conditions: null
+      display: null
+      display_options: null
+      field: name
+      group: null
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: true
+      searchable: true
+      sort: 6
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: name
+      table: products
+      data_type: character varying
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
   - collection: products_translations
     field: id
     type: integer

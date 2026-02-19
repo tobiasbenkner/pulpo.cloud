@@ -66,29 +66,11 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
-  apps/directus: {}
-
-  apps/directus/extensions/invoice-processor:
+  apps/directus:
     dependencies:
-      '@pulpo/invoice':
+      pulpo-extension:
         specifier: workspace:*
-        version: link:../../../../packages/invoice
-      big.js:
-        specifier: ^7.0.1
-        version: 7.0.1
-    devDependencies:
-      '@directus/extensions-sdk':
-        specifier: 17.0.7
-        version: 17.0.7(@types/node@25.2.3)(@unhead/vue@1.11.20(vue@3.5.24(typescript@5.9.3)))(jiti@2.6.1)(knex@3.1.0)(lightningcss@1.30.2)(pinia@2.3.1(typescript@5.9.3)(vue@3.5.24(typescript@5.9.3)))(sharp@0.34.5)(terser@5.46.0)(tsx@4.21.0)(typescript@5.9.3)
-      '@types/big.js':
-        specifier: ^6.2.2
-        version: 6.2.2
-      '@types/node':
-        specifier: ^25.2.3
-        version: 25.2.3
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
+        version: link:../../packages/directus-extension
 
   apps/shop:
     dependencies:
@@ -224,6 +206,31 @@ importers:
     devDependencies:
       typescript:
         specifier: ^5.0.0
+        version: 5.9.3
+
+  packages/directus-extension:
+    dependencies:
+      '@pulpo/invoice':
+        specifier: workspace:*
+        version: link:../invoice
+      big.js:
+        specifier: ^7.0.1
+        version: 7.0.1
+    devDependencies:
+      '@directus/extensions-sdk':
+        specifier: 17.0.7
+        version: 17.0.7(@types/node@25.2.3)(@unhead/vue@1.11.20(vue@3.5.24(typescript@5.9.3)))(jiti@2.6.1)(knex@3.1.0)(lightningcss@1.30.2)(pinia@2.3.1(typescript@5.9.3)(vue@3.5.24(typescript@5.9.3)))(sharp@0.34.5)(terser@5.46.0)(tsx@4.21.0)(typescript@5.9.3)
+      '@types/big.js':
+        specifier: ^6.2.2
+        version: 6.2.2
+      '@types/express':
+        specifier: ^4.17.0
+        version: 4.17.25
+      '@types/node':
+        specifier: ^25.2.3
+        version: 25.2.3
+      typescript:
+        specifier: ^5.9.3
         version: 5.9.3
 
   packages/invoice:

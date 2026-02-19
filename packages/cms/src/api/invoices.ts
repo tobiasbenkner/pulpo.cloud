@@ -34,7 +34,7 @@ export async function createInvoice(
     client as any
   ).request(() => ({
     method: "POST",
-    path: "/invoice-processor/invoices",
+    path: "/pulpo-extension/invoices",
     body: JSON.stringify(data),
     headers: { "Content-Type": "application/json" },
   }));
@@ -107,7 +107,7 @@ export async function rectifyInvoice(
 ): Promise<{ rectificativa: Invoice; original: Invoice }> {
   return (client as any).request(() => ({
     method: "POST",
-    path: "/invoice-processor/invoices/rectify",
+    path: "/pulpo-extension/invoices/rectify",
     body: JSON.stringify(data),
     headers: { "Content-Type": "application/json" },
   }));

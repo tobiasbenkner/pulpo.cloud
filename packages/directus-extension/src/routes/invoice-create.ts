@@ -71,16 +71,21 @@ export function registerInvoiceCreate(
         postcode?: string;
       };
 
-      // 3. Load products from DB
+      // 3. Load products via ItemsService (resolves relations)
       const productIds = requestItems.map((item) => item.product_id);
-      const products = (await db("products")
-        .select("id", "name", "price_gross", "tax_class", "cost_center")
-        .whereIn("id", productIds)) as {
+      const productService = new ItemsService("products", {
+        schema,
+        knex: database,
+      });
+      const products = (await productService.readByQuery({
+        filter: { id: { _in: productIds } },
+        fields: ["id", "name", "price_gross", "tax_class.code", "cost_center.name"],
+      })) as {
         id: string;
         name: string;
         price_gross: string;
-        tax_class: string | null;
-        cost_center: string | null;
+        tax_class: { code: string } | null;
+        cost_center: { name: string } | null;
       }[];
 
       const productMap = new Map(products.map((p) => [p.id, p]));
@@ -94,36 +99,18 @@ export function registerInvoiceCreate(
         }
       }
 
-      // 4. Load cost center names
-      const costCenterIds = [
-        ...new Set(
-          products
-            .map((p) => p.cost_center)
-            .filter((id): id is string => id != null),
-        ),
-      ];
-      const costCenterMap = new Map<string, string>();
-      if (costCenterIds.length > 0) {
-        const costCenters = (await db("cost_centers")
-          .select("id", "name")
-          .whereIn("id", costCenterIds)) as { id: string; name: string }[];
-        for (const cc of costCenters) {
-          costCenterMap.set(cc.id, cc.name);
-        }
-      }
-
-      // 5. Load tax rates for tenant postcode
+      // 4. Load tax rates for tenant postcode
       const postcode = tenantRecord.postcode ?? "";
       const taxRatesByClass = new Map<string, string>();
 
       if (postcode) {
-        const zones = (await db("tax_zones")
-          .select("id", "regex", "priority")
-          .orderBy("priority", "asc")) as {
-          id: string;
-          regex: string | null;
-          priority: number | null;
-        }[];
+        const zoneService = new ItemsService("tax_zones", {
+          schema,
+          knex: database,
+        });
+        const zones = (await zoneService.readByQuery({
+          sort: ["priority"],
+        })) as { id: string; regex: string | null }[];
 
         const matchedZone = zones.find((zone) => {
           if (!zone.regex) return false;
@@ -131,28 +118,26 @@ export function registerInvoiceCreate(
         });
 
         if (matchedZone) {
-          const rules = (await db("tax_rules")
-            .select("tax_rules.rate", "tax_classes.code")
-            .join("tax_classes", "tax_rules.tax_class_id", "tax_classes.id")
-            .where("tax_rules.tax_zone_id", matchedZone.id)) as {
-            rate: string | null;
-            code: string;
-          }[];
+          const ruleService = new ItemsService("tax_rules", {
+            schema,
+            knex: database,
+          });
+          const rules = (await ruleService.readByQuery({
+            filter: { tax_zone_id: { _eq: matchedZone.id } },
+            fields: ["rate", "tax_class_id.code"],
+          })) as { rate: string | null; tax_class_id: { code: string } }[];
 
           for (const rule of rules) {
-            taxRatesByClass.set(rule.code, rule.rate ?? "0");
+            taxRatesByClass.set(rule.tax_class_id.code, rule.rate ?? "0");
           }
         }
       }
 
-      // 6. Build InvoiceLineInput[] and calculate
+      // 5. Build InvoiceLineInput[] and calculate
       const lines: InvoiceLineInput[] = requestItems.map((item) => {
         const product = productMap.get(item.product_id)!;
-        const taxClassCode = product.tax_class ?? "NULL";
+        const taxClassCode = product.tax_class?.code ?? "NULL";
         const taxRate = taxRatesByClass.get(taxClassCode) ?? "0";
-        const costCenterName = product.cost_center
-          ? (costCenterMap.get(product.cost_center) ?? null)
-          : null;
         return {
           productId: product.id,
           productName: product.name,
@@ -160,7 +145,7 @@ export function registerInvoiceCreate(
           taxRate,
           quantity: item.quantity,
           discount: item.discount ?? null,
-          costCenter: costCenterName,
+          costCenter: product.cost_center?.name ?? null,
         };
       });
 

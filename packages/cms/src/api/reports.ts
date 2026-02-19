@@ -26,7 +26,7 @@ export async function getReport(
   const qs = buildQueryString(params);
   return (client as any).request(() => ({
     method: "GET",
-    path: `/invoice-processor/reports/${period}?${qs}`,
+    path: `/pulpo-extension/reports/${period}?${qs}`,
   }));
 }
 
@@ -36,7 +36,7 @@ export async function backfillClosures(
 ): Promise<{ success: boolean; updated: number }> {
   return (client as any).request(() => ({
     method: "POST",
-    path: "/invoice-processor/reports/backfill",
+    path: "/pulpo-extension/reports/backfill",
     body: JSON.stringify({}),
     headers: { "Content-Type": "application/json" },
   }));

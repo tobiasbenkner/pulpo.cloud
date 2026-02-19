@@ -59,8 +59,8 @@ function getDateRange(
   }
 
   if (type === "monthly") {
-    const year = parseInt(params.year);
-    const month = parseInt(params.month);
+    const year = parseInt(params.year ?? "");
+    const month = parseInt(params.month ?? "");
     if (!year || !month)
       throw new Error("Missing 'year' and 'month' parameters");
     const firstDay = new Date(year, month - 1, 1);
@@ -77,8 +77,8 @@ function getDateRange(
   }
 
   if (type === "quarterly") {
-    const year = parseInt(params.year);
-    const quarter = parseInt(params.quarter);
+    const year = parseInt(params.year ?? "");
+    const quarter = parseInt(params.quarter ?? "");
     if (!year || !quarter)
       throw new Error("Missing 'year' and 'quarter' parameters");
     const startMonth = (quarter - 1) * 3;
@@ -92,7 +92,7 @@ function getDateRange(
   }
 
   if (type === "yearly") {
-    const year = parseInt(params.year);
+    const year = parseInt(params.year ?? "");
     if (!year) throw new Error("Missing 'year' parameter");
     return {
       from: `${year}-01-01T00:00:00`,

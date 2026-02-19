@@ -12,7 +12,7 @@ export async function openClosure(
     client as any
   ).request(() => ({
     method: "POST",
-    path: "/invoice-processor/cash-register/open",
+    path: "/pulpo-extension/cash-register/open",
     body: JSON.stringify({
       starting_cash: data.starting_cash,
     }),
@@ -41,7 +41,7 @@ export async function closeClosure(
     client as any
   ).request(() => ({
     method: "POST",
-    path: "/invoice-processor/cash-register/close",
+    path: "/pulpo-extension/cash-register/close",
     body: JSON.stringify({
       counted_cash: data.counted_cash,
       denomination_count: data.denomination_count,

@@ -61,7 +61,7 @@ export function calculateInvoice(
   const computedItems: InvoiceLineResult[] = [];
 
   items.forEach((item, i) => {
-    const lineGross = lineGrossValues[i];
+    const lineGross = lineGrossValues[i]!;
     const lineGrossAfterGlobal = lineGross.times(discountRatio);
     const rateStr = item.taxRate;
     const rate = new Big(rateStr);

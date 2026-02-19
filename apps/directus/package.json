@@ -5,6 +5,10 @@
   "scripts": {
     "dev": "docker compose up --build",
     "build": "docker build -t pulpocloud/directus -f Dockerfile ../..",
-    "deploy": "docker push pulpocloud/directus"
+    "deploy": "docker push pulpocloud/directus",
+    "kill": "docker stop $(docker ps -a -q) && docker rm $(docker ps -a -q)"
+  },
+  "dependencies": {
+    "pulpo-extension": "workspace:*"
   }
 }

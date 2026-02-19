@@ -64,24 +64,24 @@ All functions take a Directus client as first argument. Most filter by `tenant`.
 - `updateProductStock(client, productId, stock)` — Update stock field
 
 **Invoices** (`invoices.ts`):
-- `createInvoice(client, data)` — POST to custom `/invoice-processor/invoices` endpoint
+- `createInvoice(client, data)` — POST to custom `/pulpo-extension/invoices` endpoint (sends product IDs + quantities, server calculates totals)
 - `getInvoices(client, query?)` — Filter by tenant, status, date range, closure ID
 - `getInvoice(client, id)` — Single invoice with items and payments
-- `rectifyInvoice(client, data)` — POST to `/invoice-processor/invoices/rectify`
+- `rectifyInvoice(client, data)` — POST to `/pulpo-extension/invoices/rectify`
 - `updateInvoicePaymentMethod(client, paymentId, method, amount)` — Swap cash/card
 
 **Tax** (`tax.ts`):
 - `getTaxRulesForPostcode(client, postcode)` — Loads zones sorted by priority, matches postcode against each zone's regex, returns `{ classCode, rate, surcharge }[]`
 
 **Cash Register** (`cash-register.ts`):
-- `openClosure(client, data)` — POST to `/invoice-processor/cash-register/open`
-- `closeClosure(client, data)` — POST to `/invoice-processor/cash-register/close`
+- `openClosure(client, data)` — POST to `/pulpo-extension/cash-register/open`
+- `closeClosure(client, data)` — POST to `/pulpo-extension/cash-register/close`
 - `getOpenClosure(client)` — Find open closure for current tenant
 - `getClosuresForDate(client, date)` — Closures for a specific date
 - `getLastClosure(client)` — Most recent closure
 
 **Reports** (`reports.ts`):
-- `getReport(client, period, params)` — GET from `/invoice-processor/reports/{period}`. Returns `AggregatedReport`
+- `getReport(client, period, params)` — GET from `/pulpo-extension/reports/{period}`. Returns `AggregatedReport`
 - `backfillClosures(client)` — POST to backfill product breakdowns
 
 **Customers** (`customers.ts`):
@@ -107,13 +107,13 @@ All functions take a Directus client as first argument. Most filter by `tenant`.
 
 ### Custom Extension Endpoints
 
-Several API functions call custom Directus extension endpoints (implemented in `apps/directus/extensions/invoice-processor/`):
+Several API functions call custom Directus extension endpoints (implemented in `packages/directus-extension/`):
 
-- `/invoice-processor/invoices` — Invoice creation with auto-numbering and stock management
-- `/invoice-processor/invoices/rectify` — Corrective invoice creation
-- `/invoice-processor/cash-register/open` — Open register
-- `/invoice-processor/cash-register/close` — Close register with aggregation
-- `/invoice-processor/reports/{period}` — Aggregated reports
+- `/pulpo-extension/invoices` — Invoice creation with auto-numbering and stock management
+- `/pulpo-extension/invoices/rectify` — Corrective invoice creation
+- `/pulpo-extension/cash-register/open` — Open register
+- `/pulpo-extension/cash-register/close` — Close register with aggregation
+- `/pulpo-extension/reports/{period}` — Aggregated reports
 
 ### Adding New API Functions
 

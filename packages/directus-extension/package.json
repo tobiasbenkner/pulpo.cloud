@@ -1,6 +1,6 @@
 {
-	"name": "invoice-processor",
-	"description": "Please enter a description for your extension",
+	"name": "pulpo-extension",
+	"description": "Directus endpoint extension for POS backend (invoices, cash register, reports)",
 	"icon": "extension",
 	"version": "1.0.0",
 	"keywords": [
@@ -22,11 +22,13 @@
 		"build": "directus-extension build",
 		"dev": "directus-extension build -w --no-minify",
 		"link": "directus-extension link",
-		"validate": "directus-extension validate"
+		"validate": "directus-extension validate",
+		"check-types": "tsc --noEmit"
 	},
 	"devDependencies": {
 		"@directus/extensions-sdk": "17.0.7",
 		"@types/big.js": "^6.2.2",
+		"@types/express": "^4.17.0",
 		"@types/node": "^25.2.3",
 		"typescript": "^5.9.3"
 	},
