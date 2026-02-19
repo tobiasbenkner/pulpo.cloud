@@ -195,6 +195,11 @@
 | customer_email | character varying | yes |  |  |
 | customer_phone | character varying | yes |  |  |
 | payments | alias | yes |  | O2M, required |
+| issuer_name | character varying | yes |  |  |
+| issuer_nif | character varying | yes |  |  |
+| issuer_street | character varying | yes |  |  |
+| issuer_zip | character varying | yes |  |  |
+| issuer_city | character varying | yes |  |  |
 
 ## languages
 

@@ -13,6 +13,12 @@ export interface Invoice {
   discount_type: "percent" | "fixed" | null;
   discount_value: string | null;
   closure_id: string | null;
+  // Issuer (tenant snapshot)
+  issuer_name: string | null;
+  issuer_nif: string | null;
+  issuer_street: string | null;
+  issuer_zip: string | null;
+  issuer_city: string | null;
   // Customer
   customer_id: string | null;
   customer_name: string | null;

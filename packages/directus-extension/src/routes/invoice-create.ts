@@ -69,6 +69,10 @@ export function registerInvoiceCreate(
         last_ticket_number?: number;
         last_factura_number?: number;
         postcode?: string;
+        name?: string;
+        nif?: string;
+        street?: string;
+        city?: string;
       };
 
       // 3. Load products via ItemsService (resolves relations)
@@ -234,6 +238,11 @@ export function registerInvoiceCreate(
         total_gross: result.gross,
         discount_type: result.discountType,
         discount_value: result.discountValue,
+        issuer_name: tenantRecord.name ?? null,
+        issuer_nif: tenantRecord.nif ?? null,
+        issuer_street: tenantRecord.street ?? null,
+        issuer_zip: tenantRecord.postcode ?? null,
+        issuer_city: tenantRecord.city ?? null,
         ...customerSnapshot,
         items: {
           create: result.items.map((item) => ({

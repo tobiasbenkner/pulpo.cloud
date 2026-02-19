@@ -1,4 +1,5 @@
 import type { Router } from "express";
+import Big from "big.js";
 import type { EndpointContext, ServiceConstructor } from "../types";
 import { getTenantFromUser, generateInvoiceNumber } from "../helpers";
 
@@ -178,14 +179,14 @@ export function registerInvoiceRectify(
         tenant,
       }));
 
-      // 6. Calculate totals (all negative)
-      let totalNet = 0;
-      let totalGross = 0;
+      // 6. Calculate totals (all negative) using big.js for precision
+      let totalNet = new Big(0);
+      let totalGross = new Big(0);
       for (const item of negatedItems) {
-        totalNet += parseFloat(item.row_total_net_precise);
-        totalGross += parseFloat(item.row_total_gross);
+        totalNet = totalNet.plus(item.row_total_net_precise);
+        totalGross = totalGross.plus(item.row_total_gross);
       }
-      const totalTax = totalGross - totalNet;
+      const totalTax = totalGross.minus(totalNet);
 
       // 7. Determine payment method (from request or fallback to original)
       const originalPayment = (original.payments as any[])?.[0];
@@ -196,7 +197,7 @@ export function registerInvoiceRectify(
         ? `${reason}: ${reason_detail}`
         : reason;
 
-      // 9. Create rectificativa (copy customer snapshot from original)
+      // 9. Create rectificativa (copy issuer + customer snapshot from original)
       const rectificativaId = await invoiceService.createOne({
         tenant,
         invoice_number,
@@ -210,6 +211,11 @@ export function registerInvoiceRectify(
         total_gross: totalGross.toFixed(2),
         discount_type: null,
         discount_value: null,
+        issuer_name: original.issuer_name ?? null,
+        issuer_nif: original.issuer_nif ?? null,
+        issuer_street: original.issuer_street ?? null,
+        issuer_zip: original.issuer_zip ?? null,
+        issuer_city: original.issuer_city ?? null,
         customer_id: original.customer_id ?? null,
         customer_name: original.customer_name ?? null,
         customer_nif: original.customer_nif ?? null,
