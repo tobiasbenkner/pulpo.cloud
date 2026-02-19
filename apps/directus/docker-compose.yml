@@ -1,5 +1,6 @@
 volumes:
   postgres_data:
+  directus_uploads:
 
 services:
   directus:
@@ -29,6 +30,8 @@ services:
       DB_PASSWORD: "directus"
       # WICHTIG: Damit Extensions geladen werden
       EXTENSIONS_PATH: "/directus/extensions"
+    volumes:
+      - directus_uploads:/directus/uploads
     depends_on:
       - database
       - redis
