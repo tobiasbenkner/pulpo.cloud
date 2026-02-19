@@ -1,5 +1,11 @@
 import Big from "big.js";
 
+/** Safely create a Big from a value that might be null, undefined, or empty string. */
+function safeBig(value: unknown): Big {
+  if (value == null || value === "") return new Big(0);
+  return new Big(String(value));
+}
+
 export interface ClosureProductBreakdown {
   product_name: string;
   product_id: string | null;
@@ -84,7 +90,7 @@ export function computeProductBreakdown(
       };
 
       const qty = Number(item.quantity);
-      const gross = new Big(item.row_total_gross);
+      const gross = safeBig(item.row_total_gross);
 
       existing.quantity += qty;
       existing.total_gross = existing.total_gross.plus(gross);
@@ -164,11 +170,11 @@ export function aggregateClosures(
   const shifts: AggregatedReport["shifts"] = [];
 
   for (const c of closures) {
-    totalGross = totalGross.plus(new Big(c.total_gross ?? "0"));
-    totalNet = totalNet.plus(new Big(c.total_net ?? "0"));
-    totalTax = totalTax.plus(new Big(c.total_tax ?? "0"));
-    totalCash = totalCash.plus(new Big(c.total_cash ?? "0"));
-    totalCard = totalCard.plus(new Big(c.total_card ?? "0"));
+    totalGross = totalGross.plus(safeBig(c.total_gross));
+    totalNet = totalNet.plus(safeBig(c.total_net));
+    totalTax = totalTax.plus(safeBig(c.total_tax));
+    totalCash = totalCash.plus(safeBig(c.total_cash));
+    totalCard = totalCard.plus(safeBig(c.total_card));
     transactionCount += c.transaction_count ?? 0;
 
     // Invoice type counts
@@ -185,8 +191,8 @@ export function aggregateClosures(
     for (const entry of c.tax_breakdown ?? []) {
       const existing = taxMap.get(entry.rate) ?? { net: ZERO, tax: ZERO };
       taxMap.set(entry.rate, {
-        net: existing.net.plus(new Big(entry.net)),
-        tax: existing.tax.plus(new Big(entry.tax)),
+        net: existing.net.plus(safeBig(entry.net)),
+        tax: existing.tax.plus(safeBig(entry.tax)),
       });
     }
 
@@ -202,15 +208,9 @@ export function aggregateClosures(
         card_gross: ZERO,
       };
       existing.quantity += p.quantity;
-      existing.total_gross = existing.total_gross.plus(
-        new Big(p.total_gross ?? "0"),
-      );
-      existing.cash_gross = existing.cash_gross.plus(
-        new Big(p.cash_gross ?? "0"),
-      );
-      existing.card_gross = existing.card_gross.plus(
-        new Big(p.card_gross ?? "0"),
-      );
+      existing.total_gross = existing.total_gross.plus(safeBig(p.total_gross));
+      existing.cash_gross = existing.cash_gross.plus(safeBig(p.cash_gross));
+      existing.card_gross = existing.card_gross.plus(safeBig(p.card_gross));
       productMap.set(key, existing);
     }
 
@@ -219,9 +219,9 @@ export function aggregateClosures(
         id: c.id,
         period_start: c.period_start,
         period_end: c.period_end ?? null,
-        total_gross: c.total_gross ?? "0.00",
-        total_cash: c.total_cash ?? "0.00",
-        total_card: c.total_card ?? "0.00",
+        total_gross: safeBig(c.total_gross).toFixed(2),
+        total_cash: safeBig(c.total_cash).toFixed(2),
+        total_card: safeBig(c.total_card).toFixed(2),
         transaction_count: c.transaction_count ?? 0,
         difference: c.difference ?? null,
         invoice_counts: counts,
@@ -232,7 +232,7 @@ export function aggregateClosures(
 
   const taxBreakdown = Array.from(taxMap.entries())
     .filter(([, v]) => !v.tax.eq(0))
-    .sort(([a], [b]) => new Big(a).cmp(new Big(b)))
+    .sort(([a], [b]) => safeBig(a).cmp(safeBig(b)))
     .map(([rate, v]) => ({
       rate,
       net: v.net.toFixed(2),

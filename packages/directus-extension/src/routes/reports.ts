@@ -10,6 +10,56 @@ import {
 
 type PeriodType = "daily" | "weekly" | "monthly" | "quarterly" | "yearly";
 
+/** Get the last day of a month (1-indexed). */
+function lastDayOfMonth(year: number, month: number): number {
+  return new Date(year, month, 0).getDate();
+}
+
+/** ISO 8601 week number (the week containing the year's first Thursday). */
+function isoWeekNumber(year: number, month: number, day: number): number {
+  const date = new Date(year, month - 1, day);
+  // Find Thursday of the current week
+  const dayOfWeek = date.getDay();
+  const diff = dayOfWeek === 0 ? -3 : 4 - dayOfWeek;
+  const thursday = new Date(date);
+  thursday.setDate(date.getDate() + diff);
+  const jan1 = new Date(thursday.getFullYear(), 0, 1);
+  return Math.ceil(((thursday.getTime() - jan1.getTime()) / 86400000 + 1) / 7);
+}
+
+/**
+ * Convert a local date/time in a given IANA timezone to a UTC ISO string.
+ * Needed because period_start is `timestamp with time zone` (stored as UTC).
+ */
+function localToUTC(
+  year: number, month: number, day: number,
+  hour: number, min: number, sec: number,
+  timezone: string,
+): string {
+  const utcGuess = new Date(Date.UTC(year, month - 1, day, hour, min, sec));
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: timezone,
+    year: "numeric", month: "numeric", day: "numeric",
+    hour: "numeric", minute: "numeric", second: "numeric",
+    hour12: false,
+  });
+  const p = { year: 0, month: 0, day: 0, hour: 0, minute: 0, second: 0 };
+  for (const { type, value } of formatter.formatToParts(utcGuess)) {
+    if (type in p) p[type as keyof typeof p] = parseInt(value, 10);
+  }
+  const h = p.hour === 24 ? 0 : p.hour;
+  const actualLocal = Date.UTC(
+    p.year, p.month - 1, p.day, h, p.minute, p.second,
+  );
+  const desiredLocal = Date.UTC(year, month - 1, day, hour, min, sec);
+  return new Date(utcGuess.getTime() + (desiredLocal - actualLocal)).toISOString();
+}
+
+function parseDate(date: string): [number, number, number] {
+  const parts = date.split("-").map(Number) as [number, number, number];
+  return parts;
+}
+
 function getDateRange(
   type: PeriodType,
   params: Record<string, string>,
@@ -20,41 +70,48 @@ function getDateRange(
   if (type === "daily") {
     const date = params.date;
     if (!date) throw new Error("Missing 'date' parameter (YYYY-MM-DD)");
-    const d = new Date(date + "T12:00:00");
-    const label = d.toLocaleDateString("es-ES", {
+    const [y, m, d] = parseDate(date);
+    const label = new Date(y, m - 1, d).toLocaleDateString("es-ES", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
       timeZone: tz,
     });
-    return { from: `${date}T00:00:00`, to: `${date}T23:59:59`, label };
+    return {
+      from: localToUTC(y, m, d, 0, 0, 0, tz),
+      to: localToUTC(y, m, d, 23, 59, 59, tz),
+      label,
+    };
   }
 
   if (type === "weekly") {
     const date = params.date;
     if (!date) throw new Error("Missing 'date' parameter (YYYY-MM-DD)");
-    const d = new Date(date + "T12:00:00");
+    const [y, m, d] = parseDate(date);
+    const dateObj = new Date(y, m - 1, d);
     // Find Monday of the week
-    const day = d.getDay();
-    const diff = day === 0 ? 6 : day - 1;
-    const monday = new Date(d);
-    monday.setDate(d.getDate() - diff);
-    const sunday = new Date(monday);
-    sunday.setDate(monday.getDate() + 6);
-
-    const mondayStr = monday.toISOString().slice(0, 10);
-    const sundayStr = sunday.toISOString().slice(0, 10);
-
-    // ISO week number
-    const jan1 = new Date(monday.getFullYear(), 0, 1);
-    const weekNum = Math.ceil(
-      ((monday.getTime() - jan1.getTime()) / 86400000 + jan1.getDay() + 1) / 7,
+    const dow = dateObj.getDay();
+    const diffToMonday = dow === 0 ? 6 : dow - 1;
+    const mondayDate = new Date(y, m - 1, d - diffToMonday);
+    const sundayDate = new Date(
+      mondayDate.getFullYear(),
+      mondayDate.getMonth(),
+      mondayDate.getDate() + 6,
     );
 
+    const my = mondayDate.getFullYear();
+    const mm = mondayDate.getMonth() + 1;
+    const md = mondayDate.getDate();
+    const sy = sundayDate.getFullYear();
+    const sm = sundayDate.getMonth() + 1;
+    const sd = sundayDate.getDate();
+
+    const weekNum = isoWeekNumber(my, mm, md);
+
     return {
-      from: `${mondayStr}T00:00:00`,
-      to: `${sundayStr}T23:59:59`,
-      label: `Semana ${weekNum}, ${monday.getFullYear()}`,
+      from: localToUTC(my, mm, md, 0, 0, 0, tz),
+      to: localToUTC(sy, sm, sd, 23, 59, 59, tz),
+      label: `Semana ${weekNum}, ${my}`,
     };
   }
 
@@ -63,15 +120,14 @@ function getDateRange(
     const month = parseInt(params.month ?? "");
     if (!year || !month)
       throw new Error("Missing 'year' and 'month' parameters");
-    const firstDay = new Date(year, month - 1, 1);
-    const lastDay = new Date(year, month, 0);
-    const monthName = firstDay.toLocaleDateString("es-ES", {
-      month: "long",
-      timeZone: tz,
-    });
+    const lastDay = lastDayOfMonth(year, month);
+    const monthName = new Date(year, month - 1, 15).toLocaleDateString(
+      "es-ES",
+      { month: "long", timeZone: tz },
+    );
     return {
-      from: `${firstDay.toISOString().slice(0, 10)}T00:00:00`,
-      to: `${lastDay.toISOString().slice(0, 10)}T23:59:59`,
+      from: localToUTC(year, month, 1, 0, 0, 0, tz),
+      to: localToUTC(year, month, lastDay, 23, 59, 59, tz),
       label: `${monthName.charAt(0).toUpperCase() + monthName.slice(1)} ${year}`,
     };
   }
@@ -81,12 +137,12 @@ function getDateRange(
     const quarter = parseInt(params.quarter ?? "");
     if (!year || !quarter)
       throw new Error("Missing 'year' and 'quarter' parameters");
-    const startMonth = (quarter - 1) * 3;
-    const firstDay = new Date(year, startMonth, 1);
-    const lastDay = new Date(year, startMonth + 3, 0);
+    const startMonth = (quarter - 1) * 3 + 1;
+    const endMonth = startMonth + 2;
+    const lastDay = lastDayOfMonth(year, endMonth);
     return {
-      from: `${firstDay.toISOString().slice(0, 10)}T00:00:00`,
-      to: `${lastDay.toISOString().slice(0, 10)}T23:59:59`,
+      from: localToUTC(year, startMonth, 1, 0, 0, 0, tz),
+      to: localToUTC(year, endMonth, lastDay, 23, 59, 59, tz),
       label: `Q${quarter} ${year}`,
     };
   }
@@ -95,8 +151,8 @@ function getDateRange(
     const year = parseInt(params.year ?? "");
     if (!year) throw new Error("Missing 'year' parameter");
     return {
-      from: `${year}-01-01T00:00:00`,
-      to: `${year}-12-31T23:59:59`,
+      from: localToUTC(year, 1, 1, 0, 0, 0, tz),
+      to: localToUTC(year, 12, 31, 23, 59, 59, tz),
       label: `${year}`,
     };
   }
@@ -140,9 +196,7 @@ export function registerReports(router: Router, context: EndpointContext) {
       }
       const tenant = await getTenantFromUser(userId, context);
       if (!tenant) {
-        return res
-          .status(401)
-          .json({ error: "Kein Tenant zugewiesen." });
+        return res.status(401).json({ error: "Kein Tenant zugewiesen." });
       }
 
       const schema = await getSchema();
@@ -235,9 +289,12 @@ export function registerReports(router: Router, context: EndpointContext) {
 
     const closures = await closureService.readByQuery({
       filter: {
-        tenant: { _eq: tenant },
-        status: { _eq: "closed" },
-        period_start: { _gte: from, _lte: to },
+        _and: [
+          { tenant: { _eq: tenant } },
+          { status: { _eq: "closed" } },
+          { period_start: { _gte: from } },
+          { period_start: { _lte: to } },
+        ],
       },
       sort: ["-period_start"],
       limit: -1,
@@ -249,5 +306,4 @@ export function registerReports(router: Router, context: EndpointContext) {
       periodType === "daily",
     );
   }
-
 }
