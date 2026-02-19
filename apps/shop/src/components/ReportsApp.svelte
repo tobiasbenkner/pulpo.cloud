@@ -5,7 +5,6 @@
   import { loadProducts } from "../stores/productStore";
   import { ArrowLeft } from "lucide-svelte";
   import DailyOverview from "./DailyOverview.svelte";
-  import WeeklyReport from "./WeeklyReport.svelte";
   import MonthlyReport from "./MonthlyReport.svelte";
   import QuarterlyReport from "./QuarterlyReport.svelte";
   import YearlyReport from "./YearlyReport.svelte";
@@ -17,7 +16,6 @@
 
   const tabs = [
     { id: "day", label: "D\u00EDa" },
-    { id: "week", label: "Semana" },
     { id: "month", label: "Mes" },
     { id: "quarter", label: "Trimestre" },
     { id: "year", label: "A\u00F1o" },
@@ -59,11 +57,7 @@
         <span>Volver</span>
       </a>
 
-      <h1 class="text-sm font-bold text-zinc-900 uppercase tracking-wider">
-        Informes
-      </h1>
-
-      <nav class="flex-1 flex gap-2 ml-4">
+      <nav class="flex-1 flex gap-2">
         {#each tabs as tab}
           <button
             class="px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200 active:scale-95 whitespace-nowrap border {activeTab ===
@@ -82,8 +76,6 @@
     <div class="flex-1 overflow-y-auto">
       {#if activeTab === "day"}
         <DailyOverview />
-      {:else if activeTab === "week"}
-        <WeeklyReport />
       {:else if activeTab === "month"}
         <MonthlyReport />
       {:else if activeTab === "quarter"}

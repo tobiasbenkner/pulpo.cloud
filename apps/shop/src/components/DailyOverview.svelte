@@ -106,6 +106,19 @@
   }
 
   let isToday = $derived(selectedDate === todayStr());
+  let dateInput: HTMLInputElement;
+
+  function openPicker() {
+    dateInput.value = selectedDate;
+    dateInput.showPicker();
+  }
+
+  function onPickerChange() {
+    if (dateInput.value && dateInput.value !== selectedDate) {
+      selectedDate = dateInput.value;
+      loadData();
+    }
+  }
 
   let summary = $derived(report?.summary ?? null);
   let invoiceCounts = $derived(report?.invoice_counts ?? null);
@@ -154,11 +167,19 @@
     >
       <ChevronLeft class="w-5 h-5" />
     </button>
-    <span
-      class="text-lg font-bold text-zinc-900 min-w-[220px] text-center capitalize"
+    <button
+      class="text-lg font-bold text-zinc-900 min-w-[220px] text-center capitalize cursor-pointer hover:text-zinc-600 transition-colors"
+      onclick={openPicker}
     >
       {formatDate(selectedDate)}
-    </span>
+    </button>
+    <input
+      type="date"
+      bind:this={dateInput}
+      max={todayStr()}
+      onchange={onPickerChange}
+      class="absolute w-0 h-0 opacity-0 pointer-events-none"
+    />
     <button
       class="p-2.5 rounded-xl bg-white border border-zinc-200 text-zinc-500 hover:bg-zinc-50 hover:border-zinc-300 active:scale-95 transition-all shadow-sm disabled:opacity-30 disabled:cursor-not-allowed disabled:shadow-none"
       onclick={nextDay}

@@ -118,15 +118,6 @@
 </script>
 
 <div class="max-w-4xl mx-auto px-4 py-6">
-  <!-- Period label -->
-  <div class="flex items-center justify-center mb-6">
-    <span
-      class="text-lg font-bold text-zinc-900 text-center capitalize"
-    >
-      {label}
-    </span>
-  </div>
-
   {#if loading}
     <div class="flex items-center justify-center py-16">
       <div
