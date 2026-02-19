@@ -2247,7 +2247,7 @@ fields:
       readonly: false
       required: false
       searchable: true
-      sort: 3
+      sort: 4
       special:
         - translations
       translations: null
@@ -2272,7 +2272,7 @@ fields:
       readonly: false
       required: true
       searchable: true
-      sort: 6
+      sort: 7
       special:
         - m2o
       translations: null
@@ -2314,7 +2314,7 @@ fields:
       readonly: false
       required: false
       searchable: true
-      sort: 4
+      sort: 5
       special:
         - file
       translations: null
@@ -2361,13 +2361,53 @@ fields:
       readonly: false
       required: false
       searchable: true
-      sort: 5
+      sort: 6
       special:
         - o2m
       translations: null
       validation: null
       validation_message: null
       width: full
+  - collection: categories
+    field: name
+    type: string
+    meta:
+      collection: categories
+      conditions: null
+      display: null
+      display_options: null
+      field: name
+      group: null
+      hidden: false
+      interface: input
+      note: null
+      options: null
+      readonly: false
+      required: true
+      searchable: true
+      sort: 3
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: name
+      table: categories
+      data_type: character varying
+      default_value: null
+      max_length: 255
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
   - collection: categories_translations
     field: id
     type: integer
@@ -8182,47 +8222,6 @@ fields:
       validation_message: null
       width: full
   - collection: products
-    field: price
-    type: integer
-    meta:
-      collection: products
-      conditions: null
-      display: null
-      display_options: null
-      field: price
-      group: finance
-      hidden: false
-      interface: input
-      note: null
-      options:
-        min: 0
-      readonly: false
-      required: false
-      searchable: true
-      sort: 1
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      name: price
-      table: products
-      data_type: integer
-      default_value: null
-      max_length: null
-      numeric_precision: 32
-      numeric_scale: 0
-      is_nullable: true
-      is_unique: false
-      is_indexed: false
-      is_primary_key: false
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: null
-      foreign_key_column: null
-  - collection: products
     field: tenant
     type: uuid
     meta:
@@ -8322,7 +8321,7 @@ fields:
       interface: select-dropdown-m2o
       note: null
       options:
-        template: '{{translations.name}}'
+        template: '{{name}}'
       readonly: false
       required: true
       searchable: true
