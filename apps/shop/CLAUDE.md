@@ -34,33 +34,35 @@ A **Point-of-Sale (POS) application** built with Astro 5 + Tailwind CSS v4 + nan
 
 ### Pages
 
-| Route | Description |
-|---|---|
-| `index.astro` | Main POS page (product grid + cart sidebar) |
-| `reports.astro` | Reports page with daily/weekly/monthly/quarterly/yearly tabs |
-| `login.astro` | Login form (via `@pulpo/auth`) |
-| `logout.astro` | Logout |
-| `forgot-password.astro` | Password reset request |
-| `reset-password.astro` | Password reset form |
-| `support.astro` | Support page |
+| Route                   | Description                                                  |
+| ----------------------- | ------------------------------------------------------------ |
+| `index.astro`           | Main POS page (product grid + cart sidebar)                  |
+| `reports.astro`         | Reports page with daily/weekly/monthly/quarterly/yearly tabs |
+| `login.astro`           | Login form (via `@pulpo/auth`)                               |
+| `logout.astro`          | Logout                                                       |
+| `forgot-password.astro` | Password reset request                                       |
+| `reset-password.astro`  | Password reset form                                          |
+| `support.astro`         | Support page                                                 |
 
 ### Components
 
 **Astro components** (static HTML in DOM, toggled via nanostore subscriptions):
+
 - `Cart.astro` — Cart sidebar wrapper
-- `CheckoutModal.astro` — Payment checkout modal
 - `CustomAmountModal.astro` — Custom amount entry modal
 - `DiscountModal.astro` — Discount entry modal
 - `ProductCard.astro` — Product card (static shell)
 - `QuantityModal.astro` — Quantity adjustment modal
 
 **Svelte components** (interactive, runes-based):
+
 - `ShopApp.svelte` — Main POS app shell (auth, product loading, register state)
 - `ProductGrid.svelte` — Product grid with category filtering
 - `ProductCard.svelte` — Interactive product card
 - `CartSidebar.svelte` — Cart items, totals, customer selector
 - `OpenRegister.svelte` — Register opening form
 - `LastChangeWidget.svelte` — Last transaction display + reprint
+- `CheckoutModal.svelte` — Payment checkout modal (cash/card)
 - `CustomerModal.svelte` — Customer CRUD (select/manage modes)
 - `CashClosureModal.svelte` — Cash register closure wizard
 - `ShiftInvoicesModal.svelte` — Invoice list for current shift
@@ -69,6 +71,7 @@ A **Point-of-Sale (POS) application** built with Astro 5 + Tailwind CSS v4 + nan
 - `XReportModal.svelte` — X report (mid-shift summary)
 
 **Report components:**
+
 - `ReportsApp.svelte` — Reports shell with tab navigation (day/week/month/quarter/year)
 - `DailyOverview.svelte` — Day-by-day report with shift closures
 - `PeriodReport.svelte` — Generic period report component (used by all period types)
@@ -78,6 +81,7 @@ A **Point-of-Sale (POS) application** built with Astro 5 + Tailwind CSS v4 + nan
 - `YearlyReport.svelte` — Year navigator + PeriodReport
 
 **Icons:**
+
 - `icons/RefundIcon.svelte`
 
 ### State Management (nanostores)
@@ -120,12 +124,12 @@ Multi-region Spanish tax system with dynamic rates loaded from Directus CMS. The
 
 **Tax Zones** (Directus, matched by postcode regex with priority):
 
-| Zone | Regex | Priority |
-|------|-------|----------|
-| Kanarische Inseln | `^(35\|38)[0-9]{3}$` | 1 |
-| Ceuta | `^51[0-9]{3}$` | 2 |
-| Melilla | `^52[0-9]{3}$` | 2 |
-| Spanien (Península) | `^[0-9]{5}$` | 3 (catch-all) |
+| Zone                | Regex                | Priority      |
+| ------------------- | -------------------- | ------------- |
+| Kanarische Inseln   | `^(35\|38)[0-9]{3}$` | 1             |
+| Ceuta               | `^51[0-9]{3}$`       | 2             |
+| Melilla             | `^52[0-9]{3}$`       | 2             |
+| Spanien (Península) | `^[0-9]{5}$`         | 3 (catch-all) |
 
 **CMS Collections** (Directus):
 
@@ -203,6 +207,7 @@ All print paths use a single `printInvoice(invoice: Invoice)` function in `print
 3. **Invoice list** (`ShiftInvoicesModal`): prints any invoice from the shift list
 
 **Receipt layout** (top to bottom):
+
 1. Tenant header (logo, name, NIF, address)
 2. **FACTURA** / **RECTIFICATIVA** heading (only for factura completa / rectificativa)
 3. Invoice number + date
@@ -253,6 +258,7 @@ The register must be opened before sales can happen. `ShopApp.svelte` renders `O
 **`DailyOverview.svelte`**: Day-by-day report showing shift closures and aggregated data for a selected date.
 
 **Daily layout** (top to bottom):
+
 1. **Date navigation** — prev/next day buttons with formatted date
 2. **Summary card** — hero total bruto (large), secondary metrics row (neto, impuestos, efectivo, tarjeta, transacciones with ticket/factura/rectificativa breakdown), tax breakdown footer
 3. **Productos del día** — collapsible product table grouped by cost center (if any). Each group header shows name + aggregated totals. Product rows show name, quantity, total, cash, card
@@ -261,6 +267,7 @@ The register must be opened before sales can happen. `ShopApp.svelte` renders `O
 **Period reports** (weekly, monthly, quarterly, yearly): Each has a navigator component (e.g. `WeeklyReport.svelte`) providing prev/next navigation and a label, wrapping the shared `PeriodReport.svelte` component. `PeriodReport` calls `getReport(client, period, params)` from `@pulpo/cms` which returns an `AggregatedReport` with summary, invoice counts, tax breakdown, and product breakdown. All grouping/formatting happens client-side.
 
 **Data loading**:
+
 - Daily: `loadDailyClosures(date)` fetches closures, then `getInvoices()` per closure. All computation (product aggregation, cost center grouping, invoice type counting) happens client-side.
 - Period: `getReport(client, period, params)` returns server-aggregated `AggregatedReport` data.
 
@@ -268,8 +275,8 @@ The register must be opened before sales can happen. `ShopApp.svelte` renders `O
 
 **Two types of modals coexist:**
 
-- **Astro modals** (`CheckoutModal.astro`, `DiscountModal.astro`, `CustomAmountModal.astro`, `QuantityModal.astro`): Static HTML always in DOM (`display: hidden`), toggled via `<script>` blocks that subscribe to nanostores. Use CSS transitions (opacity/scale).
-- **Svelte modals** (`CashClosureModal.svelte`, `ShiftInvoicesModal.svelte`, `CustomerModal.svelte`, `RectificativaModal.svelte`, `StockEditModal.svelte`, `XReportModal.svelte`): Standard Svelte components with `$state` visibility. Use `{#if}` blocks.
+- **Astro modals** (`DiscountModal.astro`, `CustomAmountModal.astro`, `QuantityModal.astro`): Static HTML always in DOM (`display: hidden`), toggled via `<script>` blocks that subscribe to nanostores. Use CSS transitions (opacity/scale).
+- **Svelte modals** (`CheckoutModal.svelte`, `CashClosureModal.svelte`, `ShiftInvoicesModal.svelte`, `CustomerModal.svelte`, `RectificativaModal.svelte`, `StockEditModal.svelte`, `XReportModal.svelte`): Standard Svelte components with `$state` visibility. Use `{#if}` blocks.
 
 **Nanostore → Svelte reactivity pattern**: All components use manual `.subscribe()` in `onMount`, assigning to `$state` variables for template reactivity. The subscription is cleaned up in the returned teardown function. This is the standard bridge between nanostores and Svelte 5 runes.
 

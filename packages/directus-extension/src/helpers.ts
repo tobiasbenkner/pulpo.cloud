@@ -37,7 +37,7 @@ export function generateInvoiceNumber(
         ? tenantRecord.last_factura_number || 0
         : tenantRecord.last_ticket_number || 0;
   const newCount = currentCount + 1;
-  const paddedCount = newCount.toString().padStart(4, "0");
+  const paddedCount = newCount.toString().padStart(5, "0");
 
   // Replace placeholders in prefix
   let formatString = String(rawPrefix || "INV-%year%-");
