@@ -24,7 +24,7 @@ COPY --from=builder /build/packages/directus-extension/package.json /directus/ex
 WORKDIR /directus
 RUN pnpm install @timio23/directus-group-tabs@3.0.0 @directus-labs/seo-plugin@1.1.1
 
-# COPY apps/directus/snapshot.json /directus/snapshot.json
+# COPY apps/directus/snapshot.yaml /directus/snapshot.yaml
 # COPY apps/directus/migrations /directus/migrations
 
 COPY apps/directus/start.sh /directus/

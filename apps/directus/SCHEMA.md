@@ -1,6 +1,6 @@
 # Directus Schema Reference
 
-> Auto-generated from snapshot.json — do not edit manually
+> Auto-generated from snapshot.yaml — do not edit manually
 > Directus 11.15.3 / PostgreSQL
 
 ## Collection Groups (Folders)
@@ -194,6 +194,7 @@
 | customer_city | character varying | yes |  |  |
 | customer_email | character varying | yes |  |  |
 | customer_phone | character varying | yes |  |  |
+| payments | alias | yes |  | O2M, required |
 
 ## languages
 
@@ -415,7 +416,7 @@
 | invoice_items | product_id | products |  | M2O |
 | invoice_payments | user_created | directus_users |  | M2O |
 | invoice_payments | tenant | tenants |  | M2O |
-| invoice_payments | invoice_id | invoices |  | M2O |
+| invoice_payments | invoice_id | invoices | payments | M2O |
 | invoices | tenant | tenants |  | M2O |
 | invoices | closure_id | cash_register_closures |  | M2O |
 | invoices | original_invoice_id | invoices |  | M2O |

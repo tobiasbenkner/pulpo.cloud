@@ -1,9 +1,10 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { parse } from "yaml";
 
 const dir = dirname(fileURLToPath(import.meta.url));
-const snapshotPath = join(dir, "snapshot.json");
+const snapshotPath = join(dir, "snapshot.yaml");
 const outputPath = join(dir, "SCHEMA.md");
 
 interface Field {
@@ -37,16 +38,14 @@ interface Relation {
 }
 
 interface Snapshot {
-  data: {
-    directus: string;
-    collections: Collection[];
-    fields: Field[];
-    relations: Relation[];
-  };
+  directus: string;
+  collections: Collection[];
+  fields: Field[];
+  relations: Relation[];
 }
 
-const snapshot: Snapshot = JSON.parse(readFileSync(snapshotPath, "utf-8"));
-const { directus, collections, fields, relations } = snapshot.data;
+const snapshot: Snapshot = parse(readFileSync(snapshotPath, "utf-8"));
+const { directus, collections, fields, relations } = snapshot;
 
 const colMeta = new Map(
   collections.map((c) => [
@@ -76,7 +75,7 @@ const push = (s: string) => lines.push(s);
 
 push("# Directus Schema Reference");
 push("");
-push("> Auto-generated from snapshot.json — do not edit manually");
+push("> Auto-generated from snapshot.yaml — do not edit manually");
 push(`> Directus ${directus} / PostgreSQL`);
 push("");
 
