@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "migrate": "tsx src/index.ts",
-    "dev": "tsx src/invoices.ts"
+    "products": "tsx src/index.ts",
+    "invoices": "tsx src/invoices.ts"
   },
   "keywords": [],
   "author": "",
