@@ -2,11 +2,13 @@
   "name": "@pulpo/directus",
   "version": "1.0.0",
   "description": "",
+  "type": "module",
   "scripts": {
     "dev": "docker compose up --build",
     "build": "docker build -t pulpocloud/directus -f Dockerfile ../..",
     "deploy": "docker push pulpocloud/directus",
-    "kill": "docker stop $(docker ps -a -q) && docker rm $(docker ps -a -q)"
+    "kill": "docker stop $(docker ps -a -q) && docker rm $(docker ps -a -q)",
+    "generate-schema": "node generate-schema.ts"
   },
   "dependencies": {
     "pulpo-extension": "workspace:*"

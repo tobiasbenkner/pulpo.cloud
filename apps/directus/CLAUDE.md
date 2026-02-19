@@ -11,6 +11,7 @@ This app is part of the `pulpo.cloud` pnpm monorepo.
 | `pnpm --filter @pulpo/directus dev` | Start local stack (Docker Compose) |
 | `pnpm --filter @pulpo/directus build` | Build Docker image (`pulpocloud/directus`) |
 | `pnpm --filter @pulpo/directus deploy` | Push Docker image |
+| `pnpm --filter @pulpo/directus generate-schema` | Regenerate `SCHEMA.md` from `snapshot.json` |
 
 No test framework configured. Testing is manual via the Directus UI and API calls.
 
@@ -26,7 +27,9 @@ A **Directus CMS instance** running as Docker container with PostgreSQL, Redis, 
 - `docker-compose.yml` — Local dev stack: Directus (8055), PostgreSQL, Redis, MailHog (8025)
 - `start.sh` — Entrypoint: bootstraps Directus, optionally applies schema snapshot
 - `export-policies.sh` — Exports roles/policies/permissions to migrations directory
-- `snapshot.yaml` — Full Directus schema snapshot (~12k lines)
+- `snapshot.json` — Full Directus schema snapshot (JSON)
+- `generate-schema.ts` — Script to regenerate `SCHEMA.md` from `snapshot.json` (runs with `node generate-schema.ts`)
+- `SCHEMA.md` — Compact schema reference (auto-generated, do not edit manually)
 - `migrations/` — JSON exports of roles, policies, permissions, access rules
 ### Pulpo Extension (`packages/directus-extension/`)
 
@@ -92,7 +95,7 @@ src/
 
 ### Schema
 
-The `snapshot.yaml` contains the full Directus schema. Key collections:
+The full Directus schema is documented in [`SCHEMA.md`](./SCHEMA.md) (compact reference with all collections, fields, types, and relations). Auto-generated from `snapshot.json` via `pnpm --filter @pulpo/directus generate-schema`.
 
 **Finance:** `invoices`, `invoice_items`, `invoice_payments`, `cash_register_closures`, `customers`
 **Products:** `products`, `products_translations`, `categories`, `cost_centers`
