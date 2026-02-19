@@ -45,6 +45,7 @@ interface TranslationItem {
 interface DirectusCategory {
   id: string;
   tenant: string;
+  name: string;
   translations: TranslationItem[];
   image: string | null;
 }
@@ -53,6 +54,7 @@ interface DirectusProduct {
   id: string;
   translations: TranslationItem[];
   price: number;
+  name: string;
   category: string | null;
   image: string | null;
   tenant: string;
@@ -187,6 +189,7 @@ async function runMigration() {
         const newCat = await directus.request(
           createItem("categories", {
             image: directusImageId,
+            name: cat.name.value,
             tenant: CONFIG.directus.tenant,
             translations: translations,
           }),
@@ -283,6 +286,7 @@ async function runMigration() {
       try {
         await directus.request(
           createItem("products", {
+            name: prod.name.value,
             translations: translations,
             price: prod.price,
             category: newCategoryId || null,
