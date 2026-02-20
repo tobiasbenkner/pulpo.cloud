@@ -229,10 +229,10 @@ export function registerInvoiceCreate(
           },
           limit: 1,
         });
-        const closureId =
-          openClosures.length > 0
-            ? (openClosures[0] as Record<string, unknown>).id
-            : null;
+        if (openClosures.length === 0) {
+          throw new Error("NO_OPEN_CLOSURE");
+        }
+        const closureId = (openClosures[0] as Record<string, unknown>).id;
 
         // Create invoice with items + payments
         const invoiceService = new ItemsService("invoices", {

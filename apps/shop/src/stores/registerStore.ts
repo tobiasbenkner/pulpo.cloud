@@ -54,17 +54,27 @@ export const isXReportModalOpen = atom<boolean>(false);
 export async function openRegister(startAmount: string): Promise<void> {
   const client = getAuthClient();
 
-  const closure = await openClosure(client as any, {
-    starting_cash: startAmount,
-  });
+  try {
+    const closure = await openClosure(client as any, {
+      starting_cash: startAmount,
+    });
 
-  if (!closure?.id) throw new Error("Failed to create closure");
+    if (!closure?.id) throw new Error("Failed to create closure");
 
-  currentClosureId.set(closure.id);
-  startingCash.set(startAmount);
-  periodStart.set(closure.period_start);
-  lastTransaction.set(null);
-  isRegisterOpen.set(true);
+    currentClosureId.set(closure.id);
+    startingCash.set(startAmount);
+    periodStart.set(closure.period_start);
+    lastTransaction.set(null);
+    isRegisterOpen.set(true);
+  } catch (e: any) {
+    // 409 = already open closure — sync state from backend instead of showing error
+    const status = e?.response?.status;
+    if (status === 409) {
+      await syncRegisterState();
+      return;
+    }
+    throw e;
+  }
 }
 
 export async function generateClosureReport(): Promise<ClosureReport> {
@@ -183,21 +193,35 @@ export async function finalizeClosure(
 
   const client = getAuthClient();
 
-  // Close via extension (writes totals + calculates expected_cash & difference server-side)
-  await closeClosure(client as any, {
-    counted_cash: countedCash,
-    denomination_count: denominationCount,
-    total_gross: report.totalGross,
-    total_net: report.totalNet,
-    total_tax: report.totalTax,
-    total_cash: report.totalCash,
-    total_card: report.totalCard,
-    total_change: report.totalChange,
-    transaction_count: report.transactionCount,
-    tax_breakdown: report.taxBreakdown,
-  });
+  try {
+    // Close via extension (writes totals + calculates expected_cash & difference server-side)
+    await closeClosure(client as any, {
+      counted_cash: countedCash,
+      denomination_count: denominationCount,
+      total_gross: report.totalGross,
+      total_net: report.totalNet,
+      total_tax: report.totalTax,
+      total_cash: report.totalCash,
+      total_card: report.totalCard,
+      total_change: report.totalChange,
+      transaction_count: report.transactionCount,
+      tax_breakdown: report.taxBreakdown,
+    });
+  } catch (e: any) {
+    // Already closed (404) — reset state silently
+    const status = e?.response?.status;
+    if (status === 404) {
+      resetRegisterState();
+      return;
+    }
+    throw e;
+  }
 
   // Reset register state
+  resetRegisterState();
+}
+
+export function resetRegisterState() {
   isRegisterOpen.set(false);
   currentClosureId.set("");
   startingCash.set("0.00");

@@ -9,6 +9,7 @@ import type { ProductCategory as CmsCategory } from "@pulpo/cms";
 import type { Product } from "../types/shop";
 import { loadTaxRates } from "./taxStore";
 import { loadTenant, tenant as tenantAtom } from "./printerStore";
+import { syncRegisterState } from "./registerStore";
 
 export interface ShopCategory {
   id: string;
@@ -56,6 +57,7 @@ export function startAutoRefresh(): () => void {
   function onVisibilityChange() {
     if (document.visibilityState === "visible") {
       loadProducts();
+      syncRegisterState();
     }
   }
   document.addEventListener("visibilitychange", onVisibilityChange);

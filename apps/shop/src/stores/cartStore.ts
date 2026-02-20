@@ -16,6 +16,7 @@ import type {
 import { taxRates } from "./taxStore";
 import { printInvoice } from "./printerStore";
 import { decrementStock } from "./productStore";
+import { resetRegisterState } from "./registerStore";
 
 // --- TYPEN ---
 
@@ -299,8 +300,13 @@ export const completeTransaction = async (
         },
       ],
     });
-  } catch (e) {
+  } catch (e: any) {
     console.error("Failed to create invoice:", e);
+    const msg = e?.errors?.error ?? e?.message ?? String(e);
+    if (msg.includes("NO_OPEN_CLOSURE")) {
+      resetRegisterState();
+      isPaymentModalOpen.set(false);
+    }
     return; // Cart NICHT leeren bei Fehler
   }
 
