@@ -141,6 +141,9 @@
       report = await getReport(client as any, "daily", {
         date: selectedDate,
       });
+      if (report?.shifts?.length === 1) {
+        expandedClosures = new Set([report.shifts[0].id]);
+      }
     } catch (e) {
       console.error("Failed to load daily report:", e);
       report = null;

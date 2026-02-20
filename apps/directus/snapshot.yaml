@@ -2235,7 +2235,7 @@ fields:
         template: '{{name}}'
         userLanguage: true
       field: translations
-      group: null
+      group: tabs
       hidden: false
       interface: translations
       note: null
@@ -2247,7 +2247,7 @@ fields:
       readonly: false
       required: false
       searchable: true
-      sort: 4
+      sort: 2
       special:
         - translations
       translations: null
@@ -2272,7 +2272,7 @@ fields:
       readonly: false
       required: true
       searchable: true
-      sort: 7
+      sort: 4
       special:
         - m2o
       translations: null
@@ -2305,7 +2305,7 @@ fields:
       display: image
       display_options: null
       field: image
-      group: null
+      group: tabs
       hidden: false
       interface: file-image
       note: null
@@ -2314,7 +2314,7 @@ fields:
       readonly: false
       required: false
       searchable: true
-      sort: 5
+      sort: 1
       special:
         - file
       translations: null
@@ -2346,22 +2346,26 @@ fields:
       conditions: null
       display: related-values
       display_options:
-        template: '{{translations.name}}'
+        template: '{{name}}'
       field: products
-      group: null
+      group: tabs
       hidden: false
       interface: list-o2m
       note: null
       options:
         fields:
-          - translations.name
+          - name
+          - price_gross
+          - tax_class
+          - cost_center
         limit: 30
         sort: sort
         tableSpacing: compact
+        template: '{{name}}'
       readonly: false
       required: false
       searchable: true
-      sort: 6
+      sort: 3
       special:
         - o2m
       translations: null
@@ -2408,6 +2412,32 @@ fields:
       has_auto_increment: false
       foreign_key_table: null
       foreign_key_column: null
+  - collection: categories
+    field: tabs
+    type: alias
+    meta:
+      collection: categories
+      conditions: null
+      display: null
+      display_options: null
+      field: tabs
+      group: null
+      hidden: false
+      interface: group-tabs
+      note: null
+      options: null
+      readonly: false
+      required: false
+      searchable: true
+      sort: 5
+      special:
+        - alias
+        - no-data
+        - group
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
   - collection: categories_translations
     field: id
     type: integer
@@ -8725,14 +8755,16 @@ fields:
     meta:
       collection: products
       conditions: null
-      display: null
-      display_options: null
+      display: related-values
+      display_options:
+        template: '{{code}}'
       field: tax_class
       group: finance
       hidden: false
       interface: select-dropdown-m2o
       note: null
-      options: null
+      options:
+        template: '{{code}}'
       readonly: false
       required: false
       searchable: true
@@ -8910,14 +8942,16 @@ fields:
     meta:
       collection: products
       conditions: null
-      display: null
-      display_options: null
+      display: related-values
+      display_options:
+        template: '{{name}}'
       field: cost_center
       group: finance
       hidden: false
       interface: select-dropdown-m2o
       note: null
-      options: null
+      options:
+        template: '{{name}}'
       readonly: false
       required: false
       searchable: true
