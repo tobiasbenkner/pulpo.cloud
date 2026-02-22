@@ -3,7 +3,9 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "build": "echo 'No build step needed - remote shell app'"
+    "build": "echo 'No build step needed - remote shell app'",
+    "open": "cap open android",
+    "sync": "cap sync android"
   },
   "dependencies": {
     "@capacitor/core": "^7.2.0"
