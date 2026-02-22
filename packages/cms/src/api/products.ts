@@ -49,7 +49,7 @@ export async function getCategoriesWithProducts(
         price_gross: product.price_gross,
         image: product.image,
         allergies: product.allergies ?? [],
-        name: reduceTranslations(product.translations, "name"),
+        name: reduceTranslations(product.translations, "name", product.name),
         description: reduceTranslations(product.translations, "description"),
         note: reduceTranslations(product.translations, "note"),
         category: product.category,
@@ -61,7 +61,7 @@ export async function getCategoriesWithProducts(
 
     return {
       id: category.id,
-      name: reduceTranslations(category.translations, "name"),
+      name: reduceTranslations(category.translations, "name", category.name),
       description: reduceTranslations(category.translations, "description"),
       products: products,
       sort: category.sort,

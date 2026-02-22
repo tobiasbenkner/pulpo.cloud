@@ -1,6 +1,10 @@
 export type ReducedTranslations = Record<string, string>;
 
-export function reduceTranslations(trans: any[], fieldName: string) {
+export function reduceTranslations(
+  trans: any[],
+  fieldName: string,
+  fallback?: string,
+) {
   const getNestedValue = (obj: any, path: string) => {
     return path.split(".").reduce((acc, part) => acc?.[part], obj);
   };
@@ -14,6 +18,10 @@ export function reduceTranslations(trans: any[], fieldName: string) {
     },
     {} as Record<string, string>,
   );
+
+  if (fallback) {
+    translations._ = fallback;
+  }
 
   return translations;
 }

@@ -23,7 +23,7 @@ export const error = atom<string | null>(null);
 export const stockEditProduct = atom<Product | null>(null);
 
 function resolveTranslation(translations: Record<string, string>): string {
-  return translations["es"] || Object.values(translations)[0] || "";
+  return translations["es"] || translations["_"] || Object.values(translations)[0] || "";
 }
 
 function buildImageUrl(image: any): string {
