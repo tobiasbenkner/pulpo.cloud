@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Pulpo Agenda</string>
+    <string name="title_activity_main">Pulpo Agenda</string>
+    <string name="package_name">cloud.pulpo.agenda</string>
+    <string name="custom_url_scheme">cloud.pulpo.agenda</string>
+</resources>
