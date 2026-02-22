@@ -7,6 +7,7 @@ const config: CapacitorConfig = {
   server: {
     url: 'https://agenda.pulpo.cloud',
     cleartext: false,
+    allowNavigation: ['agenda.pulpo.cloud'],
   },
 };
 
