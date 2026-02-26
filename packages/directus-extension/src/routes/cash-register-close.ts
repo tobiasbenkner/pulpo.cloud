@@ -5,6 +5,7 @@ import Big from "big.js";
 import {
   computeProductBreakdown,
   computeInvoiceTypeCounts,
+  computeTaxBreakdown,
 } from "../helpers/report-aggregator";
 
 export function registerCashRegisterClose(
@@ -16,28 +17,9 @@ export function registerCashRegisterClose(
 
   router.post("/cash-register/close", async (req, res) => {
     try {
-      const {
-        counted_cash,
-        denomination_count,
-        total_gross,
-        total_net,
-        total_tax,
-        total_cash,
-        total_card,
-        total_change,
-        transaction_count,
-        tax_breakdown,
-      } = req.body as {
+      const { counted_cash, denomination_count } = req.body as {
         counted_cash?: string;
         denomination_count?: Record<string, number>;
-        total_gross?: string;
-        total_net?: string;
-        total_tax?: string;
-        total_cash?: string;
-        total_card?: string;
-        total_change?: string;
-        transaction_count?: number;
-        tax_breakdown?: { rate: string; net: string; tax: string }[];
       };
 
       const userId = (req as any).accountability?.user;
@@ -53,7 +35,7 @@ export function registerCashRegisterClose(
 
       const schema = await getSchema();
 
-      // === TRANSACTION: lock tenant, close register, compute breakdown ===
+      // === TRANSACTION: lock tenant, close register, compute all totals ===
       const txResult = await (database as any).transaction(async (trx: any) => {
         // Lock tenant row — prevents concurrent close requests
         const lockedTenant = await trx("tenants").where("id", tenant).forUpdate().first();
@@ -85,44 +67,7 @@ export function registerCashRegisterClose(
         const openClosure = openClosures[0] as Record<string, unknown>;
         const closureId = openClosure.id as string;
 
-        // Build update data
-        const updateData: Record<string, unknown> = {
-          status: "closed",
-          period_end: new Date().toISOString(),
-        };
-
-        if (total_gross !== undefined) updateData.total_gross = total_gross;
-        if (total_net !== undefined) updateData.total_net = total_net;
-        if (total_tax !== undefined) updateData.total_tax = total_tax;
-        if (total_cash !== undefined) updateData.total_cash = total_cash;
-        if (total_card !== undefined) updateData.total_card = total_card;
-        if (total_change !== undefined) updateData.total_change = total_change;
-        if (transaction_count !== undefined)
-          updateData.transaction_count = transaction_count;
-        if (tax_breakdown !== undefined)
-          updateData.tax_breakdown = tax_breakdown;
-
-        if (counted_cash !== undefined) {
-          updateData.counted_cash = counted_cash;
-
-          const cashTotal = new Big(
-            total_cash ?? (openClosure.total_cash as string) ?? "0",
-          );
-          const startingCash = new Big(
-            (openClosure.starting_cash as string) ?? "0",
-          );
-          const expectedCash = startingCash.plus(cashTotal);
-          const difference = new Big(counted_cash).minus(expectedCash);
-
-          updateData.expected_cash = expectedCash.toFixed(2);
-          updateData.difference = difference.toFixed(2);
-        }
-
-        if (denomination_count !== undefined) {
-          updateData.denomination_count = denomination_count;
-        }
-
-        // Compute product breakdown + invoice type counts before writing
+        // Fetch all invoices for this closure
         const invoiceService = new ItemsService("invoices", {
           schema,
           knex: trx,
@@ -135,19 +80,81 @@ export function registerCashRegisterClose(
           fields: [
             "id",
             "invoice_type",
+            "total_gross",
+            "total_net",
+            "total_tax",
             "items.product_name",
             "items.product_id",
             "items.cost_center",
             "items.quantity",
             "items.row_total_gross",
+            "items.row_total_net_precise",
+            "items.tax_rate_snapshot",
             "payments.method",
+            "payments.amount",
+            "payments.change",
           ],
           limit: -1,
         });
 
-        updateData.product_breakdown = computeProductBreakdown(closureInvoices);
-        updateData.invoice_type_counts =
-          computeInvoiceTypeCounts(closureInvoices);
+        // Compute all totals from actual invoice data
+        const ZERO = new Big(0);
+        let totalGross = ZERO;
+        let totalNet = ZERO;
+        let totalTax = ZERO;
+        let totalCash = ZERO;
+        let totalCard = ZERO;
+        let totalChange = ZERO;
+
+        for (const inv of closureInvoices as Record<string, any>[]) {
+          totalGross = totalGross.plus(new Big(inv.total_gross ?? "0"));
+          totalNet = totalNet.plus(new Big(inv.total_net ?? "0"));
+          totalTax = totalTax.plus(new Big(inv.total_tax ?? "0"));
+
+          for (const pmt of inv.payments ?? []) {
+            if (pmt.method === "cash") {
+              totalCash = totalCash.plus(new Big(pmt.amount ?? "0"));
+              if (pmt.change) {
+                totalChange = totalChange.plus(new Big(pmt.change));
+              }
+            } else {
+              totalCard = totalCard.plus(new Big(pmt.amount ?? "0"));
+            }
+          }
+        }
+
+        // Build update data
+        const updateData: Record<string, unknown> = {
+          status: "closed",
+          period_end: new Date().toISOString(),
+          total_gross: totalGross.toFixed(2),
+          total_net: totalNet.toFixed(2),
+          total_tax: totalTax.toFixed(2),
+          total_cash: totalCash.toFixed(2),
+          total_card: totalCard.toFixed(2),
+          total_change: totalChange.toFixed(2),
+          transaction_count: closureInvoices.length,
+          tax_breakdown: computeTaxBreakdown(closureInvoices as Record<string, any>[]),
+          product_breakdown: computeProductBreakdown(closureInvoices as Record<string, any>[]),
+          invoice_type_counts: computeInvoiceTypeCounts(closureInvoices as Record<string, any>[]),
+        };
+
+        if (counted_cash !== undefined) {
+          updateData.counted_cash = counted_cash;
+
+          const startingCash = new Big(
+            (openClosure.starting_cash as string) ?? "0",
+          );
+          const expectedCash = startingCash.plus(totalCash);
+          const difference = new Big(counted_cash).minus(expectedCash);
+
+          updateData.expected_cash = expectedCash.toFixed(2);
+          updateData.difference = difference.toFixed(2);
+        }
+
+        if (denomination_count !== undefined) {
+          updateData.denomination_count = denomination_count;
+        }
 
         // Single atomic update with all data
         await closureService.updateOne(closureId, updateData);

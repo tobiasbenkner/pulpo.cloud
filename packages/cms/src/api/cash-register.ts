@@ -21,20 +21,12 @@ export async function openClosure(
   return res.closure;
 }
 
-/** Close register via invoice-processor extension endpoint */
+/** Close register via extension endpoint. Server computes all totals from invoice data. */
 export async function closeClosure(
   client: Client,
   data: {
     counted_cash: string;
     denomination_count?: { cents: number; label: string; qty: number }[];
-    total_gross: string;
-    total_net: string;
-    total_tax: string;
-    total_cash: string;
-    total_card: string;
-    total_change: string;
-    transaction_count: number;
-    tax_breakdown: { rate: string; net: string; tax: string }[];
   },
 ): Promise<CashRegisterClosure> {
   const res: { success: boolean; closure: CashRegisterClosure } = await (
@@ -45,14 +37,6 @@ export async function closeClosure(
     body: JSON.stringify({
       counted_cash: data.counted_cash,
       denomination_count: data.denomination_count,
-      total_gross: data.total_gross,
-      total_net: data.total_net,
-      total_tax: data.total_tax,
-      total_cash: data.total_cash,
-      total_card: data.total_card,
-      total_change: data.total_change,
-      transaction_count: data.transaction_count,
-      tax_breakdown: data.tax_breakdown,
     }),
     headers: { "Content-Type": "application/json" },
   }));
@@ -79,9 +63,12 @@ export async function getClosuresForDate(client: Client, date: string) {
   return await client.request(
     readItems("cash_register_closures", {
       filter: {
-        status: { _eq: "closed" },
-        period_start: { _gte: dayStart, _lte: dayEnd },
-      },
+        _and: [
+          { status: { _eq: "closed" } },
+          { period_start: { _gte: dayStart } },
+          { period_start: { _lte: dayEnd } },
+        ],
+      } as any,
       sort: ["-period_start"],
     }),
   );

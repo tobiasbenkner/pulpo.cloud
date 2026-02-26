@@ -194,18 +194,10 @@ export async function finalizeClosure(
   const client = getAuthClient();
 
   try {
-    // Close via extension (writes totals + calculates expected_cash & difference server-side)
+    // Close via extension (server computes all totals from invoice data)
     await closeClosure(client as any, {
       counted_cash: countedCash,
       denomination_count: denominationCount,
-      total_gross: report.totalGross,
-      total_net: report.totalNet,
-      total_tax: report.totalTax,
-      total_cash: report.totalCash,
-      total_card: report.totalCard,
-      total_change: report.totalChange,
-      transaction_count: report.transactionCount,
-      tax_breakdown: report.taxBreakdown,
     });
   } catch (e: any) {
     // Already closed (404) — reset state silently

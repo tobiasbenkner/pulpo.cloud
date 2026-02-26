@@ -117,6 +117,43 @@ export function computeProductBreakdown(
 }
 
 /**
+ * Compute tax breakdown from a list of invoices (with items).
+ * Groups by tax_rate_snapshot, sums net and tax per rate.
+ */
+export function computeTaxBreakdown(
+  invoices: Record<string, any>[],
+): { rate: string; net: string; tax: string }[] {
+  const ZERO = new Big(0);
+  const taxMap = new Map<string, { net: Big; tax: Big }>();
+
+  for (const inv of invoices) {
+    for (const item of inv.items ?? []) {
+      const rate = item.tax_rate_snapshot;
+      if (rate == null) continue;
+      const rateStr = String(rate);
+      const itemNet = safeBig(item.row_total_net_precise);
+      const itemGross = safeBig(item.row_total_gross);
+      const itemTax = itemGross.minus(itemNet);
+
+      const existing = taxMap.get(rateStr) ?? { net: ZERO, tax: ZERO };
+      taxMap.set(rateStr, {
+        net: existing.net.plus(itemNet),
+        tax: existing.tax.plus(itemTax),
+      });
+    }
+  }
+
+  return Array.from(taxMap.entries())
+    .filter(([, v]) => !v.tax.eq(0))
+    .sort(([a], [b]) => safeBig(a).cmp(safeBig(b)))
+    .map(([rate, v]) => ({
+      rate,
+      net: v.net.toFixed(2),
+      tax: v.tax.toFixed(2),
+    }));
+}
+
+/**
  * Count invoices by type.
  */
 export function computeInvoiceTypeCounts(
