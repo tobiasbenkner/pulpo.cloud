@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "build": "echo 'No build step needed - remote shell app'",
+    "build:debug": "cap sync android && cd android && ./gradlew assembleDebug && echo '\n✅ APK: android/app/build/outputs/apk/debug/app-debug.apk'",
+    "build:release": "cap sync android && cd android && ./gradlew bundleRelease && echo '\n✅ AAB: android/app/build/outputs/bundle/release/app-release.aab'",
     "open": "cap open android",
     "sync": "cap sync android"
   },

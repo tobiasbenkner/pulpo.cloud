@@ -1,5 +1,9 @@
 node_modules/
 
+# Signing keys
+*.keystore
+*.jks
+
 # Android
 android/build/
 android/app/build/
