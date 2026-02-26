@@ -132,14 +132,14 @@ collections:
       collection: cost_centers
       color: null
       display_template: null
-      group: null
+      group: products
       hidden: false
       icon: null
       item_duplication_fields: null
       note: null
       preview_url: null
       singleton: false
-      sort: 9
+      sort: 1
       sort_field: sort
       translations: null
       unarchive_value: null
@@ -489,7 +489,7 @@ collections:
       collapse: open
       collection: products
       color: null
-      display_template: '{{translations.name}}{{price}}'
+      display_template: '{{translations.name}}'
       group: null
       hidden: false
       icon: shopping_cart
@@ -521,7 +521,7 @@ collections:
       note: null
       preview_url: null
       singleton: false
-      sort: 1
+      sort: 2
       sort_field: null
       translations: null
       unarchive_value: null

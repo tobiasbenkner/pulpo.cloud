@@ -5,6 +5,7 @@ import {
   generateInvoiceNumber,
   type InvoiceSeries,
 } from "../helpers";
+import Big from "big.js";
 import { calculateInvoice } from "@pulpo/invoice";
 import type { InvoiceLineInput, InvoiceDiscountInput } from "@pulpo/invoice";
 
@@ -120,7 +121,8 @@ export function registerInvoiceCreate(
           })) as { rate: string | null; tax_class_id: { code: string } }[];
 
           for (const rule of rules) {
-            taxRatesByClass.set(rule.tax_class_id.code, rule.rate ?? "0");
+            // DB stores rates as percentage (e.g. "7.0000"), calculateInvoice expects decimal (e.g. "0.07")
+            taxRatesByClass.set(rule.tax_class_id.code, new Big(rule.rate ?? "0").div(100).toString());
           }
         }
       }
