@@ -173,11 +173,17 @@ const shiftIdMap = new Map<string, string>();
 // Map: product name -> { id, taxRate (percentage, e.g. 7), costCenter }
 const productTaxMap = new Map<string, { id: string; taxRate: number; costCenter: string | null }>();
 
-// Aggregated tax/net data per closure for post-migration update
-const closureTaxAgg = new Map<
-  string,
-  { totalNet: number; totalTax: number; taxMap: Map<number, { net: number; tax: number }> }
->();
+// Aggregated data per closure for post-migration update
+interface ClosureAgg {
+  totalNet: number;
+  totalTax: number;
+  taxMap: Map<number, { net: number; tax: number }>;
+  productMap: Map<string, { product_id: string | null; cost_center: string | null; quantity: number; total_gross: number; cash_gross: number; card_gross: number }>;
+  tickets: number;
+  facturas: number;
+  rectificativas: number;
+}
+const closureTaxAgg = new Map<string, ClosureAgg>();
 
 // ==========================================
 // 4. TAX RATE LOADING
@@ -263,7 +269,12 @@ function netFromGross(grossCents: number, taxRatePercent: number): number {
 
 function initClosureAgg(closureId: string) {
   if (!closureTaxAgg.has(closureId)) {
-    closureTaxAgg.set(closureId, { totalNet: 0, totalTax: 0, taxMap: new Map() });
+    closureTaxAgg.set(closureId, {
+      totalNet: 0, totalTax: 0,
+      taxMap: new Map(),
+      productMap: new Map(),
+      tickets: 0, facturas: 0, rectificativas: 0,
+    });
   }
 }
 
@@ -275,6 +286,29 @@ function addToClosureAgg(closureId: string, taxRate: number, netCents: number, t
   existing.net += netCents;
   existing.tax += taxCents;
   agg.taxMap.set(taxRate, existing);
+}
+
+function addProductToClosureAgg(
+  closureId: string, productName: string, productId: string | null,
+  costCenter: string | null, quantity: number, grossCents: number, method: "cash" | "card",
+) {
+  const agg = closureTaxAgg.get(closureId)!;
+  const existing = agg.productMap.get(productName) ?? {
+    product_id: productId, cost_center: costCenter,
+    quantity: 0, total_gross: 0, cash_gross: 0, card_gross: 0,
+  };
+  existing.quantity += quantity;
+  existing.total_gross += grossCents;
+  if (method === "cash") existing.cash_gross += grossCents;
+  else existing.card_gross += grossCents;
+  agg.productMap.set(productName, existing);
+}
+
+function addInvoiceTypeToClosureAgg(closureId: string, invoiceType: string) {
+  const agg = closureTaxAgg.get(closureId)!;
+  if (invoiceType === "ticket") agg.tickets++;
+  else if (invoiceType === "factura") agg.facturas++;
+  else if (invoiceType === "rectificativa") agg.rectificativas++;
 }
 
 // ==========================================
@@ -471,14 +505,28 @@ async function run() {
         payments[payments.length - 1].tip = toEuro(order.tips);
       }
 
-      // Customer data
+      // Determine payment method and invoice type
+      const primaryMethod: "cash" | "card" = cashAmount >= cardAmount ? "cash" : "card";
       const client = inv?.client;
       const hasCustomer = client && client.name;
+      const invoiceType = hasCustomer ? "factura" : "ticket";
+
+      // Track product breakdown and invoice type per closure
+      if (closureId) {
+        for (const item of items) {
+          addProductToClosureAgg(
+            closureId, item.product_name, item.product_id,
+            item.cost_center, item.quantity,
+            Math.round(parseFloat(item.row_total_gross) * 100), primaryMethod,
+          );
+        }
+        addInvoiceTypeToClosureAgg(closureId, invoiceType);
+      }
 
       await directus.request(
         createItem("invoices", {
           tenant: CONFIG.directus.tenant,
-          invoice_type: hasCustomer ? "factura" : "ticket",
+          invoice_type: invoiceType,
           invoice_number: `PB-${order.id}`,
           status: "paid",
           date_created: order.closed || order.created,
@@ -532,12 +580,32 @@ async function run() {
         tax: toEuro(v.tax),
       }));
 
+    const productBreakdown = Array.from(agg.productMap.entries())
+      .map(([product_name, v]) => ({
+        product_name,
+        product_id: v.product_id,
+        cost_center: v.cost_center,
+        quantity: v.quantity,
+        total_gross: toEuro(v.total_gross),
+        cash_gross: toEuro(v.cash_gross),
+        card_gross: toEuro(v.card_gross),
+      }))
+      .sort((a, b) => Math.abs(b.quantity) - Math.abs(a.quantity));
+
+    const invoiceTypeCounts = {
+      tickets: agg.tickets,
+      facturas: agg.facturas,
+      rectificativas: agg.rectificativas,
+    };
+
     try {
       await directus.request(
         updateItem("cash_register_closures" as any, closureId, {
           total_net: toEuro(agg.totalNet),
           total_tax: toEuro(agg.totalTax),
           tax_breakdown: taxBreakdown.length > 0 ? taxBreakdown : null,
+          product_breakdown: productBreakdown.length > 0 ? productBreakdown : null,
+          invoice_type_counts: invoiceTypeCounts,
         } as any),
       );
       closureUpdateCount++;
