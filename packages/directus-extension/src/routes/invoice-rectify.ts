@@ -9,8 +9,6 @@ interface RectifyItem {
   quantity: number;
   tax_rate_snapshot: string;
   price_gross_unit: string;
-  price_net_unit_precise: string;
-  row_total_net_precise: string;
   row_total_gross: string;
   discount_type: "percent" | "fixed" | null;
   discount_value: string | null;
@@ -172,8 +170,6 @@ export function registerInvoiceRectify(
           quantity: -Math.abs(item.quantity),
           tax_rate_snapshot: item.tax_rate_snapshot,
           price_gross_unit: item.price_gross_unit,
-          price_net_unit_precise: item.price_net_unit_precise,
-          row_total_net_precise: `-${item.row_total_net_precise.replace(/^-/, "")}`,
           row_total_gross: `-${item.row_total_gross.replace(/^-/, "")}`,
           discount_type: item.discount_type,
           discount_value: item.discount_value,
@@ -181,27 +177,56 @@ export function registerInvoiceRectify(
         }));
 
         // 6. Calculate totals and tax breakdown using big.js for precision
-        let totalNet = new Big(0);
-        let totalGross = new Big(0);
-        const taxMap = new Map<string, { net: Big; gross: Big }>();
+        const ZERO = new Big(0);
+        const HUNDRED = new Big(100);
+        let totalGross = ZERO;
+        const taxByRate = new Map<string, { gross: Big }>();
         for (const item of negatedItems) {
-          totalNet = totalNet.plus(item.row_total_net_precise);
           totalGross = totalGross.plus(item.row_total_gross);
           const rate = item.tax_rate_snapshot;
-          const prev = taxMap.get(rate) ?? { net: new Big(0), gross: new Big(0) };
-          taxMap.set(rate, {
-            net: prev.net.plus(item.row_total_net_precise),
+          const prev = taxByRate.get(rate) ?? { gross: ZERO };
+          taxByRate.set(rate, {
             gross: prev.gross.plus(item.row_total_gross),
           });
         }
-        const totalTax = totalGross.minus(totalNet);
-        const taxBreakdown = Array.from(taxMap.entries())
-          .sort(([a], [b]) => new Big(a).cmp(new Big(b)))
-          .map(([rate, v]) => {
-            const net = v.net.toFixed(2);
-            const tax = v.gross.minus(new Big(net)).toFixed(2);
-            return { rate, net, tax };
-          });
+
+        // Group gross rounding + cent correction (same logic as calculate.ts)
+        const grossRounded = new Big(totalGross.toFixed(2));
+        const sorted = Array.from(taxByRate.entries()).sort(([a], [b]) =>
+          new Big(a).cmp(new Big(b)),
+        );
+        const groupGrossRounded = sorted.map(([, v]) =>
+          new Big(v.gross.toFixed(2)),
+        );
+        const groupGrossSum = groupGrossRounded.reduce((s, g) => s.plus(g), ZERO);
+        const centDiff = grossRounded.minus(groupGrossSum);
+        if (!centDiff.eq(ZERO)) {
+          let largestIdx = 0;
+          for (let j = 1; j < groupGrossRounded.length; j++) {
+            if (groupGrossRounded[j]!.abs().gt(groupGrossRounded[largestIdx]!.abs())) {
+              largestIdx = j;
+            }
+          }
+          groupGrossRounded[largestIdx] = groupGrossRounded[largestIdx]!.plus(centDiff);
+        }
+
+        // Tax per group: net + tax = groupGross
+        const taxBreakdown = sorted.map(([rate], i) => {
+          const gGross = groupGrossRounded[i]!;
+          const rateDecimal = new Big(rate).div(HUNDRED);
+          const net = new Big(gGross.div(new Big(1).plus(rateDecimal)).toFixed(2));
+          const tax = gGross.minus(net);
+          return { rate, net: net.toFixed(2), tax: tax.toFixed(2) };
+        });
+
+        const totalNet = taxBreakdown.reduce(
+          (sum, entry) => sum.plus(entry.net),
+          ZERO,
+        );
+        const totalTax = taxBreakdown.reduce(
+          (sum, entry) => sum.plus(entry.tax),
+          ZERO,
+        );
 
         // 7. Determine payment method
         const originalPayment = (original.payments as any[])?.[0];

@@ -136,14 +136,23 @@ export async function generateClosureReport(): Promise<ClosureReport> {
           });
         }
       } else {
+        const HUNDRED = new Big(100);
+        const itemTaxMap = new Map<string, { gross: Big }>();
         for (const item of inv.items ?? []) {
           const rate = item.tax_rate_snapshot;
-          const itemNet = new Big(item.row_total_net_precise);
           const itemGross = new Big(item.row_total_gross);
+          const existing = itemTaxMap.get(rate) ?? { gross: ZERO };
+          itemTaxMap.set(rate, { gross: existing.gross.plus(itemGross) });
+        }
+        for (const [rate, v] of itemTaxMap) {
+          const gGross = new Big(v.gross.toFixed(2));
+          const rateDecimal = new Big(rate).div(HUNDRED);
+          const net = new Big(gGross.div(new Big(1).plus(rateDecimal)).toFixed(2));
+          const tax = gGross.minus(net);
           const existing = taxMap.get(rate) ?? { net: ZERO, tax: ZERO };
           taxMap.set(rate, {
-            net: existing.net.plus(itemNet),
-            tax: existing.tax.plus(itemGross.minus(itemNet)),
+            net: existing.net.plus(net),
+            tax: existing.tax.plus(tax),
           });
         }
       }
@@ -289,8 +298,6 @@ export async function createRectificativa(data: {
     quantity: number;
     tax_rate_snapshot: string;
     price_gross_unit: string;
-    price_net_unit_precise: string;
-    row_total_net_precise: string;
     row_total_gross: string;
     discount_type: "percent" | "fixed" | null;
     discount_value: string | null;

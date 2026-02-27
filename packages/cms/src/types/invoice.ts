@@ -48,8 +48,6 @@ export interface InvoiceItem {
   quantity: number;
   tax_rate_snapshot: string;
   price_gross_unit: string;
-  price_net_unit_precise: string;
-  row_total_net_precise: string;
   row_total_gross: string;
   discount_type: "percent" | "fixed" | null;
   discount_value: string | null;

@@ -289,8 +289,6 @@ export function registerInvoiceCreate(
                 quantity: item.quantity,
                 tax_rate_snapshot: item.taxRateSnapshot,
                 price_gross_unit: item.priceGrossUnit,
-                price_net_unit_precise: item.priceNetUnitPrecise,
-                row_total_net_precise: item.rowTotalNetPrecise,
                 row_total_gross: item.rowTotalGross,
                 discount_type: item.discountType,
                 discount_value: item.discountValue,

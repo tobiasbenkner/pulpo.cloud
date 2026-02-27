@@ -379,9 +379,7 @@ export async function printInvoice(
     quantity: item.quantity,
     priceGrossUnit: item.price_gross_unit,
     taxRateSnapshot: item.tax_rate_snapshot,
-    priceNetUnitPrecise: item.price_net_unit_precise,
     rowTotalGross: item.row_total_gross,
-    rowTotalNetPrecise: item.row_total_net_precise,
     discountType: item.discount_type,
     discountValue: item.discount_value,
     costCenter: item.cost_center ?? null,
@@ -392,23 +390,24 @@ export async function printInvoice(
   if (Array.isArray(invoice.tax_breakdown) && invoice.tax_breakdown.length > 0) {
     taxBreakdown = invoice.tax_breakdown;
   } else {
-    const taxMap = new Map<string, { net: Big; gross: Big }>();
+    const HUNDRED = new Big(100);
+    const taxMap = new Map<string, { gross: Big }>();
     for (const item of invoice.items ?? []) {
       const rate = item.tax_rate_snapshot;
-      const itemNet = new Big(item.row_total_net_precise);
       const itemGross = new Big(item.row_total_gross);
-      const existing = taxMap.get(rate) ?? { net: ZERO, gross: ZERO };
+      const existing = taxMap.get(rate) ?? { gross: ZERO };
       taxMap.set(rate, {
-        net: existing.net.plus(itemNet),
         gross: existing.gross.plus(itemGross),
       });
     }
     taxBreakdown = Array.from(taxMap.entries())
       .sort(([a], [b]) => new Big(a).cmp(new Big(b)))
       .map(([rate, v]) => {
-        const net = v.net.toFixed(2);
-        const tax = v.gross.minus(new Big(net)).toFixed(2);
-        return { rate, net, tax };
+        const gGross = new Big(v.gross.toFixed(2));
+        const rateDecimal = new Big(rate).div(HUNDRED);
+        const net = new Big(gGross.div(new Big(1).plus(rateDecimal)).toFixed(2));
+        const tax = gGross.minus(net);
+        return { rate, net: net.toFixed(2), tax: tax.toFixed(2) };
       });
   }
 

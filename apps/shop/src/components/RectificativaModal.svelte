@@ -161,9 +161,6 @@
         const rowTotalGross = new Big(s.item.row_total_gross)
           .times(ratio)
           .toFixed(2);
-        const rowTotalNetPrecise = new Big(s.item.row_total_net_precise)
-          .times(ratio)
-          .toFixed(8);
 
         return {
           product_id: s.item.product_id,
@@ -171,8 +168,6 @@
           quantity: s.quantity,
           tax_rate_snapshot: s.item.tax_rate_snapshot,
           price_gross_unit: s.item.price_gross_unit,
-          price_net_unit_precise: s.item.price_net_unit_precise,
-          row_total_net_precise: rowTotalNetPrecise,
           row_total_gross: rowTotalGross,
           discount_type: s.item.discount_type,
           discount_value: s.item.discount_value,

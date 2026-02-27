@@ -60,25 +60,22 @@ Die Steuer wird **aus dem Brutto herausgerechnet** (nicht aufgeschlagen). Dazu w
 rabattVerhältnis = endBrutto / subtotal
 ```
 
-Für jede Position ergibt sich:
+Für jede Position ergibt sich der anteilige Bruttobetrag nach Rabatt:
 
 ```
 zeileBruttoNachRabatt = zeileBrutto × rabattVerhältnis
-zeileNetto             = zeileBruttoNachRabatt / (1 + steuerSatz)
 ```
-
-Der Netto-Wert wird auf **8 Nachkommastellen** gerundet, um Präzision zu bewahren.
 
 #### Steuer-Gruppierung
 
-Die Steuerbeträge werden nach **Steuersatz gruppiert** (z. B. 7 % und 21 % getrennt). Für jede Gruppe wird berechnet:
+Die Steuerbeträge werden nach **Steuersatz gruppiert** (z. B. 7 % und 21 % getrennt). Für jede Gruppe wird das **Gruppen-Brutto** auf 2 Stellen gerundet, eine **Cent-Korrektur** durchgeführt (Differenz auf die größte Gruppe), und dann berechnet:
 
 ```
-netto  = Summe aller zeileNetto mit gleichem Steuersatz  (auf 2 Stellen gerundet)
-steuer = gruppeBrutto − netto                            (auf 2 Stellen gerundet)
+netto  = round2(gruppeBrutto / (1 + steuerSatz))
+steuer = gruppeBrutto − netto
 ```
 
-Die Gruppen werden aufsteigend nach Steuersatz sortiert.
+Die Netto-Berechnung erfolgt **nur auf Gruppenebene**, nicht pro Einzelposition. Die Gruppen werden aufsteigend nach Steuersatz sortiert.
 
 ## Ergebnis
 
@@ -100,9 +97,7 @@ Die Funktion gibt ein `InvoiceCalculationResult` zurück:
 | Feld | Beschreibung | Präzision |
 |------|-------------|-----------|
 | `priceGrossUnit` | Brutto-Einzelpreis | 4 Stellen |
-| `priceNetUnitPrecise` | Netto-Einzelpreis | 8 Stellen |
 | `rowTotalGross` | Zeilen-Brutto (nach allen Rabatten) | 2 Stellen |
-| `rowTotalNetPrecise` | Zeilen-Netto | 8 Stellen |
 | `taxRateSnapshot` | Steuersatz in Prozent (z. B. `"7.00"`) | 2 Stellen |
 
 ## Beispiel
@@ -143,6 +138,5 @@ const result = calculateInvoice(
 |---------|-----------|-------|
 | Geldbeträge (Summen) | `.toFixed(2)` | Centgenau für Zahlungen |
 | Einzelpreise | `.toFixed(4)` | Mehr Genauigkeit bei kleinen Beträgen |
-| Netto-Werte (intern) | `.toFixed(8)` | Minimale Rundungsfehler bei Steuer-Rückrechnung |
 
 Alle Werte werden als **Strings** zurückgegeben, niemals als `number`, um unbeabsichtigte Gleitkomma-Ungenauigkeiten zu verhindern.

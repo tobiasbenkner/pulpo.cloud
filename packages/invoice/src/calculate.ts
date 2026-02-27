@@ -68,10 +68,6 @@ export function calculateInvoice(
     const lineGross = lineGrossValues[i]!;
     const lineGrossAfterGlobal = lineGross.times(discountRatio);
     const ratePct = new Big(item.taxRate).toFixed(2);
-    const rate = new Big(item.taxRate).div(100);
-    const rowNetRounded = new Big(
-      lineGrossAfterGlobal.div(new Big(1).plus(rate)).toFixed(8),
-    );
 
     const prev = taxByRate.get(ratePct) ?? { gross: ZERO };
     taxByRate.set(ratePct, {
@@ -85,9 +81,7 @@ export function calculateInvoice(
       quantity: item.quantity,
       priceGrossUnit: priceGrossUnit.toFixed(4),
       taxRateSnapshot: ratePct,
-      priceNetUnitPrecise: priceGrossUnit.div(new Big(1).plus(rate)).toFixed(8),
       rowTotalGross: lineGrossAfterGlobal.toFixed(2),
-      rowTotalNetPrecise: rowNetRounded.toFixed(8),
       discountType: item.discount?.type ?? null,
       discountValue: item.discount
         ? new Big(item.discount.value).toFixed(4)

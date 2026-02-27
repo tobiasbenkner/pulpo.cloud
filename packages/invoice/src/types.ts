@@ -22,9 +22,7 @@ export interface InvoiceLineResult {
   quantity: number;
   priceGrossUnit: string;
   taxRateSnapshot: string;
-  priceNetUnitPrecise: string;
   rowTotalGross: string;
-  rowTotalNetPrecise: string;
   discountType: "percent" | "fixed" | null;
   discountValue: string | null;
   costCenter: string | null;

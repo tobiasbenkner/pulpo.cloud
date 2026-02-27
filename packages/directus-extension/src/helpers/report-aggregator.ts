@@ -139,18 +139,27 @@ export function computeTaxBreakdown(
         });
       }
     } else {
-      // Fallback: recompute from items (old invoices)
+      // Fallback: recompute from items (old invoices) — derive net from gross
+      const HUNDRED = new Big(100);
+      const itemTaxMap = new Map<string, { gross: Big }>();
       for (const item of inv.items ?? []) {
         const rate = item.tax_rate_snapshot;
         if (rate == null) continue;
         const rateStr = String(rate);
-        const itemNet = safeBig(item.row_total_net_precise);
         const itemGross = safeBig(item.row_total_gross);
-
+        const existing = itemTaxMap.get(rateStr) ?? { gross: ZERO };
+        itemTaxMap.set(rateStr, { gross: existing.gross.plus(itemGross) });
+      }
+      for (const [rateStr, v] of itemTaxMap) {
+        const gGross = new Big(v.gross.toFixed(2));
+        const rateDecimal = new Big(rateStr).div(HUNDRED);
+        const net = new Big(gGross.div(new Big(1).plus(rateDecimal)).toFixed(2));
+        const tax = gGross.minus(net);
         const existing = taxMap.get(rateStr) ?? { net: ZERO, tax: ZERO };
-        const net = existing.net.plus(itemNet);
-        const gross = existing.tax.plus(itemGross.minus(itemNet));
-        taxMap.set(rateStr, { net, tax: gross });
+        taxMap.set(rateStr, {
+          net: existing.net.plus(net),
+          tax: existing.tax.plus(tax),
+        });
       }
     }
   }

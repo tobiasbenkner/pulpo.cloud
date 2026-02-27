@@ -48,25 +48,38 @@
   function taxBreakdown(
     inv: Invoice,
   ): { ratePct: string; base: string; tax: string }[] {
-    const map = new Map<string, { base: Big; tax: Big }>();
+    // Prefer stored tax_breakdown
+    if (Array.isArray(inv.tax_breakdown) && inv.tax_breakdown.length > 0) {
+      return inv.tax_breakdown
+        .slice()
+        .sort((a, b) => new Big(a.rate).cmp(new Big(b.rate)))
+        .map((entry) => ({
+          ratePct: parseFloat(entry.rate).toFixed(0),
+          base: entry.net,
+          tax: entry.tax,
+        }));
+    }
+    // Fallback: derive net from gross per tax-rate group
+    const HUNDRED = new Big(100);
+    const grossMap = new Map<string, Big>();
     for (const item of inv.items ?? []) {
       const rate = item.tax_rate_snapshot;
-      const entry = map.get(rate) ?? { base: new Big(0), tax: new Big(0) };
-      entry.base = entry.base.plus(new Big(item.row_total_net_precise));
-      entry.tax = entry.tax.plus(
-        new Big(item.row_total_gross).minus(
-          new Big(item.row_total_net_precise),
-        ),
-      );
-      map.set(rate, entry);
+      const prev = grossMap.get(rate) ?? new Big(0);
+      grossMap.set(rate, prev.plus(new Big(item.row_total_gross)));
     }
-    return Array.from(map.entries())
+    return Array.from(grossMap.entries())
       .sort(([a], [b]) => new Big(a).cmp(new Big(b)))
-      .map(([rate, { base, tax }]) => ({
-        ratePct: parseFloat(rate).toFixed(0),
-        base: base.toFixed(2),
-        tax: tax.toFixed(2),
-      }));
+      .map(([rate, gross]) => {
+        const gGross = new Big(gross.toFixed(2));
+        const rateDecimal = new Big(rate).div(HUNDRED);
+        const net = new Big(gGross.div(new Big(1).plus(rateDecimal)).toFixed(2));
+        const tax = gGross.minus(net);
+        return {
+          ratePct: parseFloat(rate).toFixed(0),
+          base: net.toFixed(2),
+          tax: tax.toFixed(2),
+        };
+      });
   }
 
   function formatTime(iso: string): string {

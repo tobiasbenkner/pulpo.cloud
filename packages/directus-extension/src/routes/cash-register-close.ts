@@ -89,7 +89,6 @@ export function registerCashRegisterClose(
             "items.cost_center",
             "items.quantity",
             "items.row_total_gross",
-            "items.row_total_net_precise",
             "items.tax_rate_snapshot",
             "payments.method",
             "payments.amount",
