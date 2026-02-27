@@ -171,14 +171,27 @@ const DEFAULT_TAX_RATE = 7;
 const shiftIdMap = new Map<string, string>();
 
 // Map: product name -> { id, taxRate (percentage, e.g. 7), costCenter }
-const productTaxMap = new Map<string, { id: string; taxRate: number; costCenter: string | null }>();
+const productTaxMap = new Map<
+  string,
+  { id: string; taxRate: number; costCenter: string | null }
+>();
 
 // Aggregated data per closure for post-migration update
 interface ClosureAgg {
   totalNet: number;
   totalTax: number;
   taxMap: Map<number, { net: number; tax: number }>;
-  productMap: Map<string, { product_id: string | null; cost_center: string | null; quantity: number; total_gross: number; cash_gross: number; card_gross: number }>;
+  productMap: Map<
+    string,
+    {
+      product_id: string | null;
+      cost_center: string | null;
+      quantity: number;
+      total_gross: number;
+      cash_gross: number;
+      card_gross: number;
+    }
+  >;
   tickets: number;
   facturas: number;
   rectificativas: number;
@@ -194,7 +207,9 @@ async function loadProductTaxRates() {
 
   // Load tenant postcode
   const tenant = (await directus.request(
-    readItem("tenants" as any, CONFIG.directus.tenant, { fields: ["postcode"] } as any),
+    readItem("tenants" as any, CONFIG.directus.tenant, {
+      fields: ["postcode"],
+    } as any),
   )) as any;
   const postcode = tenant.postcode ?? "";
   console.log(`  Tenant PLZ: ${postcode}`);
@@ -219,10 +234,13 @@ async function loadProductTaxRates() {
   const taxClassRates = new Map<string, number>();
   if (zoneId) {
     const rules = (await directus.request(
-      readItems("tax_rules" as any, {
-        filter: { tax_zone_id: { _eq: zoneId } },
-        limit: -1,
-      } as any),
+      readItems(
+        "tax_rules" as any,
+        {
+          filter: { tax_zone_id: { _eq: zoneId } },
+          limit: -1,
+        } as any,
+      ),
     )) as any[];
     for (const rule of rules) {
       taxClassRates.set(rule.tax_class_id, Number(rule.rate));
@@ -232,15 +250,20 @@ async function loadProductTaxRates() {
 
   // Load all products for this tenant (with cost center name)
   const products = (await directus.request(
-    readItems("products" as any, {
-      filter: { tenant: { _eq: CONFIG.directus.tenant } },
-      fields: ["id", "name", "tax_class", "cost_center.name"],
-      limit: -1,
-    } as any),
+    readItems(
+      "products" as any,
+      {
+        filter: { tenant: { _eq: CONFIG.directus.tenant } },
+        fields: ["id", "name", "tax_class", "cost_center.name"],
+        limit: -1,
+      } as any,
+    ),
   )) as any[];
 
   for (const p of products) {
-    const rate = p.tax_class ? (taxClassRates.get(p.tax_class) ?? DEFAULT_TAX_RATE) : DEFAULT_TAX_RATE;
+    const rate = p.tax_class
+      ? (taxClassRates.get(p.tax_class) ?? DEFAULT_TAX_RATE)
+      : DEFAULT_TAX_RATE;
     const costCenter = p.cost_center?.name ?? null;
     productTaxMap.set(p.name, { id: p.id, taxRate: rate, costCenter });
   }
@@ -252,12 +275,45 @@ async function loadProductTaxRates() {
 // 5. HELPERS
 // ==========================================
 
+// PocketBase name -> Directus name (für umbenannte Produkte)
+const productNameMap: Record<string, string> = {
+  Avocados: "Aguacate",
+  "Merm. Mango 100g": "Merm. Mango Pequeña",
+  "Merm. Papaya 240g": "Merm. Papaya Grande",
+  Mango: "Mangos",
+  "Merm. Mango 240g": "Merm. Mango Grande",
+  Papaya: "Papayas",
+  "Agua sin gas 500ml": "Agua 500ml",
+  Llavero: "Llavero Pequeno",
+  "Merm. Cactus": "Merm. Cactus",
+  "Merm. Mango Pequeño": "Merm. Mango Pequeña",
+  "Café con leche": "Taza de cafe",
+  "Merm. Papaya Pequeño": "Merm. Papaya Pequeña",
+  "Café americano": "Taza de cafe",
+  "Merm. Naranja 240g": "Merm. Naranja Grande",
+  "Café cortado corto": "Taza de cafe",
+  "Merm. Cafe 235g": "Mermelada Café Grande",
+  "Café cortado largo": "Taza de cafe",
+  // - Merm. Cactus y Banana Grande
+  // - Merm. Cactus
+  // - Fresa
+  // - Pulsera olivino
+  // - Fuera de la carta
+  // - Merm. Cactus y Banana 235g
+};
+
+// Cost Center overrides für nicht gefundene Produkte
+const costCenterOverrides: Record<string, string> = {
+  "Fresa": "Fruits",
+};
+
 function getProductInfo(name: string) {
-  const info = productTaxMap.get(name);
+  const mappedName = productNameMap[name] ?? name;
+  const info = productTaxMap.get(mappedName);
   return {
     id: info?.id ?? null,
     taxRate: info?.taxRate ?? DEFAULT_TAX_RATE,
-    costCenter: info?.costCenter ?? null,
+    costCenter: info?.costCenter ?? (info ? null : costCenterOverrides[mappedName] ?? "Shop Others"),
   };
 }
 
@@ -270,15 +326,23 @@ function netFromGross(grossCents: number, taxRatePercent: number): number {
 function initClosureAgg(closureId: string) {
   if (!closureTaxAgg.has(closureId)) {
     closureTaxAgg.set(closureId, {
-      totalNet: 0, totalTax: 0,
+      totalNet: 0,
+      totalTax: 0,
       taxMap: new Map(),
       productMap: new Map(),
-      tickets: 0, facturas: 0, rectificativas: 0,
+      tickets: 0,
+      facturas: 0,
+      rectificativas: 0,
     });
   }
 }
 
-function addToClosureAgg(closureId: string, taxRate: number, netCents: number, taxCents: number) {
+function addToClosureAgg(
+  closureId: string,
+  taxRate: number,
+  netCents: number,
+  taxCents: number,
+) {
   const agg = closureTaxAgg.get(closureId)!;
   agg.totalNet += netCents;
   agg.totalTax += taxCents;
@@ -289,13 +353,22 @@ function addToClosureAgg(closureId: string, taxRate: number, netCents: number, t
 }
 
 function addProductToClosureAgg(
-  closureId: string, productName: string, productId: string | null,
-  costCenter: string | null, quantity: number, grossCents: number, method: "cash" | "card",
+  closureId: string,
+  productName: string,
+  productId: string | null,
+  costCenter: string | null,
+  quantity: number,
+  grossCents: number,
+  method: "cash" | "card",
 ) {
   const agg = closureTaxAgg.get(closureId)!;
   const existing = agg.productMap.get(productName) ?? {
-    product_id: productId, cost_center: costCenter,
-    quantity: 0, total_gross: 0, cash_gross: 0, card_gross: 0,
+    product_id: productId,
+    cost_center: costCenter,
+    quantity: 0,
+    total_gross: 0,
+    cash_gross: 0,
+    card_gross: 0,
   };
   existing.quantity += quantity;
   existing.total_gross += grossCents;
@@ -349,7 +422,9 @@ async function run() {
           starting_cash: toEuro(shift.opening ?? 0),
           total_cash: toEuro(detail.cash ?? 0),
           total_card: toEuro(detail.card ?? 0),
-          total_change: toEuro((detail.cash_refund ?? 0) + (detail.card_refund ?? 0)),
+          total_change: toEuro(
+            (detail.cash_refund ?? 0) + (detail.card_refund ?? 0),
+          ),
           total_gross: toEuro(shift.profit ?? 0),
           // Placeholder — will be recalculated from invoices
           total_net: "0.00",
@@ -396,7 +471,8 @@ async function run() {
       const items: any[] = [];
 
       for (const line of lines) {
-        const name = line.name ?? "Unbekannt";
+        const rawName = line.name ?? "Unbekannt";
+        const name = productNameMap[rawName] ?? rawName;
         const product = getProductInfo(name);
 
         if (!product.id && name !== "Unbekannt") {
@@ -421,7 +497,8 @@ async function run() {
         }
 
         const lineDiscount = line.discount > 0 ? line.discount : null;
-        const lineDiscountPercent = line.discount_percent > 0 ? line.discount_percent : null;
+        const lineDiscountPercent =
+          line.discount_percent > 0 ? line.discount_percent : null;
 
         items.push({
           tenant: CONFIG.directus.tenant,
@@ -434,15 +511,24 @@ async function run() {
           tax_rate_snapshot: product.taxRate.toFixed(2),
           price_net_unit_precise: toEuroPrecise(netUnitCents),
           row_total_net_precise: toEuroPrecise(netTotalCents),
-          discount_type: lineDiscountPercent ? "percent" : lineDiscount ? "fixed" : null,
-          discount_value: lineDiscountPercent ? lineDiscountPercent.toFixed(4) : lineDiscount ? toEuro4(lineDiscount) : null,
+          discount_type: lineDiscountPercent
+            ? "percent"
+            : lineDiscount
+              ? "fixed"
+              : null,
+          discount_value: lineDiscountPercent
+            ? lineDiscountPercent.toFixed(4)
+            : lineDiscount
+              ? toEuro4(lineDiscount)
+              : null,
         });
       }
 
       // Fallback: if no invoice.lines, use order.items
       if (items.length === 0 && order.items?.length > 0) {
         for (const item of order.items) {
-          const name = item.product?.value ?? "Unbekannt";
+          const rawName = item.product?.value ?? "Unbekannt";
+          const name = productNameMap[rawName] ?? rawName;
           const product = getProductInfo(name);
           const grossCents = item.price ?? 0;
           const netCents = netFromGross(grossCents, product.taxRate);
@@ -506,7 +592,8 @@ async function run() {
       }
 
       // Determine payment method and invoice type
-      const primaryMethod: "cash" | "card" = cashAmount >= cardAmount ? "cash" : "card";
+      const primaryMethod: "cash" | "card" =
+        cashAmount >= cardAmount ? "cash" : "card";
       const client = inv?.client;
       const hasCustomer = client && client.name;
       const invoiceType = hasCustomer ? "factura" : "ticket";
@@ -515,9 +602,13 @@ async function run() {
       if (closureId) {
         for (const item of items) {
           addProductToClosureAgg(
-            closureId, item.product_name, item.product_id,
-            item.cost_center, item.quantity,
-            Math.round(parseFloat(item.row_total_gross) * 100), primaryMethod,
+            closureId,
+            item.product_name,
+            item.product_id,
+            item.cost_center,
+            item.quantity,
+            Math.round(parseFloat(item.row_total_gross) * 100),
+            primaryMethod,
           );
         }
         addInvoiceTypeToClosureAgg(closureId, invoiceType);
@@ -535,7 +626,8 @@ async function run() {
           total_net: toEuro(invoiceTotalNet),
           total_tax: toEuro(invoiceTotalTax),
           discount_type: order.discount_percent > 0 ? "percent" : null,
-          discount_value: order.discount_percent > 0 ? order.discount_percent : null,
+          discount_value:
+            order.discount_percent > 0 ? order.discount_percent : null,
           customer_name: hasCustomer ? client.name : null,
           customer_nif: hasCustomer ? client.tax_id || null : null,
           customer_street: hasCustomer ? client.street || null : null,
@@ -557,7 +649,9 @@ async function run() {
   console.log(`\n${invoiceCount} Invoices migriert`);
 
   if (unmatchedProducts.size > 0) {
-    console.log(`\nWARNUNG: ${unmatchedProducts.size} Produkte nicht in Directus gefunden (Default ${DEFAULT_TAX_RATE}%):`);
+    console.log(
+      `\nWARNUNG: ${unmatchedProducts.size} Produkte nicht in Directus gefunden (Default ${DEFAULT_TAX_RATE}%):`,
+    );
     unmatchedProducts.forEach((name) => {
       console.log(`  - ${name}`);
     });
@@ -604,7 +698,8 @@ async function run() {
           total_net: toEuro(agg.totalNet),
           total_tax: toEuro(agg.totalTax),
           tax_breakdown: taxBreakdown.length > 0 ? taxBreakdown : null,
-          product_breakdown: productBreakdown.length > 0 ? productBreakdown : null,
+          product_breakdown:
+            productBreakdown.length > 0 ? productBreakdown : null,
           invoice_type_counts: invoiceTypeCounts,
         } as any),
       );
