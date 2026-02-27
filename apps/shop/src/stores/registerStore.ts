@@ -87,7 +87,7 @@ export async function generateClosureReport(): Promise<ClosureReport> {
 
     // Query invoices assigned to this closure by the backend
     const invoices = await getInvoices(client as any, {
-      status: "paid",
+      status: ["paid", "rectificada"],
       closureId: closureId || undefined,
     });
 
