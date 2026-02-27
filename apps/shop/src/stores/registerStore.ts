@@ -145,7 +145,6 @@ export async function generateClosureReport(): Promise<ClosureReport> {
     const expectedCash = new Big(start).plus(totalCash);
 
     const taxBreakdown = Array.from(taxMap.entries())
-      .filter(([, v]) => !v.tax.eq(0))
       .sort(([a], [b]) => new Big(a).cmp(new Big(b)))
       .map(([rate, v]) => ({
         rate,

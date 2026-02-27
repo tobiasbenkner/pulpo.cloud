@@ -144,7 +144,6 @@ export function computeTaxBreakdown(
   }
 
   return Array.from(taxMap.entries())
-    .filter(([, v]) => !v.tax.eq(0))
     .sort(([a], [b]) => safeBig(a).cmp(safeBig(b)))
     .map(([rate, v]) => ({
       rate,
@@ -268,7 +267,6 @@ export function aggregateClosures(
   }
 
   const taxBreakdown = Array.from(taxMap.entries())
-    .filter(([, v]) => !v.tax.eq(0))
     .sort(([a], [b]) => safeBig(a).cmp(safeBig(b)))
     .map(([rate, v]) => ({
       rate,

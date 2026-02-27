@@ -666,7 +666,6 @@ async function run() {
   for (const entry of Array.from(closureTaxAgg.entries())) {
     const [closureId, agg] = entry;
     const taxBreakdown = Array.from(agg.taxMap.entries())
-      .filter(([, v]) => v.tax !== 0)
       .sort(([a], [b]) => a - b)
       .map(([rate, v]) => ({
         rate: rate.toFixed(2),

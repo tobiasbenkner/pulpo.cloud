@@ -70,11 +70,9 @@ export function calculateInvoice(
     const rowNetRounded = new Big(lineNet.toFixed(8));
     totalNet = totalNet.plus(rowNetRounded);
 
-    if (rate.gt(0)) {
-      const prev = taxByRate.get(rateStr) ?? ZERO;
-      const rowTax = lineGrossAfterGlobal.minus(rowNetRounded);
-      taxByRate.set(rateStr, prev.plus(rowTax));
-    }
+    const prev = taxByRate.get(rateStr) ?? ZERO;
+    const rowTax = lineGrossAfterGlobal.minus(rowNetRounded);
+    taxByRate.set(rateStr, prev.plus(rowTax));
 
     const priceGrossUnit = new Big(item.priceGross);
     computedItems.push({
