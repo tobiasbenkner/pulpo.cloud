@@ -1,0 +1,14 @@
+---
+import DocsLayout from "../layouts/DocsLayout.astro";
+import { render } from "astro:content";
+import { getEntry } from "astro:content";
+
+const entry = await getEntry("docs", "invoice-berechnung");
+const { Content } = await render(entry);
+---
+
+<DocsLayout title="Invoice-Berechnung" description="Wie die Rechnungsberechnung in @pulpo/invoice funktioniert.">
+  <article class="prose prose-gray max-w-none">
+    <Content />
+  </article>
+</DocsLayout>

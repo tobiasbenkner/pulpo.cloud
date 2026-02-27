@@ -1,0 +1,148 @@
+---
+title: Invoice-Berechnung
+description: Wie die Rechnungsberechnung in @pulpo/invoice funktioniert
+---
+
+# Invoice-Berechnung (`@pulpo/invoice`)
+
+Das Paket `@pulpo/invoice` enthält eine **reine Funktion** `calculateInvoice()`, die aus Positionen und einem optionalen Gesamtrabatt alle Rechnungswerte berechnet. Dieselbe Funktion wird sowohl im Frontend (Shop) als auch im Backend (Directus Extension) verwendet, um identische Ergebnisse zu garantieren.
+
+Alle Geldbeträge werden intern mit **big.js** verarbeitet – niemals mit nativen JavaScript-`number`-Floats – um Rundungsfehler zu vermeiden.
+
+## Signatur
+
+```ts
+calculateInvoice(
+  items: InvoiceLineInput[],
+  globalDiscount?: InvoiceDiscountInput | null
+): InvoiceCalculationResult
+```
+
+## Berechnungsablauf
+
+Die Berechnung erfolgt in **drei Schritten**:
+
+### Schritt 1 – Positionsbeträge (Zeilenebene)
+
+Für jede Position wird der Brutto-Zeilenbetrag berechnet:
+
+```
+zeileBrutto = priceGross × quantity
+```
+
+Falls die Position einen **Positionsrabatt** hat, wird dieser abgezogen:
+
+| Rabatttyp | Formel |
+|-----------|--------|
+| `fixed` | `zeileBrutto = zeileBrutto − discount.value` |
+| `percent` | `zeileBrutto = zeileBrutto − (zeileBrutto × discount.value / 100)` |
+
+Der Zeilenbetrag wird auf **mindestens 0** begrenzt (kein negativer Wert möglich).
+
+Anschließend werden alle Zeilenbeträge zur **Zwischensumme** (`subtotal`) aufsummiert.
+
+### Schritt 2 – Gesamtrabatt
+
+Wenn ein globaler Rabatt übergeben wird, wird er auf die Zwischensumme angewendet:
+
+| Rabatttyp | Formel |
+|-----------|--------|
+| `fixed` | `endBrutto = subtotal − discount.value` |
+| `percent` | `endBrutto = subtotal − (subtotal × discount.value / 100)` |
+
+Auch hier wird der Endbetrag auf **mindestens 0** begrenzt. Der tatsächliche Rabattbetrag wird ebenfalls auf maximal die Zwischensumme gedeckelt.
+
+### Schritt 3 – Steuer-Rückrechnung
+
+Die Steuer wird **aus dem Brutto herausgerechnet** (nicht aufgeschlagen). Dazu wird ein **Rabattverhältnis** berechnet, das den Gesamtrabatt proportional auf alle Positionen verteilt:
+
+```
+rabattVerhältnis = endBrutto / subtotal
+```
+
+Für jede Position ergibt sich:
+
+```
+zeileBruttoNachRabatt = zeileBrutto × rabattVerhältnis
+zeileNetto             = zeileBruttoNachRabatt / (1 + steuerSatz)
+```
+
+Der Netto-Wert wird auf **8 Nachkommastellen** gerundet, um Präzision zu bewahren.
+
+#### Steuer-Gruppierung
+
+Die Steuerbeträge werden nach **Steuersatz gruppiert** (z. B. 7 % und 21 % getrennt). Für jede Gruppe wird berechnet:
+
+```
+netto  = Summe aller zeileNetto mit gleichem Steuersatz  (auf 2 Stellen gerundet)
+steuer = gruppeBrutto − netto                            (auf 2 Stellen gerundet)
+```
+
+Die Gruppen werden aufsteigend nach Steuersatz sortiert.
+
+## Ergebnis
+
+Die Funktion gibt ein `InvoiceCalculationResult` zurück:
+
+| Feld | Beschreibung | Präzision |
+|------|-------------|-----------|
+| `subtotal` | Zwischensumme (nach Positionsrabatten, vor Gesamtrabatt) | 2 Stellen |
+| `discountTotal` | Gesamtrabatt-Betrag | 2 Stellen |
+| `gross` | Endbetrag brutto | 2 Stellen |
+| `net` | Endbetrag netto | 2 Stellen |
+| `tax` | Steuerbetrag gesamt (`gross − net`) | 2 Stellen |
+| `taxBreakdown` | Steuer aufgeschlüsselt nach Satz | 2 Stellen |
+| `items` | Berechnete Positionen | siehe unten |
+| `count` | Gesamtanzahl Artikel | – |
+
+### Berechnete Position (`InvoiceLineResult`)
+
+| Feld | Beschreibung | Präzision |
+|------|-------------|-----------|
+| `priceGrossUnit` | Brutto-Einzelpreis | 4 Stellen |
+| `priceNetUnitPrecise` | Netto-Einzelpreis | 8 Stellen |
+| `rowTotalGross` | Zeilen-Brutto (nach allen Rabatten) | 2 Stellen |
+| `rowTotalNetPrecise` | Zeilen-Netto | 8 Stellen |
+| `taxRateSnapshot` | Steuersatz in Prozent (z. B. `"7.00"`) | 2 Stellen |
+
+## Beispiel
+
+```ts
+import { calculateInvoice } from "@pulpo/invoice";
+
+const result = calculateInvoice(
+  [
+    {
+      productId: "1",
+      productName: "Café con leche",
+      priceGross: "2.50",
+      taxRate: "7",
+      quantity: 2,
+    },
+    {
+      productId: "2",
+      productName: "Cerveza",
+      priceGross: "3.00",
+      taxRate: "21",
+      quantity: 1,
+      discount: { type: "percent", value: 10 },
+    },
+  ],
+  { type: "percent", value: 5 }
+);
+
+// result.subtotal   → "7.70"  (2×2.50 + 3.00−10%)
+// result.discountTotal → "0.39"  (5% von 7.70, gerundet)
+// result.gross      → "7.32"  (7.70 − 0.39, gerundet)
+// result.taxBreakdown → aufgeschlüsselt nach 7% und 21%
+```
+
+## Dezimal-Strategie
+
+| Kontext | Präzision | Grund |
+|---------|-----------|-------|
+| Geldbeträge (Summen) | `.toFixed(2)` | Centgenau für Zahlungen |
+| Einzelpreise | `.toFixed(4)` | Mehr Genauigkeit bei kleinen Beträgen |
+| Netto-Werte (intern) | `.toFixed(8)` | Minimale Rundungsfehler bei Steuer-Rückrechnung |
+
+Alle Werte werden als **Strings** zurückgegeben, niemals als `number`, um unbeabsichtigte Gleitkomma-Ungenauigkeiten zu verhindern.
