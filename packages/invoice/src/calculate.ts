@@ -57,7 +57,7 @@ export function calculateInvoice(
     ? finalTotalGross.div(subtotalGross)
     : new Big(1);
 
-  const taxByRate = new Map<string, Big>();
+  const taxByRate = new Map<string, { net: Big; gross: Big }>();
   const computedItems: InvoiceLineResult[] = [];
 
   items.forEach((item, i) => {
@@ -65,14 +65,17 @@ export function calculateInvoice(
     const lineGrossAfterGlobal = lineGross.times(discountRatio);
     const rateStr = item.taxRate;
     const rate = new Big(rateStr);
+    const ratePct = rate.times(100).toFixed(2);
     const lineNet = lineGrossAfterGlobal.div(new Big(1).plus(rate));
 
     const rowNetRounded = new Big(lineNet.toFixed(8));
     totalNet = totalNet.plus(rowNetRounded);
 
-    const prev = taxByRate.get(rateStr) ?? ZERO;
-    const rowTax = lineGrossAfterGlobal.minus(rowNetRounded);
-    taxByRate.set(rateStr, prev.plus(rowTax));
+    const prev = taxByRate.get(ratePct) ?? { net: ZERO, gross: ZERO };
+    taxByRate.set(ratePct, {
+      net: prev.net.plus(rowNetRounded),
+      gross: prev.gross.plus(lineGrossAfterGlobal),
+    });
 
     const priceGrossUnit = new Big(item.priceGross);
     computedItems.push({
@@ -80,7 +83,7 @@ export function calculateInvoice(
       productName: item.productName,
       quantity: item.quantity,
       priceGrossUnit: priceGrossUnit.toFixed(4),
-      taxRateSnapshot: rate.times(100).toFixed(2),
+      taxRateSnapshot: ratePct,
       priceNetUnitPrecise: priceGrossUnit.div(new Big(1).plus(rate)).toFixed(8),
       rowTotalGross: lineGrossAfterGlobal.toFixed(2),
       rowTotalNetPrecise: rowNetRounded.toFixed(8),
@@ -94,7 +97,11 @@ export function calculateInvoice(
 
   const taxBreakdown = Array.from(taxByRate.entries())
     .sort(([a], [b]) => new Big(a).cmp(new Big(b)))
-    .map(([rate, amount]) => ({ rate, amount: amount.toFixed(2) }));
+    .map(([rate, v]) => {
+      const net = v.net.toFixed(2);
+      const tax = v.gross.minus(new Big(net)).toFixed(2);
+      return { rate, net, tax };
+    });
 
   return {
     subtotal: subtotalGross.toFixed(2),

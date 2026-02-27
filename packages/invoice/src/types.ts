@@ -32,7 +32,8 @@ export interface InvoiceLineResult {
 
 export interface TaxBreakdownEntry {
   rate: string;
-  amount: string;
+  net: string;
+  tax: string;
 }
 
 /** Gesamtergebnis der Berechnung */

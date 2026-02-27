@@ -108,7 +108,7 @@
   }
 
   function formatTaxRate(rate: string): string {
-    return new Big(rate).times(100).toFixed(1).replace(".0", "");
+    return parseFloat(rate).toFixed(1).replace(".0", "");
   }
 </script>
 
@@ -475,7 +475,7 @@
               class="flex justify-between text-zinc-400 text-[10px] uppercase tracking-wide"
             >
               <span>{tax} {formatTaxRate(entry.rate)}%</span>
-              <span class="font-mono">{entry.amount} &euro;</span>
+              <span class="font-mono">{entry.tax} &euro;</span>
             </div>
           {/each}
         </div>

@@ -117,8 +117,9 @@ export function computeProductBreakdown(
 }
 
 /**
- * Compute tax breakdown from a list of invoices (with items).
- * Groups by tax_rate_snapshot, sums net and tax per rate.
+ * Compute tax breakdown from a list of invoices.
+ * Prefers stored `tax_breakdown` on the invoice; falls back to item-based
+ * computation for older invoices without the field.
  */
 export function computeTaxBreakdown(
   invoices: Record<string, any>[],
@@ -127,19 +128,30 @@ export function computeTaxBreakdown(
   const taxMap = new Map<string, { net: Big; tax: Big }>();
 
   for (const inv of invoices) {
-    for (const item of inv.items ?? []) {
-      const rate = item.tax_rate_snapshot;
-      if (rate == null) continue;
-      const rateStr = String(rate);
-      const itemNet = safeBig(item.row_total_net_precise);
-      const itemGross = safeBig(item.row_total_gross);
-      const itemTax = itemGross.minus(itemNet);
+    if (Array.isArray(inv.tax_breakdown) && inv.tax_breakdown.length > 0) {
+      // Use stored breakdown
+      for (const entry of inv.tax_breakdown) {
+        const rate = String(entry.rate);
+        const existing = taxMap.get(rate) ?? { net: ZERO, tax: ZERO };
+        taxMap.set(rate, {
+          net: existing.net.plus(safeBig(entry.net)),
+          tax: existing.tax.plus(safeBig(entry.tax)),
+        });
+      }
+    } else {
+      // Fallback: recompute from items (old invoices)
+      for (const item of inv.items ?? []) {
+        const rate = item.tax_rate_snapshot;
+        if (rate == null) continue;
+        const rateStr = String(rate);
+        const itemNet = safeBig(item.row_total_net_precise);
+        const itemGross = safeBig(item.row_total_gross);
 
-      const existing = taxMap.get(rateStr) ?? { net: ZERO, tax: ZERO };
-      taxMap.set(rateStr, {
-        net: existing.net.plus(itemNet),
-        tax: existing.tax.plus(itemTax),
-      });
+        const existing = taxMap.get(rateStr) ?? { net: ZERO, tax: ZERO };
+        const net = existing.net.plus(itemNet);
+        const gross = existing.tax.plus(itemGross.minus(itemNet));
+        taxMap.set(rateStr, { net, tax: gross });
+      }
     }
   }
 

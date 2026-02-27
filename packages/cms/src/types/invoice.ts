@@ -33,6 +33,8 @@ export interface Invoice {
   chain_hash: string | null;
   qr_url: string | null;
   generation_date: string | null;
+  // Tax breakdown (stored at creation, avoids recomputation)
+  tax_breakdown: { rate: string; net: string; tax: string }[] | null;
   // Relations
   items: InvoiceItem[];
   payments: InvoicePayment[];

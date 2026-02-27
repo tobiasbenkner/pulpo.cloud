@@ -468,6 +468,9 @@ async function run() {
       let invoiceTotalTax = 0;
       let invoiceTotalGross = 0;
 
+      // Per-invoice tax breakdown aggregation
+      const invoiceTaxMap = new Map<number, { net: number; gross: number }>();
+
       const items: any[] = [];
 
       for (const line of lines) {
@@ -490,6 +493,12 @@ async function run() {
         invoiceTotalGross += grossTotalCents;
         invoiceTotalNet += netTotalCents;
         invoiceTotalTax += taxCents;
+
+        // Track for invoice-level tax breakdown
+        const invTaxEntry = invoiceTaxMap.get(product.taxRate) ?? { net: 0, gross: 0 };
+        invTaxEntry.net += netTotalCents;
+        invTaxEntry.gross += grossTotalCents;
+        invoiceTaxMap.set(product.taxRate, invTaxEntry);
 
         // Track for closure aggregation
         if (closureId) {
@@ -538,6 +547,12 @@ async function run() {
           invoiceTotalNet += netCents;
           invoiceTotalTax += taxCents;
 
+          // Track for invoice-level tax breakdown
+          const invTaxEntry = invoiceTaxMap.get(product.taxRate) ?? { net: 0, gross: 0 };
+          invTaxEntry.net += netCents;
+          invTaxEntry.gross += grossCents;
+          invoiceTaxMap.set(product.taxRate, invTaxEntry);
+
           if (closureId) {
             addToClosureAgg(closureId, product.taxRate, netCents, taxCents);
           }
@@ -558,6 +573,16 @@ async function run() {
           });
         }
       }
+
+      // Compute invoice-level tax breakdown (tax = gross - net_rounded to avoid penny discrepancies)
+      const invoiceTaxBreakdown = Array.from(invoiceTaxMap.entries())
+        .sort(([a], [b]) => a - b)
+        .map(([rate, v]) => {
+          const net = toEuro(v.net);
+          const gross = toEuro(v.gross);
+          const tax = (parseFloat(gross) - parseFloat(net)).toFixed(2);
+          return { rate: rate.toFixed(2), net, tax };
+        });
 
       // Use invoice total as gross (authoritative), recalculated net/tax
       const totalGross = inv?.total ?? invoiceTotalGross;
@@ -625,6 +650,7 @@ async function run() {
           total_gross: toEuro(totalGross),
           total_net: toEuro(invoiceTotalNet),
           total_tax: toEuro(invoiceTotalTax),
+          tax_breakdown: invoiceTaxBreakdown.length > 0 ? invoiceTaxBreakdown : null,
           discount_type: order.discount_percent > 0 ? "percent" : null,
           discount_value:
             order.discount_percent > 0 ? order.discount_percent : null,

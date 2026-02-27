@@ -250,6 +250,7 @@ export function registerInvoiceCreate(
           total_net: result.net,
           total_tax: result.tax,
           total_gross: result.gross,
+          tax_breakdown: result.taxBreakdown,
           discount_type: result.discountType,
           discount_value: result.discountValue,
           issuer_name: tenantRecord.name ?? null,

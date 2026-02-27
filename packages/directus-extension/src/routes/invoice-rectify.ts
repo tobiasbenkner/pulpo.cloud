@@ -180,14 +180,28 @@ export function registerInvoiceRectify(
           tenant,
         }));
 
-        // 6. Calculate totals using big.js for precision
+        // 6. Calculate totals and tax breakdown using big.js for precision
         let totalNet = new Big(0);
         let totalGross = new Big(0);
+        const taxMap = new Map<string, { net: Big; gross: Big }>();
         for (const item of negatedItems) {
           totalNet = totalNet.plus(item.row_total_net_precise);
           totalGross = totalGross.plus(item.row_total_gross);
+          const rate = item.tax_rate_snapshot;
+          const prev = taxMap.get(rate) ?? { net: new Big(0), gross: new Big(0) };
+          taxMap.set(rate, {
+            net: prev.net.plus(item.row_total_net_precise),
+            gross: prev.gross.plus(item.row_total_gross),
+          });
         }
         const totalTax = totalGross.minus(totalNet);
+        const taxBreakdown = Array.from(taxMap.entries())
+          .sort(([a], [b]) => new Big(a).cmp(new Big(b)))
+          .map(([rate, v]) => {
+            const net = v.net.toFixed(2);
+            const tax = v.gross.minus(new Big(net)).toFixed(2);
+            return { rate, net, tax };
+          });
 
         // 7. Determine payment method
         const originalPayment = (original.payments as any[])?.[0];
@@ -211,6 +225,7 @@ export function registerInvoiceRectify(
           total_net: totalNet.toFixed(2),
           total_tax: totalTax.toFixed(2),
           total_gross: totalGross.toFixed(2),
+          tax_breakdown: taxBreakdown,
           discount_type: null,
           discount_value: null,
           issuer_name: original.issuer_name ?? null,

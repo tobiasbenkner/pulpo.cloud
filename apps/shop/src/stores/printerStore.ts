@@ -259,18 +259,8 @@ function buildReceipt(receiptData: {
   lines.push(twoColTable("TOTAL", `${totals.gross} EUR`, "B", "B"));
   lines.push(emptyLine());
 
-  // Tax breakdown: group net by rate from items
-  const netByRate = new Map<string, number>();
-  for (const item of totals.items) {
-    const rate = item.taxRateSnapshot; // percentage string e.g. "7.00"
-    const prev = netByRate.get(rate) ?? 0;
-    netByRate.set(rate, prev + parseFloat(item.rowTotalNetPrecise));
-  }
-
   for (const entry of totals.taxBreakdown) {
-    const pct = (parseFloat(entry.rate) * 100).toFixed(0);
-    const rateSnapshot = (parseFloat(entry.rate) * 100).toFixed(2);
-    const base = netByRate.get(rateSnapshot) ?? parseFloat(totals.net);
+    const pct = parseFloat(entry.rate).toFixed(0);
     lines.push(
       tableLine([
         {
@@ -280,13 +270,13 @@ function buildReceipt(receiptData: {
           style: "NORMAL",
         },
         {
-          text: `Base ${base.toFixed(2).padStart(7)}`,
+          text: `Base ${entry.net.padStart(7)}`,
           align: "RIGHT",
           width: 0.35,
           style: "NORMAL",
         },
         {
-          text: `Imp. ${entry.amount.padStart(7)}`,
+          text: `Imp. ${entry.tax.padStart(7)}`,
           align: "RIGHT",
           width: 0.35,
           style: "NORMAL",
@@ -380,7 +370,6 @@ export async function printInvoice(
   options?: { originalInvoiceNumber?: string },
 ): Promise<void> {
   const ZERO = new Big(0);
-  const HUNDRED = new Big(100);
   const isRect = invoice.invoice_type === "rectificativa";
 
   // Map InvoiceItems → CartTotalsItems
@@ -398,23 +387,30 @@ export async function printInvoice(
     costCenter: item.cost_center ?? null,
   }));
 
-  // Tax breakdown: group by tax_rate_snapshot, sum tax per group
-  const taxMap = new Map<string, Big>();
-  for (const item of invoice.items ?? []) {
-    const rate = item.tax_rate_snapshot;
-    const rowTax = new Big(item.row_total_gross).minus(
-      new Big(item.row_total_net_precise),
-    );
-    if (!rowTax.eq(ZERO)) {
-      taxMap.set(rate, (taxMap.get(rate) ?? ZERO).plus(rowTax));
+  // Tax breakdown: prefer stored, fallback to item-based for old invoices
+  let taxBreakdown: { rate: string; net: string; tax: string }[];
+  if (Array.isArray(invoice.tax_breakdown) && invoice.tax_breakdown.length > 0) {
+    taxBreakdown = invoice.tax_breakdown;
+  } else {
+    const taxMap = new Map<string, { net: Big; gross: Big }>();
+    for (const item of invoice.items ?? []) {
+      const rate = item.tax_rate_snapshot;
+      const itemNet = new Big(item.row_total_net_precise);
+      const itemGross = new Big(item.row_total_gross);
+      const existing = taxMap.get(rate) ?? { net: ZERO, gross: ZERO };
+      taxMap.set(rate, {
+        net: existing.net.plus(itemNet),
+        gross: existing.gross.plus(itemGross),
+      });
     }
+    taxBreakdown = Array.from(taxMap.entries())
+      .sort(([a], [b]) => new Big(a).cmp(new Big(b)))
+      .map(([rate, v]) => {
+        const net = v.net.toFixed(2);
+        const tax = v.gross.minus(new Big(net)).toFixed(2);
+        return { rate, net, tax };
+      });
   }
-  const taxBreakdown = Array.from(taxMap.entries())
-    .sort(([a], [b]) => new Big(a).cmp(new Big(b)))
-    .map(([ratePct, amount]) => ({
-      rate: new Big(ratePct).div(HUNDRED).toString(),
-      amount: amount.toFixed(2),
-    }));
 
   // Discount
   const gross = new Big(invoice.total_gross);

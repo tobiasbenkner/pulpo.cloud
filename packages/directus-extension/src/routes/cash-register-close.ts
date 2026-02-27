@@ -83,6 +83,7 @@ export function registerCashRegisterClose(
             "total_gross",
             "total_net",
             "total_tax",
+            "tax_breakdown",
             "items.product_name",
             "items.product_id",
             "items.cost_center",

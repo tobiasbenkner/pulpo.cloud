@@ -125,18 +125,27 @@ export async function generateClosureReport(): Promise<ClosureReport> {
         }
       }
 
-      // Tax breakdown from items
-      for (const item of inv.items ?? []) {
-        const rate = item.tax_rate_snapshot; // percentage e.g. "7.00"
-        const itemNet = new Big(item.row_total_net_precise);
-        const itemGross = new Big(item.row_total_gross);
-        const itemTax = itemGross.minus(itemNet);
-
-        const existing = taxMap.get(rate) ?? { net: ZERO, tax: ZERO };
-        taxMap.set(rate, {
-          net: existing.net.plus(itemNet),
-          tax: existing.tax.plus(itemTax),
-        });
+      // Tax breakdown: prefer stored, fallback to items
+      if (Array.isArray(inv.tax_breakdown) && inv.tax_breakdown.length > 0) {
+        for (const entry of inv.tax_breakdown) {
+          const rate = String(entry.rate);
+          const existing = taxMap.get(rate) ?? { net: ZERO, tax: ZERO };
+          taxMap.set(rate, {
+            net: existing.net.plus(new Big(entry.net)),
+            tax: existing.tax.plus(new Big(entry.tax)),
+          });
+        }
+      } else {
+        for (const item of inv.items ?? []) {
+          const rate = item.tax_rate_snapshot;
+          const itemNet = new Big(item.row_total_net_precise);
+          const itemGross = new Big(item.row_total_gross);
+          const existing = taxMap.get(rate) ?? { net: ZERO, tax: ZERO };
+          taxMap.set(rate, {
+            net: existing.net.plus(itemNet),
+            tax: existing.tax.plus(itemGross.minus(itemNet)),
+          });
+        }
       }
     }
 
