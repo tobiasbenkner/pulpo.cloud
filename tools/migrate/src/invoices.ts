@@ -158,6 +158,9 @@ const directus = createDirectus(CONFIG.directus.url)
 // Cent -> Euro (2 decimal places as string)
 const toEuro = (cents: number) => (cents / 100).toFixed(2);
 
+// Cent -> Euro (4 decimal places for unit prices)
+const toEuro4 = (cents: number) => (cents / 100).toFixed(4);
+
 // Cent -> Euro (8 decimal places for precise net values)
 const toEuroPrecise = (cents: number) => (cents / 100).toFixed(8);
 
@@ -392,13 +395,13 @@ async function run() {
           product_id: product.id,
           cost_center: product.costCenter,
           quantity: qty,
-          price_gross_unit: toEuro(grossUnitCents),
+          price_gross_unit: toEuro4(grossUnitCents),
           row_total_gross: toEuro(grossTotalCents),
           tax_rate_snapshot: product.taxRate.toFixed(2),
           price_net_unit_precise: toEuroPrecise(netUnitCents),
           row_total_net_precise: toEuroPrecise(netTotalCents),
           discount_type: lineDiscountPercent ? "percent" : lineDiscount ? "fixed" : null,
-          discount_value: lineDiscountPercent ?? (lineDiscount ? toEuro(lineDiscount) : null),
+          discount_value: lineDiscountPercent ? lineDiscountPercent.toFixed(4) : lineDiscount ? toEuro4(lineDiscount) : null,
         });
       }
 
@@ -425,7 +428,7 @@ async function run() {
             product_id: product.id,
             cost_center: product.costCenter,
             quantity: 1,
-            price_gross_unit: toEuro(grossCents),
+            price_gross_unit: toEuro4(grossCents),
             row_total_gross: toEuro(grossCents),
             tax_rate_snapshot: product.taxRate.toFixed(2),
             price_net_unit_precise: toEuroPrecise(netCents),
@@ -451,7 +454,7 @@ async function run() {
           amount: toEuro(cashAmount),
           tendered: toEuro(inv?.hand_over_money ?? cashAmount),
           change: toEuro(inv?.change ?? 0),
-          tip: 0,
+          tip: "0.00",
         });
       }
       if (cardAmount > 0) {
@@ -460,8 +463,8 @@ async function run() {
           method: "card",
           amount: toEuro(cardAmount),
           tendered: toEuro(cardAmount),
-          change: 0,
-          tip: 0,
+          change: "0.00",
+          tip: "0.00",
         });
       }
       if (order.tips > 0 && payments.length > 0) {
@@ -507,9 +510,9 @@ async function run() {
 
   if (unmatchedProducts.size > 0) {
     console.log(`\nWARNUNG: ${unmatchedProducts.size} Produkte nicht in Directus gefunden (Default ${DEFAULT_TAX_RATE}%):`);
-    for (const name of unmatchedProducts) {
+    unmatchedProducts.forEach((name) => {
       console.log(`  - ${name}`);
-    }
+    });
   }
 
   // -------------------------------------------------------
@@ -518,7 +521,8 @@ async function run() {
   console.log("\n=== Closure Steuerdaten aktualisieren ===");
 
   let closureUpdateCount = 0;
-  for (const [closureId, agg] of closureTaxAgg) {
+  for (const entry of Array.from(closureTaxAgg.entries())) {
+    const [closureId, agg] = entry;
     const taxBreakdown = Array.from(agg.taxMap.entries())
       .filter(([, v]) => v.tax !== 0)
       .sort(([a], [b]) => a - b)
