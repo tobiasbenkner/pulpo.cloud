@@ -5,7 +5,6 @@ import {
   generateInvoiceNumber,
   type InvoiceSeries,
 } from "../helpers";
-import Big from "big.js";
 import { calculateInvoice } from "@pulpo/invoice";
 import type { InvoiceLineInput, InvoiceDiscountInput } from "@pulpo/invoice";
 
@@ -63,7 +62,13 @@ export function registerInvoiceCreate(
         .select("postcode")
         .where("id", tenant)
         .first();
+
       const postcode: string = postcodeRow?.postcode ?? "";
+      if (!postcode) {
+        return res
+          .status(400)
+          .json({ error: "Tenant hat keine Postleitzahl konfiguriert." });
+      }
 
       // 3. Load products (outside transaction, read-only reference data)
       const productIds = requestItems.map((item) => item.product_id);
@@ -73,7 +78,13 @@ export function registerInvoiceCreate(
       });
       const products = (await productService.readByQuery({
         filter: { id: { _in: productIds } },
-        fields: ["id", "name", "price_gross", "tax_class.code", "cost_center.name"],
+        fields: [
+          "id",
+          "name",
+          "price_gross",
+          "tax_class.code",
+          "cost_center.name",
+        ],
       })) as {
         id: string;
         name: string;
@@ -95,43 +106,48 @@ export function registerInvoiceCreate(
 
       // 4. Load tax rates (outside transaction, read-only reference data)
       const taxRatesByClass = new Map<string, string>();
+      const zoneService = new ItemsService("tax_zones", {
+        schema,
+        knex: database,
+      });
+      const zones = (await zoneService.readByQuery({
+        sort: ["priority"],
+      })) as { id: string; regex: string | null }[];
 
-      if (postcode) {
-        const zoneService = new ItemsService("tax_zones", {
-          schema,
-          knex: database,
-        });
-        const zones = (await zoneService.readByQuery({
-          sort: ["priority"],
-        })) as { id: string; regex: string | null }[];
+      const matchedZone = zones.find((zone) => {
+        if (!zone.regex) return false;
+        return new RegExp(zone.regex).test(postcode);
+      });
 
-        const matchedZone = zones.find((zone) => {
-          if (!zone.regex) return false;
-          return new RegExp(zone.regex).test(postcode);
-        });
-
-        if (matchedZone) {
-          const ruleService = new ItemsService("tax_rules", {
-            schema,
-            knex: database,
+      if (!matchedZone) {
+        return res
+          .status(400)
+          .json({
+            error: `Keine Steuerzone für Postleitzahl "${postcode}" gefunden.`,
           });
-          const rules = (await ruleService.readByQuery({
-            filter: { tax_zone_id: { _eq: matchedZone.id } },
-            fields: ["rate", "tax_class_id.code"],
-          })) as { rate: string | null; tax_class_id: { code: string } }[];
+      }
 
-          for (const rule of rules) {
-            // DB stores rates as percentage (e.g. "7.0000"), calculateInvoice expects decimal (e.g. "0.07")
-            taxRatesByClass.set(rule.tax_class_id.code, new Big(rule.rate ?? "0").div(100).toString());
-          }
-        }
+      const ruleService = new ItemsService("tax_rules", {
+        schema,
+        knex: database,
+      });
+      const rules = (await ruleService.readByQuery({
+        filter: { tax_zone_id: { _eq: matchedZone.id } },
+        fields: ["rate", "tax_class_id.code"],
+      })) as { rate: string | null; tax_class_id: { code: string } }[];
+
+      for (const rule of rules) {
+        taxRatesByClass.set(rule.tax_class_id.code, rule.rate ?? "0");
       }
 
       // 5. Build InvoiceLineInput[] and calculate (pure, no DB)
       const lines: InvoiceLineInput[] = requestItems.map((item) => {
         const product = productMap.get(item.product_id)!;
-        const taxClassCode = product.tax_class?.code ?? "NULL";
-        const taxRate = taxRatesByClass.get(taxClassCode) ?? "0";
+        const taxClassCode = product.tax_class?.code ?? "STD";
+        const taxRate =
+          taxRatesByClass.get(taxClassCode) ??
+          taxRatesByClass.get("STD") ??
+          "0";
         return {
           productId: product.id,
           productName: product.name,
@@ -192,116 +208,124 @@ export function registerInvoiceCreate(
       const series: InvoiceSeries = customer_id ? "factura" : "ticket";
 
       // === TRANSACTION: lock tenant, create invoice, update counter, adjust stock ===
-      const invoiceId = await (database as any).transaction(async (trx: any) => {
-        // Lock tenant row — serializes concurrent requests per tenant
-        const lockedTenant = await trx("tenants").where("id", tenant).forUpdate().first();
-        if (!lockedTenant) {
-          throw new Error("Tenant nicht gefunden.");
-        }
+      const invoiceId = await (database as any).transaction(
+        async (trx: any) => {
+          // Lock tenant row — serializes concurrent requests per tenant
+          const lockedTenant = await trx("tenants")
+            .where("id", tenant)
+            .forUpdate()
+            .first();
+          if (!lockedTenant) {
+            throw new Error("Tenant nicht gefunden.");
+          }
 
-        // Read tenant record within lock (counter + issuer data)
-        const tenantService = new ItemsService("tenants", { schema, knex: trx });
-        const tenantRecord = (await tenantService.readOne(tenant)) as {
-          invoice_prefix?: string;
-          timezone?: string;
-          last_ticket_number?: number;
-          last_factura_number?: number;
-          name?: string;
-          nif?: string;
-          street?: string;
-          postcode?: string;
-          city?: string;
-        };
+          // Read tenant record within lock (counter + issuer data)
+          const tenantService = new ItemsService("tenants", {
+            schema,
+            knex: trx,
+          });
+          const tenantRecord = (await tenantService.readOne(tenant)) as {
+            invoice_prefix?: string;
+            timezone?: string;
+            last_ticket_number?: number;
+            last_factura_number?: number;
+            name?: string;
+            nif?: string;
+            street?: string;
+            postcode?: string;
+            city?: string;
+          };
 
-        // Generate invoice number (uses locked counter)
-        const { invoice_number, new_count } = generateInvoiceNumber(
-          tenantRecord,
-          series,
-        );
+          // Generate invoice number (uses locked counter)
+          const { invoice_number, new_count } = generateInvoiceNumber(
+            tenantRecord,
+            series,
+          );
 
-        // Find open closure
-        const closureService = new ItemsService("cash_register_closures", {
-          schema,
-          knex: trx,
-        });
-        const openClosures = await closureService.readByQuery({
-          filter: {
-            tenant: { _eq: tenant },
-            status: { _eq: "open" },
-          },
-          limit: 1,
-        });
-        if (openClosures.length === 0) {
-          throw new Error("NO_OPEN_CLOSURE");
-        }
-        const closureId = (openClosures[0] as Record<string, unknown>).id;
+          // Find open closure
+          const closureService = new ItemsService("cash_register_closures", {
+            schema,
+            knex: trx,
+          });
+          const openClosures = await closureService.readByQuery({
+            filter: {
+              tenant: { _eq: tenant },
+              status: { _eq: "open" },
+            },
+            limit: 1,
+          });
+          if (openClosures.length === 0) {
+            throw new Error("NO_OPEN_CLOSURE");
+          }
+          const closureId = (openClosures[0] as Record<string, unknown>).id;
 
-        // Create invoice with items + payments
-        const invoiceService = new ItemsService("invoices", {
-          schema,
-          knex: trx,
-        });
-        const id = await invoiceService.createOne({
-          tenant,
-          invoice_number,
-          invoice_type: series,
-          closure_id: closureId,
-          status,
-          total_net: result.net,
-          total_tax: result.tax,
-          total_gross: result.gross,
-          tax_breakdown: result.taxBreakdown,
-          discount_type: result.discountType,
-          discount_value: result.discountValue,
-          issuer_name: tenantRecord.name ?? null,
-          issuer_nif: tenantRecord.nif ?? null,
-          issuer_street: tenantRecord.street ?? null,
-          issuer_zip: tenantRecord.postcode ?? null,
-          issuer_city: tenantRecord.city ?? null,
-          ...customerSnapshot,
-          items: {
-            create: result.items.map((item) => ({
-              product_id: item.productId,
-              product_name: item.productName,
-              quantity: item.quantity,
-              tax_rate_snapshot: item.taxRateSnapshot,
-              price_gross_unit: item.priceGrossUnit,
-              price_net_unit_precise: item.priceNetUnitPrecise,
-              row_total_net_precise: item.rowTotalNetPrecise,
-              row_total_gross: item.rowTotalGross,
-              discount_type: item.discountType,
-              discount_value: item.discountValue,
-              cost_center: item.costCenter,
-              tenant,
-            })),
-          },
-          payments: {
-            create: payments.map((payment) => ({ ...payment, tenant })),
-          },
-        });
+          // Create invoice with items + payments
+          const invoiceService = new ItemsService("invoices", {
+            schema,
+            knex: trx,
+          });
+          const id = await invoiceService.createOne({
+            tenant,
+            invoice_number,
+            invoice_type: series,
+            closure_id: closureId,
+            status,
+            total_net: result.net,
+            total_tax: result.tax,
+            total_gross: result.gross,
+            tax_breakdown: result.taxBreakdown,
+            discount_type: result.discountType,
+            discount_value: result.discountValue,
+            issuer_name: tenantRecord.name ?? null,
+            issuer_nif: tenantRecord.nif ?? null,
+            issuer_street: tenantRecord.street ?? null,
+            issuer_zip: tenantRecord.postcode ?? null,
+            issuer_city: tenantRecord.city ?? null,
+            ...customerSnapshot,
+            items: {
+              create: result.items.map((item) => ({
+                product_id: item.productId,
+                product_name: item.productName,
+                quantity: item.quantity,
+                tax_rate_snapshot: item.taxRateSnapshot,
+                price_gross_unit: item.priceGrossUnit,
+                price_net_unit_precise: item.priceNetUnitPrecise,
+                row_total_net_precise: item.rowTotalNetPrecise,
+                row_total_gross: item.rowTotalGross,
+                discount_type: item.discountType,
+                discount_value: item.discountValue,
+                cost_center: item.costCenter,
+                tenant,
+              })),
+            },
+            payments: {
+              create: payments.map((payment) => ({ ...payment, tenant })),
+            },
+          });
 
-        // Update tenant counter
-        await tenantService.updateOne(tenant, {
-          [series === "factura"
-            ? "last_factura_number"
-            : "last_ticket_number"]: new_count,
-        });
+          // Update tenant counter
+          await tenantService.updateOne(tenant, {
+            [series === "factura"
+              ? "last_factura_number"
+              : "last_ticket_number"]: new_count,
+          });
 
-        // Decrement product stock (minimum 0)
-        for (const item of requestItems) {
-          if (!item.product_id || !item.quantity) continue;
-          await trx("products")
-            .where("id", item.product_id)
-            .whereNotNull("stock")
-            .update({
-              stock: trx.raw("GREATEST(stock - ?, 0)", [
-                Math.round(item.quantity),
-              ]),
-            });
-        }
+          // Decrement product stock (minimum 0)
+          for (const item of requestItems) {
+            if (!item.product_id || !item.quantity) continue;
+            await trx("products")
+              .where("id", item.product_id)
+              .whereNotNull("stock")
+              .update({
+                stock: trx.raw("GREATEST(stock - ?, 0)", [
+                  Math.round(item.quantity),
+                ]),
+              });
+          }
 
-        return id;
-      });
+          return id;
+        },
+      );
       // === END TRANSACTION ===
 
       // Read full invoice for response (outside transaction)

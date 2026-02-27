@@ -118,7 +118,7 @@ Multi-region Spanish tax system with dynamic rates loaded from Directus CMS. The
 1. At app start, `productStore.loadProducts()` calls `loadTenant()`, then triggers `taxStore.loadTaxRates(postcode)` using the tenant's postcode
 2. `loadTaxRates()` also sets the `taxName` atom based on the postcode prefix
 3. `getTaxRulesForPostcode()` in `@pulpo/cms` loads all `tax_zones` sorted by priority, matches the postcode against each zone's regex, then loads `tax_rules` for the matched zone
-4. Result is a `Record<classCode, rate>` stored in the `taxRates` atom (rates as decimal strings, e.g. `"0.07"`)
+4. Result is a `Record<classCode, rate>` stored in the `taxRates` atom (rates as percentage strings, e.g. `"7"` for 7%)
 5. If the API call fails, `taxRates` remains empty and all rates default to `"0"` via `rates[item.taxClass] ?? "0"`
 6. If the tenant has no postcode (or other required fields like name, NIF, street, city), an error is shown and tax rates are not loaded
 

@@ -1,5 +1,4 @@
 import { atom } from "nanostores";
-import Big from "big.js";
 import { getAuthClient } from "@pulpo/auth";
 import { getTaxRulesForPostcode } from "@pulpo/cms";
 
@@ -27,7 +26,7 @@ export async function loadTaxRates(postcode: string) {
     if (rules.length > 0) {
       const rates: Record<string, string> = {};
       for (const rule of rules) {
-        rates[rule.classCode] = new Big(rule.rate).div(100).toString();
+        rates[rule.classCode] = rule.rate;
       }
       taxRates.set(rates);
     }

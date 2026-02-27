@@ -63,9 +63,8 @@ export function calculateInvoice(
   items.forEach((item, i) => {
     const lineGross = lineGrossValues[i]!;
     const lineGrossAfterGlobal = lineGross.times(discountRatio);
-    const rateStr = item.taxRate;
-    const rate = new Big(rateStr);
-    const ratePct = rate.times(100).toFixed(2);
+    const ratePct = new Big(item.taxRate).toFixed(2);
+    const rate = new Big(item.taxRate).div(100);
     const lineNet = lineGrossAfterGlobal.div(new Big(1).plus(rate));
 
     const rowNetRounded = new Big(lineNet.toFixed(8));

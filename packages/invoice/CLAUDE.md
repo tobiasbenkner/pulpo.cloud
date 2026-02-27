@@ -41,7 +41,7 @@ src/
 ### Types
 
 **Input:**
-- `InvoiceLineInput` — Product ID, name, gross price (string), tax rate (decimal string like `"0.07"`), quantity, optional line discount, optional cost center
+- `InvoiceLineInput` — Product ID, name, gross price (string), tax rate (percentage string like `"7"` for 7%), quantity, optional line discount, optional cost center
 - `InvoiceDiscountInput` — Global discount with `type` (`"percent"` | `"fixed"`) and `value`
 
 **Output:**
