@@ -1,0 +1,14 @@
+---
+import DocsLayout from "../layouts/DocsLayout.astro";
+import { render } from "astro:content";
+import { getEntry } from "astro:content";
+
+const entry = await getEntry("docs", "facturacion");
+const { Content } = await render(entry);
+---
+
+<DocsLayout title="Proceso de facturación" description="Documentación técnica del proceso de creación de facturas en Pulpo POS.">
+  <article class="prose prose-gray max-w-none">
+    <Content />
+  </article>
+</DocsLayout>

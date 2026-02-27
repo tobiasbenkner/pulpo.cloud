@@ -1,17 +1,20 @@
 ---
-
+import DocsLayout from "../layouts/DocsLayout.astro";
 ---
 
-<html lang="es">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width" />
-    <title>Astro</title>
-  </head>
-  <body>
-    <h1>Astro</h1>
-    <div>Docs</div>
-  </body>
-</html>
+<DocsLayout title="Inicio" description="Documentación técnica de Pulpo POS.">
+  <h1 class="text-3xl font-bold tracking-tight">Pulpo Docs</h1>
+  <p class="mt-2 text-lg text-gray-600">Documentación técnica del sistema Pulpo POS.</p>
+
+  <nav class="mt-10">
+    <h2 class="text-sm font-semibold uppercase tracking-wider text-gray-400">Procesos</h2>
+    <ul class="mt-4 space-y-3">
+      <li>
+        <a href="/facturacion" class="group flex items-center gap-3 rounded-lg border border-gray-200 bg-white px-5 py-4 transition hover:border-indigo-300 hover:shadow-sm">
+          <span class="text-lg font-medium text-gray-900 group-hover:text-indigo-600">Proceso de facturación</span>
+          <span class="ml-auto text-sm text-gray-400 group-hover:text-indigo-400">&rarr;</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+</DocsLayout>

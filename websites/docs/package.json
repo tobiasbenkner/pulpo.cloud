@@ -1,5 +1,5 @@
 {
-  "name": "density-dwarf",
+  "name": "@pulpo/docs",
   "type": "module",
   "version": "0.0.1",
   "scripts": {
@@ -10,6 +10,7 @@
     "deploy": "docker build -t pulpocloud/docs . && docker push pulpocloud/docs"
   },
   "dependencies": {
+    "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.2.1",
     "astro": "^5.17.1",
     "tailwindcss": "^4.2.1"
