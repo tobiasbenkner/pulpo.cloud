@@ -32,6 +32,14 @@
   let tax = $state("IGIC");
   let totalProductsExpanded = $state(false);
 
+  function fmt(v: string | number): string {
+    const n = typeof v === "string" ? parseFloat(v) : v;
+    return n.toLocaleString("es-ES", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  }
+
   function groupByCostCenter(
     products: ClosureProductBreakdown[],
   ): CostCenterGroup[] {
@@ -143,7 +151,7 @@
           <div
             class="text-4xl font-extrabold text-zinc-900 tabular-nums tracking-tight"
           >
-            {summary.total_gross}
+            {fmt(summary.total_gross)}
             <span class="text-lg font-medium text-zinc-300">&euro;</span>
           </div>
         </div>
@@ -156,7 +164,7 @@
               Neto
             </div>
             <div class="text-lg font-bold text-zinc-700 tabular-nums">
-              {summary.total_net}
+              {fmt(summary.total_net)}
             </div>
           </div>
           <div class="px-4 py-3">
@@ -166,7 +174,7 @@
               Impuestos
             </div>
             <div class="text-lg font-bold text-zinc-700 tabular-nums">
-              {summary.total_tax}
+              {fmt(summary.total_tax)}
             </div>
           </div>
           <div class="px-4 py-3">
@@ -176,7 +184,7 @@
               Efectivo
             </div>
             <div class="text-lg font-bold text-zinc-700 tabular-nums">
-              {summary.total_cash}
+              {fmt(summary.total_cash)}
             </div>
           </div>
           <div class="px-4 py-3">
@@ -186,7 +194,7 @@
               Tarjeta
             </div>
             <div class="text-lg font-bold text-zinc-700 tabular-nums">
-              {summary.total_card}
+              {fmt(summary.total_card)}
             </div>
           </div>
           <div class="px-4 py-3">
@@ -220,9 +228,9 @@
               <span class="text-sm text-zinc-400">
                 {tax}
                 {parseFloat(entry.rate)}%:
-                <span class="font-semibold text-zinc-600">{entry.net}</span>
+                <span class="font-semibold text-zinc-600">{fmt(entry.net)}</span>
                 <span class="text-zinc-300 mx-0.5">+</span>
-                <span class="font-semibold text-zinc-600">{entry.tax}</span>
+                <span class="font-semibold text-zinc-600">{fmt(entry.tax)}</span>
               </span>
             {/each}
           </div>
@@ -273,10 +281,10 @@
                     >{group.name || "Sin asignar"}</span
                   >
                   <span class="text-right tabular-nums">{group.totalQty}</span>
-                  <span class="text-right tabular-nums">{group.totalGross}</span
+                  <span class="text-right tabular-nums">{fmt(group.totalGross)}</span
                   >
-                  <span class="text-right tabular-nums">{group.totalCash}</span>
-                  <span class="text-right tabular-nums">{group.totalCard}</span>
+                  <span class="text-right tabular-nums">{fmt(group.totalCash)}</span>
+                  <span class="text-right tabular-nums">{fmt(group.totalCard)}</span>
                 </div>
                 {#each group.rows as row, j}
                   <div
@@ -291,13 +299,13 @@
                     >
                     <span class="text-right tabular-nums">{row.quantity}</span>
                     <span class="text-right tabular-nums"
-                      >{row.total_gross}</span
+                      >{fmt(row.total_gross)}</span
                     >
                     <span class="text-right tabular-nums"
-                      >{row.cash_gross}</span
+                      >{fmt(row.cash_gross)}</span
                     >
                     <span class="text-right tabular-nums"
-                      >{row.card_gross}</span
+                      >{fmt(row.card_gross)}</span
                     >
                   </div>
                 {/each}
@@ -315,9 +323,9 @@
                     >{row.product_name}</span
                   >
                   <span class="text-right tabular-nums">{row.quantity}</span>
-                  <span class="text-right tabular-nums">{row.total_gross}</span>
-                  <span class="text-right tabular-nums">{row.cash_gross}</span>
-                  <span class="text-right tabular-nums">{row.card_gross}</span>
+                  <span class="text-right tabular-nums">{fmt(row.total_gross)}</span>
+                  <span class="text-right tabular-nums">{fmt(row.cash_gross)}</span>
+                  <span class="text-right tabular-nums">{fmt(row.card_gross)}</span>
                 </div>
               {/each}
             {/if}
