@@ -78,9 +78,9 @@ Die anteiligen Beträge werden dann nach **Steuersatz gruppiert** (z. B. 3 % und
 
 #### Cent-Korrektur
 
-Durch das Runden der einzelnen Gruppen kann die Summe der gerundeten Gruppenwerte um **±1 Cent** vom gerundeten Gesamtbrutto abweichen. Diese Differenz wird automatisch auf die **größte Gruppe** aufgeschlagen, wo der relative Fehler am kleinsten ist.
+Durch das Runden der einzelnen Gruppen kann die Summe der gerundeten Gruppenwerte um **wenige Cent** vom gerundeten Gesamtbrutto abweichen (maximal ±0,5 Cent pro Gruppe — bei 2 Gruppen also ±1 Cent, bei 4 Gruppen theoretisch ±2 Cent). Diese Differenz wird automatisch auf die **größte Gruppe** aufgeschlagen, wo der relative Fehler am kleinsten ist.
 
-Beispiel:
+Beispiel (2 Gruppen):
 
 ```
 Zwischensumme:    10,00 €

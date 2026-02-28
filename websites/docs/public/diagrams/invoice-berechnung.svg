@@ -113,7 +113,7 @@
 
   <!-- Cent-Korrektur note -->
   <rect x="50" y="700" width="590" height="16" rx="3" fill="#FEF3C7"/>
-  <text x="340" y="712" text-anchor="middle" font-size="10" fill="#92400E">Cent-Korrektur: Falls Summe der gerundeten Gruppen ≠ Endbetrag → ±1 Cent auf die größte Gruppe</text>
+  <text x="340" y="712" text-anchor="middle" font-size="10" fill="#92400E">Cent-Korrektur: Falls Summe der gerundeten Gruppen ≠ Endbetrag → Differenz auf die größte Gruppe</text>
 
   <!-- ===== ARROW 4 ===== -->
   <line x1="340" y1="722" x2="340" y2="742" stroke="#D1D5DB" stroke-width="1.5"/>
