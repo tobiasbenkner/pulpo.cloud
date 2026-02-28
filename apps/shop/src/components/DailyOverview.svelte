@@ -296,7 +296,7 @@
             {#each taxBreakdown as entry}
               <span class="text-sm text-zinc-400">
                 {tax}
-                {parseFloat(entry.rate).toFixed(0)}%:
+                {parseFloat(entry.rate)}%:
                 <span class="font-semibold text-zinc-600">{entry.net}</span>
                 <span class="text-zinc-300 mx-0.5">+</span>
                 <span class="font-semibold text-zinc-600">{entry.tax}</span>
