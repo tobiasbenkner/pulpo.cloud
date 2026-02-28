@@ -720,6 +720,7 @@ async function run() {
     try {
       await directus.request(
         updateItem("cash_register_closures" as any, closureId, {
+          total_gross: toEuro(agg.totalNet + agg.totalTax),
           total_net: toEuro(agg.totalNet),
           total_tax: toEuro(agg.totalTax),
           tax_breakdown: taxBreakdown.length > 0 ? taxBreakdown : null,
