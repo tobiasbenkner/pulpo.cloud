@@ -72,7 +72,9 @@
       .map(([rate, gross]) => {
         const gGross = new Big(gross.toFixed(2));
         const rateDecimal = new Big(rate).div(HUNDRED);
-        const net = new Big(gGross.div(new Big(1).plus(rateDecimal)).toFixed(2));
+        const net = new Big(
+          gGross.div(new Big(1).plus(rateDecimal)).toFixed(2),
+        );
         const tax = gGross.minus(net);
         return {
           ratePct: parseFloat(rate).toFixed(0),
@@ -144,10 +146,36 @@
     isRectificativaModalOpen.set(true);
   }
 
-  function canRectify(inv: Invoice): boolean {
-    return (
-      inv.status === "paid" && inv.invoice_type !== "rectificativa"
+  function rectificationProgress(
+    inv: Invoice,
+  ): { rectified: number; total: number } | null {
+    if (inv.status !== "paid" || inv.invoice_type === "rectificativa")
+      return null;
+
+    const totalQty = (inv.items ?? []).reduce(
+      (sum, i) => sum + Math.abs(Number(i.quantity)),
+      0,
     );
+    if (totalQty === 0) return null;
+
+    let rectifiedQty = 0;
+    for (const other of invoices) {
+      if (
+        other.invoice_type !== "rectificativa" ||
+        other.original_invoice_id !== inv.id
+      )
+        continue;
+      for (const ri of other.items ?? []) {
+        rectifiedQty += Math.abs(Number(ri.quantity));
+      }
+    }
+
+    if (rectifiedQty === 0) return null;
+    return { rectified: rectifiedQty, total: totalQty };
+  }
+
+  function canRectify(inv: Invoice): boolean {
+    return inv.status === "paid" && inv.invoice_type !== "rectificativa";
   }
 
   function handlePrint(inv: Invoice) {
@@ -281,22 +309,48 @@
                             >{formatTime(inv.date_created)}</td
                           >
                           <td class="py-3 px-2">
-                            <div class="flex items-center gap-1.5">
-                              <span class="text-zinc-700 font-medium">
-                                {inv.invoice_number}
-                              </span>
-                              {#if inv.invoice_type === "rectificativa"}
+                            <span class="text-zinc-700 font-medium">
+                              {inv.invoice_number}
+                            </span>
+                            {#if inv.invoice_type === "rectificativa"}
+                              <div class="mt-1">
                                 <span
                                   class="px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide bg-red-100 text-red-700 rounded"
                                   >RECT</span
                                 >
-                              {:else if inv.status === "rectificada"}
+                              </div>
+                            {:else if inv.status === "rectificada"}
+                              <div class="mt-1">
                                 <span
                                   class="px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide bg-zinc-200 text-zinc-500 rounded"
                                   >ANULADA</span
                                 >
+                              </div>
+                            {:else}
+                              {@const progress = rectificationProgress(inv)}
+                              {#if progress}
+                                <div class="mt-1">
+                                  <span
+                                    class="inline-flex items-center gap-1.5 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide bg-zinc-200 text-zinc-500 rounded"
+                                  >
+                                    ANULADA
+                                    <span
+                                      class="inline-block w-8 h-1.5 bg-zinc-300 rounded-full overflow-hidden"
+                                    >
+                                      <span
+                                        class="block h-full bg-zinc-500 rounded-full"
+                                        style="width: {(progress.rectified /
+                                          progress.total) *
+                                          100}%"
+                                      ></span>
+                                    </span>
+                                    <span class="tabular-nums text-zinc-400"
+                                      >{progress.rectified}/{progress.total}</span
+                                    >
+                                  </span>
+                                </div>
                               {/if}
-                            </div>
+                            {/if}
                             {#if inv.customer_name}
                               <div
                                 class="text-[10px] text-blue-600 font-medium mt-0.5 truncate max-w-[180px]"
@@ -622,7 +676,10 @@
                                         <div class="text-[11px] text-zinc-400">
                                           {[
                                             inv.customer_street,
-                                            [inv.customer_zip, inv.customer_city]
+                                            [
+                                              inv.customer_zip,
+                                              inv.customer_city,
+                                            ]
                                               .filter(Boolean)
                                               .join(" "),
                                           ]
@@ -632,7 +689,10 @@
                                       {/if}
                                       {#if inv.customer_email || inv.customer_phone}
                                         <div class="text-[11px] text-zinc-400">
-                                          {[inv.customer_email, inv.customer_phone]
+                                          {[
+                                            inv.customer_email,
+                                            inv.customer_phone,
+                                          ]
                                             .filter(Boolean)
                                             .join(" · ")}
                                         </div>
