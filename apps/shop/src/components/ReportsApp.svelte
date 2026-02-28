@@ -2,17 +2,32 @@
   import { onMount } from "svelte";
   import { initAuthClient, checkAuthentication } from "@pulpo/auth";
   import { DIRECTUS_URL } from "@pulpo/cms";
+  import type { AggregatedReport } from "@pulpo/cms";
   import { loadProducts } from "../stores/productStore";
-  import { ArrowLeft } from "lucide-svelte";
+  import { taxName } from "../stores/taxStore";
+  import { ArrowLeft, Download } from "lucide-svelte";
   import DailyOverview from "./DailyOverview.svelte";
   import MonthlyReport from "./MonthlyReport.svelte";
   import QuarterlyReport from "./QuarterlyReport.svelte";
   import YearlyReport from "./YearlyReport.svelte";
+  import { exportReportToExcel } from "../lib/exportReport";
 
   initAuthClient(DIRECTUS_URL);
 
   let state: "loading" | "ready" = $state("loading");
   let activeTab = $state("day");
+  let currentReport = $state<AggregatedReport | null>(null);
+  let tax = $state("IGIC");
+
+  function handleReport(report: AggregatedReport | null) {
+    currentReport = report;
+  }
+
+  function handleExport() {
+    if (currentReport) {
+      exportReportToExcel(currentReport, tax);
+    }
+  }
 
   const tabs = [
     { id: "day", label: "D\u00EDa" },
@@ -29,6 +44,7 @@
     } catch {
       window.location.href = "/login";
     }
+    return taxName.subscribe((v) => (tax = v));
   });
 </script>
 
@@ -70,18 +86,28 @@
           </button>
         {/each}
       </nav>
+
+      <button
+        class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all duration-200 active:scale-95 border bg-white text-zinc-500 border-zinc-200 hover:border-zinc-400 hover:text-zinc-900 hover:bg-zinc-50 disabled:opacity-30 disabled:cursor-not-allowed"
+        onclick={handleExport}
+        disabled={!currentReport || currentReport.summary.transaction_count === 0}
+        title="Exportar a Excel"
+      >
+        <Download class="w-4 h-4" />
+        <span>Excel</span>
+      </button>
     </div>
 
     <!-- Tab content -->
     <div class="flex-1 overflow-y-auto">
       {#if activeTab === "day"}
-        <DailyOverview />
+        <DailyOverview onreport={handleReport} />
       {:else if activeTab === "month"}
-        <MonthlyReport />
+        <MonthlyReport onreport={handleReport} />
       {:else if activeTab === "quarter"}
-        <QuarterlyReport />
+        <QuarterlyReport onreport={handleReport} />
       {:else if activeTab === "year"}
-        <YearlyReport />
+        <YearlyReport onreport={handleReport} />
       {/if}
     </div>
   </div>

@@ -6,6 +6,9 @@
   import type { AggregatedReport, ClosureProductBreakdown } from "@pulpo/cms";
   import { ChevronLeft, ChevronRight, ChevronDown } from "lucide-svelte";
 
+  let { onreport }: { onreport?: (report: AggregatedReport | null) => void } =
+    $props();
+
   interface CostCenterGroup {
     name: string;
     rows: ClosureProductBreakdown[];
@@ -127,6 +130,10 @@
       loadData();
     }
   }
+
+  $effect(() => {
+    onreport?.(report);
+  });
 
   let summary = $derived(report?.summary ?? null);
   let invoiceCounts = $derived(report?.invoice_counts ?? null);

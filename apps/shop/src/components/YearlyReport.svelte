@@ -1,6 +1,10 @@
 <script lang="ts">
   import { ChevronLeft, ChevronRight } from "lucide-svelte";
   import PeriodReport from "./PeriodReport.svelte";
+  import type { AggregatedReport } from "@pulpo/cms";
+
+  let { onreport }: { onreport?: (report: AggregatedReport | null) => void } =
+    $props();
 
   const now = new Date();
   let selectedYear = $state(now.getFullYear());
@@ -106,4 +110,4 @@
   </div>
 </div>
 
-<PeriodReport period="yearly" {params} {label} />
+<PeriodReport period="yearly" {params} {label} {onreport} />

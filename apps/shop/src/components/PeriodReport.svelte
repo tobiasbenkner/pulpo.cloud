@@ -21,10 +21,12 @@
     period,
     params,
     label,
+    onreport,
   }: {
     period: ReportPeriod;
     params: Record<string, string>;
     label: string;
+    onreport?: (report: AggregatedReport | null) => void;
   } = $props();
 
   let loading = $state(false);
@@ -77,6 +79,10 @@
         };
       });
   }
+
+  $effect(() => {
+    onreport?.(report);
+  });
 
   let summary = $derived(report?.summary ?? null);
   let invoiceCounts = $derived(report?.invoice_counts ?? null);
