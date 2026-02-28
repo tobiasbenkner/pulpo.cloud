@@ -155,24 +155,11 @@
   function buildItemsPayload() {
     return selectedItems
       .filter((s) => s.selected)
-      .map((s) => {
-        const origQty = s.maxQuantity;
-        const ratio = new Big(s.quantity).div(origQty);
-        const rowTotalGross = new Big(s.item.row_total_gross)
-          .times(ratio)
-          .toFixed(2);
-
-        return {
-          product_id: s.item.product_id,
-          product_name: s.item.product_name,
-          quantity: s.quantity,
-          tax_rate_snapshot: s.item.tax_rate_snapshot,
-          price_gross_unit: s.item.price_gross_unit,
-          row_total_gross: rowTotalGross,
-          discount_type: s.item.discount_type,
-          discount_value: s.item.discount_value,
-        };
-      });
+      .map((s) => ({
+        product_id: s.item.product_id,
+        product_name: s.item.product_name,
+        quantity: s.quantity,
+      }));
   }
 
   async function handleConfirm() {

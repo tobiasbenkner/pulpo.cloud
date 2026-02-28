@@ -7,11 +7,6 @@ interface RectifyItem {
   product_id: string | null;
   product_name: string;
   quantity: number;
-  tax_rate_snapshot: string;
-  price_gross_unit: string;
-  row_total_gross: string;
-  discount_type: "percent" | "fixed" | null;
-  discount_value: string | null;
 }
 
 interface RectifyBody {
@@ -105,29 +100,64 @@ export function registerInvoiceRectify(
             const prev = alreadyRectified.get(key) ?? 0;
             alreadyRectified.set(
               key,
-              prev + Math.abs(parseInt(String(ri.quantity))),
+              prev + Math.abs(Number(ri.quantity)),
             );
           }
         }
 
         const originalItems = (original.items as any[]) ?? [];
+        const resolvedItems: {
+          product_id: string | null;
+          product_name: string;
+          quantity: number;
+          tax_rate_snapshot: string;
+          price_gross_unit: string;
+          row_total_gross: string;
+          discount_type: "percent" | "fixed" | null;
+          discount_value: string | null;
+        }[] = [];
+
         for (const reqItem of items) {
           const key = `${reqItem.product_id ?? ""}|${reqItem.product_name}`;
           const origItem = originalItems.find(
             (oi: any) => `${oi.product_id ?? ""}|${oi.product_name}` === key,
           );
-          const origQty = origItem
-            ? Math.abs(parseInt(String(origItem.quantity)))
-            : 0;
-          const rectifiedQty = alreadyRectified.get(key) ?? 0;
-          const remaining = origQty - rectifiedQty;
 
-          if (Math.abs(reqItem.quantity) > remaining) {
+          if (!origItem) {
             return {
-              error: `"${reqItem.product_name}": solo quedan ${remaining} unidades por rectificar (solicitadas: ${Math.abs(reqItem.quantity)}).`,
+              error: `"${reqItem.product_name}" no existe en la factura original.`,
               status: 400,
             };
           }
+
+          // Quantity check
+          const origQty = Math.abs(Number(origItem.quantity));
+          const rectifiedQty = alreadyRectified.get(key) ?? 0;
+          const remaining = origQty - rectifiedQty;
+          const reqQty = Math.abs(reqItem.quantity);
+
+          if (reqQty > remaining) {
+            return {
+              error: `"${reqItem.product_name}": solo quedan ${remaining} unidades por rectificar (solicitadas: ${reqQty}).`,
+              status: 400,
+            };
+          }
+
+          // Calculate row_total_gross from original effective unit price
+          const origRowGross = new Big(origItem.row_total_gross);
+          const effectiveUnit = origRowGross.div(origQty);
+          const computedRowGross = effectiveUnit.times(reqQty).toFixed(2);
+
+          resolvedItems.push({
+            product_id: origItem.product_id ?? null,
+            product_name: origItem.product_name,
+            quantity: reqQty,
+            tax_rate_snapshot: String(origItem.tax_rate_snapshot),
+            price_gross_unit: new Big(origItem.price_gross_unit).toFixed(4),
+            row_total_gross: computedRowGross,
+            discount_type: origItem.discount_type ?? null,
+            discount_value: origItem.discount_value ?? null,
+          });
         }
 
         // 3. Read tenant record (already locked) and generate invoice number
@@ -163,14 +193,14 @@ export function registerInvoiceRectify(
             ? (openClosures[0] as Record<string, unknown>).id
             : null;
 
-        // 5. Negate amounts for rectificativa items
-        const negatedItems = items.map((item) => ({
+        // 5. Negate amounts for rectificativa items (using server-validated values)
+        const negatedItems = resolvedItems.map((item) => ({
           product_id: item.product_id,
           product_name: item.product_name,
-          quantity: -Math.abs(item.quantity),
+          quantity: -item.quantity,
           tax_rate_snapshot: item.tax_rate_snapshot,
           price_gross_unit: item.price_gross_unit,
-          row_total_gross: `-${item.row_total_gross.replace(/^-/, "")}`,
+          row_total_gross: new Big(item.row_total_gross).times(-1).toFixed(2),
           discount_type: item.discount_type,
           discount_value: item.discount_value,
           tenant,
@@ -281,15 +311,15 @@ export function registerInvoiceRectify(
         });
 
         // 10. Check if full rectification → mark original as rectificada
-        for (const reqItem of items) {
-          const key = `${reqItem.product_id ?? ""}|${reqItem.product_name}`;
+        for (const vi of resolvedItems) {
+          const key = `${vi.product_id ?? ""}|${vi.product_name}`;
           const prev = alreadyRectified.get(key) ?? 0;
-          alreadyRectified.set(key, prev + Math.abs(reqItem.quantity));
+          alreadyRectified.set(key, prev + vi.quantity);
         }
 
         const isFullRectification = originalItems.every((origItem: any) => {
           const key = `${origItem.product_id ?? ""}|${origItem.product_name}`;
-          const origQty = Math.abs(parseInt(String(origItem.quantity)));
+          const origQty = Math.abs(Number(origItem.quantity));
           const totalRectified = alreadyRectified.get(key) ?? 0;
           return totalRectified >= origQty;
         });
@@ -306,13 +336,13 @@ export function registerInvoiceRectify(
         });
 
         // 12. Increment stock for returned items
-        for (const item of items) {
-          if (!item.product_id || !item.quantity) continue;
+        for (const vi of resolvedItems) {
+          if (!vi.product_id || !vi.quantity) continue;
           await trx("products")
-            .where("id", item.product_id)
+            .where("id", vi.product_id)
             .whereNotNull("stock")
             .update({
-              stock: trx.raw("stock + ?", [Math.abs(Math.round(item.quantity))]),
+              stock: trx.raw("stock + ?", [vi.quantity]),
             });
         }
 

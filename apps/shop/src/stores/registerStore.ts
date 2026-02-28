@@ -296,11 +296,6 @@ export async function createRectificativa(data: {
     product_id: string | null;
     product_name: string;
     quantity: number;
-    tax_rate_snapshot: string;
-    price_gross_unit: string;
-    row_total_gross: string;
-    discount_type: "percent" | "fixed" | null;
-    discount_value: string | null;
   }[];
 }): Promise<{ rectificativa: Invoice; original: Invoice }> {
   const client = getAuthClient();
