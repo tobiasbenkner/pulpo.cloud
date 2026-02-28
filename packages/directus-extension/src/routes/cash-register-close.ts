@@ -140,13 +140,20 @@ export function registerCashRegisterClose(
         };
 
         if (counted_cash !== undefined) {
-          updateData.counted_cash = counted_cash;
+          let countedBig: Big;
+          try {
+            countedBig = new Big(counted_cash);
+          } catch {
+            return { error: "Ungültiger Wert für counted_cash.", status: 400 };
+          }
+
+          updateData.counted_cash = countedBig.toFixed(2);
 
           const startingCash = new Big(
             (openClosure.starting_cash as string) ?? "0",
           );
           const expectedCash = startingCash.plus(totalCash);
-          const difference = new Big(counted_cash).minus(expectedCash);
+          const difference = countedBig.minus(expectedCash);
 
           updateData.expected_cash = expectedCash.toFixed(2);
           updateData.difference = difference.toFixed(2);
