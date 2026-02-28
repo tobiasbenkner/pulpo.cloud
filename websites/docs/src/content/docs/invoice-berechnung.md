@@ -24,7 +24,7 @@ calculateInvoice(
 
 ## Berechnungsablauf
 
-Die Berechnung erfolgt in **drei Schritten**:
+Die Berechnung erfolgt in **fünf Schritten**:
 
 ### Schritt 1 – Positionsbeträge (Zeilenebene)
 
@@ -56,9 +56,13 @@ Wenn ein globaler Rabatt übergeben wird, wird er auf die Zwischensumme angewend
 
 Auch hier wird der Endbetrag auf **mindestens 0** begrenzt. Der tatsächliche Rabattbetrag wird ebenfalls auf maximal die Zwischensumme gedeckelt.
 
-### Schritt 3 – Steuer-Rückrechnung
+### Schritt 3 – Endbetrag (Brutto)
 
-Die Steuer wird **aus dem Brutto herausgerechnet** (nicht aufgeschlagen). Dazu wird ein **Rabattverhältnis** berechnet, das den Gesamtrabatt proportional auf alle Positionen verteilt:
+Der Endbetrag (`gross`) ist der Betrag, den der Kunde zahlt: `subtotal − Gesamtrabatt`.
+
+### Schritt 4 – Rabatt anteilig verteilen
+
+Der Gesamtrabatt muss **proportional** auf die verschiedenen Steuergruppen verteilt werden. Dazu wird ein **Rabattverhältnis** berechnet:
 
 ```
 rabattVerhältnis = endBrutto / subtotal
@@ -70,16 +74,39 @@ Für jede Position ergibt sich der anteilige Bruttobetrag nach Rabatt:
 zeileBruttoNachRabatt = zeileBrutto × rabattVerhältnis
 ```
 
-#### Steuer-Gruppierung
+Die anteiligen Beträge werden dann nach **Steuersatz gruppiert** (z. B. 3 % und 7 % getrennt). Jedes Gruppen-Brutto wird auf 2 Stellen gerundet.
 
-Die Steuerbeträge werden nach **Steuersatz gruppiert** (z. B. 7 % und 21 % getrennt). Für jede Gruppe wird das **Gruppen-Brutto** auf 2 Stellen gerundet, eine **Cent-Korrektur** durchgeführt (Differenz auf die größte Gruppe), und dann berechnet:
+#### Cent-Korrektur
+
+Durch das Runden der einzelnen Gruppen kann die Summe der gerundeten Gruppenwerte um **±1 Cent** vom gerundeten Gesamtbrutto abweichen. Diese Differenz wird automatisch auf die **größte Gruppe** aufgeschlagen, wo der relative Fehler am kleinsten ist.
+
+Beispiel:
+
+```
+Zwischensumme:    10,00 €
+Rabatt (fixed):  − 3,33 €
+Endbetrag:         6,67 €
+
+Ratio = 0,667
+
+Gruppe 3%:  5,00 × 0,667 = 3,335 → gerundet: 3,34 €
+Gruppe 7%:  5,00 × 0,667 = 3,335 → gerundet: 3,34 €
+                                     Summe:    6,68 €  ← 1 Cent zu viel
+
+Cent-Korrektur: 6,67 − 6,68 = −0,01 → auf größte Gruppe
+Ergebnis: 3,33 + 3,34 = 6,67 €  ✓
+```
+
+### Schritt 5 – Steuer-Rückrechnung
+
+Die Steuer wird **aus dem Gruppen-Brutto herausgerechnet** (nicht aufgeschlagen):
 
 ```
 netto  = round2(gruppeBrutto / (1 + steuerSatz))
 steuer = gruppeBrutto − netto
 ```
 
-Die Netto-Berechnung erfolgt **nur auf Gruppenebene**, nicht pro Einzelposition. Die Gruppen werden aufsteigend nach Steuersatz sortiert.
+Da `steuer = brutto − netto` gilt, ist **pro Gruppe** immer `netto + steuer == brutto` exakt erfüllt. Die Netto-Berechnung erfolgt **nur auf Gruppenebene**, nicht pro Einzelposition. Die Gruppen werden aufsteigend nach Steuersatz sortiert.
 
 ## Ergebnis
 

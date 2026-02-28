@@ -1,14 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 1055" width="680" height="1055" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 1140" width="680" height="1140" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">
 
   <!-- Background -->
-  <rect width="680" height="1055" fill="white" rx="0"/>
+  <rect width="680" height="1140" fill="white" rx="0"/>
 
   <!-- ===== TITLE ===== -->
   <text x="340" y="28" text-anchor="middle" font-size="18" font-weight="700" fill="#111827">Rechnungsberechnung — Schritt für Schritt</text>
   <text x="340" y="50" text-anchor="middle" font-size="12" fill="#9CA3AF">Alle Preise verstehen sich inklusive Steuer (brutto).</text>
 
   <!-- ===== STEP 1: POSITIONEN ===== -->
-  <rect x="20" y="68" width="640" height="180" rx="12" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="1"/>
+  <rect x="20" y="68" width="640" height="230" rx="12" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="1"/>
   <circle cx="50" cy="93" r="13" fill="#3B82F6"/>
   <text x="50" y="98" text-anchor="middle" font-size="12" font-weight="700" fill="white">1</text>
   <text x="72" y="98" font-size="13" font-weight="700" fill="#1E40AF" letter-spacing="0.04em">POSITIONEN</text>
@@ -26,150 +26,168 @@
   <text x="632" y="151" text-anchor="middle" font-size="10" fill="#3B82F6" font-weight="600">3%</text>
 
   <!-- Item 2 -->
-  <text x="50" y="178" font-size="14" fill="#374151">1× Camiseta</text>
-  <text x="310" y="178" font-size="13" fill="#6B7280">12,00 € × 1</text>
-  <text x="450" y="178" font-size="12" fill="#DC2626" font-weight="500">− 2,00 €</text>
-  <text x="600" y="178" font-size="14" font-weight="600" fill="#1E40AF" text-anchor="end">10,00 €</text>
-  <rect x="616" y="166" width="32" height="18" rx="4" fill="#DBEAFE"/>
-  <text x="632" y="179" text-anchor="middle" font-size="10" fill="#3B82F6" font-weight="600">7%</text>
+  <text x="50" y="176" font-size="14" fill="#374151">2× Zumo de naranja</text>
+  <text x="310" y="176" font-size="13" fill="#6B7280">2,00 € × 2</text>
+  <text x="600" y="176" font-size="14" font-weight="600" fill="#1E40AF" text-anchor="end">4,00 €</text>
+  <rect x="616" y="164" width="32" height="18" rx="4" fill="#DBEAFE"/>
+  <text x="632" y="177" text-anchor="middle" font-size="10" fill="#3B82F6" font-weight="600">3%</text>
+
+  <!-- Item 3 -->
+  <text x="50" y="202" font-size="14" fill="#374151">1× Camiseta</text>
+  <text x="310" y="202" font-size="13" fill="#6B7280">12,00 € × 1</text>
+  <text x="450" y="202" font-size="12" fill="#DC2626" font-weight="500">− 2,00 €</text>
+  <text x="600" y="202" font-size="14" font-weight="600" fill="#1E40AF" text-anchor="end">10,00 €</text>
+  <rect x="616" y="190" width="32" height="18" rx="4" fill="#DBEAFE"/>
+  <text x="632" y="203" text-anchor="middle" font-size="10" fill="#3B82F6" font-weight="600">7%</text>
+
+  <!-- Item 4 -->
+  <text x="50" y="228" font-size="14" fill="#374151">1× Gorra</text>
+  <text x="310" y="228" font-size="13" fill="#6B7280">6,00 € × 1</text>
+  <text x="600" y="228" font-size="14" font-weight="600" fill="#1E40AF" text-anchor="end">6,00 €</text>
+  <rect x="616" y="216" width="32" height="18" rx="4" fill="#DBEAFE"/>
+  <text x="632" y="229" text-anchor="middle" font-size="10" fill="#3B82F6" font-weight="600">7%</text>
 
   <!-- Divider -->
-  <line x1="50" y1="198" x2="630" y2="198" stroke="#BFDBFE" stroke-width="1"/>
+  <line x1="50" y1="248" x2="630" y2="248" stroke="#BFDBFE" stroke-width="1"/>
 
   <!-- Subtotal -->
-  <text x="50" y="228" font-size="14" fill="#6B7280" font-weight="500">Zwischensumme</text>
-  <text x="600" y="228" font-size="17" font-weight="700" fill="#1E40AF" text-anchor="end">16,00 €</text>
+  <text x="50" y="278" font-size="14" fill="#6B7280" font-weight="500">Zwischensumme</text>
+  <text x="600" y="278" font-size="17" font-weight="700" fill="#1E40AF" text-anchor="end">26,00 €</text>
 
   <!-- ===== ARROW 1 ===== -->
-  <line x1="340" y1="252" x2="340" y2="282" stroke="#D1D5DB" stroke-width="1.5"/>
-  <polygon points="335,278 340,288 345,278" fill="#D1D5DB"/>
+  <line x1="340" y1="302" x2="340" y2="332" stroke="#D1D5DB" stroke-width="1.5"/>
+  <polygon points="335,328 340,338 345,328" fill="#D1D5DB"/>
 
   <!-- ===== STEP 2: RABATT ===== -->
-  <rect x="20" y="293" width="640" height="65" rx="12" fill="#FFFBEB" stroke="#FDE68A" stroke-width="1"/>
-  <circle cx="50" cy="318" r="13" fill="#D97706"/>
-  <text x="50" y="323" text-anchor="middle" font-size="12" font-weight="700" fill="white">2</text>
-  <text x="72" y="323" font-size="13" font-weight="700" fill="#92400E" letter-spacing="0.04em">GESAMTRABATT</text>
-  <text x="310" y="323" font-size="13" fill="#92400E">10 % von 16,00 €</text>
-  <text x="600" y="323" font-size="17" font-weight="700" fill="#DC2626" text-anchor="end">− 1,60 €</text>
+  <rect x="20" y="343" width="640" height="65" rx="12" fill="#FFFBEB" stroke="#FDE68A" stroke-width="1"/>
+  <circle cx="50" cy="368" r="13" fill="#D97706"/>
+  <text x="50" y="373" text-anchor="middle" font-size="12" font-weight="700" fill="white">2</text>
+  <text x="72" y="373" font-size="13" font-weight="700" fill="#92400E" letter-spacing="0.04em">GESAMTRABATT</text>
+  <text x="310" y="373" font-size="13" fill="#92400E">10 % von 26,00 €</text>
+  <text x="600" y="373" font-size="17" font-weight="700" fill="#DC2626" text-anchor="end">− 2,60 €</text>
 
   <!-- ===== ARROW 2 ===== -->
-  <line x1="340" y1="362" x2="340" y2="392" stroke="#D1D5DB" stroke-width="1.5"/>
-  <polygon points="335,388 340,398 345,388" fill="#D1D5DB"/>
+  <line x1="340" y1="412" x2="340" y2="442" stroke="#D1D5DB" stroke-width="1.5"/>
+  <polygon points="335,438 340,448 345,438" fill="#D1D5DB"/>
 
   <!-- ===== STEP 3: ENDBETRAG ===== -->
-  <rect x="20" y="403" width="640" height="80" rx="12" fill="#ECFDF5" stroke="#A7F3D0" stroke-width="1.5"/>
-  <circle cx="50" cy="433" r="13" fill="#059669"/>
-  <text x="50" y="438" text-anchor="middle" font-size="12" font-weight="700" fill="white">3</text>
-  <text x="72" y="438" font-size="13" font-weight="700" fill="#065F46" letter-spacing="0.04em">ENDBETRAG (BRUTTO)</text>
-  <text x="600" y="445" font-size="28" font-weight="700" fill="#059669" text-anchor="end">14,40 €</text>
-  <text x="72" y="468" font-size="12" fill="#6B7280">Das zahlt der Kunde.</text>
+  <rect x="20" y="453" width="640" height="80" rx="12" fill="#ECFDF5" stroke="#A7F3D0" stroke-width="1.5"/>
+  <circle cx="50" cy="483" r="13" fill="#059669"/>
+  <text x="50" y="488" text-anchor="middle" font-size="12" font-weight="700" fill="white">3</text>
+  <text x="72" y="488" font-size="13" font-weight="700" fill="#065F46" letter-spacing="0.04em">ENDBETRAG (BRUTTO)</text>
+  <text x="600" y="495" font-size="28" font-weight="700" fill="#059669" text-anchor="end">23,40 €</text>
+  <text x="72" y="518" font-size="12" fill="#6B7280">Das zahlt der Kunde.</text>
 
   <!-- ===== ARROW 3 ===== -->
-  <line x1="340" y1="487" x2="340" y2="512" stroke="#D1D5DB" stroke-width="1.5"/>
-  <polygon points="335,508 340,518 345,508" fill="#D1D5DB"/>
+  <line x1="340" y1="537" x2="340" y2="562" stroke="#D1D5DB" stroke-width="1.5"/>
+  <polygon points="335,558 340,568 345,558" fill="#D1D5DB"/>
 
   <!-- ===== STEP 4: RABATT ANTEILIG VERTEILEN ===== -->
-  <rect x="20" y="523" width="640" height="115" rx="12" fill="#F5F3FF" stroke="#DDD6FE" stroke-width="1"/>
-  <circle cx="50" cy="548" r="13" fill="#7C3AED"/>
-  <text x="50" y="553" text-anchor="middle" font-size="12" font-weight="700" fill="white">4</text>
-  <text x="72" y="553" font-size="13" font-weight="700" fill="#5B21B6" letter-spacing="0.04em">RABATT ANTEILIG VERTEILEN</text>
+  <rect x="20" y="573" width="640" height="145" rx="12" fill="#F5F3FF" stroke="#DDD6FE" stroke-width="1"/>
+  <circle cx="50" cy="598" r="13" fill="#7C3AED"/>
+  <text x="50" y="603" text-anchor="middle" font-size="12" font-weight="700" fill="white">4</text>
+  <text x="72" y="603" font-size="13" font-weight="700" fill="#5B21B6" letter-spacing="0.04em">RABATT ANTEILIG VERTEILEN</text>
 
   <!-- Ratio formula -->
-  <text x="50" y="580" font-size="13" fill="#6B7280">Rabattverhältnis</text>
-  <text x="250" y="580" font-size="13" fill="#374151">= Endbetrag ÷ Zwischensumme = 14,40 ÷ 16,00</text>
-  <rect x="582" y="566" width="52" height="22" rx="5" fill="#EDE9FE"/>
-  <text x="608" y="581" font-size="14" font-weight="700" fill="#5B21B6" text-anchor="middle">= 0,9</text>
+  <text x="50" y="630" font-size="13" fill="#6B7280">Rabattverhältnis</text>
+  <text x="250" y="630" font-size="13" fill="#374151">= Endbetrag ÷ Zwischensumme = 23,40 ÷ 26,00</text>
+  <rect x="582" y="616" width="52" height="22" rx="5" fill="#EDE9FE"/>
+  <text x="608" y="631" font-size="14" font-weight="700" fill="#5B21B6" text-anchor="middle">= 0,9</text>
 
   <!-- Divider -->
-  <line x1="50" y1="594" x2="630" y2="594" stroke="#DDD6FE" stroke-width="1"/>
+  <line x1="50" y1="644" x2="630" y2="644" stroke="#DDD6FE" stroke-width="1"/>
 
-  <!-- Group 1 -->
-  <text x="50" y="614" font-size="13" fill="#6B7280">Cafe con leche</text>
-  <rect x="198" y="602" width="32" height="18" rx="4" fill="#DBEAFE"/>
-  <text x="214" y="615" text-anchor="middle" font-size="10" fill="#3B82F6" font-weight="600">3%</text>
-  <text x="310" y="614" font-size="13" fill="#374151">6,00 € × 0,9</text>
-  <text x="600" y="614" font-size="14" font-weight="600" fill="#5B21B6" text-anchor="end">= 5,40 €</text>
+  <!-- Group 3% -->
+  <rect x="50" y="652" width="32" height="18" rx="4" fill="#DBEAFE"/>
+  <text x="66" y="665" text-anchor="middle" font-size="10" fill="#3B82F6" font-weight="600">3%</text>
+  <text x="92" y="665" font-size="13" fill="#6B7280">Cafe (6,00) + Zumo (4,00)</text>
+  <text x="410" y="665" font-size="13" fill="#374151">10,00 € × 0,9</text>
+  <text x="600" y="665" font-size="14" font-weight="600" fill="#5B21B6" text-anchor="end">= 9,00 €</text>
 
-  <!-- Group 2 -->
-  <text x="50" y="634" font-size="13" fill="#6B7280">Camiseta</text>
-  <rect x="131" y="622" width="32" height="18" rx="4" fill="#DBEAFE"/>
-  <text x="147" y="635" text-anchor="middle" font-size="10" fill="#3B82F6" font-weight="600">7%</text>
-  <text x="310" y="634" font-size="13" fill="#374151">10,00 € × 0,9</text>
-  <text x="600" y="634" font-size="14" font-weight="600" fill="#5B21B6" text-anchor="end">= 9,00 €</text>
+  <!-- Group 7% -->
+  <rect x="50" y="674" width="32" height="18" rx="4" fill="#DBEAFE"/>
+  <text x="66" y="687" text-anchor="middle" font-size="10" fill="#3B82F6" font-weight="600">7%</text>
+  <text x="92" y="687" font-size="13" fill="#6B7280">Camiseta (10,00) + Gorra (6,00)</text>
+  <text x="410" y="687" font-size="13" fill="#374151">16,00 € × 0,9</text>
+  <text x="600" y="687" font-size="14" font-weight="600" fill="#5B21B6" text-anchor="end">= 14,40 €</text>
+
+  <!-- Cent-Korrektur note -->
+  <rect x="50" y="700" width="590" height="16" rx="3" fill="#FEF3C7"/>
+  <text x="340" y="712" text-anchor="middle" font-size="10" fill="#92400E">Cent-Korrektur: Falls Summe der gerundeten Gruppen ≠ Endbetrag → ±1 Cent auf die größte Gruppe</text>
 
   <!-- ===== ARROW 4 ===== -->
-  <line x1="340" y1="642" x2="340" y2="662" stroke="#D1D5DB" stroke-width="1.5"/>
-  <rect x="248" y="666" width="184" height="22" rx="6" fill="#F5F3FF" stroke="#DDD6FE" stroke-width="1"/>
-  <text x="340" y="682" text-anchor="middle" font-size="11" fill="#7C3AED" font-weight="600">Steuer herausrechnen</text>
+  <line x1="340" y1="722" x2="340" y2="742" stroke="#D1D5DB" stroke-width="1.5"/>
+  <rect x="248" y="746" width="184" height="22" rx="6" fill="#F5F3FF" stroke="#DDD6FE" stroke-width="1"/>
+  <text x="340" y="762" text-anchor="middle" font-size="11" fill="#7C3AED" font-weight="600">Steuer herausrechnen</text>
 
   <!-- Split arrows -->
-  <line x1="340" y1="692" x2="340" y2="707" stroke="#D1D5DB" stroke-width="1.5"/>
-  <line x1="180" y1="707" x2="500" y2="707" stroke="#D1D5DB" stroke-width="1.5"/>
-  <line x1="180" y1="707" x2="180" y2="727" stroke="#D1D5DB" stroke-width="1.5"/>
-  <line x1="500" y1="707" x2="500" y2="727" stroke="#D1D5DB" stroke-width="1.5"/>
-  <polygon points="175,723 180,733 185,723" fill="#D1D5DB"/>
-  <polygon points="495,723 500,733 505,723" fill="#D1D5DB"/>
+  <line x1="340" y1="772" x2="340" y2="787" stroke="#D1D5DB" stroke-width="1.5"/>
+  <line x1="180" y1="787" x2="500" y2="787" stroke="#D1D5DB" stroke-width="1.5"/>
+  <line x1="180" y1="787" x2="180" y2="807" stroke="#D1D5DB" stroke-width="1.5"/>
+  <line x1="500" y1="787" x2="500" y2="807" stroke="#D1D5DB" stroke-width="1.5"/>
+  <polygon points="175,803 180,813 185,803" fill="#D1D5DB"/>
+  <polygon points="495,803 500,813 505,803" fill="#D1D5DB"/>
 
   <!-- ===== STEP 5: TAX GROUPS ===== -->
-  <circle cx="50" cy="752" r="13" fill="#7C3AED"/>
-  <text x="50" y="757" text-anchor="middle" font-size="12" font-weight="700" fill="white">5</text>
-  <text x="72" y="757" font-size="13" font-weight="700" fill="#5B21B6" letter-spacing="0.04em">STEUER-AUFSCHLÜSSELUNG</text>
+  <circle cx="50" cy="832" r="13" fill="#7C3AED"/>
+  <text x="50" y="837" text-anchor="middle" font-size="12" font-weight="700" fill="white">5</text>
+  <text x="72" y="837" font-size="13" font-weight="700" fill="#5B21B6" letter-spacing="0.04em">STEUER-AUFSCHLÜSSELUNG</text>
 
   <!-- IGIC 3% Box -->
-  <rect x="35" y="770" width="290" height="130" rx="10" fill="#F5F3FF" stroke="#DDD6FE" stroke-width="1"/>
-  <rect x="35" y="770" width="290" height="30" rx="10" fill="#EDE9FE"/>
-  <rect x="35" y="790" width="290" height="10" fill="#EDE9FE"/>
-  <text x="180" y="791" text-anchor="middle" font-size="12" font-weight="700" fill="#6D28D9">IGIC 3 %</text>
+  <rect x="35" y="850" width="290" height="130" rx="10" fill="#F5F3FF" stroke="#DDD6FE" stroke-width="1"/>
+  <rect x="35" y="850" width="290" height="30" rx="10" fill="#EDE9FE"/>
+  <rect x="35" y="870" width="290" height="10" fill="#EDE9FE"/>
+  <text x="180" y="871" text-anchor="middle" font-size="12" font-weight="700" fill="#6D28D9">IGIC 3 %</text>
 
-  <text x="55" y="824" font-size="13" fill="#6B7280">Brutto</text>
-  <text x="305" y="824" font-size="13" font-weight="600" fill="#374151" text-anchor="end">5,40 €</text>
+  <text x="55" y="904" font-size="13" fill="#6B7280">Brutto</text>
+  <text x="305" y="904" font-size="13" font-weight="600" fill="#374151" text-anchor="end">9,00 €</text>
 
-  <text x="55" y="848" font-size="12" fill="#A78BFA">÷ 1,03</text>
+  <text x="55" y="928" font-size="12" fill="#A78BFA">÷ 1,03</text>
 
-  <text x="55" y="870" font-size="13" fill="#6B7280">Netto</text>
-  <text x="305" y="870" font-size="13" font-weight="600" fill="#374151" text-anchor="end">5,24 €</text>
+  <text x="55" y="950" font-size="13" fill="#6B7280">Netto</text>
+  <text x="305" y="950" font-size="13" font-weight="600" fill="#374151" text-anchor="end">8,74 €</text>
 
-  <line x1="55" y1="878" x2="305" y2="878" stroke="#DDD6FE" stroke-width="1"/>
-  <text x="55" y="894" font-size="13" fill="#7C3AED" font-weight="600">Steuer</text>
-  <text x="305" y="894" font-size="14" font-weight="700" fill="#7C3AED" text-anchor="end">0,16 €</text>
+  <line x1="55" y1="958" x2="305" y2="958" stroke="#DDD6FE" stroke-width="1"/>
+  <text x="55" y="974" font-size="13" fill="#7C3AED" font-weight="600">Steuer</text>
+  <text x="305" y="974" font-size="14" font-weight="700" fill="#7C3AED" text-anchor="end">0,26 €</text>
 
   <!-- IGIC 7% Box -->
-  <rect x="355" y="770" width="290" height="130" rx="10" fill="#F5F3FF" stroke="#DDD6FE" stroke-width="1"/>
-  <rect x="355" y="770" width="290" height="30" rx="10" fill="#EDE9FE"/>
-  <rect x="355" y="790" width="290" height="10" fill="#EDE9FE"/>
-  <text x="500" y="791" text-anchor="middle" font-size="12" font-weight="700" fill="#6D28D9">IGIC 7 %</text>
+  <rect x="355" y="850" width="290" height="130" rx="10" fill="#F5F3FF" stroke="#DDD6FE" stroke-width="1"/>
+  <rect x="355" y="850" width="290" height="30" rx="10" fill="#EDE9FE"/>
+  <rect x="355" y="870" width="290" height="10" fill="#EDE9FE"/>
+  <text x="500" y="871" text-anchor="middle" font-size="12" font-weight="700" fill="#6D28D9">IGIC 7 %</text>
 
-  <text x="375" y="824" font-size="13" fill="#6B7280">Brutto</text>
-  <text x="625" y="824" font-size="13" font-weight="600" fill="#374151" text-anchor="end">9,00 €</text>
+  <text x="375" y="904" font-size="13" fill="#6B7280">Brutto</text>
+  <text x="625" y="904" font-size="13" font-weight="600" fill="#374151" text-anchor="end">14,40 €</text>
 
-  <text x="375" y="848" font-size="12" fill="#A78BFA">÷ 1,07</text>
+  <text x="375" y="928" font-size="12" fill="#A78BFA">÷ 1,07</text>
 
-  <text x="375" y="870" font-size="13" fill="#6B7280">Netto</text>
-  <text x="625" y="870" font-size="13" font-weight="600" fill="#374151" text-anchor="end">8,41 €</text>
+  <text x="375" y="950" font-size="13" fill="#6B7280">Netto</text>
+  <text x="625" y="950" font-size="13" font-weight="600" fill="#374151" text-anchor="end">13,46 €</text>
 
-  <line x1="375" y1="878" x2="625" y2="878" stroke="#DDD6FE" stroke-width="1"/>
-  <text x="375" y="894" font-size="13" fill="#7C3AED" font-weight="600">Steuer</text>
-  <text x="625" y="894" font-size="14" font-weight="700" fill="#7C3AED" text-anchor="end">0,59 €</text>
+  <line x1="375" y1="958" x2="625" y2="958" stroke="#DDD6FE" stroke-width="1"/>
+  <text x="375" y="974" font-size="13" fill="#7C3AED" font-weight="600">Steuer</text>
+  <text x="625" y="974" font-size="14" font-weight="700" fill="#7C3AED" text-anchor="end">0,94 €</text>
 
   <!-- ===== MERGE ARROWS ===== -->
-  <line x1="180" y1="904" x2="180" y2="920" stroke="#D1D5DB" stroke-width="1.5"/>
-  <line x1="500" y1="904" x2="500" y2="920" stroke="#D1D5DB" stroke-width="1.5"/>
-  <line x1="180" y1="920" x2="500" y2="920" stroke="#D1D5DB" stroke-width="1.5"/>
-  <line x1="340" y1="920" x2="340" y2="940" stroke="#D1D5DB" stroke-width="1.5"/>
-  <polygon points="335,936 340,946 345,936" fill="#D1D5DB"/>
+  <line x1="180" y1="984" x2="180" y2="1000" stroke="#D1D5DB" stroke-width="1.5"/>
+  <line x1="500" y1="984" x2="500" y2="1000" stroke="#D1D5DB" stroke-width="1.5"/>
+  <line x1="180" y1="1000" x2="500" y2="1000" stroke="#D1D5DB" stroke-width="1.5"/>
+  <line x1="340" y1="1000" x2="340" y2="1020" stroke="#D1D5DB" stroke-width="1.5"/>
+  <polygon points="335,1016 340,1026 345,1016" fill="#D1D5DB"/>
 
   <!-- ===== RESULT ===== -->
-  <rect x="100" y="952" width="480" height="88" rx="12" fill="#F5F3FF" stroke="#7C3AED" stroke-width="1.5"/>
+  <rect x="100" y="1032" width="480" height="88" rx="12" fill="#F5F3FF" stroke="#7C3AED" stroke-width="1.5"/>
 
-  <text x="140" y="982" font-size="14" fill="#6B7280">Netto</text>
-  <text x="300" y="982" font-size="15" font-weight="600" fill="#374151" text-anchor="end">13,65 €</text>
-  <text x="340" y="982" font-size="14" fill="#6B7280">+</text>
-  <text x="380" y="982" font-size="14" fill="#7C3AED" font-weight="600">Steuer</text>
-  <text x="540" y="982" font-size="15" font-weight="700" fill="#7C3AED" text-anchor="end">0,75 €</text>
+  <text x="140" y="1062" font-size="14" fill="#6B7280">Netto</text>
+  <text x="300" y="1062" font-size="15" font-weight="600" fill="#374151" text-anchor="end">22,20 €</text>
+  <text x="340" y="1062" font-size="14" fill="#6B7280">+</text>
+  <text x="380" y="1062" font-size="14" fill="#7C3AED" font-weight="600">Steuer</text>
+  <text x="540" y="1062" font-size="15" font-weight="700" fill="#7C3AED" text-anchor="end">1,20 €</text>
 
-  <line x1="130" y1="997" x2="550" y2="997" stroke="#DDD6FE" stroke-width="1"/>
+  <line x1="130" y1="1077" x2="550" y2="1077" stroke="#DDD6FE" stroke-width="1"/>
 
-  <text x="140" y="1025" font-size="14" fill="#059669" font-weight="700">Brutto</text>
-  <text x="540" y="1027" font-size="20" font-weight="700" fill="#059669" text-anchor="end">= 14,40 €</text>
+  <text x="140" y="1105" font-size="14" fill="#059669" font-weight="700">Brutto</text>
+  <text x="540" y="1107" font-size="20" font-weight="700" fill="#059669" text-anchor="end">= 23,40 €</text>
 
 </svg>
