@@ -18,6 +18,10 @@ calculateInvoice(
 ): InvoiceCalculationResult
 ```
 
+## Übersicht
+
+![Rechnungsberechnung — Schritt für Schritt](/diagrams/invoice-berechnung.svg)
+
 ## Berechnungsablauf
 
 Die Berechnung erfolgt in **drei Schritten**:
@@ -91,14 +95,22 @@ Die Funktion gibt ein `InvoiceCalculationResult` zurück:
 | `taxBreakdown` | Steuer aufgeschlüsselt nach Satz | 2 Stellen |
 | `items` | Berechnete Positionen | siehe unten |
 | `count` | Gesamtanzahl Artikel | – |
+| `discountType` | Art des Gesamtrabatts (`"percent"`, `"fixed"` oder `null`) | – |
+| `discountValue` | Wert des Gesamtrabatts (oder `null`) | 4 Stellen |
 
 ### Berechnete Position (`InvoiceLineResult`)
 
 | Feld | Beschreibung | Präzision |
 |------|-------------|-----------|
+| `productId` | Produkt-ID | – |
+| `productName` | Produktname | – |
+| `quantity` | Menge | – |
 | `priceGrossUnit` | Brutto-Einzelpreis | 4 Stellen |
-| `rowTotalGross` | Zeilen-Brutto (nach allen Rabatten) | 2 Stellen |
 | `taxRateSnapshot` | Steuersatz in Prozent (z. B. `"7.00"`) | 2 Stellen |
+| `rowTotalGross` | Zeilen-Brutto (nach allen Rabatten) | 2 Stellen |
+| `discountType` | Art des Positionsrabatts (`"percent"`, `"fixed"` oder `null`) | – |
+| `discountValue` | Wert des Positionsrabatts (oder `null`) | 4 Stellen |
+| `costCenter` | Kostenstelle (oder `null`) | – |
 
 ## Beispiel
 
