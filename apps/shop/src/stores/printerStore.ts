@@ -386,11 +386,11 @@ export async function printInvoice(
   }));
 
   // Tax breakdown: prefer stored, fallback to item-based for old invoices
+  const HUNDRED = new Big(100);
   let taxBreakdown: { rate: string; net: string; tax: string }[];
   if (Array.isArray(invoice.tax_breakdown) && invoice.tax_breakdown.length > 0) {
     taxBreakdown = invoice.tax_breakdown;
   } else {
-    const HUNDRED = new Big(100);
     const taxMap = new Map<string, { gross: Big }>();
     for (const item of invoice.items ?? []) {
       const rate = item.tax_rate_snapshot;
