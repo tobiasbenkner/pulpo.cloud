@@ -511,8 +511,18 @@ function buildClosureReport(
   lines.push(emptyLine());
 
   // Period
-  lines.push(twoColTable("Desde:", formatClosureDate(report.periodStart)));
-  lines.push(twoColTable("Hasta:", formatClosureDate(report.periodEnd)));
+  lines.push(
+    tableLine([
+      { text: "Desde:", align: "LEFT", width: 0.3, style: "NORMAL" },
+      { text: formatClosureDate(report.periodStart), align: "RIGHT", width: 0.7, style: "NORMAL" },
+    ]),
+  );
+  lines.push(
+    tableLine([
+      { text: "Hasta:", align: "LEFT", width: 0.3, style: "NORMAL" },
+      { text: formatClosureDate(report.periodEnd), align: "RIGHT", width: 0.7, style: "NORMAL" },
+    ]),
+  );
   lines.push(separatorLine());
 
   // Totals
