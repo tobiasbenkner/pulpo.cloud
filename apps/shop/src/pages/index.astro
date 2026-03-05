@@ -15,9 +15,9 @@ import ShopApp from "../components/ShopApp.svelte";
 ---
 
 <Layout title="POS Pulpo">
-  <div class="grid grid-cols-[1fr_340px] h-full">
-    <ShopApp client:only="svelte" />
+  <div class="grid grid-cols-[340px_1fr] h-full">
     <CartSidebar client:only="svelte" />
+    <ShopApp client:only="svelte" />
   </div>
 
   <!-- Modals -->
