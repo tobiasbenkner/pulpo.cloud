@@ -388,7 +388,10 @@ export async function printInvoice(
   // Tax breakdown: prefer stored, fallback to item-based for old invoices
   const HUNDRED = new Big(100);
   let taxBreakdown: { rate: string; net: string; tax: string }[];
-  if (Array.isArray(invoice.tax_breakdown) && invoice.tax_breakdown.length > 0) {
+  if (
+    Array.isArray(invoice.tax_breakdown) &&
+    invoice.tax_breakdown.length > 0
+  ) {
     taxBreakdown = invoice.tax_breakdown;
   } else {
     const taxMap = new Map<string, { gross: Big }>();
@@ -405,7 +408,9 @@ export async function printInvoice(
       .map(([rate, v]) => {
         const gGross = new Big(v.gross.toFixed(2));
         const rateDecimal = new Big(rate).div(HUNDRED);
-        const net = new Big(gGross.div(new Big(1).plus(rateDecimal)).toFixed(2));
+        const net = new Big(
+          gGross.div(new Big(1).plus(rateDecimal)).toFixed(2),
+        );
         const tax = gGross.minus(net);
         return { rate, net: net.toFixed(2), tax: tax.toFixed(2) };
       });
@@ -497,7 +502,7 @@ function buildClosureReport(
 
   lines.push(emptyLine());
   lines.push(
-    textLine("KASSENSCHLIESSUNG", {
+    textLine("CIERRE DE CAJA", {
       align: "CT",
       fontSize: "big",
       style: "B",
@@ -506,18 +511,18 @@ function buildClosureReport(
   lines.push(emptyLine());
 
   // Period
-  lines.push(twoColTable("Von:", formatClosureDate(report.periodStart)));
-  lines.push(twoColTable("Bis:", formatClosureDate(report.periodEnd)));
+  lines.push(twoColTable("Desde:", formatClosureDate(report.periodStart)));
+  lines.push(twoColTable("Hasta:", formatClosureDate(report.periodEnd)));
   lines.push(separatorLine());
 
   // Totals
-  lines.push(twoColTable("Transaktionen", String(report.transactionCount)));
-  lines.push(twoColTable("Brutto", `${report.totalGross} EUR`, "NORMAL", "B"));
-  lines.push(twoColTable("Netto", `${report.totalNet} EUR`));
-  lines.push(twoColTable("Steuer", `${report.totalTax} EUR`));
+  lines.push(twoColTable("Transacciones", String(report.transactionCount)));
+  lines.push(twoColTable("Bruto", `${report.totalGross} EUR`, "NORMAL", "B"));
+  lines.push(twoColTable("Neto", `${report.totalNet} EUR`));
+  lines.push(twoColTable("Impuestos", `${report.totalTax} EUR`));
   lines.push(emptyLine());
-  lines.push(twoColTable("Bar", `${report.totalCash} EUR`));
-  lines.push(twoColTable("Karte", `${report.totalCard} EUR`));
+  lines.push(twoColTable("Efectivo", `${report.totalCash} EUR`));
+  lines.push(twoColTable("Tarjeta", `${report.totalCard} EUR`));
 
   // Tax breakdown
   if (report.taxBreakdown.length > 0) {
@@ -551,13 +556,13 @@ function buildClosureReport(
 
   // Cash count
   lines.push(separatorLine());
-  lines.push(twoColTable("Anfangsbestand", `${report.startingCash}`));
-  lines.push(twoColTable("Soll", `${report.expectedCash}`, "NORMAL", "B"));
-  lines.push(twoColTable("Gezahlt", countedCash));
+  lines.push(twoColTable("Saldo inicial", `${report.startingCash}`));
+  lines.push(twoColTable("Esperado", `${report.expectedCash}`, "NORMAL", "B"));
+  lines.push(twoColTable("Contado", countedCash));
 
   const diffNum = parseFloat(difference);
   const sign = diffNum >= 0 ? "+" : "";
-  lines.push(twoColTable("Differenz", `${sign}${difference}`, "NORMAL", "B"));
+  lines.push(twoColTable("Diferencia", `${sign}${difference}`, "NORMAL", "B"));
 
   lines.push(emptyLine());
   lines.push(emptyLine());
