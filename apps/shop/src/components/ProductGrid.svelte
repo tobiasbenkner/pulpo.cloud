@@ -11,6 +11,7 @@
   import type { ShopCategory } from "../stores/productStore";
 
   let selectedCategory = $state("Todos");
+  let sortByName = $state(false);
   let storeCategories = $state<readonly ShopCategory[]>([]);
   let loading = $state(true);
   let storeError = $state<string | null>(null);
@@ -34,8 +35,14 @@
 
   let filteredProducts = $derived.by(() => {
     const all: Product[] = storeCategories.flatMap((c) => c.products);
-    if (selectedCategory === "Todos") return all;
-    return all.filter((p) => p.category === selectedCategory);
+    const filtered =
+      selectedCategory === "Todos"
+        ? all
+        : all.filter((p) => p.category === selectedCategory);
+    if (sortByName) {
+      return [...filtered].sort((a, b) => a.name.localeCompare(b.name));
+    }
+    return filtered;
   });
 
   function selectCategory(cat: string) {
@@ -62,6 +69,17 @@
         </button>
       {/each}
     </nav>
+
+    <!-- SORTIERUNG -->
+    <button
+      class="flex-none px-3 py-2 rounded-lg text-xs font-bold transition-all duration-200 active:scale-95 whitespace-nowrap border {sortByName
+        ? 'bg-zinc-900 text-white border-zinc-900 shadow-md'
+        : 'bg-white text-zinc-500 border-zinc-200 hover:border-zinc-400 hover:text-zinc-900 hover:bg-zinc-50'}"
+      onclick={() => (sortByName = !sortByName)}
+      title="Ordenar por nombre"
+    >
+      A→Z
+    </button>
   </div>
 
   <!-- PRODUKT-BEREICH -->
