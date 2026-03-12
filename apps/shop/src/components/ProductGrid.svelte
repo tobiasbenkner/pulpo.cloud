@@ -6,33 +6,14 @@
     error,
     loadProducts,
   } from "../stores/productStore";
-  import {
-    isCustomerModalOpen,
-    customerModalMode,
-  } from "../stores/cartStore";
-  import {
-    isClosureModalOpen,
-    isShiftInvoicesModalOpen,
-    isXReportModalOpen,
-  } from "../stores/registerStore";
   import ProductCard from "./ProductCard.svelte";
   import type { Product } from "../types/shop";
   import type { ShopCategory } from "../stores/productStore";
-  import {
-    ShoppingBag,
-    Lock,
-    FileText,
-    LogOut,
-    Users,
-    BarChart3,
-    ChartLine,
-  } from "lucide-svelte";
 
   let selectedCategory = $state("Todos");
-  let storeCategories = $state<ShopCategory[]>([]);
+  let storeCategories = $state<readonly ShopCategory[]>([]);
   let loading = $state(true);
   let storeError = $state<string | null>(null);
-  let menuOpen = $state(false);
 
   onMount(() => {
     const unsubCats = categories.subscribe((v) => (storeCategories = v));
@@ -60,27 +41,6 @@
   function selectCategory(cat: string) {
     selectedCategory = cat;
   }
-
-  function openClosureModal() {
-    menuOpen = false;
-    isClosureModalOpen.set(true);
-  }
-
-  function openShiftInvoicesModal() {
-    menuOpen = false;
-    isShiftInvoicesModalOpen.set(true);
-  }
-
-  function openXReport() {
-    menuOpen = false;
-    isXReportModalOpen.set(true);
-  }
-
-  function openCustomerManagement() {
-    menuOpen = false;
-    customerModalMode.set("manage");
-    isCustomerModalOpen.set(true);
-  }
 </script>
 
 <main class="h-full flex flex-col relative overflow-hidden bg-zinc-50">
@@ -88,76 +48,6 @@
   <div
     class="flex-none flex items-start gap-4 px-4 py-3 bg-zinc-50 z-10 shadow-sm border-b border-zinc-200 min-h-[64px]"
   >
-    <!-- LOGO / MENU -->
-    <div class="flex-none relative mt-0.5">
-      <button
-        class="flex items-center justify-center bg-zinc-900 text-white w-9 h-9 rounded-lg shadow-md cursor-pointer hover:bg-zinc-800 transition-colors"
-        onclick={() => (menuOpen = !menuOpen)}
-      >
-        <ShoppingBag class="w-5 h-5" />
-      </button>
-
-      {#if menuOpen}
-        <!-- Backdrop -->
-        <!-- svelte-ignore a11y_no_static_element_interactions -->
-        <div
-          class="fixed inset-0 z-20"
-          onclick={() => (menuOpen = false)}
-          onkeydown={() => {}}
-        ></div>
-
-        <!-- Dropdown -->
-        <div
-          class="absolute left-0 top-full mt-1 w-52 bg-white rounded-xl shadow-xl border border-zinc-200 py-1 z-30"
-        >
-          <button
-            class="w-full flex items-center gap-3 px-4 py-3 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors text-left"
-            onclick={openClosureModal}
-          >
-            <Lock class="w-5 h-5 text-zinc-400" />
-            <span class="font-medium">Cerrar caja</span>
-          </button>
-          <button
-            class="w-full flex items-center gap-3 px-4 py-3 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors text-left"
-            onclick={openXReport}
-          >
-            <BarChart3 class="w-5 h-5 text-zinc-400" />
-            <span class="font-medium">Informe X</span>
-          </button>
-          <button
-            class="w-full flex items-center gap-3 px-4 py-3 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors text-left"
-            onclick={openShiftInvoicesModal}
-          >
-            <FileText class="w-5 h-5 text-zinc-400" />
-            <span class="font-medium">Facturas</span>
-          </button>
-          <div class="border-t border-zinc-100 my-1"></div>
-          <button
-            class="w-full flex items-center gap-3 px-4 py-3 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors text-left"
-            onclick={openCustomerManagement}
-          >
-            <Users class="w-5 h-5 text-zinc-400" />
-            <span class="font-medium">Clientes</span>
-          </button>
-          <a
-            href="/reports"
-            class="w-full flex items-center gap-3 px-4 py-3 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors text-left"
-          >
-            <ChartLine class="w-5 h-5 text-zinc-400" />
-            <span class="font-medium">Informes</span>
-          </a>
-          <div class="border-t border-zinc-100 my-1"></div>
-          <a
-            href="/logout"
-            class="w-full flex items-center gap-3 px-4 py-3 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors text-left"
-          >
-            <LogOut class="w-5 h-5 text-zinc-400" />
-            <span class="font-medium">Cerrar sesión</span>
-          </a>
-        </div>
-      {/if}
-    </div>
-
     <!-- KATEGORIEN -->
     <nav class="flex-1 flex flex-wrap gap-2">
       {#each categoryNames as cat}
