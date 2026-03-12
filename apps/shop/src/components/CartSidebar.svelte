@@ -25,7 +25,8 @@
     isShiftInvoicesModalOpen,
     isXReportModalOpen,
   } from "../stores/registerStore";
-  import { taxName } from "../stores/taxStore";
+  import { taxName, taxRates } from "../stores/taxStore";
+  import { categories } from "../stores/productStore";
   import type { CartItem, CartTotals, Customer } from "../types/shop";
   import type { ParkedCart } from "../stores/cartStore";
   import Big from "big.js";
@@ -42,6 +43,7 @@
     Users,
     BarChart3,
     ChartLine,
+    Download,
   } from "lucide-svelte";
 
   let items = $state<Record<string, CartItem>>({});
@@ -120,6 +122,33 @@
     menuOpen = false;
     customerModalMode.set("manage");
     isCustomerModalOpen.set(true);
+  }
+
+  function exportProducts() {
+    menuOpen = false;
+    const rates = taxRates.get();
+    const cats = categories.get();
+    const allProducts = cats.flatMap((cat) => cat.products);
+    allProducts.sort((a, b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name));
+    const rows: string[][] = [["Categoría", "Producto", "Precio", "Stock", "Impuesto (%)"]];
+    for (const p of allProducts) {
+      const rate = rates[p.taxClass] ?? "0";
+      rows.push([
+        p.category,
+        p.name,
+        p.priceGross,
+        p.stock != null ? String(p.stock) : "",
+        rate,
+      ]);
+    }
+    const csv = rows.map((r) => r.map((c) => `"${c.replace(/"/g, '""').replace(/[\r\n]+/g, " ")}"`).join(";")).join("\n");
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `productos_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   function itemPriceInfo(item: CartItem) {
@@ -228,6 +257,13 @@
                 >
                   <Users class="w-5 h-5 text-zinc-400" />
                   <span class="font-medium">Clientes</span>
+                </button>
+                <button
+                  class="w-full flex items-center gap-3 px-4 py-3 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors text-left"
+                  onclick={exportProducts}
+                >
+                  <Download class="w-5 h-5 text-zinc-400" />
+                  <span class="font-medium">Exportar productos</span>
                 </button>
                 <a
                   href="/reports"
