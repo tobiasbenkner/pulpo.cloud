@@ -7,6 +7,16 @@ import {
   computeInvoiceTypeCounts,
   computeTaxBreakdown,
 } from "../helpers/report-aggregator";
+import { sendClosureEmail } from "../helpers/closure-email";
+import type { ClosureReportData } from "../helpers/closure-report-excel";
+
+function getTaxNameFromPostcode(postcode: string | null): string {
+  if (!postcode) return "IVA";
+  if (/^(35|38)/.test(postcode)) return "IGIC";
+  if (/^51/.test(postcode)) return "IPSI";
+  if (/^52/.test(postcode)) return "IPSI";
+  return "IVA";
+}
 
 export function registerCashRegisterClose(
   router: Router,
@@ -180,6 +190,95 @@ export function registerCashRegisterClose(
         knex: database,
       });
       const updatedClosure = await closureService.readOne(txResult.closureId);
+
+      // Send closure email in the background (fire & forget)
+      const closure = updatedClosure as Record<string, any>;
+      const tenantRecord = await (database as any)("tenants")
+        .select("name", "closure_email", "postcode")
+        .where("id", tenant)
+        .first();
+
+      if (tenantRecord?.closure_email) {
+        const taxName = getTaxNameFromPostcode(tenantRecord.postcode);
+
+        // Load all tenant products for the Stock sheet
+        const productService = new ItemsService("products", {
+          schema,
+          knex: database,
+        });
+        const allProducts = (await productService.readByQuery({
+          filter: { tenant: { _eq: tenant } },
+          fields: [
+            "name",
+            "price_gross",
+            "tax_class.code",
+            "stock",
+            "cost_center.name",
+            "category.name",
+          ],
+          limit: -1,
+        })) as Record<string, any>[];
+
+        // Resolve tax rates for products
+        const taxRules = await (database as any)("tax_rules")
+          .join("tax_zones", "tax_rules.tax_zone_id", "tax_zones.id")
+          .join("tax_classes", "tax_rules.tax_class_id", "tax_classes.id")
+          .select("tax_classes.code", "tax_rules.rate")
+          .whereRaw("? ~ tax_zones.regex", [tenantRecord.postcode])
+          .orderBy("tax_zones.priority", "asc");
+        const taxRateMap = new Map<string, string>();
+        for (const rule of taxRules) {
+          if (!taxRateMap.has(rule.code)) {
+            taxRateMap.set(rule.code, rule.rate);
+          }
+        }
+
+        const products = allProducts.map((p) => ({
+          name: p.name ?? "",
+          category: p.category?.name ?? null,
+          price_gross: p.price_gross ?? "0",
+          tax_rate: taxRateMap.get(p.tax_class?.code ?? "") ?? "0",
+          stock: p.stock ?? null,
+          cost_center: p.cost_center?.name ?? null,
+        }));
+
+        const closureData: ClosureReportData = {
+          period_start: closure.period_start,
+          period_end: closure.period_end,
+          starting_cash: closure.starting_cash ?? "0",
+          total_gross: closure.total_gross ?? "0",
+          total_net: closure.total_net ?? "0",
+          total_tax: closure.total_tax ?? "0",
+          total_cash: closure.total_cash ?? "0",
+          total_card: closure.total_card ?? "0",
+          total_change: closure.total_change ?? "0",
+          expected_cash: closure.expected_cash ?? null,
+          counted_cash: closure.counted_cash ?? null,
+          difference: closure.difference ?? null,
+          transaction_count: closure.transaction_count ?? 0,
+          invoice_type_counts: closure.invoice_type_counts ?? {
+            tickets: 0,
+            facturas: 0,
+            rectificativas: 0,
+          },
+          tax_breakdown: closure.tax_breakdown ?? [],
+          product_breakdown: closure.product_breakdown ?? [],
+          denomination_count: closure.denomination_count ?? null,
+          products,
+        };
+
+        sendClosureEmail({
+          closureData,
+          taxName,
+          tenantName: tenantRecord.name ?? "Desconocido",
+          recipientEmail: tenantRecord.closure_email,
+          MailService: services.MailService,
+          schema,
+          knex: database,
+        }).catch((err) => {
+          console.error("Error sending closure email:", err);
+        });
+      }
 
       return res.json({ success: true, closure: updatedClosure });
     } catch (error: unknown) {
