@@ -16,6 +16,7 @@ export interface Product {
   tax_class: TaxClass | null;
   price_gross: string;
   cost_center: { id: string; name: string } | null;
+  unit: "unit" | "weight";
 }
 
 export interface ProductCategory {

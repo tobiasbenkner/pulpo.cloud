@@ -46,6 +46,7 @@ function mapCmsToShopProduct(
     category: categoryName,
     stock: product.stock ?? undefined,
     costCenter: product.cost_center?.name ?? undefined,
+    unit: product.unit ?? "unit",
   };
 }
 

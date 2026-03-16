@@ -77,6 +77,9 @@ export const selectedCustomer = atom<Customer | null>(null);
 export const isQuantityModalOpen = atom<{ itemId: string | null }>({
   itemId: null,
 });
+export const isWeightModalOpen = atom<{ product: Product | null }>({
+  product: null,
+});
 
 // --- ACTIONS: CART ---
 
@@ -96,6 +99,10 @@ export const setItemQuantity = (id: string, quantity: number) => {
 };
 
 export const addToCart = (product: Product) => {
+  if (product.unit === "weight") {
+    isWeightModalOpen.set({ product });
+    return;
+  }
   const current = cartItems.get();
   const existing = current[product.id];
   if (existing) {
@@ -105,6 +112,19 @@ export const addToCart = (product: Product) => {
     });
   } else {
     cartItems.setKey(product.id, { ...product, quantity: 1 });
+  }
+};
+
+export const addToCartWithWeight = (product: Product, weight: number) => {
+  const current = cartItems.get();
+  const existing = current[product.id];
+  if (existing) {
+    cartItems.setKey(product.id, {
+      ...existing,
+      quantity: parseFloat((existing.quantity + weight).toFixed(3)),
+    });
+  } else {
+    cartItems.setKey(product.id, { ...product, quantity: weight });
   }
 };
 

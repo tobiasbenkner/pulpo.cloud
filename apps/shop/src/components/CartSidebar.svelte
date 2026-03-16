@@ -18,6 +18,7 @@
     parkedCarts,
     deleteParkedCart,
     isQuantityModalOpen,
+    isWeightModalOpen,
   } from "../stores/cartStore";
   import {
     isRegisterOpen,
@@ -477,7 +478,7 @@
                 </h4>
                 <div class="flex items-center gap-2">
                   <p class="text-[10px] text-zinc-400 font-medium">
-                    {new Big(item.priceGross).toFixed(2)} &euro;/u.
+                    {new Big(item.priceGross).toFixed(2)} &euro;/{item.unit === "weight" ? "kg" : "u."}
                   </p>
                   <button
                     onclick={() => isDiscountModalOpen.set({ itemId: id })}
@@ -504,6 +505,15 @@
                     {info.finalPriceTotal} &euro;
                   </span>
                 </div>
+                {#if item.unit === "weight"}
+                  <button
+                    onclick={() => isWeightModalOpen.set({ product: item })}
+                    class="h-9 px-3 bg-white rounded-lg border border-zinc-200 shadow-sm font-bold text-sm text-zinc-900 tabular-nums hover:bg-zinc-50 hover:text-blue-600 transition-colors"
+                    title="Cambiar peso"
+                  >
+                    {item.quantity.toFixed(3)} kg
+                  </button>
+                {:else}
                 <div
                   class="flex items-center bg-white rounded-lg border border-zinc-200 shadow-sm h-9"
                 >
@@ -571,6 +581,7 @@
                     </svg>
                   </button>
                 </div>
+                {/if}
               </div>
             </div>
           {/each}

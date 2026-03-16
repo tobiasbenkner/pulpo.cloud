@@ -17,6 +17,7 @@ export interface Product {
   category: string;
   stock?: number;
   costCenter?: string;
+  unit: "unit" | "weight";
 }
 
 export interface CartItem extends Product {

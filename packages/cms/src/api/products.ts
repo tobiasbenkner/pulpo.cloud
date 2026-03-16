@@ -56,6 +56,7 @@ export async function getCategoriesWithProducts(
         stock: product.stock ?? null,
         tax_class: product.tax_class ?? null,
         cost_center: product.cost_center ?? null,
+        unit: product.unit ?? "unit",
       } as Product;
     });
 
