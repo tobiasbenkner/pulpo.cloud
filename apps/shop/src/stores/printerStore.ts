@@ -216,10 +216,14 @@ function buildReceipt(receiptData: {
   // Items
   lines.push(separatorLine());
   for (const item of totals.items) {
-    const qty = parseInt(String(item.quantity), 10);
-    const prefix = `${String(qty).padStart(isRect ? 3 : 2)}x `;
+    const qtyNum = typeof item.quantity === "number" ? item.quantity : parseFloat(String(item.quantity));
+    const isWeight = !Number.isInteger(qtyNum);
+    const qty = isWeight ? qtyNum : Math.round(qtyNum);
+    const prefix = isWeight
+      ? `${qtyNum.toFixed(3).replace(".", ",")}kg `
+      : `${String(qty).padStart(isRect ? 3 : 2)}x `;
     const hasDiscount = !!(item.discountType && item.discountValue);
-    const originalGross = new Big(item.priceGrossUnit).times(qty);
+    const originalGross = new Big(item.priceGrossUnit).times(item.quantity);
 
     lines.push(
       twoColTable(`${prefix}${item.productName}`, originalGross.toFixed(2)),
@@ -235,7 +239,11 @@ function buildReceipt(receiptData: {
           : `    Dto.`;
       lines.push(twoColTable(label, `-${discountAmount.toFixed(2)}`));
     }
-    if (Math.abs(qty) > 1) {
+    if (isWeight) {
+      lines.push(
+        twoColTable(`    @ ${parseFloat(item.priceGrossUnit).toFixed(2)}/kg`, ""),
+      );
+    } else if (Math.abs(qty) > 1) {
       lines.push(
         twoColTable(`    @ ${parseFloat(item.priceGrossUnit).toFixed(2)}`, ""),
       );
