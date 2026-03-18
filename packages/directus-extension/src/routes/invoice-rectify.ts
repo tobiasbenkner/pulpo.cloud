@@ -115,6 +115,7 @@ export function registerInvoiceRectify(
           row_total_gross: string;
           discount_type: "percent" | "fixed" | null;
           discount_value: string | null;
+          unit: "unit" | "weight";
         }[] = [];
 
         for (const reqItem of items) {
@@ -157,6 +158,7 @@ export function registerInvoiceRectify(
             row_total_gross: computedRowGross,
             discount_type: origItem.discount_type ?? null,
             discount_value: origItem.discount_value ?? null,
+            unit: origItem.unit ?? "unit",
           });
         }
 
@@ -203,6 +205,7 @@ export function registerInvoiceRectify(
           row_total_gross: new Big(item.row_total_gross).times(-1).toFixed(2),
           discount_type: item.discount_type,
           discount_value: item.discount_value,
+          unit: item.unit,
           tenant,
         }));
 

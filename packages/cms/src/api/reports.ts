@@ -30,6 +30,15 @@ export async function getReport(
   }));
 }
 
+/** Build the URL to download a report as Excel */
+export function getReportExcelUrl(
+  period: ReportPeriod,
+  params: ReportParams,
+): string {
+  const qs = buildQueryString(params);
+  return `/pulpo-extension/reports/${period}/excel?${qs}`;
+}
+
 /** Trigger backfill of product_breakdown on existing closures */
 export async function backfillClosures(
   client: Client,

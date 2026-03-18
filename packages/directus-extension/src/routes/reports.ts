@@ -1,12 +1,13 @@
 import type { Router } from "express";
 import type { EndpointContext, ServiceConstructor } from "../types";
-import { getTenantFromUser } from "../helpers";
+import { getTenantFromUser, getTaxNameFromPostcode } from "../helpers";
 import {
   aggregateClosures,
   computeProductBreakdown,
   computeInvoiceTypeCounts,
   type AggregatedReport,
 } from "../helpers/report-aggregator";
+import { generateReportExcel } from "../helpers/closure-report-excel";
 
 type PeriodType = "daily" | "weekly" | "monthly" | "quarterly" | "yearly";
 
@@ -187,6 +188,41 @@ export function registerReports(router: Router, context: EndpointContext) {
     });
   }
 
+  // GET /reports/:period/excel (Excel download)
+  for (const periodType of periods) {
+    router.get(`/reports/${periodType}/excel`, async (req, res) => {
+      try {
+        const { report, tenantRecord } = await buildReportWithTenant(
+          periodType,
+          req.query as any,
+          req,
+        );
+        const tenantName = tenantRecord.name || "";
+        const taxName = getTaxNameFromPostcode(tenantRecord.postcode);
+
+        const buffer = generateReportExcel(report, taxName, tenantName);
+        const safeName = report.period.label
+          .replace(/[^a-zA-Z0-9áéíóúñÁÉÍÓÚÑ ]/g, "")
+          .replace(/\s+/g, "_");
+
+        res.setHeader(
+          "Content-Type",
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        );
+        res.setHeader(
+          "Content-Disposition",
+          `attachment; filename="Informe_${safeName}.xlsx"`,
+        );
+        return res.send(buffer);
+      } catch (error: unknown) {
+        console.error(`Error generating ${periodType} Excel report:`, error);
+        const message =
+          error instanceof Error ? error.message : "Unknown error";
+        return res.status(500).json({ error: message });
+      }
+    });
+  }
+
   // POST /reports/backfill
   router.post("/reports/backfill", async (req, res) => {
     try {
@@ -233,6 +269,7 @@ export function registerReports(router: Router, context: EndpointContext) {
             "items.product_name",
             "items.product_id",
             "items.cost_center",
+            "items.unit",
             "items.quantity",
             "items.row_total_gross",
             "payments.method",
@@ -258,12 +295,11 @@ export function registerReports(router: Router, context: EndpointContext) {
     }
   });
 
-  // Helper: build report
-  async function buildReport(
+  async function buildReportWithTenant(
     periodType: PeriodType,
     params: Record<string, string>,
     req: any,
-  ): Promise<AggregatedReport> {
+  ): Promise<{ report: AggregatedReport; tenantRecord: Record<string, any> }> {
     const userId = req.accountability?.user;
     if (!userId) throw new Error("Nicht authentifiziert.");
     const tenant = await getTenantFromUser(userId, context);
@@ -300,10 +336,21 @@ export function registerReports(router: Router, context: EndpointContext) {
       limit: -1,
     });
 
-    return aggregateClosures(
+    const report = aggregateClosures(
       closures,
       { type: periodType, label, from, to },
       periodType === "daily",
     );
+
+    return { report, tenantRecord };
+  }
+
+  async function buildReport(
+    periodType: PeriodType,
+    params: Record<string, string>,
+    req: any,
+  ): Promise<AggregatedReport> {
+    const { report } = await buildReportWithTenant(periodType, params, req);
+    return report;
   }
 }

@@ -64,6 +64,13 @@ export function generateInvoiceNumber(
   return { invoice_number, new_count: newCount };
 }
 
+export function getTaxNameFromPostcode(postcode: string | null): string {
+  if (!postcode) return "IVA";
+  if (/^(35|38)/.test(postcode)) return "IGIC";
+  if (/^5[12]/.test(postcode)) return "IPSI";
+  return "IVA";
+}
+
 export async function getTenantFromUser(
   userId: string,
   context: EndpointContext,

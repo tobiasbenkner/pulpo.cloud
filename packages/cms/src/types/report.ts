@@ -2,6 +2,7 @@ export interface ClosureProductBreakdown {
   product_name: string;
   product_id: string | null;
   cost_center: string | null;
+  unit: "unit" | "weight";
   quantity: number;
   total_gross: string;
   cash_gross: string;

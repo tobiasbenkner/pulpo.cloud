@@ -1,32 +1,73 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { initAuthClient, checkAuthentication } from "@pulpo/auth";
-  import { DIRECTUS_URL } from "@pulpo/cms";
+  import { initAuthClient, checkAuthentication, getStoredToken } from "@pulpo/auth";
+  import { DIRECTUS_URL, getReportExcelUrl } from "@pulpo/cms";
   import type { AggregatedReport } from "@pulpo/cms";
   import { loadProducts } from "../stores/productStore";
-  import { taxName } from "../stores/taxStore";
   import { ArrowLeft, Download } from "lucide-svelte";
   import DailyOverview from "./DailyOverview.svelte";
   import MonthlyReport from "./MonthlyReport.svelte";
   import QuarterlyReport from "./QuarterlyReport.svelte";
   import YearlyReport from "./YearlyReport.svelte";
-  import { exportReportToExcel } from "../lib/exportReport";
 
   initAuthClient(DIRECTUS_URL);
 
   let state: "loading" | "ready" = $state("loading");
   let activeTab = $state("day");
   let currentReport = $state<AggregatedReport | null>(null);
-  let tax = $state("IGIC");
+  let exporting = $state(false);
 
   function handleReport(report: AggregatedReport | null) {
     currentReport = report;
   }
 
-  function handleExport() {
-    if (currentReport) {
-      exportReportToExcel(currentReport, tax);
+  async function handleExport() {
+    if (!currentReport) return;
+    exporting = true;
+    try {
+      const { period } = currentReport;
+      const params = buildParamsFromPeriod(period);
+      const path = getReportExcelUrl(period.type, params);
+      const token = getStoredToken();
+      const res = await fetch(`${DIRECTUS_URL}${path}`, {
+        headers: { Authorization: `Bearer ${token?.access_token}` },
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      const safeName = period.label
+        .replace(/[^a-zA-Z0-9áéíóúñÁÉÍÓÚÑ ]/g, "")
+        .replace(/\s+/g, "_");
+      a.href = url;
+      a.download = `Informe_${safeName}.xlsx`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error("Failed to export Excel:", e);
+    } finally {
+      exporting = false;
     }
+  }
+
+  function buildParamsFromPeriod(period: AggregatedReport["period"]): Record<string, string> {
+    const from = new Date(period.from);
+    if (period.type === "daily" || period.type === "weekly") {
+      return { date: from.toISOString().slice(0, 10) };
+    }
+    if (period.type === "monthly") {
+      return {
+        year: String(from.getUTCFullYear()),
+        month: String(from.getUTCMonth() + 1),
+      };
+    }
+    if (period.type === "quarterly") {
+      return {
+        year: String(from.getUTCFullYear()),
+        quarter: String(Math.floor(from.getUTCMonth() / 3) + 1),
+      };
+    }
+    return { year: String(from.getUTCFullYear()) };
   }
 
   const tabs = [
@@ -44,7 +85,6 @@
     } catch {
       window.location.href = "/login";
     }
-    return taxName.subscribe((v) => (tax = v));
   });
 </script>
 
@@ -90,7 +130,7 @@
       <button
         class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all duration-200 active:scale-95 border bg-white text-zinc-500 border-zinc-200 hover:border-zinc-400 hover:text-zinc-900 hover:bg-zinc-50 disabled:opacity-30 disabled:cursor-not-allowed"
         onclick={handleExport}
-        disabled={!currentReport || currentReport.summary.transaction_count === 0}
+        disabled={!currentReport || currentReport.summary.transaction_count === 0 || exporting}
         title="Exportar a Excel"
       >
         <Download class="w-4 h-4" />

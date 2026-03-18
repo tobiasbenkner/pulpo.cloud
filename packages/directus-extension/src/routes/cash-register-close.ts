@@ -1,6 +1,6 @@
 import type { Router } from "express";
 import type { EndpointContext, ServiceConstructor } from "../types";
-import { getTenantFromUser } from "../helpers";
+import { getTenantFromUser, getTaxNameFromPostcode } from "../helpers";
 import Big from "big.js";
 import {
   computeProductBreakdown,
@@ -9,14 +9,6 @@ import {
 } from "../helpers/report-aggregator";
 import { sendClosureEmail } from "../helpers/closure-email";
 import type { ClosureReportData } from "../helpers/closure-report-excel";
-
-function getTaxNameFromPostcode(postcode: string | null): string {
-  if (!postcode) return "IVA";
-  if (/^(35|38)/.test(postcode)) return "IGIC";
-  if (/^51/.test(postcode)) return "IPSI";
-  if (/^52/.test(postcode)) return "IPSI";
-  return "IVA";
-}
 
 export function registerCashRegisterClose(
   router: Router,
@@ -97,6 +89,7 @@ export function registerCashRegisterClose(
             "items.product_name",
             "items.product_id",
             "items.cost_center",
+            "items.unit",
             "items.quantity",
             "items.row_total_gross",
             "items.tax_rate_snapshot",

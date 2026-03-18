@@ -84,6 +84,7 @@ export function registerInvoiceCreate(
           "price_gross",
           "tax_class.code",
           "cost_center.name",
+          "unit",
         ],
       })) as {
         id: string;
@@ -91,6 +92,7 @@ export function registerInvoiceCreate(
         price_gross: string;
         tax_class: { code: string } | null;
         cost_center: { name: string } | null;
+        unit: "unit" | "weight";
       }[];
 
       const productMap = new Map(products.map((p) => [p.id, p]));
@@ -293,6 +295,7 @@ export function registerInvoiceCreate(
                 discount_type: item.discountType,
                 discount_value: item.discountValue,
                 cost_center: item.costCenter,
+                unit: productMap.get(item.productId)?.unit ?? "unit",
                 tenant,
               })),
             },

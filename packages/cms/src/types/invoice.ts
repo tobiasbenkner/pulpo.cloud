@@ -52,6 +52,7 @@ export interface InvoiceItem {
   discount_type: "percent" | "fixed" | null;
   discount_value: string | null;
   cost_center: string | null;
+  unit: "unit" | "weight";
 }
 
 export interface InvoicePayment {

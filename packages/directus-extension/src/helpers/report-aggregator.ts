@@ -10,6 +10,7 @@ export interface ClosureProductBreakdown {
   product_name: string;
   product_id: string | null;
   cost_center: string | null;
+  unit: "unit" | "weight";
   quantity: number;
   total_gross: string;
   cash_gross: string;
@@ -67,6 +68,7 @@ export function computeProductBreakdown(
     {
       product_id: string | null;
       cost_center: string | null;
+      unit: "unit" | "weight";
       quantity: number;
       total_gross: Big;
       cash_gross: Big;
@@ -83,6 +85,7 @@ export function computeProductBreakdown(
       const existing = map.get(key) ?? {
         product_id: item.product_id ?? null,
         cost_center: item.cost_center ?? null,
+        unit: (item.unit as "unit" | "weight") ?? "unit",
         quantity: 0,
         total_gross: ZERO,
         cash_gross: ZERO,
@@ -108,6 +111,7 @@ export function computeProductBreakdown(
       product_name,
       product_id: v.product_id,
       cost_center: v.cost_center,
+      unit: v.unit,
       quantity: v.quantity,
       total_gross: v.total_gross.toFixed(2),
       cash_gross: v.cash_gross.toFixed(2),
@@ -217,6 +221,7 @@ export function aggregateClosures(
     {
       product_id: string | null;
       cost_center: string | null;
+      unit: "unit" | "weight";
       quantity: number;
       total_gross: Big;
       cash_gross: Big;
@@ -259,6 +264,7 @@ export function aggregateClosures(
       const existing = productMap.get(key) ?? {
         product_id: p.product_id ?? null,
         cost_center: p.cost_center ?? null,
+        unit: (p.unit as "unit" | "weight") ?? "unit",
         quantity: 0,
         total_gross: ZERO,
         cash_gross: ZERO,
@@ -300,6 +306,7 @@ export function aggregateClosures(
       product_name,
       product_id: v.product_id,
       cost_center: v.cost_center,
+      unit: v.unit,
       quantity: v.quantity,
       total_gross: v.total_gross.toFixed(2),
       cash_gross: v.cash_gross.toFixed(2),
