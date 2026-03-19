@@ -37,7 +37,9 @@ export function buildProductosSheet(
     const ccA = (a.cost_center ?? "").toLowerCase();
     const ccB = (b.cost_center ?? "").toLowerCase();
     if (ccA !== ccB) return ccA.localeCompare(ccB);
-    return a.product_name.toLowerCase().localeCompare(b.product_name.toLowerCase());
+    return a.product_name
+      .toLowerCase()
+      .localeCompare(b.product_name.toLowerCase());
   });
   const groups = new Map<string, ProductRow[]>();
   for (const row of sorted) {
@@ -51,8 +53,6 @@ export function buildProductosSheet(
   let grandUds = 0;
   let grandKg = 0;
   let grandTotal = 0;
-  let grandCash = 0;
-  let grandCard = 0;
   for (const p of productBreakdown) {
     if (p.unit === "weight") {
       grandKg += p.quantity;
@@ -60,18 +60,17 @@ export function buildProductosSheet(
       grandUds += p.quantity;
     }
     grandTotal += num(p.total_gross);
-    grandCash += num(p.cash_gross);
-    grandCard += num(p.card_gross);
   }
 
   // Header + totals row at the top
   const prodRows: (string | number)[][] = [
-    ["Producto", "Centro coste", "Uds.", "Kg", "Total", "Efectivo", "Tarjeta"],
+    ["Producto", "Centro coste", "Uds.", "Kg", "Total"],
     [
-      "Total", "",
+      "Total",
+      "",
       grandUds || "",
       grandKg ? round3(grandKg) : "",
-      round2(grandTotal), round2(grandCash), round2(grandCard),
+      round2(grandTotal),
     ],
   ];
   const totalsRowIndex = 1;
@@ -83,8 +82,6 @@ export function buildProductosSheet(
       let groupUds = 0;
       let groupKg = 0;
       let groupTotal = 0;
-      let groupCash = 0;
-      let groupCard = 0;
       for (const p of products) {
         if (p.unit === "weight") {
           groupKg += p.quantity;
@@ -92,8 +89,6 @@ export function buildProductosSheet(
           groupUds += p.quantity;
         }
         groupTotal += num(p.total_gross);
-        groupCash += num(p.cash_gross);
-        groupCard += num(p.card_gross);
       }
 
       prodRows.push([]);
@@ -104,8 +99,6 @@ export function buildProductosSheet(
         groupUds || "",
         groupKg ? round3(groupKg) : "",
         round2(groupTotal),
-        round2(groupCash),
-        round2(groupCard),
       ]);
     }
 
@@ -117,22 +110,12 @@ export function buildProductosSheet(
         isWeight ? "" : row.quantity,
         isWeight ? round3(row.quantity) : "",
         num(row.total_gross),
-        num(row.cash_gross),
-        num(row.card_gross),
       ]);
     }
   }
 
   const ws = XLSX.utils.aoa_to_sheet(prodRows);
-  ws["!cols"] = [
-    { wch: 30 },
-    { wch: 16 },
-    { wch: 8 },
-    { wch: 8 },
-    { wch: 12 },
-    { wch: 12 },
-    { wch: 12 },
-  ];
+  ws["!cols"] = [{ wch: 30 }, { wch: 16 }, { wch: 8 }, { wch: 8 }, { wch: 12 }];
 
   // Styles
   const headerStyle: XLSX.CellStyle = {
@@ -148,19 +131,16 @@ export function buildProductosSheet(
     font: { bold: true },
   };
 
-  const cols = ["A", "B", "C", "D", "E", "F", "G"];
+  const cols = ["A", "B", "C", "D", "E"];
   for (const col of cols) {
-    // Header row
     const headerCell = ws[`${col}1`];
     if (headerCell) headerCell.s = headerStyle;
 
-    // Cost center group rows
     for (const ri of groupRowIndices) {
       const cell = ws[`${col}${ri + 1}`];
       if (cell) cell.s = groupStyle;
     }
 
-    // Totals row
     const totalsCell = ws[`${col}${totalsRowIndex + 1}`];
     if (totalsCell) totalsCell.s = totalsStyle;
   }
