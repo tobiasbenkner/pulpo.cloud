@@ -49,6 +49,8 @@ export async function getInvoices(
     dateFrom?: string;
     dateTo?: string;
     closureId?: string;
+    invoiceNumber?: string;
+    originalInvoiceId?: string;
   },
 ) {
   const filter: any = {};
@@ -59,6 +61,10 @@ export async function getInvoices(
       : { _eq: query.status };
   }
   if (query?.closureId) filter.closure_id = { _eq: query.closureId };
+  if (query?.invoiceNumber)
+    filter.invoice_number = { _eq: query.invoiceNumber };
+  if (query?.originalInvoiceId)
+    filter.original_invoice_id = { _eq: query.originalInvoiceId };
   if (query?.dateFrom || query?.dateTo) {
     filter.date_created = {};
     if (query?.dateFrom) filter.date_created._gte = query.dateFrom;

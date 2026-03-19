@@ -49,6 +49,8 @@ export const rectificativaInvoice = atom<Invoice | null>(null);
 
 export const isXReportModalOpen = atom<boolean>(false);
 
+export const isInvoiceSearchModalOpen = atom<boolean>(false);
+
 // --- ACTIONS ---
 
 export async function openRegister(startAmount: string): Promise<void> {
@@ -317,6 +319,25 @@ export async function loadDailyClosures(
 ): Promise<CashRegisterClosure[]> {
   const client = getAuthClient();
   return await getClosuresForDate(client as any, date);
+}
+
+export async function searchInvoiceByNumber(
+  invoiceNumber: string,
+): Promise<{ invoice: Invoice; rectificativas: Invoice[] } | null> {
+  const client = getAuthClient();
+  const invoices = await getInvoices(client as any, {
+    invoiceNumber,
+    status: ["paid", "rectificada"],
+  });
+  if (invoices.length === 0) return null;
+
+  const invoice = invoices[0] as Invoice;
+  // Also fetch any existing rectificativas for this invoice
+  const rectificativas = (await getInvoices(client as any, {
+    originalInvoiceId: invoice.id,
+  })) as Invoice[];
+
+  return { invoice, rectificativas };
 }
 
 export async function swapPaymentMethod(
