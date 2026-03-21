@@ -1,0 +1,48 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { languages, defaultLang, type Language } from "@/lib/i18n";
+import { routeSlugs, getView } from "@/lib/registry";
+
+export function getStaticPaths() {
+  const paths: { params: { slug?: string }; props: { lang: Language; routeKey: string } }[] = [];
+
+  for (const [routeKey, slugs] of Object.entries(routeSlugs)) {
+    for (const lang of languages) {
+      const slug = slugs[lang];
+      const isDefault = lang === defaultLang;
+
+      let fullSlug: string | undefined;
+      if (routeKey === "home") {
+        fullSlug = isDefault ? undefined : lang;
+      } else {
+        fullSlug = isDefault ? slug : `${lang}/${slug}`;
+      }
+
+      paths.push({
+        params: { slug: fullSlug },
+        props: { lang, routeKey },
+      });
+    }
+  }
+
+  return paths;
+}
+
+interface Props {
+  lang: Language;
+  routeKey: string;
+}
+
+const { lang, routeKey } = Astro.props;
+const view = getView(routeKey, lang);
+
+if (!view) {
+  return Astro.redirect("/404");
+}
+
+const { Component, t } = view;
+---
+
+<Layout title={t.seo.title} description={t.seo.description} lang={lang} routeKey={routeKey}>
+  <Component lang={lang} t={t} />
+</Layout>

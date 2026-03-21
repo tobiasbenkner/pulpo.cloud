@@ -1,0 +1,97 @@
+---
+import "../styles/global.css";
+import type { Language } from "@/lib/i18n";
+import { languages, defaultLang } from "@/lib/i18n";
+import { getTranslatedPath, getRouteLabel } from "@/lib/registry";
+import { siteData } from "@/data/site";
+
+interface Props {
+  title: string;
+  description?: string;
+  lang: Language;
+  routeKey: string;
+}
+
+const { title, description, lang, routeKey } = Astro.props;
+
+const mainNav = ["home", "features", "pricing", "contact"] as const;
+const legalNav = ["imprint", "privacy", "terms"] as const;
+---
+
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+    {languages.map((l) => (
+      <link
+        rel="alternate"
+        hreflang={l}
+        href={`${siteData.meta.url}${getTranslatedPath(routeKey, l)}`}
+      />
+    ))}
+  </head>
+  <body class="flex min-h-dvh flex-col bg-white text-gray-900 antialiased">
+    <!-- Header -->
+    <header class="sticky top-0 z-10 border-b border-gray-100 bg-white/80 backdrop-blur">
+      <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+        <a href={getTranslatedPath("home", lang)} class="text-xl font-bold tracking-tight">
+          {siteData.meta.name}
+        </a>
+        <nav class="hidden items-center gap-8 text-sm font-medium text-gray-600 md:flex">
+          {mainNav.map((key) => (
+            <a
+              href={getTranslatedPath(key, lang)}
+              class:list={["hover:text-gray-900 transition-colors", routeKey === key && "text-gray-900"]}
+            >
+              {getRouteLabel(key, lang)}
+            </a>
+          ))}
+        </nav>
+        <div class="flex items-center gap-4">
+          <!-- Language switcher -->
+          <div class="flex items-center gap-1 text-sm">
+            {languages.map((l, i) => (
+              <>
+                {i > 0 && <span class="text-gray-300">&middot;</span>}
+                {l === lang ? (
+                  <span class="font-medium text-gray-900">{l.toUpperCase()}</span>
+                ) : (
+                  <a href={getTranslatedPath(routeKey, l)} class="text-gray-400 hover:text-gray-700 transition-colors">
+                    {l.toUpperCase()}
+                  </a>
+                )}
+              </>
+            ))}
+          </div>
+          <a
+            href={getTranslatedPath("contact", lang)}
+            class="hidden rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 transition-colors sm:block"
+          >
+            {getRouteLabel("contact", lang)}
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-1">
+      <slot />
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-gray-100 py-8">
+      <div class="mx-auto flex max-w-6xl flex-col items-center gap-4 px-6 text-sm text-gray-500 sm:flex-row sm:justify-between">
+        <span>&copy; {new Date().getFullYear()} {siteData.meta.name}</span>
+        <nav class="flex items-center gap-6">
+          {legalNav.map((key) => (
+            <a href={getTranslatedPath(key, lang)} class="hover:text-gray-700 transition-colors">
+              {getRouteLabel(key, lang)}
+            </a>
+          ))}
+        </nav>
+      </div>
+    </footer>
+  </body>
+</html>
