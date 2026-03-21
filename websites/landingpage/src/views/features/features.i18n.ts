@@ -61,10 +61,10 @@ export const translations = {
         it: "Fatturazione",
       },
       description: {
-        es: "Genera facturas y tickets automáticamente. Cumple con la normativa fiscal vigente. Envía facturas por correo electrónico directamente desde el sistema.",
-        de: "Erstelle Rechnungen und Belege automatisch. Entspricht den geltenden steuerlichen Vorschriften. Versende Rechnungen per E-Mail direkt aus dem System.",
-        en: "Generate invoices and receipts automatically. Compliant with current tax regulations. Send invoices by email directly from the system.",
-        it: "Genera fatture e scontrini automaticamente. Conforme alla normativa fiscale vigente. Invia fatture via e-mail direttamente dal sistema.",
+        es: "Genera facturas y tickets automáticamente. Compatible con VeriFactu y conforme a la normativa fiscal vigente. Envía facturas por correo electrónico directamente desde el sistema.",
+        de: "Erstelle Rechnungen und Belege automatisch. VeriFactu-kompatibel und konform mit den geltenden steuerlichen Vorschriften. Versende Rechnungen per E-Mail direkt aus dem System.",
+        en: "Generate invoices and receipts automatically. VeriFactu-compatible and compliant with current tax regulations. Send invoices by email directly from the system.",
+        it: "Genera fatture e scontrini automaticamente. Compatibile con VeriFactu e conforme alla normativa fiscale vigente. Invia fatture via e-mail direttamente dal sistema.",
       },
     },
     {
