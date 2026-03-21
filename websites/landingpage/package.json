@@ -3,21 +3,26 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "dev": "astro dev",
+    "dev": "concurrently -k -n astro,pb -c cyan,magenta \"pnpm dev:astro\" \"pnpm dev:pb\"",
+    "dev:astro": "astro dev",
+    "dev:pb": "cd pb && go run . serve",
     "build": "astro build",
-    "preview": "astro preview",
+    "preview": "cd pb && ./pocketbase serve",
+    "deploy": "pnpm build && docker build -t pulpocloud/landingpage . && docker push pulpocloud/landingpage",
     "astro": "astro",
-    "deploy": "docker build -t pulpocloud/landingpage . && docker push pulpocloud/landingpage"
+    "pb:setup": "npx tsx pb/setup.ts"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.98",
     "@tailwindcss/vite": "^4.2.1",
     "astro": "^5.17.1",
     "astro-icon": "^1.1.5",
+    "pocketbase": "^0.26.8",
     "tailwindcss": "^4.2.1"
   },
   "devDependencies": {
     "@fontsource/dm-sans": "^5.2.8",
-    "@fontsource/syne": "^5.2.7"
+    "@fontsource/syne": "^5.2.7",
+    "concurrently": "^9.2.1"
   }
 }

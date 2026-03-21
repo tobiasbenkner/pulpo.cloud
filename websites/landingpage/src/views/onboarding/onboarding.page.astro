@@ -1,0 +1,272 @@
+---
+import type { OnboardingTranslations } from "./onboarding.i18n";
+import type { Language } from "@/lib/i18n";
+import { Icon } from "astro-icon/components";
+
+interface Props {
+  lang: Language;
+  t: OnboardingTranslations;
+}
+
+const { lang, t } = Astro.props;
+
+const fields = [
+  { id: "businessName", type: "text", ...t.fields.businessName },
+  { id: "legalName", type: "text", ...t.fields.legalName },
+  { id: "nif", type: "text", ...t.fields.nif },
+  { id: "address", type: "text", ...t.fields.address },
+  {
+    id: "postalCode",
+    type: "text",
+    ...t.fields.postalCode,
+    hint: t.postalCodeHint,
+  },
+  { id: "city", type: "text", ...t.fields.city },
+];
+
+const inputClass =
+  "mt-1.5 block w-full rounded-md border border-sand bg-white px-4 py-2.5 text-sm text-navy-800 shadow-sm outline-none transition-colors placeholder:text-navy-300 focus:border-coral-500 focus:ring-1 focus:ring-coral-500";
+---
+
+<section class="py-16 md:py-24" id="onboarding-page">
+  <div class="mx-auto max-w-[640px] px-6 lg:px-8">
+    <!-- Title -->
+    <div>
+      <h1
+        class="font-display text-2xl font-extrabold tracking-tight text-navy-900 md:text-3xl"
+      >
+        {t.title}
+      </h1>
+      <p class="mt-2 text-sm text-navy-500">{t.subtitle}</p>
+      <p class="mt-1 text-sm text-navy-400" id="user-email"></p>
+    </div>
+
+    <!-- Process steps -->
+    <div class="mt-8 grid gap-4 sm:grid-cols-3">
+      {
+        t.steps.map((step: string, i: number) => (
+          <div class="flex items-start gap-3 rounded-lg border border-sand bg-white p-4">
+            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-coral-500 text-[11px] font-bold text-white">
+              {i + 1}
+            </span>
+            <p class="text-sm leading-snug text-navy-600">{step}</p>
+          </div>
+        ))
+      }
+    </div>
+
+    <!-- Form -->
+    <form id="onboarding-form" class="mt-10" id="onboarding-form-container">
+      <div class="space-y-5">
+        {
+          fields.map((field) => (
+            <div>
+              <label
+                for={field.id}
+                class="block text-sm font-medium text-navy-800"
+              >
+                {field.label}
+              </label>
+              <input
+                type={field.type}
+                id={field.id}
+                name={field.id}
+                required
+                placeholder={field.placeholder}
+                class={inputClass}
+              />
+              {field.hint && (
+                <p class="mt-1 text-xs text-navy-400">{field.hint}</p>
+              )}
+            </div>
+          ))
+        }
+
+        <!-- Business type select -->
+        <div>
+          <label
+            for="businessType"
+            class="block text-sm font-medium text-navy-800"
+          >
+            {t.fields.businessType.label}
+          </label>
+          <select
+            id="businessType"
+            name="businessType"
+            required
+            class={`${inputClass} appearance-none`}
+          >
+            <option value="gastro"
+              >{t.fields.businessType.options.gastro}</option
+            >
+            <option value="retail"
+              >{t.fields.businessType.options.retail}</option
+            >
+            <option value="other">{t.fields.businessType.options.other}</option>
+          </select>
+        </div>
+      </div>
+
+      <p id="onboarding-error" class="mt-4 hidden text-sm text-coral-600"></p>
+
+      <button
+        type="submit"
+        class="mt-8 flex w-full items-center justify-center gap-2 rounded-md bg-coral-500 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-coral-600"
+      >
+        {t.submit}
+        <Icon name="lucide:arrow-right" class="h-3.5 w-3.5" />
+      </button>
+    </form>
+
+    <!-- Success message (hidden by default) -->
+    <div id="onboarding-success" class="mt-10 hidden text-center">
+      <div
+        class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-coral-500/10"
+      >
+        <Icon name="lucide:check" class="h-7 w-7 text-coral-500" />
+      </div>
+      <h2 class="mt-5 font-display text-xl font-bold text-navy-900">
+        {t.saved.title}
+      </h2>
+      <p class="mt-2 text-sm text-navy-500">{t.saved.message}</p>
+    </div>
+
+    <!-- Logout -->
+    <div class="mt-12 text-center">
+      <button
+        id="logout-btn"
+        class="text-xs text-navy-400 transition-colors hover:text-coral-500"
+      >
+        {t.logout}
+      </button>
+    </div>
+  </div>
+</section>
+
+<script>
+  const pbUrl = import.meta.env.PUBLIC_POCKETBASE_URL || "";
+
+  const token = localStorage.getItem("pb_token");
+  const user = JSON.parse(localStorage.getItem("pb_user") || "null");
+
+  // Redirect to login if not authenticated
+  if (!token || !user) {
+    const lang = document.documentElement.lang || "es";
+    const loginPaths: Record<string, string> = {
+      es: "/login",
+      de: "/de/login",
+      en: "/en/login",
+      it: "/it/login",
+    };
+    window.location.href = loginPaths[lang] || "/login";
+  }
+
+  // Show user email
+  const emailEl = document.getElementById("user-email");
+  if (emailEl && user) {
+    emailEl.textContent = user.email;
+  }
+
+  // Pre-fill form if user already has data
+  async function loadExistingData() {
+    if (!token || !user) return;
+
+    try {
+      const res = await fetch(
+        `${pbUrl}/api/collections/users/records/${user.id}`,
+        {
+          headers: { Authorization: token },
+        },
+      );
+
+      if (res.ok) {
+        const data = await res.json();
+        const fields = [
+          "businessName",
+          "legalName",
+          "nif",
+          "address",
+          "postalCode",
+          "city",
+          "businessType",
+        ];
+        fields.forEach((f) => {
+          const el = document.getElementById(f) as
+            | HTMLInputElement
+            | HTMLSelectElement
+            | null;
+          if (el && data[f]) el.value = data[f];
+        });
+      }
+    } catch {
+      // Ignore - fields stay empty
+    }
+  }
+
+  loadExistingData();
+
+  // Logout
+  document.getElementById("logout-btn")?.addEventListener("click", () => {
+    localStorage.removeItem("pb_token");
+    localStorage.removeItem("pb_user");
+
+    const lang = document.documentElement.lang || "es";
+    const loginPaths: Record<string, string> = {
+      es: "/login",
+      de: "/de/login",
+      en: "/en/login",
+      it: "/it/login",
+    };
+    window.location.href = loginPaths[lang] || "/login";
+  });
+
+  // Submit
+  document
+    .getElementById("onboarding-form")
+    ?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const form = e.target as HTMLFormElement;
+      const formData = new FormData(form);
+      const btn = form.querySelector(
+        "button[type=submit]",
+      ) as HTMLButtonElement;
+      const errorEl = document.getElementById("onboarding-error");
+
+      btn.disabled = true;
+      if (errorEl) errorEl.classList.add("hidden");
+
+      const body: Record<string, string> = {};
+      formData.forEach((v, k) => (body[k] = v as string));
+
+      try {
+        const res = await fetch(
+          `${pbUrl}/api/collections/users/records/${user.id}`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: token!,
+            },
+            body: JSON.stringify(body),
+          },
+        );
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err?.message || "Error");
+        }
+
+        form.style.display = "none";
+        document
+          .getElementById("onboarding-success")!
+          .classList.remove("hidden");
+      } catch (err: any) {
+        if (errorEl) {
+          errorEl.textContent = err.message;
+          errorEl.classList.remove("hidden");
+        }
+        btn.disabled = false;
+      }
+    });
+</script>

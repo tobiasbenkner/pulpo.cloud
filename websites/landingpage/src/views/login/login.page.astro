@@ -1,0 +1,132 @@
+---
+import type { LoginTranslations } from "./login.i18n";
+import type { Language } from "@/lib/i18n";
+import { getTranslatedPath } from "@/lib/registry";
+import { Icon } from "astro-icon/components";
+import logo from "@/assets/logo.png";
+
+interface Props {
+  lang: Language;
+  t: LoginTranslations;
+}
+
+const { lang, t } = Astro.props;
+---
+
+<section class="flex min-h-[70vh] items-center py-20 md:py-32">
+  <div class="mx-auto w-full max-w-[400px] px-6 lg:px-8">
+    <div class="text-center">
+      <a href={getTranslatedPath("home", lang)} class="animate-reveal inline-block">
+        <img src={logo.src} alt="Pulpo" width="48" height="48" class="mx-auto h-12 w-12" />
+      </a>
+      <h1 class="animate-reveal mt-5 font-display text-2xl font-extrabold tracking-tight text-navy-900 [animation-delay:100ms]">
+        {t.title}
+      </h1>
+    </div>
+
+    <form id="login-form" class="animate-reveal mt-8 space-y-4 [animation-delay:200ms]">
+      <div>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          required
+          autocomplete="email"
+          placeholder={t.email}
+          class="block w-full rounded-md border border-sand bg-white px-4 py-3 text-sm text-navy-800 shadow-sm outline-none transition-colors placeholder:text-navy-300 focus:border-coral-500 focus:ring-1 focus:ring-coral-500"
+        />
+      </div>
+      <div>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          required
+          autocomplete="current-password"
+          placeholder={t.password}
+          class="block w-full rounded-md border border-sand bg-white px-4 py-3 text-sm text-navy-800 shadow-sm outline-none transition-colors placeholder:text-navy-300 focus:border-coral-500 focus:ring-1 focus:ring-coral-500"
+        />
+      </div>
+      <button
+        type="submit"
+        class="flex w-full items-center justify-center gap-2 rounded-md bg-coral-500 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-coral-600"
+      >
+        {t.submit}
+        <Icon name="lucide:arrow-right" class="h-3.5 w-3.5" />
+      </button>
+      <p id="login-error" class="hidden text-center text-sm text-coral-600"></p>
+    </form>
+
+    <p class="animate-reveal mt-6 text-center text-sm text-navy-400 [animation-delay:300ms]">
+      {t.noAccount}{" "}
+      <a
+        href={getTranslatedPath("signup", lang)}
+        class="font-medium text-coral-500 hover:text-coral-600"
+      >
+        {t.signupLink}
+      </a>
+    </p>
+  </div>
+</section>
+
+<script>
+  const pbUrl = import.meta.env.PUBLIC_POCKETBASE_URL || "";
+
+  // Redirect if already logged in
+  if (localStorage.getItem("pb_token")) {
+    const lang = document.documentElement.lang || "es";
+    const onboardingPaths: Record<string, string> = {
+      es: "/onboarding",
+      de: "/de/onboarding",
+      en: "/en/onboarding",
+      it: "/it/onboarding",
+    };
+    window.location.href = onboardingPaths[lang] || "/onboarding";
+  }
+
+  document.getElementById("login-form")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const form = e.target as HTMLFormElement;
+    const data = new FormData(form);
+    const btn = form.querySelector("button") as HTMLButtonElement;
+    const errorEl = document.getElementById("login-error");
+
+    btn.disabled = true;
+    if (errorEl) errorEl.classList.add("hidden");
+
+    try {
+      const res = await fetch(`${pbUrl}/api/collections/users/auth-with-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          identity: data.get("email"),
+          password: data.get("password"),
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("E-Mail oder Passwort falsch.");
+      }
+
+      const result = await res.json();
+      localStorage.setItem("pb_token", result.token);
+      localStorage.setItem("pb_user", JSON.stringify(result.record));
+
+      const lang = document.documentElement.lang || "es";
+      const onboardingPaths: Record<string, string> = {
+        es: "/onboarding",
+        de: "/de/onboarding",
+        en: "/en/onboarding",
+        it: "/it/onboarding",
+      };
+      window.location.href = onboardingPaths[lang] || "/onboarding";
+    } catch (err: any) {
+      if (errorEl) {
+        errorEl.textContent = err.message;
+        errorEl.classList.remove("hidden");
+      }
+      btn.disabled = false;
+    }
+  });
+</script>

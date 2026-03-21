@@ -43,6 +43,12 @@ export const translations = {
       en: "Your email",
       it: "La tua email",
     },
+    password: {
+      es: "Contraseña (mín. 8 caracteres)",
+      de: "Passwort (min. 8 Zeichen)",
+      en: "Password (min. 8 characters)",
+      it: "Password (min. 8 caratteri)",
+    },
     submit: {
       es: "Crear cuenta",
       de: "Konto erstellen",
@@ -64,17 +70,29 @@ export const translations = {
   },
   confirmation: {
     title: {
-      es: "¡Revisa tu email!",
-      de: "Prüfe deine E-Mail!",
-      en: "Check your email!",
-      it: "Controlla la tua email!",
+      es: "¡Cuenta creada!",
+      de: "Konto erstellt!",
+      en: "Account created!",
+      it: "Account creato!",
     },
     message: {
-      es: "Te enviaremos tus datos de acceso en breve.",
-      de: "Wir senden dir deine Zugangsdaten in Kürze.",
-      en: "We'll send you your login details shortly.",
-      it: "Ti invieremo i tuoi dati di accesso a breve.",
+      es: "Revisa tu email para verificar tu cuenta. Después puedes iniciar sesión.",
+      de: "Prüfe deine E-Mail, um dein Konto zu bestätigen. Danach kannst du dich anmelden.",
+      en: "Check your email to verify your account. Then you can log in.",
+      it: "Controlla la tua email per verificare il tuo account. Poi puoi accedere.",
     },
+  },
+  hasAccount: {
+    es: "¿Ya tienes cuenta?",
+    de: "Schon ein Konto?",
+    en: "Already have an account?",
+    it: "Hai già un account?",
+  },
+  loginLink: {
+    es: "Iniciar sesión",
+    de: "Anmelden",
+    en: "Log in",
+    it: "Accedi",
   },
 };
 

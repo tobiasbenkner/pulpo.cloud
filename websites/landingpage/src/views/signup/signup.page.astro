@@ -1,6 +1,7 @@
 ---
 import type { SignupTranslations } from "./signup.i18n";
 import type { Language } from "@/lib/i18n";
+import { getTranslatedPath } from "@/lib/registry";
 import { siteData } from "@/data/site";
 import { Icon } from "astro-icon/components";
 import logo from "@/assets/logo.png";
@@ -46,6 +47,16 @@ const { lang, t } = Astro.props;
               placeholder={t.form.email}
               class="block w-full rounded-md border border-sand bg-white px-4 py-3 text-sm text-navy-800 shadow-sm outline-none transition-colors placeholder:text-navy-300 focus:border-coral-500 focus:ring-1 focus:ring-coral-500"
             />
+            <input
+              type="password"
+              id="password"
+              name="password"
+              required
+              minlength="8"
+              autocomplete="new-password"
+              placeholder={t.form.password}
+              class="block w-full rounded-md border border-sand bg-white px-4 py-3 text-sm text-navy-800 shadow-sm outline-none transition-colors placeholder:text-navy-300 focus:border-coral-500 focus:ring-1 focus:ring-coral-500"
+            />
             <button
               type="submit"
               class="flex w-full items-center justify-center gap-2 rounded-md bg-coral-500 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-coral-600"
@@ -54,6 +65,8 @@ const { lang, t } = Astro.props;
               <Icon name="lucide:arrow-right" class="h-3.5 w-3.5" />
             </button>
           </form>
+
+          <p id="signup-error" class="mt-3 hidden text-sm text-coral-600"></p>
 
           <!-- Trust signals -->
           <div class="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-[12px] text-navy-400">
@@ -70,6 +83,16 @@ const { lang, t } = Astro.props;
               VeriFactu
             </span>
           </div>
+
+          <p class="mt-4 text-center text-sm text-navy-400">
+            {t.hasAccount}{" "}
+            <a
+              href={getTranslatedPath("login", lang)}
+              class="font-medium text-coral-500 hover:text-coral-600"
+            >
+              {t.loginLink}
+            </a>
+          </p>
         </div>
 
         <!-- Confirmation (hidden by default) -->
@@ -83,6 +106,13 @@ const { lang, t } = Astro.props;
           <p class="mt-2 text-sm text-navy-500">
             {t.confirmation.message}
           </p>
+          <a
+            href={getTranslatedPath("login", lang)}
+            class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-coral-500 hover:text-coral-600"
+          >
+            {t.loginLink}
+            <Icon name="lucide:arrow-right" class="h-3.5 w-3.5" />
+          </a>
         </div>
       </div>
     </div>
@@ -152,21 +182,62 @@ const { lang, t } = Astro.props;
   </div>
 </section>
 
-<script is:inline define:vars={{ email: siteData.contact.email }}>
+<script>
+  const pbUrl = import.meta.env.PUBLIC_POCKETBASE_URL || "";
+
+  // Redirect to onboarding if already logged in
+  if (localStorage.getItem("pb_token")) {
+    const lang = document.documentElement.lang || "es";
+    const paths: Record<string, string> = {
+      es: "/onboarding",
+      de: "/de/onboarding",
+      en: "/en/onboarding",
+      it: "/it/onboarding",
+    };
+    window.location.href = paths[lang] || "/onboarding";
+  }
+
   document.getElementById("signup-form")?.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const data = new FormData(e.target);
+
+    const form = e.target as HTMLFormElement;
+    const data = new FormData(form);
+    const email = data.get("email") as string;
+    const password = data.get("password") as string;
+    const btn = form.querySelector("button") as HTMLButtonElement;
+    const errorEl = document.getElementById("signup-error");
+
+    btn.disabled = true;
+    if (errorEl) errorEl.classList.add("hidden");
 
     try {
-      await fetch(`https://formsubmit.co/ajax/${email}`, {
+      const res = await fetch(`${pbUrl}/api/collections/users/records`, {
         method: "POST",
-        body: data,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, passwordConfirm: password }),
       });
-    } catch {
-      // Still show confirmation
-    }
 
-    document.getElementById("signup-form-container").style.display = "none";
-    document.getElementById("signup-confirmation").classList.remove("hidden");
+      if (!res.ok) {
+        const err = await res.json();
+        const msg = err?.data?.email?.message || err?.message || "Error";
+        throw new Error(msg);
+      }
+
+      // Request verification email
+      await fetch(`${pbUrl}/api/collections/users/request-verification`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      document.getElementById("signup-form-container")!.style.display = "none";
+      document.getElementById("signup-confirmation")!.classList.remove("hidden");
+    } catch (err: any) {
+      if (errorEl) {
+        errorEl.textContent = err.message;
+        errorEl.classList.remove("hidden");
+      }
+      btn.disabled = false;
+    }
   });
 </script>
