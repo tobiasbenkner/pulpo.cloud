@@ -12,33 +12,68 @@ interface Props {
 const { lang, t } = Astro.props;
 ---
 
-<section class="mx-auto max-w-6xl px-6 py-24 text-center">
-  <h1 class="text-4xl font-bold tracking-tight md:text-5xl">{t.hero.title}</h1>
-  <p class="mx-auto mt-6 max-w-2xl text-lg text-gray-600">{t.hero.subtitle}</p>
+<!-- Hero -->
+<section class="pb-16 pt-12 md:pb-24 md:pt-20">
+  <div class="mx-auto max-w-[1200px] px-6 lg:px-8">
+    <div class="max-w-2xl">
+      <div class="animate-reveal section-label text-coral-500">
+        {t.hero.title}
+      </div>
+      <h1
+        class="animate-reveal mt-4 font-display text-4xl font-extrabold tracking-tight text-navy-900 [animation-delay:100ms] md:text-5xl"
+      >
+        {t.hero.subtitle}
+      </h1>
+    </div>
+  </div>
 </section>
 
-<section class="border-t border-gray-100 bg-gray-50 py-24">
-  <div class="mx-auto max-w-6xl px-6">
-    <div class="grid gap-12 md:grid-cols-2">
-      {t.items.map((item: any) => (
-        <div class="flex gap-6">
-          <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-gray-900 text-white">
-            <Icon name={item.icon} class="h-6 w-6" />
+<!-- Features -->
+<section class="pb-24 md:pb-32">
+  <div class="mx-auto max-w-[1200px] px-6 lg:px-8">
+    <div class="divide-y divide-sand">
+      {t.items.map((item: any, i: number) => (
+        <div
+          data-reveal
+          style={`transition-delay: ${(i % 3) * 80}ms`}
+          class="grid gap-6 py-12 first:pt-0 last:pb-0 md:grid-cols-12 md:gap-10"
+        >
+          <div class="flex items-start gap-4 md:col-span-5">
+            <span class="font-display text-sm font-bold text-coral-500/30">
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <div>
+              <div class="flex items-center gap-3">
+                <div class="flex h-8 w-8 items-center justify-center rounded-md bg-navy-800 text-white">
+                  <Icon name={item.icon} class="h-4 w-4" />
+                </div>
+                <h2 class="font-display text-xl font-bold text-navy-900">
+                  {item.title}
+                </h2>
+              </div>
+            </div>
           </div>
-          <div>
-            <h2 class="text-xl font-semibold">{item.title}</h2>
-            <p class="mt-2 text-gray-600">{item.description}</p>
+          <div class="md:col-span-5">
+            <p class="text-sm leading-relaxed text-navy-500">
+              {item.description}
+            </p>
+          </div>
+          <div class="md:col-span-2">
+            <div class="img-placeholder flex aspect-[3/2] items-center justify-center rounded-lg">
+              <Icon name="lucide:image" class="h-5 w-5 text-navy-500" />
+            </div>
           </div>
         </div>
       ))}
     </div>
 
-    <div class="mt-20 text-center">
+    <div class="mt-16 text-center" data-reveal>
       <a
         href={getTranslatedPath("pricing", lang)}
-        class="rounded-lg bg-gray-900 px-8 py-3 text-sm font-medium text-white hover:bg-gray-800 transition-colors"
+        class="inline-flex items-center gap-2 rounded-md bg-coral-500 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-coral-600"
       >
         {t.cta.text}
+        <Icon name="lucide:arrow-right" class="h-3.5 w-3.5" />
       </a>
     </div>
   </div>

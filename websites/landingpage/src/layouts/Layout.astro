@@ -1,9 +1,11 @@
 ---
 import "../styles/global.css";
 import type { Language } from "@/lib/i18n";
-import { languages, defaultLang } from "@/lib/i18n";
+import { languages } from "@/lib/i18n";
 import { getTranslatedPath, getRouteLabel } from "@/lib/registry";
 import { siteData } from "@/data/site";
+import { Icon } from "astro-icon/components";
+import logo from "@/assets/logo.png";
 
 interface Props {
   title: string;
@@ -14,7 +16,7 @@ interface Props {
 
 const { title, description, lang, routeKey } = Astro.props;
 
-const mainNav = ["home", "features", "pricing", "contact"] as const;
+const mainNav = ["features", "pricing", "contact"] as const;
 const legalNav = ["imprint", "privacy", "terms"] as const;
 ---
 
@@ -25,6 +27,12 @@ const legalNav = ["imprint", "privacy", "terms"] as const;
     <meta name="viewport" content="width=device-width" />
     <meta name="description" content={description} />
     <title>{title}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Syne:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
     {languages.map((l) => (
       <link
         rel="alternate"
@@ -32,34 +40,57 @@ const legalNav = ["imprint", "privacy", "terms"] as const;
         href={`${siteData.meta.url}${getTranslatedPath(routeKey, l)}`}
       />
     ))}
+    <noscript>
+      <style>
+        [data-reveal] {
+          opacity: 1 !important;
+          transform: none !important;
+        }
+      </style>
+    </noscript>
   </head>
-  <body class="flex min-h-dvh flex-col bg-white text-gray-900 antialiased">
-    <!-- Header -->
-    <header class="sticky top-0 z-10 border-b border-gray-100 bg-white/80 backdrop-blur">
-      <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <a href={getTranslatedPath("home", lang)} class="text-xl font-bold tracking-tight">
-          {siteData.meta.name}
+
+  <body class="flex min-h-dvh flex-col bg-cream text-navy-800">
+    <header class="sticky top-0 z-50 bg-cream/92 backdrop-blur-md">
+      <div class="mx-auto flex max-w-[1200px] items-center justify-between px-6 py-4 lg:px-8">
+        <a
+          href={getTranslatedPath("home", lang)}
+          class="flex items-center gap-2"
+        >
+          <img src={logo.src} alt="" width="28" height="28" class="h-7 w-7" />
+          <span class="font-display text-base font-bold tracking-tight">
+            {siteData.meta.name}
+          </span>
         </a>
-        <nav class="hidden items-center gap-8 text-sm font-medium text-gray-600 md:flex">
+
+        <nav class="hidden items-center gap-7 md:flex">
           {mainNav.map((key) => (
             <a
               href={getTranslatedPath(key, lang)}
-              class:list={["hover:text-gray-900 transition-colors", routeKey === key && "text-gray-900"]}
+              class:list={[
+                "nav-link text-[13px] font-medium text-navy-500 transition-colors hover:text-navy-800",
+                routeKey === key && "active text-navy-800",
+              ]}
             >
               {getRouteLabel(key, lang)}
             </a>
           ))}
         </nav>
+
         <div class="flex items-center gap-4">
-          <!-- Language switcher -->
-          <div class="flex items-center gap-1 text-sm">
+          <div class="hidden items-center gap-1.5 text-[11px] text-navy-400 sm:flex">
             {languages.map((l, i) => (
               <>
-                {i > 0 && <span class="text-gray-300">&middot;</span>}
+                {i > 0 && <span class="text-navy-200">/</span>}
                 {l === lang ? (
-                  <span class="font-medium text-gray-900">{l.toUpperCase()}</span>
+                  <span class="font-medium text-navy-800">
+                    {l.toUpperCase()}
+                  </span>
                 ) : (
-                  <a href={getTranslatedPath(routeKey, l)} class="text-gray-400 hover:text-gray-700 transition-colors">
+                  <a
+                    href={getTranslatedPath(routeKey, l)}
+                    class="transition-colors hover:text-coral-500"
+                  >
                     {l.toUpperCase()}
                   </a>
                 )}
@@ -68,30 +99,137 @@ const legalNav = ["imprint", "privacy", "terms"] as const;
           </div>
           <a
             href={getTranslatedPath("contact", lang)}
-            class="hidden rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 transition-colors sm:block"
+            class="hidden items-center gap-1.5 rounded-md bg-navy-800 px-4 py-1.5 text-[13px] font-medium text-white transition-colors hover:bg-coral-500 sm:inline-flex"
           >
             {getRouteLabel("contact", lang)}
+            <Icon name="lucide:arrow-right" class="h-3 w-3" />
           </a>
+          <button
+            id="menu-toggle"
+            class="p-1.5 text-navy-600 md:hidden"
+            aria-label="Menu"
+          >
+            <Icon name="lucide:menu" class="h-5 w-5" />
+          </button>
         </div>
       </div>
+
+      <nav
+        id="mobile-menu"
+        class="hidden border-t border-sand bg-cream md:hidden"
+      >
+        <div class="mx-auto flex max-w-[1200px] flex-col gap-1 px-6 py-4">
+          {(["home" as const, ...mainNav] as const).map((key) => (
+            <a
+              href={getTranslatedPath(key, lang)}
+              class:list={[
+                "py-2 text-sm font-medium",
+                routeKey === key ? "text-coral-500" : "text-navy-600",
+              ]}
+            >
+              {getRouteLabel(key, lang)}
+            </a>
+          ))}
+          <div class="mt-2 flex gap-2 border-t border-sand pt-3">
+            {languages.map((l) => (
+              <a
+                href={getTranslatedPath(routeKey, l)}
+                class:list={[
+                  "px-2 py-1 text-xs",
+                  l === lang
+                    ? "font-medium text-navy-800"
+                    : "text-navy-400 hover:text-navy-600",
+                ]}
+              >
+                {l.toUpperCase()}
+              </a>
+            ))}
+          </div>
+        </div>
+      </nav>
     </header>
 
     <main class="flex-1">
       <slot />
     </main>
 
-    <!-- Footer -->
-    <footer class="border-t border-gray-100 py-8">
-      <div class="mx-auto flex max-w-6xl flex-col items-center gap-4 px-6 text-sm text-gray-500 sm:flex-row sm:justify-between">
-        <span>&copy; {new Date().getFullYear()} {siteData.meta.name}</span>
-        <nav class="flex items-center gap-6">
-          {legalNav.map((key) => (
-            <a href={getTranslatedPath(key, lang)} class="hover:text-gray-700 transition-colors">
-              {getRouteLabel(key, lang)}
+    <footer class="bg-navy-900 pb-10 pt-20 text-navy-400">
+      <div class="mx-auto max-w-[1200px] px-6 lg:px-8">
+        <div class="flex flex-col gap-12 md:flex-row md:justify-between">
+          <div class="max-w-xs">
+            <a
+              href={getTranslatedPath("home", lang)}
+              class="flex items-center gap-2"
+            >
+              <img
+                src={logo.src}
+                alt=""
+                width="24"
+                height="24"
+                class="h-6 w-6"
+              />
+              <span class="font-display text-sm font-bold text-white">
+                {siteData.meta.name}
+              </span>
             </a>
-          ))}
-        </nav>
+            <p class="mt-4 text-sm leading-relaxed">Cloud POS</p>
+          </div>
+          <div class="flex gap-16 text-sm">
+            <div class="flex flex-col gap-2.5">
+              {(["home" as const, ...mainNav] as const).map((key) => (
+                <a
+                  href={getTranslatedPath(key, lang)}
+                  class="transition-colors hover:text-coral-400"
+                >
+                  {getRouteLabel(key, lang)}
+                </a>
+              ))}
+            </div>
+            <div class="flex flex-col gap-2.5">
+              {legalNav.map((key) => (
+                <a
+                  href={getTranslatedPath(key, lang)}
+                  class="transition-colors hover:text-coral-400"
+                >
+                  {getRouteLabel(key, lang)}
+                </a>
+              ))}
+            </div>
+          </div>
+          <div class="text-sm">
+            <a
+              href={`mailto:${siteData.contact.email}`}
+              class="transition-colors hover:text-coral-400"
+            >
+              {siteData.contact.email}
+            </a>
+          </div>
+        </div>
+        <div class="mt-16 border-t border-navy-800 pt-6 text-xs text-navy-600">
+          &copy; {new Date().getFullYear()} {siteData.meta.name}
+        </div>
       </div>
     </footer>
+
+    <script>
+      document.getElementById("menu-toggle")?.addEventListener("click", () => {
+        document.getElementById("mobile-menu")?.classList.toggle("hidden");
+      });
+
+      const observer = new IntersectionObserver(
+        (entries) =>
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              e.target.classList.add("revealed");
+              observer.unobserve(e.target);
+            }
+          }),
+        { threshold: 0.08, rootMargin: "0px 0px -60px 0px" },
+      );
+
+      document
+        .querySelectorAll("[data-reveal]")
+        .forEach((el) => observer.observe(el));
+    </script>
   </body>
 </html>

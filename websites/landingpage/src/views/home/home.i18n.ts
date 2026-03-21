@@ -111,16 +111,16 @@ export const translations = {
   },
   pricingTeaser: {
     title: {
-      es: "Precios sencillos",
-      de: "Einfache Preise",
-      en: "Simple pricing",
-      it: "Prezzi semplici",
+      es: "Empieza gratis",
+      de: "Starte kostenlos",
+      en: "Start for free",
+      it: "Inizia gratis",
     },
     subtitle: {
-      es: `Desde ${siteData.pricing.plans.basic.price}${siteData.pricing.currency}/mes. Sin sorpresas.`,
-      de: `Ab ${siteData.pricing.plans.basic.price}${siteData.pricing.currency}/Monat. Keine Überraschungen.`,
-      en: `From ${siteData.pricing.plans.basic.price}${siteData.pricing.currency}/month. No surprises.`,
-      it: `Da ${siteData.pricing.plans.basic.price}${siteData.pricing.currency}/mese. Nessuna sorpresa.`,
+      es: `${siteData.pricing.plans[0].invoices} facturas al mes gratis. Después, desde ${siteData.pricing.plans[1].price}${siteData.pricing.currency}/mes. Todas las funciones incluidas.`,
+      de: `${siteData.pricing.plans[0].invoices} Rechnungen im Monat kostenlos. Danach ab ${siteData.pricing.plans[1].price}${siteData.pricing.currency}/Monat. Alle Funktionen inklusive.`,
+      en: `${siteData.pricing.plans[0].invoices} invoices per month for free. Then from ${siteData.pricing.plans[1].price}${siteData.pricing.currency}/month. All features included.`,
+      it: `${siteData.pricing.plans[0].invoices} fatture al mese gratis. Poi da ${siteData.pricing.plans[1].price}${siteData.pricing.currency}/mese. Tutte le funzionalità incluse.`,
     },
     cta: {
       es: "Ver precios",

@@ -2,6 +2,10 @@ import { siteData } from "@/data/site";
 import type { FlattenTranslation } from "@/lib/i18n";
 
 const { pricing } = siteData;
+const overage = String(pricing.overage).replace(".", ",");
+const overageFormatted = `${overage}${pricing.currency}`;
+const lastPlan = pricing.plans[pricing.plans.length - 1];
+const maxInvoices = lastPlan.invoices.toLocaleString("de-DE");
 
 export const translations = {
   navigationLabel: {
@@ -18,90 +22,88 @@ export const translations = {
       it: `Prezzi – ${siteData.meta.name}`,
     },
     description: {
-      es: "Planes y precios de Pulpo. Sin sorpresas, sin permanencia.",
-      de: "Pläne und Preise von Pulpo. Keine Überraschungen, keine Bindung.",
-      en: "Pulpo plans and pricing. No surprises, no lock-in.",
-      it: "Piani e prezzi di Pulpo. Nessuna sorpresa, nessun vincolo.",
+      es: "Precios basados en uso. Empieza gratis, paga según creces.",
+      de: "Nutzungsbasierte Preise. Starte kostenlos, zahle wenn du wächst.",
+      en: "Usage-based pricing. Start free, pay as you grow.",
+      it: "Prezzi basati sull'uso. Inizia gratis, paga man mano che cresci.",
     },
   },
   hero: {
     title: {
-      es: "Precios sencillos",
-      de: "Einfache Preise",
-      en: "Simple pricing",
-      it: "Prezzi semplici",
+      es: "Paga según creces",
+      de: "Zahle wenn du wächst",
+      en: "Pay as you grow",
+      it: "Paga man mano che cresci",
     },
     subtitle: {
-      es: "Sin sorpresas. Elige el plan que mejor se adapte a tu negocio.",
-      de: "Keine Überraschungen. Wähle den Plan, der am besten zu deinem Geschäft passt.",
-      en: "No surprises. Choose the plan that best fits your business.",
-      it: "Nessuna sorpresa. Scegli il piano più adatto alla tua attività.",
+      es: "Todas las funciones incluidas. Sin límites artificiales. Solo pagas según el número de facturas que generas al mes.",
+      de: "Alle Funktionen inklusive. Keine künstlichen Limits. Du zahlst nur nach der Anzahl der Rechnungen, die du im Monat erstellst.",
+      en: "All features included. No artificial limits. You only pay based on the number of invoices you generate per month.",
+      it: "Tutte le funzionalità incluse. Nessun limite artificiale. Paghi solo in base al numero di fatture che generi al mese.",
     },
   },
-  monthly: {
-    es: "/mes",
-    de: "/Monat",
-    en: "/month",
-    it: "/mese",
+  allFeatures: {
+    es: "Todas las funciones incluidas",
+    de: "Alle Funktionen inklusive",
+    en: "All features included",
+    it: "Tutte le funzionalità incluse",
   },
-  plans: [
-    {
-      name: {
-        es: "Básico",
-        de: "Basis",
-        en: "Basic",
-        it: "Base",
-      },
-      description: {
-        es: "Para negocios que empiezan.",
-        de: "Für Geschäfte, die gerade starten.",
-        en: "For businesses just getting started.",
-        it: "Per attività che iniziano.",
-      },
-      price: `${pricing.plans.basic.price}${pricing.currency}`,
-      features: {
-        es: ["Punto de venta", "Facturación", "Inventario básico", "1 usuario"],
-        de: ["Kassensystem", "Rechnungsstellung", "Basis-Inventar", "1 Benutzer"],
-        en: ["Point of sale", "Invoicing", "Basic inventory", "1 user"],
-        it: ["Punto vendita", "Fatturazione", "Inventario base", "1 utente"],
-      },
-      cta: {
-        es: "Empezar",
-        de: "Loslegen",
-        en: "Get started",
-        it: "Inizia",
-      },
-      highlighted: false,
+  invoicesPerMonth: {
+    es: "facturas/mes",
+    de: "Rechnungen/Monat",
+    en: "invoices/month",
+    it: "fatture/mese",
+  },
+  upTo: {
+    es: "hasta",
+    de: "bis",
+    en: "up to",
+    it: "fino a",
+  },
+  perInvoice: {
+    es: "por factura",
+    de: "pro Rechnung",
+    en: "per invoice",
+    it: "per fattura",
+  },
+  thenPerInvoice: {
+    es: `Después: +${overageFormatted} por factura adicional`,
+    de: `Danach: +${overageFormatted} pro weitere Rechnung`,
+    en: `Then: +${overageFormatted} per additional invoice`,
+    it: `Poi: +${overageFormatted} per fattura aggiuntiva`,
+  },
+  planNames: {
+    free: { es: "Free", de: "Free", en: "Free", it: "Free" },
+    starter: { es: "Starter", de: "Starter", en: "Starter", it: "Starter" },
+    business: {
+      es: "Business",
+      de: "Business",
+      en: "Business",
+      it: "Business",
     },
-    {
-      name: {
-        es: "Profesional",
-        de: "Professionell",
-        en: "Professional",
-        it: "Professionale",
-      },
-      description: {
-        es: "Para negocios en crecimiento.",
-        de: "Für wachsende Geschäfte.",
-        en: "For growing businesses.",
-        it: "Per attività in crescita.",
-      },
-      price: `${pricing.plans.professional.price}${pricing.currency}`,
-      features: {
-        es: ["Todo lo del plan Básico", "Tienda online", "Informes avanzados", "Usuarios ilimitados"],
-        de: ["Alles aus dem Basis-Plan", "Online-Shop", "Erweiterte Berichte", "Unbegrenzte Benutzer"],
-        en: ["Everything in Basic", "Online store", "Advanced reports", "Unlimited users"],
-        it: ["Tutto del piano Base", "Negozio online", "Report avanzati", "Utenti illimitati"],
-      },
-      cta: {
-        es: "Empezar",
-        de: "Loslegen",
-        en: "Get started",
-        it: "Inizia",
-      },
-      highlighted: true,
+    growth: { es: "Growth", de: "Growth", en: "Growth", it: "Growth" },
+    scale: { es: "Scale", de: "Scale", en: "Scale", it: "Scale" },
+  },
+  cta: {
+    es: "Empezar gratis",
+    de: "Kostenlos starten",
+    en: "Start for free",
+    it: "Inizia gratis",
+  },
+  openSource: {
+    title: {
+      es: "100% Open Source",
+      de: "100% Open Source",
+      en: "100% Open Source",
+      it: "100% Open Source",
     },
-  ],
+    description: {
+      es: "Pulpo es open source. Puedes instalarlo en tu propio servidor y usarlo gratis, sin límites. La nube es solo para quien prefiere no preocuparse por el hosting.",
+      de: "Pulpo ist Open Source. Du kannst es auf deinem eigenen Server installieren und kostenlos nutzen, ohne Limits. Die Cloud ist für alle, die sich nicht um Hosting kümmern wollen.",
+      en: "Pulpo is open source. You can install it on your own server and use it for free, without limits. The cloud is for those who prefer not to worry about hosting.",
+      it: "Pulpo è open source. Puoi installarlo sul tuo server e usarlo gratuitamente, senza limiti. Il cloud è per chi preferisce non preoccuparsi dell'hosting.",
+    },
+  },
   faq: {
     title: {
       es: "Preguntas frecuentes",
@@ -112,16 +114,30 @@ export const translations = {
     items: [
       {
         question: {
-          es: "¿Puedo cambiar de plan en cualquier momento?",
-          de: "Kann ich jederzeit den Plan wechseln?",
-          en: "Can I change plans at any time?",
-          it: "Posso cambiare piano in qualsiasi momento?",
+          es: "¿Qué cuenta como factura?",
+          de: "Was zählt als Rechnung?",
+          en: "What counts as an invoice?",
+          it: "Cosa conta come fattura?",
         },
         answer: {
-          es: "Sí, puedes actualizar o reducir tu plan cuando quieras. Los cambios se aplican en el siguiente ciclo de facturación.",
-          de: "Ja, du kannst deinen Plan jederzeit upgraden oder downgraden. Die Änderung gilt ab dem nächsten Abrechnungszeitraum.",
-          en: "Yes, you can upgrade or downgrade your plan at any time. Changes take effect in the next billing cycle.",
-          it: "Sì, puoi aggiornare o ridurre il tuo piano quando vuoi. Le modifiche si applicano nel prossimo ciclo di fatturazione.",
+          es: "Cada ticket, factura completa o rectificativa que generas cuenta como una factura.",
+          de: "Jedes Ticket, jede vollständige Rechnung und jede Korrekturrechnung zählt als eine Rechnung.",
+          en: "Every ticket, full invoice or credit note you generate counts as one invoice.",
+          it: "Ogni scontrino, fattura completa o nota di credito che generi conta come una fattura.",
+        },
+      },
+      {
+        question: {
+          es: "¿Qué pasa si supero mi límite?",
+          de: "Was passiert, wenn ich mein Limit überschreite?",
+          en: "What happens if I exceed my limit?",
+          it: "Cosa succede se supero il mio limite?",
+        },
+        answer: {
+          es: `Tu plan se ajusta automáticamente al siguiente nivel. Si superas las ${maxInvoices} facturas, se cobra ${overageFormatted} por factura adicional.`,
+          de: `Dein Plan wird automatisch auf die nächste Stufe angepasst. Ab ${maxInvoices} Rechnungen werden ${overageFormatted} pro weitere Rechnung berechnet.`,
+          en: `Your plan automatically adjusts to the next tier. Beyond ${maxInvoices} invoices, each additional invoice costs ${pricing.currency}${pricing.overage}.`,
+          it: `Il tuo piano si adegua automaticamente al livello successivo. Oltre le ${maxInvoices} fatture, ogni fattura aggiuntiva costa ${overageFormatted}.`,
         },
       },
       {
@@ -132,24 +148,24 @@ export const translations = {
           it: "C'è un vincolo contrattuale?",
         },
         answer: {
-          es: "No, puedes cancelar en cualquier momento. Sin permanencia ni penalizaciones.",
-          de: "Nein, du kannst jederzeit kündigen. Keine Bindung, keine Strafgebühren.",
-          en: "No, you can cancel at any time. No lock-in, no penalties.",
-          it: "No, puoi cancellare in qualsiasi momento. Nessun vincolo, nessuna penale.",
+          es: "No. Cancela en cualquier momento. Sin penalizaciones.",
+          de: "Nein. Jederzeit kündbar. Keine Strafgebühren.",
+          en: "No. Cancel at any time. No penalties.",
+          it: "No. Cancella in qualsiasi momento. Nessuna penale.",
         },
       },
       {
         question: {
-          es: "¿Qué métodos de pago aceptan?",
-          de: "Welche Zahlungsmethoden akzeptiert ihr?",
-          en: "What payment methods do you accept?",
-          it: "Quali metodi di pagamento accettate?",
+          es: "¿Puedo instalar Pulpo en mi propio servidor?",
+          de: "Kann ich Pulpo auf meinem eigenen Server installieren?",
+          en: "Can I install Pulpo on my own server?",
+          it: "Posso installare Pulpo sul mio server?",
         },
         answer: {
-          es: "Aceptamos tarjeta de crédito, débito y transferencia bancaria.",
-          de: "Wir akzeptieren Kreditkarte, Debitkarte und Banküberweisung.",
-          en: "We accept credit card, debit card and bank transfer.",
-          it: "Accettiamo carta di credito, carta di debito e bonifico bancario.",
+          es: "Sí. Pulpo es 100% open source. Todas las funciones están disponibles en la versión self-hosted, sin coste.",
+          de: "Ja. Pulpo ist 100% Open Source. Alle Funktionen sind in der Self-Hosted-Version verfügbar, kostenlos.",
+          en: "Yes. Pulpo is 100% open source. All features are available in the self-hosted version, at no cost.",
+          it: "Sì. Pulpo è 100% open source. Tutte le funzionalità sono disponibili nella versione self-hosted, senza costi.",
         },
       },
     ],

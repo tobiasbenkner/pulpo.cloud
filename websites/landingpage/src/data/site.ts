@@ -5,17 +5,17 @@ export const siteData = {
     url: "https://pulpo.cloud",
   },
   contact: {
-    email: "hola@pulpo.cloud",
+    email: "info@pulpo.cloud",
   },
   pricing: {
     currency: "€",
-    plans: {
-      basic: {
-        price: 29,
-      },
-      professional: {
-        price: 59,
-      },
-    },
+    overage: 0.02,
+    plans: [
+      { key: "free", invoices: 100, price: 0 },
+      { key: "starter", invoices: 500, price: 19 },
+      { key: "business", invoices: 2000, price: 39 },
+      { key: "growth", invoices: 5000, price: 69 },
+      { key: "scale", invoices: 10000, price: 99 },
+    ],
   },
 };

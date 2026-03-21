@@ -1,1 +1,219 @@
 @import "tailwindcss";
+
+@theme {
+  --color-navy-50: #eef1f6;
+  --color-navy-100: #dce2ec;
+  --color-navy-200: #b3c1d5;
+  --color-navy-300: #8096b4;
+  --color-navy-400: #506b93;
+  --color-navy-500: #3a5580;
+  --color-navy-600: #2e4366;
+  --color-navy-700: #23344d;
+  --color-navy-800: #1a2332;
+  --color-navy-900: #111722;
+  --color-navy-950: #090c12;
+
+  --color-coral-50: #fef2f4;
+  --color-coral-100: #fee5ea;
+  --color-coral-200: #fcc8d3;
+  --color-coral-300: #f9a1b3;
+  --color-coral-400: #f2748e;
+  --color-coral-500: #e8546d;
+  --color-coral-600: #d33757;
+  --color-coral-700: #b12848;
+  --color-coral-800: #942441;
+  --color-coral-900: #7e223c;
+  --color-coral-950: #460e1e;
+
+  --color-cream: #f8f6f1;
+  --color-sand: #e8e4dc;
+
+  --font-display: "Syne", system-ui, sans-serif;
+  --font-body: "DM Sans", system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Section labels ── */
+
+.section-label {
+  font-family: var(--font-body);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* ── Dot grid texture ── */
+
+.dot-grid {
+  background-image: radial-gradient(circle, currentColor 0.5px, transparent 0.5px);
+  background-size: 20px 20px;
+}
+
+/* ── Grain overlay ── */
+
+.grain {
+  position: relative;
+  isolation: isolate;
+}
+
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 1;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+}
+
+/* ── Nav link ── */
+
+.nav-link {
+  position: relative;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  width: 0;
+  height: 1.5px;
+  background-color: var(--color-coral-500);
+  transition: width 0.3s ease, left 0.3s ease;
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+  width: 100%;
+  left: 0;
+}
+
+/* ── Entrance animations ── */
+
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(32px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes reveal-scale {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-reveal {
+  opacity: 0;
+  animation: reveal-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-reveal-scale {
+  opacity: 0;
+  animation: reveal-scale 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* ── Scroll reveal ── */
+
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-reveal].revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+[data-reveal="left"] {
+  transform: translateX(-32px);
+}
+
+[data-reveal="left"].revealed {
+  transform: translateX(0);
+}
+
+[data-reveal="right"] {
+  transform: translateX(32px);
+}
+
+[data-reveal="right"].revealed {
+  transform: translateX(0);
+}
+
+/* ── Bento card hover ── */
+
+.bento-card {
+  transition:
+    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.4s ease;
+}
+
+.bento-card:hover {
+  transform: translateY(-3px);
+}
+
+/* ── Image placeholder ── */
+
+.img-placeholder {
+  background-color: var(--color-navy-800);
+  position: relative;
+  overflow: hidden;
+}
+
+.img-placeholder::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+    circle,
+    rgba(232, 84, 109, 0.08) 0.5px,
+    transparent 0.5px
+  );
+  background-size: 16px 16px;
+}
+
+/* ── Reduced motion ── */
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-reveal,
+  .animate-reveal-scale {
+    opacity: 1;
+    animation: none;
+  }
+
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .bento-card:hover {
+    transform: none;
+  }
+}

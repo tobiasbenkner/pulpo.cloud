@@ -12,24 +12,54 @@ interface Props {
 const { lang, t } = Astro.props;
 ---
 
-<section class="mx-auto max-w-6xl px-6 py-24 text-center md:py-32">
-  <h1 class="text-4xl font-bold tracking-tight md:text-5xl">{t.hero.title}</h1>
-  <p class="mx-auto mt-6 max-w-2xl text-lg text-gray-600">{t.hero.subtitle}</p>
-</section>
+<!-- Hero + Contact -->
+<section class="py-20 md:py-32">
+  <div class="mx-auto max-w-[1200px] px-6 lg:px-8">
+    <div class="grid gap-16 lg:grid-cols-2">
+      <!-- Text -->
+      <div>
+        <div class="animate-reveal section-label text-coral-500">
+          {t.email.label}
+        </div>
+        <h1
+          class="animate-reveal mt-4 font-display text-4xl font-extrabold tracking-tight text-navy-900 [animation-delay:100ms] md:text-5xl lg:text-6xl"
+        >
+          {t.hero.title}
+        </h1>
+        <p
+          class="animate-reveal mt-6 max-w-md text-lg leading-relaxed text-navy-500 [animation-delay:200ms]"
+        >
+          {t.hero.subtitle}
+        </p>
 
-<section class="border-t border-gray-100 bg-gray-50 py-24">
-  <div class="mx-auto max-w-md px-6 text-center">
-    <div class="rounded-xl border border-gray-200 bg-white p-10">
-      <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-        <Icon name="lucide:mail" class="h-6 w-6" />
+        <div class="animate-reveal mt-10 [animation-delay:300ms]">
+          <a
+            href={`mailto:${siteData.contact.email}`}
+            class="group inline-flex items-center gap-3"
+          >
+            <div
+              class="flex h-10 w-10 items-center justify-center rounded-md bg-coral-500 text-white transition-colors group-hover:bg-coral-600"
+            >
+              <Icon name="lucide:mail" class="h-5 w-5" />
+            </div>
+            <span
+              class="text-lg font-semibold text-navy-800 underline decoration-coral-200 underline-offset-4 transition-colors group-hover:text-coral-500 group-hover:decoration-coral-400"
+            >
+              {siteData.contact.email}
+            </span>
+          </a>
+        </div>
       </div>
-      <h2 class="mt-6 text-lg font-semibold">{t.email.label}</h2>
-      <a
-        href={`mailto:${siteData.contact.email}`}
-        class="mt-2 inline-block text-lg text-gray-600 hover:text-gray-900 transition-colors"
+
+      <!-- Image placeholder -->
+      <div
+        class="animate-reveal img-placeholder flex aspect-[4/3] items-center justify-center rounded-xl [animation-delay:200ms] lg:aspect-auto lg:min-h-[360px]"
       >
-        {siteData.contact.email}
-      </a>
+        <div class="flex flex-col items-center gap-2">
+          <Icon name="lucide:image" class="h-8 w-8 text-navy-500" />
+          <span class="section-label text-navy-500">Foto</span>
+        </div>
+      </div>
     </div>
   </div>
 </section>
