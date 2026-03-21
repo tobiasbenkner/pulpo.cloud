@@ -95,10 +95,10 @@ const legalNav = ["imprint", "privacy", "terms"] as const;
             ))}
           </div>
           <a
-            href={getTranslatedPath("contact", lang)}
-            class="hidden items-center gap-1.5 rounded-md bg-navy-800 px-4 py-1.5 text-[13px] font-medium text-white transition-colors hover:bg-coral-500 sm:inline-flex"
+            href={getTranslatedPath("signup", lang)}
+            class="hidden items-center gap-1.5 rounded-md bg-coral-500 px-4 py-1.5 text-[13px] font-medium text-white transition-colors hover:bg-coral-600 sm:inline-flex"
           >
-            {getRouteLabel("contact", lang)}
+            {getRouteLabel("signup", lang)}
             <Icon name="lucide:arrow-right" class="h-3 w-3" />
           </a>
           <button
@@ -155,8 +155,19 @@ const legalNav = ["imprint", "privacy", "terms"] as const;
         ))}
       </nav>
 
+      <!-- CTA -->
+      <div class="px-8 pb-4">
+        <a
+          href={getTranslatedPath("signup", lang)}
+          class="flex items-center justify-center gap-2 rounded-md bg-coral-500 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-coral-600"
+        >
+          {getRouteLabel("signup", lang)}
+          <Icon name="lucide:arrow-right" class="h-3.5 w-3.5" />
+        </a>
+      </div>
+
       <!-- Bottom: language switcher -->
-      <div class="flex items-center justify-between border-t border-sand px-8 py-6">
+      <div class="border-t border-sand px-8 py-6">
         <div class="flex gap-3">
           {languages.map((l) => (
             <a
@@ -172,12 +183,6 @@ const legalNav = ["imprint", "privacy", "terms"] as const;
             </a>
           ))}
         </div>
-        <a
-          href={`mailto:${siteData.contact.email}`}
-          class="text-sm text-navy-400"
-        >
-          {siteData.contact.email}
-        </a>
       </div>
     </div>
 

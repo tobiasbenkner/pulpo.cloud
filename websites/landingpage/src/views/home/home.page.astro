@@ -97,7 +97,98 @@ const bento = [
       it: "Inventario condiviso tra negozio fisico e online.",
     },
   },
+  {
+    key: "reservations",
+    icon: "lucide:calendar",
+    title: {
+      es: "Reservas",
+      de: "Reservierungen",
+      en: "Reservations",
+      it: "Prenotazioni",
+    },
+    description: {
+      es: "Turnos, control de llegadas, actualización en tiempo real.",
+      de: "Schichten, Ankunftskontrolle, Echtzeit-Aktualisierung.",
+      en: "Shifts, arrival tracking, real-time updates.",
+      it: "Turni, controllo arrivi, aggiornamento in tempo reale.",
+    },
+  },
+  {
+    key: "cashclose",
+    icon: "lucide:lock",
+    title: {
+      es: "Cierre de caja",
+      de: "Kassenschluss",
+      en: "Cash close",
+      it: "Chiusura cassa",
+    },
+    description: {
+      es: "Conteo guiado, diferencias automáticas, informe por email.",
+      de: "Geführte Zählung, automatische Differenzen, Bericht per E-Mail.",
+      en: "Guided counting, automatic differences, report via email.",
+      it: "Conteggio guidato, differenze automatiche, report via email.",
+    },
+  },
+  {
+    key: "tax",
+    icon: "lucide:landmark",
+    title: {
+      es: "IVA / IGIC / IPSI",
+      de: "IVA / IGIC / IPSI",
+      en: "IVA / IGIC / IPSI",
+      it: "IVA / IGIC / IPSI",
+    },
+    description: {
+      es: "Detección automática por código postal. Sin configuración.",
+      de: "Automatische Erkennung anhand der Postleitzahl. Ohne Konfiguration.",
+      en: "Automatic detection by postal code. No configuration.",
+      it: "Rilevamento automatico dal codice postale. Senza configurazione.",
+    },
+  },
 ];
+
+const howItWorks = [
+  {
+    num: "01",
+    icon: "lucide:user-plus",
+    title: { es: "Regístrate", de: "Anmelden", en: "Sign up", it: "Registrati" },
+    description: {
+      es: "Crea tu cuenta en menos de un minuto. Sin tarjeta de crédito.",
+      de: "Erstelle dein Konto in weniger als einer Minute. Ohne Kreditkarte.",
+      en: "Create your account in less than a minute. No credit card required.",
+      it: "Crea il tuo account in meno di un minuto. Senza carta di credito.",
+    },
+  },
+  {
+    num: "02",
+    icon: "lucide:settings",
+    title: { es: "Configura", de: "Einrichten", en: "Configure", it: "Configura" },
+    description: {
+      es: "Añade tus productos, configura impuestos y métodos de pago.",
+      de: "Füge deine Produkte hinzu, konfiguriere Steuern und Zahlungsarten.",
+      en: "Add your products, configure taxes and payment methods.",
+      it: "Aggiungi i tuoi prodotti, configura tasse e metodi di pagamento.",
+    },
+  },
+  {
+    num: "03",
+    icon: "lucide:rocket",
+    title: { es: "Empieza", de: "Loslegen", en: "Start selling", it: "Inizia" },
+    description: {
+      es: "Abre tu tablet y empieza a cobrar. Así de fácil.",
+      de: "Öffne dein Tablet und fang an zu kassieren. So einfach.",
+      en: "Open your tablet and start selling. It's that easy.",
+      it: "Apri il tuo tablet e inizia a incassare. Così semplice.",
+    },
+  },
+];
+
+const howItWorksTitle = {
+  es: "Así de fácil",
+  de: "So einfach geht's",
+  en: "How it works",
+  it: "Così semplice",
+} as const;
 
 const audiences = [
   {
@@ -258,14 +349,16 @@ const sectionLabels = {
         class="animate-reveal mt-8 flex flex-wrap items-center gap-4 [animation-delay:300ms]"
       >
         <a
-          href={getTranslatedPath("contact", lang)}
+          href={getTranslatedPath("signup", lang)}
           class="inline-flex items-center gap-2 rounded-md bg-coral-500 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-coral-600"
         >
           {t.hero.cta}
           <Icon name="lucide:arrow-right" class="h-3.5 w-3.5" />
         </a>
         <a
-          href={getTranslatedPath("features", lang)}
+          href="https://demo.pulpo.cloud"
+          target="_blank"
+          rel="noopener"
           class="text-sm font-medium text-navy-500 underline decoration-navy-300 underline-offset-4 transition-colors hover:text-navy-800 hover:decoration-navy-500"
         >
           {t.hero.secondary}
@@ -746,6 +839,25 @@ const sectionLabels = {
           {bento[4].description[lang]}
         </p>
       </div>
+
+      <!-- Row 3: Reservations, Cash Close, Tax System -->
+      {bento.slice(5).map((item, i) => (
+        <div
+          data-reveal
+          style={`transition-delay: ${(i + 3) * 80}ms`}
+          class="bento-card overflow-hidden rounded-xl bg-white p-6 shadow-sm md:col-span-4 md:p-8"
+        >
+          <div class="flex h-8 w-8 items-center justify-center rounded-md bg-navy-800 text-white">
+            <Icon name={item.icon} class="h-4 w-4" />
+          </div>
+          <h3 class="mt-4 font-display text-lg font-bold text-navy-900">
+            {item.title[lang]}
+          </h3>
+          <p class="mt-2 text-sm leading-relaxed text-navy-500">
+            {item.description[lang]}
+          </p>
+        </div>
+      ))}
     </div>
 
     <div class="mt-6 text-center md:hidden" data-reveal>
@@ -756,6 +868,34 @@ const sectionLabels = {
         {t.highlights.cta}
         <Icon name="lucide:arrow-right" class="h-3.5 w-3.5" />
       </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ HOW IT WORKS ═══════════════════ -->
+<section class="grain overflow-hidden bg-navy-900 py-24 text-white md:py-32">
+  <div class="relative mx-auto max-w-[1200px] px-6 lg:px-8">
+    <div class="dot-grid pointer-events-none absolute inset-0 text-coral-500/[0.04]"></div>
+
+    <div class="relative">
+      <div class="section-label text-coral-400" data-reveal>
+        {howItWorksTitle[lang]}
+      </div>
+
+      <div class="mt-12 grid gap-8 md:grid-cols-3 md:gap-12">
+        {howItWorks.map((step, i) => (
+          <div data-reveal style={`transition-delay: ${i * 100}ms`}>
+            <div class="flex items-center gap-3">
+              <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-coral-500/15 text-coral-400">
+                <Icon name={step.icon} class="h-5 w-5" />
+              </div>
+              <span class="font-display text-sm font-bold text-coral-500/40">{step.num}</span>
+            </div>
+            <h3 class="mt-4 font-display text-xl font-bold">{step.title[lang]}</h3>
+            <p class="mt-2 text-sm leading-relaxed text-navy-300">{step.description[lang]}</p>
+          </div>
+        ))}
+      </div>
     </div>
   </div>
 </section>
@@ -842,6 +982,37 @@ const sectionLabels = {
   </div>
 </section>
 
+<!-- ═══════════════════ OPEN SOURCE ═══════════════════ -->
+<section class="border-y border-sand py-20">
+  <div class="mx-auto max-w-[1200px] px-6 lg:px-8">
+    <div data-reveal class="grid items-center gap-8 md:grid-cols-[auto_1fr_auto] md:gap-10">
+      <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-navy-800 text-white">
+        <Icon name="lucide:github" class="h-6 w-6" />
+      </div>
+      <div>
+        <h2 class="font-display text-xl font-bold text-navy-900">100% Open Source</h2>
+        <p class="mt-1 text-sm leading-relaxed text-navy-500">
+          {{
+            es: "Instálalo en tu propio servidor, gratis y sin límites. La nube es solo para quien prefiere no preocuparse por el hosting.",
+            de: "Installiere es auf deinem eigenen Server, kostenlos und ohne Limits. Die Cloud ist für alle, die sich nicht um Hosting kümmern wollen.",
+            en: "Install it on your own server, free and without limits. The cloud is for those who prefer not to worry about hosting.",
+            it: "Installalo sul tuo server, gratis e senza limiti. Il cloud è per chi preferisce non preoccuparsi dell'hosting.",
+          }[lang]}
+        </p>
+      </div>
+      <a
+        href="https://github.com/pulpocloud/pulpo"
+        target="_blank"
+        rel="noopener"
+        class="inline-flex items-center gap-2 rounded-md border border-navy-200 px-4 py-2 text-sm font-medium text-navy-800 transition-colors hover:bg-navy-800 hover:text-white"
+      >
+        GitHub
+        <Icon name="lucide:external-link" class="h-3.5 w-3.5" />
+      </a>
+    </div>
+  </div>
+</section>
+
 <!-- ═══════════════════ PRICING TEASER ═══════════════════ -->
 <section class="py-24 md:py-32">
   <div class="mx-auto max-w-[1200px] px-6 lg:px-8">
@@ -888,13 +1059,24 @@ const sectionLabels = {
         {t.cta.title}
       </h2>
       <p class="mt-4 text-navy-300">{t.cta.subtitle}</p>
-      <a
-        href={getTranslatedPath("contact", lang)}
-        class="mt-8 inline-flex items-center gap-2 rounded-md bg-coral-500 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-coral-400"
-      >
-        {t.cta.button}
-        <Icon name="lucide:arrow-right" class="h-3.5 w-3.5" />
-      </a>
+      <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
+        <a
+          href={getTranslatedPath("signup", lang)}
+          class="inline-flex items-center gap-2 rounded-md bg-coral-500 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-coral-400"
+        >
+          {t.cta.button}
+          <Icon name="lucide:arrow-right" class="h-3.5 w-3.5" />
+        </a>
+        <a
+          href="https://demo.pulpo.cloud"
+          target="_blank"
+          rel="noopener"
+          class="inline-flex items-center gap-1.5 text-sm font-medium text-navy-300 underline decoration-navy-500 underline-offset-4 transition-colors hover:text-white"
+        >
+          Demo testen
+          <Icon name="lucide:external-link" class="h-3 w-3" />
+        </a>
+      </div>
     </div>
   </div>
 </section>

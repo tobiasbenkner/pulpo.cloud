@@ -127,6 +127,51 @@ export const translations = {
         it: "Crea il tuo negozio online integrato con il tuo inventario e punto vendita fisico. Un unico sistema per vendere in negozio e online.",
       },
     },
+    {
+      icon: "lucide:calendar",
+      title: {
+        es: "Reservas",
+        de: "Reservierungen",
+        en: "Reservations",
+        it: "Prenotazioni",
+      },
+      description: {
+        es: "Gestiona reservas con turnos configurables, control de llegadas y actualización en tiempo real en todos los dispositivos. Perfecto para restaurantes.",
+        de: "Verwalte Reservierungen mit konfigurierbaren Schichten, Ankunftskontrolle und Echtzeit-Aktualisierung auf allen Geräten. Perfekt für Restaurants.",
+        en: "Manage reservations with configurable shifts, arrival tracking and real-time updates across all devices. Perfect for restaurants.",
+        it: "Gestisci prenotazioni con turni configurabili, controllo arrivi e aggiornamento in tempo reale su tutti i dispositivi. Perfetto per ristoranti.",
+      },
+    },
+    {
+      icon: "lucide:lock",
+      title: {
+        es: "Cierre de caja",
+        de: "Kassenschluss",
+        en: "Cash register close",
+        it: "Chiusura cassa",
+      },
+      description: {
+        es: "Cierre guiado con conteo de monedas y billetes, cálculo automático de diferencias, resumen por tipo de documento y método de pago. Envío por email con Excel adjunto.",
+        de: "Geführter Kassenschluss mit Münz- und Scheinzählung, automatischer Differenzberechnung, Zusammenfassung nach Belegart und Zahlungsart. E-Mail-Versand mit Excel-Anhang.",
+        en: "Guided cash close with coin and note counting, automatic difference calculation, summary by document type and payment method. Email with Excel attachment.",
+        it: "Chiusura guidata con conteggio monete e banconote, calcolo automatico delle differenze, riepilogo per tipo di documento e metodo di pagamento. Invio email con allegato Excel.",
+      },
+    },
+    {
+      icon: "lucide:landmark",
+      title: {
+        es: "Sistema fiscal español",
+        de: "Spanisches Steuersystem",
+        en: "Spanish tax system",
+        it: "Sistema fiscale spagnolo",
+      },
+      description: {
+        es: "IVA, IGIC e IPSI detectados automáticamente por código postal. Seis clases fiscales, VeriFactu-ready. Sin configuración manual.",
+        de: "IVA, IGIC und IPSI automatisch anhand der Postleitzahl erkannt. Sechs Steuerklassen, VeriFactu-kompatibel. Keine manuelle Konfiguration.",
+        en: "IVA, IGIC and IPSI automatically detected by postal code. Six tax classes, VeriFactu-ready. No manual configuration.",
+        it: "IVA, IGIC e IPSI rilevati automaticamente dal codice postale. Sei classi fiscali, compatibile VeriFactu. Nessuna configurazione manuale.",
+      },
+    },
   ],
   cta: {
     text: {

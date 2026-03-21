@@ -1,0 +1,172 @@
+---
+import type { SignupTranslations } from "./signup.i18n";
+import type { Language } from "@/lib/i18n";
+import { siteData } from "@/data/site";
+import { Icon } from "astro-icon/components";
+import logo from "@/assets/logo.png";
+
+interface Props {
+  lang: Language;
+  t: SignupTranslations;
+}
+
+const { lang, t } = Astro.props;
+---
+
+<section class="relative min-h-[calc(100vh-64px)] overflow-hidden">
+  <div class="mx-auto grid max-w-[1200px] lg:grid-cols-2">
+    <!-- Left: Form side -->
+    <div class="flex flex-col justify-center px-6 py-20 md:py-32 lg:px-16">
+      <div class="mx-auto w-full max-w-[400px]">
+        <!-- Logo -->
+        <div class="animate-reveal">
+          <img src={logo.src} alt="Pulpo" width="56" height="56" class="h-14 w-14" />
+        </div>
+
+        <h1
+          class="animate-reveal mt-6 font-display text-3xl font-extrabold tracking-tight text-navy-900 [animation-delay:100ms] md:text-4xl"
+        >
+          {t.hero.title}
+        </h1>
+        <p
+          class="animate-reveal mt-3 text-base text-navy-500 [animation-delay:200ms]"
+        >
+          {t.hero.subtitle}
+        </p>
+
+        <!-- Form -->
+        <div class="animate-reveal mt-8 [animation-delay:300ms]" id="signup-form-container">
+          <form id="signup-form" class="space-y-3">
+            <input
+              type="email"
+              id="email"
+              name="email"
+              required
+              autocomplete="email"
+              placeholder={t.form.email}
+              class="block w-full rounded-md border border-sand bg-white px-4 py-3 text-sm text-navy-800 shadow-sm outline-none transition-colors placeholder:text-navy-300 focus:border-coral-500 focus:ring-1 focus:ring-coral-500"
+            />
+            <button
+              type="submit"
+              class="flex w-full items-center justify-center gap-2 rounded-md bg-coral-500 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-coral-600"
+            >
+              {t.form.submit}
+              <Icon name="lucide:arrow-right" class="h-3.5 w-3.5" />
+            </button>
+          </form>
+
+          <!-- Trust signals -->
+          <div class="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-[12px] text-navy-400">
+            <span class="inline-flex items-center gap-1">
+              <Icon name="lucide:credit-card" class="h-3 w-3 text-coral-500" />
+              {t.noCreditCard}
+            </span>
+            <span class="inline-flex items-center gap-1">
+              <Icon name="lucide:file-text" class="h-3 w-3 text-coral-500" />
+              {t.freeInvoices}
+            </span>
+            <span class="inline-flex items-center gap-1">
+              <Icon name="lucide:shield-check" class="h-3 w-3 text-coral-500" />
+              VeriFactu
+            </span>
+          </div>
+        </div>
+
+        <!-- Confirmation (hidden by default) -->
+        <div id="signup-confirmation" class="mt-8 hidden">
+          <div class="flex h-12 w-12 items-center justify-center rounded-full bg-coral-500/10">
+            <Icon name="lucide:check" class="h-6 w-6 text-coral-500" />
+          </div>
+          <h2 class="mt-4 font-display text-xl font-bold text-navy-900">
+            {t.confirmation.title}
+          </h2>
+          <p class="mt-2 text-sm text-navy-500">
+            {t.confirmation.message}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Visual side -->
+    <div class="hidden items-center justify-center lg:flex">
+      <div class="grain relative w-full self-stretch bg-navy-800">
+        <div class="dot-grid pointer-events-none absolute inset-0 text-coral-500/[0.05]"></div>
+        <div class="relative flex h-full items-center justify-center p-12">
+          <!-- POS Mockup -->
+          <div class="w-full max-w-[440px] overflow-hidden rounded-xl shadow-[0_40px_80px_-20px_rgba(0,0,0,0.4)]">
+            <svg
+              viewBox="0 0 560 380"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              class="block w-full"
+            >
+              <rect width="560" height="380" rx="8" fill="#111722" />
+              <rect width="560" height="28" rx="8" fill="#1a2332" />
+              <rect y="20" width="560" height="8" fill="#1a2332" />
+              <circle cx="16" cy="14" r="3.5" fill="#e8546d" opacity="0.8" />
+              <circle cx="28" cy="14" r="3.5" fill="#f2748e" opacity="0.3" />
+              <circle cx="40" cy="14" r="3.5" fill="#23344d" />
+              <text x="280" y="17" text-anchor="middle" font-size="8" fill="#506b93" font-family="system-ui">Pulpo POS</text>
+              <rect x="0" y="28" width="100" height="352" fill="#0d1219" />
+              <rect x="10" y="40" width="80" height="20" rx="3" fill="#e8546d" opacity="0.12" />
+              <rect x="18" y="46" width="42" height="7" rx="2" fill="#e8546d" opacity="0.5" />
+              <rect x="10" y="66" width="80" height="20" rx="3" fill="transparent" />
+              <rect x="18" y="72" width="34" height="7" rx="2" fill="#3a5580" />
+              <rect x="10" y="92" width="80" height="20" rx="3" fill="transparent" />
+              <rect x="18" y="98" width="46" height="7" rx="2" fill="#3a5580" />
+              <rect x="10" y="118" width="80" height="20" rx="3" fill="transparent" />
+              <rect x="18" y="124" width="28" height="7" rx="2" fill="#3a5580" />
+              {[0, 1, 2].map((row) =>
+                [0, 1, 2].map((col) => {
+                  const x = 112 + col * 96;
+                  const y = 40 + row * 84;
+                  return (
+                    <g>
+                      <rect x={x} y={y} width="88" height="74" rx="5" fill="#1a2332" />
+                      <rect x={x + 6} y={y + 6} width="76" height="36" rx="3" fill="#23344d" />
+                      <rect x={x + 6} y={y + 48} width="44" height="7" rx="2" fill="#506b93" />
+                      <rect x={x + 6} y={y + 60} width="28" height="6" rx="2" fill="#e8546d" opacity="0.45" />
+                    </g>
+                  );
+                }),
+              )}
+              <rect x="400" y="28" width="160" height="352" fill="#1a2332" />
+              <line x1="400" y1="28" x2="400" y2="380" stroke="#23344d" stroke-width="1" />
+              <rect x="412" y="40" width="56" height="8" rx="2" fill="#8096b4" />
+              {[0, 1, 2, 3].map((i) => (
+                <g>
+                  <rect x="412" y={60 + i * 28} width="136" height="1" fill="#23344d" />
+                  <rect x="412" y={68 + i * 28} width={72 + (i % 3) * 12} height="7" rx="2" fill="#b3c1d5" />
+                  <rect x="520" y={68 + i * 28} width="28" height="7" rx="2" fill="#8096b4" />
+                </g>
+              ))}
+              <rect x="412" y="324" width="136" height="1" fill="#23344d" />
+              <rect x="412" y="332" width="44" height="8" rx="2" fill="#506b93" />
+              <rect x="506" y="330" width="42" height="12" rx="2" fill="#8096b4" />
+              <rect x="412" y="354" width="136" height="18" rx="4" fill="#e8546d" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script is:inline define:vars={{ email: siteData.contact.email }}>
+  document.getElementById("signup-form")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const data = new FormData(e.target);
+
+    try {
+      await fetch(`https://formsubmit.co/ajax/${email}`, {
+        method: "POST",
+        body: data,
+      });
+    } catch {
+      // Still show confirmation
+    }
+
+    document.getElementById("signup-form-container").style.display = "none";
+    document.getElementById("signup-confirmation").classList.remove("hidden");
+  });
+</script>

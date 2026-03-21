@@ -6,6 +6,7 @@ export const siteData = {
   },
   contact: {
     email: "info@pulpo.cloud",
+    whatsapp: "+34624156091",
   },
   pricing: {
     currency: "€",
