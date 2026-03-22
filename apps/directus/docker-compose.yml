@@ -48,7 +48,6 @@ services:
     depends_on:
       - database
       - redis
-      - mail
 
   database:
     image: postgis/postgis:13-master

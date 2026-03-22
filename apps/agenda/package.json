@@ -10,12 +10,12 @@
     "dockerize": "docker build -t pulpocloud/agenda . && docker push pulpocloud/agenda"
   },
   "dependencies": {
-    "@astrojs/svelte": "^7.2.4",
+    "@astrojs/svelte": "^8.0.3",
     "@directus/sdk": "^20.3.0",
     "@lucide/astro": "^0.562.0",
     "@pulpo/cms": "workspace:*",
     "@tailwindcss/vite": "^4.1.18",
-    "astro": "^5.16.6",
+    "astro": "^6.0.8",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "jwt-decode": "^4.0.0",

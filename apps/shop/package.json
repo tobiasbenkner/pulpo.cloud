@@ -10,14 +10,14 @@
     "dockerize": "docker build -t pulpocloud/shop . && docker push pulpocloud/shop"
   },
   "dependencies": {
-    "@astrojs/svelte": "^7.2.5",
+    "@astrojs/svelte": "^8.0.3",
     "@directus/sdk": "^20.3.0",
     "@nanostores/persistent": "^1.2.0",
     "@pulpo/auth": "workspace:*",
     "@pulpo/cms": "workspace:*",
     "@pulpo/invoice": "workspace:*",
     "@tailwindcss/vite": "^4.1.18",
-    "astro": "^5.16.6",
+    "astro": "^6.0.8",
     "big.js": "^7.0.1",
     "lucide-svelte": "^0.562.0",
     "nanostores": "^1.1.0",

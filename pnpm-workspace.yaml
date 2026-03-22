@@ -1,5 +1,8 @@
 packages:
-  - "apps/*"
-  - "websites/*"
-  - "packages/*"
-  - "tools/*"
+  - apps/*
+  - websites/*
+  - packages/*
+  - tools/*
+
+onlyBuiltDependencies:
+  - esbuild
