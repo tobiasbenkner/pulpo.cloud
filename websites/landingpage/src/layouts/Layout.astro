@@ -215,9 +215,10 @@ const isAuthPage = authRoutes.includes(routeKey);
       <slot />
     </main>
 
-    {!isAuthPage && <footer class="bg-navy-900 pb-10 pt-20 text-navy-400">
+    {!isAuthPage && <footer class="bg-navy-900 pb-10 pt-20 text-navy-300">
       <div class="mx-auto max-w-[1200px] px-6 lg:px-8">
-        <div class="flex flex-col gap-12 md:flex-row md:justify-between">
+        <div class="grid gap-12 md:grid-cols-[1.2fr_auto_auto_auto]">
+          <!-- Brand -->
           <div class="max-w-xs">
             <a
               href={getTranslatedPath("home", lang)}
@@ -234,45 +235,129 @@ const isAuthPage = authRoutes.includes(routeKey);
                 {siteData.meta.name}
               </span>
             </a>
-            <p class="mt-4 text-sm leading-relaxed">Cloud POS</p>
-            <div class="mt-3 inline-flex items-center gap-1.5 rounded-full border border-navy-700 px-2.5 py-1 text-[10px] font-medium text-navy-400">
-              <Icon name="lucide:shield-check" class="h-3 w-3 text-coral-400" />
-              VeriFactu-Ready
+            <p class="mt-4 text-sm leading-relaxed">
+              {{
+                es: "Sistema de punto de venta moderno para tu negocio. Rápido, sencillo y desde cualquier dispositivo.",
+                de: "Modernes Kassensystem für dein Geschäft. Schnell, einfach und von jedem Gerät aus.",
+                en: "Modern point of sale system for your business. Fast, simple and from any device.",
+                it: "Sistema di punto vendita moderno per la tua attività. Veloce, semplice e da qualsiasi dispositivo.",
+              }[lang]}
+            </p>
+            <div class="mt-4 flex items-center gap-3">
+              <div class="inline-flex items-center gap-1.5 rounded-full border border-navy-700 px-2.5 py-1 text-[10px] font-medium text-navy-300">
+                <Icon name="lucide:shield-check" class="h-3 w-3 text-coral-400" />
+                VeriFactu-Ready
+              </div>
             </div>
+            <a
+              href={getTranslatedPath("signup", lang)}
+              class="mt-6 inline-flex items-center gap-1.5 rounded-md bg-coral-500 px-4 py-2 text-[13px] font-medium text-white transition-colors hover:bg-coral-600"
+            >
+              {{
+                es: "Empezar gratis",
+                de: "Kostenlos starten",
+                en: "Start for free",
+                it: "Inizia gratis",
+              }[lang]}
+              <Icon name="lucide:arrow-right" class="h-3 w-3" />
+            </a>
           </div>
-          <div class="flex gap-16 text-sm">
+
+          <!-- Product nav -->
+          <div class="text-sm">
+            <h4 class="mb-4 text-xs font-semibold uppercase tracking-wider text-navy-400">
+              {{
+                es: "Producto",
+                de: "Produkt",
+                en: "Product",
+                it: "Prodotto",
+              }[lang]}
+            </h4>
             <div class="flex flex-col gap-2.5">
               {mainNav.map((key) => (
                 <a
                   href={getTranslatedPath(key, lang)}
-                  class="transition-colors hover:text-coral-400"
+                  class="transition-colors hover:text-white"
                 >
                   {getRouteLabel(key, lang)}
                 </a>
               ))}
             </div>
+          </div>
+
+          <!-- Legal nav -->
+          <div class="text-sm">
+            <h4 class="mb-4 text-xs font-semibold uppercase tracking-wider text-navy-400">
+              {{
+                es: "Legal",
+                de: "Rechtliches",
+                en: "Legal",
+                it: "Legale",
+              }[lang]}
+            </h4>
             <div class="flex flex-col gap-2.5">
               {legalNav.map((key) => (
                 <a
                   href={getTranslatedPath(key, lang)}
-                  class="transition-colors hover:text-coral-400"
+                  class="transition-colors hover:text-white"
                 >
                   {getRouteLabel(key, lang)}
                 </a>
               ))}
             </div>
           </div>
+
+          <!-- Contact -->
           <div class="text-sm">
-            <a
-              href={`mailto:${siteData.contact.email}`}
-              class="transition-colors hover:text-coral-400"
-            >
-              {siteData.contact.email}
-            </a>
+            <h4 class="mb-4 text-xs font-semibold uppercase tracking-wider text-navy-400">
+              {{
+                es: "Contacto",
+                de: "Kontakt",
+                en: "Contact",
+                it: "Contatto",
+              }[lang]}
+            </h4>
+            <div class="flex flex-col gap-2.5">
+              <a
+                href={`https://wa.me/${siteData.contact.whatsapp.replace("+", "")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-1.5 transition-colors hover:text-white"
+              >
+                <Icon name="lucide:message-circle" class="h-3.5 w-3.5" />
+                WhatsApp
+              </a>
+              <a
+                href={getTranslatedPath("contact", lang)}
+                class="inline-flex items-center gap-1.5 transition-colors hover:text-white"
+              >
+                <Icon name="lucide:mail" class="h-3.5 w-3.5" />
+                {getRouteLabel("contact", lang)}
+              </a>
+            </div>
           </div>
         </div>
-        <div class="mt-16 border-t border-navy-800 pt-6 text-xs text-navy-600">
-          &copy; {new Date().getFullYear()} {siteData.meta.name}
+
+        <!-- Bottom bar -->
+        <div class="mt-16 flex flex-col items-start justify-between gap-4 border-t border-navy-800 pt-6 text-xs text-navy-400 sm:flex-row sm:items-center">
+          <span>&copy; {new Date().getFullYear()} {siteData.meta.name}</span>
+          <div class="flex items-center gap-2">
+            {languages.map((l, i) => (
+              <>
+                {i > 0 && <span class="text-navy-600">/</span>}
+                {l === lang ? (
+                  <span class="font-medium text-navy-200">{l.toUpperCase()}</span>
+                ) : (
+                  <a
+                    href={getTranslatedPath(routeKey, l)}
+                    class="transition-colors hover:text-navy-200"
+                  >
+                    {l.toUpperCase()}
+                  </a>
+                )}
+              </>
+            ))}
+          </div>
         </div>
       </div>
     </footer>}
