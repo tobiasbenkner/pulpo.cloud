@@ -13,6 +13,8 @@
     name: string;
     rows: ClosureProductBreakdown[];
     totalQty: number;
+    totalCashQty: number;
+    totalCardQty: number;
     totalGross: string;
     totalCash: string;
     totalCard: string;
@@ -96,11 +98,15 @@
       })
       .map(([name, rows]) => {
         let qty = 0;
+        let cashQty = 0;
+        let cardQty = 0;
         let gross = 0;
         let cash = 0;
         let card = 0;
         for (const r of rows) {
           qty += r.quantity;
+          cashQty += r.cash_quantity ?? 0;
+          cardQty += r.card_quantity ?? 0;
           gross += parseFloat(r.total_gross);
           cash += parseFloat(r.cash_gross);
           card += parseFloat(r.card_gross);
@@ -109,6 +115,8 @@
           name,
           rows,
           totalQty: qty,
+          totalCashQty: cashQty,
+          totalCardQty: cardQty,
           totalGross: gross.toFixed(2),
           totalCash: cash.toFixed(2),
           totalCard: card.toFixed(2),
@@ -354,6 +362,8 @@
             >
               <span>Producto</span>
               <span class="text-right">Uds.</span>
+              <span class="text-right">Ef.</span>
+              <span class="text-right">Tj.</span>
               <span class="text-right">Total</span>
               <span class="text-right">Ef.</span>
               <span class="text-right">Tj.</span>
@@ -367,6 +377,8 @@
                     >{group.name || "Sin asignar"}</span
                   >
                   <span class="text-right tabular-nums">{group.totalQty}</span>
+                  <span class="text-right tabular-nums">{group.totalCashQty}</span>
+                  <span class="text-right tabular-nums">{group.totalCardQty}</span>
                   <span class="text-right tabular-nums"
                     >{fmt(group.totalGross)}</span
                   >
@@ -389,6 +401,8 @@
                       >{row.product_name}</span
                     >
                     <span class="text-right tabular-nums">{row.quantity}</span>
+                    <span class="text-right tabular-nums">{row.cash_quantity ?? 0}</span>
+                    <span class="text-right tabular-nums">{row.card_quantity ?? 0}</span>
                     <span class="text-right tabular-nums"
                       >{fmt(row.total_gross)}</span
                     >
@@ -414,6 +428,8 @@
                     >{row.product_name}</span
                   >
                   <span class="text-right tabular-nums">{row.quantity}</span>
+                  <span class="text-right tabular-nums">{row.cash_quantity ?? 0}</span>
+                  <span class="text-right tabular-nums">{row.card_quantity ?? 0}</span>
                   <span class="text-right tabular-nums"
                     >{fmt(row.total_gross)}</span
                   >
@@ -535,6 +551,8 @@
                   >
                     <span>Producto</span>
                     <span class="text-right">Uds.</span>
+                    <span class="text-right">Ef.</span>
+                    <span class="text-right">Tj.</span>
                     <span class="text-right">Total</span>
                     <span class="text-right">Ef.</span>
                     <span class="text-right">Tj.</span>
@@ -549,6 +567,12 @@
                         >
                         <span class="text-right tabular-nums"
                           >{group.totalQty}</span
+                        >
+                        <span class="text-right tabular-nums"
+                          >{group.totalCashQty}</span
+                        >
+                        <span class="text-right tabular-nums"
+                          >{group.totalCardQty}</span
                         >
                         <span class="text-right tabular-nums"
                           >{fmt(group.totalGross)}</span
@@ -573,6 +597,12 @@
                           >
                           <span class="text-right tabular-nums"
                             >{row.quantity}</span
+                          >
+                          <span class="text-right tabular-nums"
+                            >{row.cash_quantity ?? 0}</span
+                          >
+                          <span class="text-right tabular-nums"
+                            >{row.card_quantity ?? 0}</span
                           >
                           <span class="text-right tabular-nums"
                             >{fmt(row.total_gross)}</span
@@ -600,6 +630,12 @@
                         >
                         <span class="text-right tabular-nums"
                           >{row.quantity}</span
+                        >
+                        <span class="text-right tabular-nums"
+                          >{row.cash_quantity ?? 0}</span
+                        >
+                        <span class="text-right tabular-nums"
+                          >{row.card_quantity ?? 0}</span
                         >
                         <span class="text-right tabular-nums"
                           >{fmt(row.total_gross)}</span
@@ -636,7 +672,7 @@
   }
   .producto-grid {
     display: grid;
-    grid-template-columns: 1fr 3.5rem 5.5rem 5.5rem 5.5rem;
+    grid-template-columns: 1fr 3rem 3rem 3rem 5rem 5rem 5rem;
     align-items: center;
     gap: 0.5rem;
   }

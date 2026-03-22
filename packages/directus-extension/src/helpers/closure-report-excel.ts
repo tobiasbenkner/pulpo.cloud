@@ -27,6 +27,8 @@ export interface ClosureReportData {
     cost_center: string | null;
     unit: "unit" | "weight";
     quantity: number;
+    cash_quantity?: number;
+    card_quantity?: number;
     total_gross: string;
     cash_gross: string;
     card_gross: string;
@@ -225,13 +227,15 @@ export function generateReportExcel(
         shiftRows.push(
           [],
           [`T${data.shifts.length - i} - Productos`],
-          ["Producto", "Centro coste", "Uds.", "Total", "Efectivo", "Tarjeta"],
+          ["Producto", "Centro coste", "Uds.", "Uds. Ef.", "Uds. Tj.", "Total", "Efectivo", "Tarjeta"],
         );
         for (const row of s.product_breakdown) {
           shiftRows.push([
             row.product_name,
             row.cost_center ?? "",
             row.quantity,
+            row.cash_quantity ?? 0,
+            row.card_quantity ?? 0,
             num(row.total_gross),
             num(row.cash_gross),
             num(row.card_gross),

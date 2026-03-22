@@ -4,6 +4,8 @@ export interface ClosureProductBreakdown {
   cost_center: string | null;
   unit: "unit" | "weight";
   quantity: number;
+  cash_quantity: number;
+  card_quantity: number;
   total_gross: string;
   cash_gross: string;
   card_gross: string;

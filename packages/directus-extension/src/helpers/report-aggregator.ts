@@ -12,6 +12,8 @@ export interface ClosureProductBreakdown {
   cost_center: string | null;
   unit: "unit" | "weight";
   quantity: number;
+  cash_quantity: number;
+  card_quantity: number;
   total_gross: string;
   cash_gross: string;
   card_gross: string;
@@ -70,6 +72,8 @@ export function computeProductBreakdown(
       cost_center: string | null;
       unit: "unit" | "weight";
       quantity: number;
+      cash_quantity: number;
+      card_quantity: number;
       total_gross: Big;
       cash_gross: Big;
       card_gross: Big;
@@ -87,6 +91,8 @@ export function computeProductBreakdown(
         cost_center: item.cost_center ?? null,
         unit: (item.unit as "unit" | "weight") ?? "unit",
         quantity: 0,
+        cash_quantity: 0,
+        card_quantity: 0,
         total_gross: ZERO,
         cash_gross: ZERO,
         card_gross: ZERO,
@@ -98,8 +104,10 @@ export function computeProductBreakdown(
       existing.quantity += qty;
       existing.total_gross = existing.total_gross.plus(gross);
       if (method === "cash") {
+        existing.cash_quantity += qty;
         existing.cash_gross = existing.cash_gross.plus(gross);
       } else {
+        existing.card_quantity += qty;
         existing.card_gross = existing.card_gross.plus(gross);
       }
       map.set(key, existing);
@@ -113,6 +121,8 @@ export function computeProductBreakdown(
       cost_center: v.cost_center,
       unit: v.unit,
       quantity: v.quantity,
+      cash_quantity: v.cash_quantity,
+      card_quantity: v.card_quantity,
       total_gross: v.total_gross.toFixed(2),
       cash_gross: v.cash_gross.toFixed(2),
       card_gross: v.card_gross.toFixed(2),
@@ -223,6 +233,8 @@ export function aggregateClosures(
       cost_center: string | null;
       unit: "unit" | "weight";
       quantity: number;
+      cash_quantity: number;
+      card_quantity: number;
       total_gross: Big;
       cash_gross: Big;
       card_gross: Big;
@@ -266,11 +278,15 @@ export function aggregateClosures(
         cost_center: p.cost_center ?? null,
         unit: (p.unit as "unit" | "weight") ?? "unit",
         quantity: 0,
+        cash_quantity: 0,
+        card_quantity: 0,
         total_gross: ZERO,
         cash_gross: ZERO,
         card_gross: ZERO,
       };
       existing.quantity += p.quantity;
+      existing.cash_quantity += p.cash_quantity ?? 0;
+      existing.card_quantity += p.card_quantity ?? 0;
       existing.total_gross = existing.total_gross.plus(safeBig(p.total_gross));
       existing.cash_gross = existing.cash_gross.plus(safeBig(p.cash_gross));
       existing.card_gross = existing.card_gross.plus(safeBig(p.card_gross));
@@ -308,6 +324,8 @@ export function aggregateClosures(
       cost_center: v.cost_center,
       unit: v.unit,
       quantity: v.quantity,
+      cash_quantity: v.cash_quantity,
+      card_quantity: v.card_quantity,
       total_gross: v.total_gross.toFixed(2),
       cash_gross: v.cash_gross.toFixed(2),
       card_gross: v.card_gross.toFixed(2),
