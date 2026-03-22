@@ -39,18 +39,12 @@
       "persistent": true
     },
     "dockerize": {
-      "dependsOn": [
-        "build"
-      ],
       "cache": false,
       "env": [
         "DOCKER_HUB_TOKEN"
       ]
     },
     "deploy": {
-      "dependsOn": [
-        "dockerize"
-      ],
       "cache": false,
       "env": [
         "DEPLOY_TOKEN"
