@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "docker compose up --build",
     "build": "docker build -t pulpocloud/directus -f Dockerfile ../..",
-    "deploy": "docker push pulpocloud/directus",
+    "dockerize": "docker build -t pulpocloud/directus -f Dockerfile ../.. && docker push pulpocloud/directus",
+    "deploy": "curl -sf -X GET -H \"Authorization: Bearer $DEPLOY_TOKEN\" https://deploy.pulpo.cloud/v1/update",
     "kill": "docker stop $(docker ps -a -q) && docker rm $(docker ps -a -q)",
     "generate-schema": "node generate-schema.ts"
   },

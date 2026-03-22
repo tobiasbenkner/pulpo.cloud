@@ -51,16 +51,14 @@ jobs:
                   DIRECTUS_TOKEN: ${{ secrets.DIRECTUS_TOKEN }}
               run: npx turbo run build --filter=...[${{ steps.last_success.outputs.commit }}]
 
-            - name: Deploy
+            - name: Dockerize
               run: |
-                  git config --global user.email "info@pulpo.cloud"
-                  git config --global user.name "Pulpo Bot"
-
                   echo "${DOCKER_HUB_TOKEN}" | docker login -u pulpocloud --password-stdin
-
-                  npx turbo run deploy --filter=...[${{ steps.last_success.outputs.commit }}]
+                  npx turbo run dockerize --filter=...[${{ steps.last_success.outputs.commit }}]
               env:
-                  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-                  CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-                  GH_TOKEN: ${{ secrets.GH_TOKEN }}
                   DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+            - name: Deploy
+              run: npx turbo run deploy --filter=...[${{ steps.last_success.outputs.commit }}]
+              env:
+                  DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}

@@ -7,7 +7,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "deploy": "docker build -t pulpocloud/agenda . && docker push pulpocloud/agenda"
+    "dockerize": "docker build -t pulpocloud/agenda . && docker push pulpocloud/agenda",
+    "deploy": "curl -sf -X GET -H \"Authorization: Bearer $DEPLOY_TOKEN\" https://deploy.pulpo.cloud/v1/update"
   },
   "dependencies": {
     "@astrojs/svelte": "^7.2.4",
