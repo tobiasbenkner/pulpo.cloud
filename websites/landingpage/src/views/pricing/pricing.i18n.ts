@@ -96,6 +96,38 @@ export const translations = {
     en: "Start for free",
     it: "Inizia gratis",
   },
+  migration: {
+    label: {
+      es: "Opcional",
+      de: "Optional",
+      en: "Optional",
+      it: "Opzionale",
+    },
+    title: {
+      es: "Migración de datos",
+      de: "Datenmigration",
+      en: "Data migration",
+      it: "Migrazione dati",
+    },
+    description: {
+      es: "Nos encargamos de migrar tus productos desde tu sistema actual. Hasta 100 productos incluidos. ¿Más de 100? Contáctanos para un presupuesto.",
+      de: "Wir übernehmen die Migration deiner Produkte aus deinem bestehenden System. Bis zu 100 Produkte inklusive. Mehr als 100? Kontaktiere uns für ein Angebot.",
+      en: "We handle migrating your products from your current system. Up to 100 products included. More than 100? Contact us for a quote.",
+      it: "Ci occupiamo di migrare i tuoi prodotti dal tuo sistema attuale. Fino a 100 prodotti inclusi. Più di 100? Contattaci per un preventivo.",
+    },
+    price: {
+      es: "200€ único",
+      de: "200€ einmalig",
+      en: "€200 one-time",
+      it: "200€ una tantum",
+    },
+    cta: {
+      es: "Solicitar migración",
+      de: "Migration anfragen",
+      en: "Request migration",
+      it: "Richiedi migrazione",
+    },
+  },
   openSource: {
     title: {
       es: "100% Open Source",

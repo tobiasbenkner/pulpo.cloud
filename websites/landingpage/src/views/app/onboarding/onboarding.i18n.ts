@@ -92,6 +92,60 @@ export const translations = {
       },
     },
   },
+  plan: {
+    label: {
+      es: "Plan",
+      de: "Plan",
+      en: "Plan",
+      it: "Piano",
+    },
+    hint: {
+      es: "Puedes cambiar de plan en cualquier momento.",
+      de: "Du kannst deinen Plan jederzeit ändern.",
+      en: "You can change your plan at any time.",
+      it: "Puoi cambiare piano in qualsiasi momento.",
+    },
+  },
+  migration: {
+    label: {
+      es: "Migración de datos",
+      de: "Datenmigration",
+      en: "Data migration",
+      it: "Migrazione dati",
+    },
+    description: {
+      es: "Migramos hasta 100 productos de tu sistema actual por 200€ (único).",
+      de: "Wir migrieren bis zu 100 Produkte aus deinem bestehenden System für 200€ (einmalig).",
+      en: "We migrate up to 100 products from your current system for €200 (one-time).",
+      it: "Migriamo fino a 100 prodotti dal tuo sistema attuale per 200€ (una tantum).",
+    },
+    yes: {
+      es: "Sí, quiero la migración",
+      de: "Ja, ich möchte die Migration",
+      en: "Yes, I want the migration",
+      it: "Sì, voglio la migrazione",
+    },
+    no: {
+      es: "No, gracias",
+      de: "Nein, danke",
+      en: "No, thanks",
+      it: "No, grazie",
+    },
+  },
+  notes: {
+    label: {
+      es: "Notas o preguntas",
+      de: "Anmerkungen oder Fragen",
+      en: "Notes or questions",
+      it: "Note o domande",
+    },
+    placeholder: {
+      es: "¿Algo que deberíamos saber? ¿Preguntas sobre el sistema?",
+      de: "Gibt es etwas, das wir wissen sollten? Fragen zum System?",
+      en: "Anything we should know? Questions about the system?",
+      it: "C'è qualcosa che dovremmo sapere? Domande sul sistema?",
+    },
+  },
   submit: {
     es: "Guardar datos",
     de: "Daten speichern",

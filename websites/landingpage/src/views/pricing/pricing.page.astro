@@ -127,18 +127,58 @@ function formatNumber(n: number): string {
     <!-- CTA -->
     <div class="mt-10" data-reveal style="transition-delay: 160ms">
       <a
-        href={getTranslatedPath("contact", lang)}
+        href={getTranslatedPath("signup", lang)}
         class="inline-flex items-center gap-2 rounded-md bg-coral-500 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-coral-600"
       >
         {t.cta}
         <Icon name="lucide:arrow-right" class="h-3.5 w-3.5" />
       </a>
     </div>
+
+    <!-- Migration add-on -->
+    <div
+      data-reveal
+      style="transition-delay: 240ms"
+      class="mt-12 flex flex-col gap-6 rounded-xl border border-sand bg-white p-6 md:flex-row md:items-center md:justify-between md:p-8"
+    >
+      <div class="flex items-start gap-4">
+        <div
+          class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-navy-800 text-white"
+        >
+          <Icon name="lucide:database" class="h-5 w-5" />
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h3 class="font-display text-lg font-bold text-navy-900">
+              {t.migration.title}
+            </h3>
+            <span class="rounded-full bg-sand px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-navy-500">
+              {t.migration.label}
+            </span>
+          </div>
+          <p class="mt-1 text-sm leading-relaxed text-navy-500">
+            {t.migration.description}
+          </p>
+        </div>
+      </div>
+      <div class="flex shrink-0 flex-col items-end gap-3">
+        <span class="font-display text-2xl font-extrabold text-navy-900">
+          {t.migration.price}
+        </span>
+        <a
+          href={getTranslatedPath("contact", lang)}
+          class="inline-flex items-center gap-1.5 rounded-md bg-coral-500 px-4 py-2 text-[13px] font-medium text-white transition-colors hover:bg-coral-600"
+        >
+          {t.migration.cta}
+          <Icon name="lucide:arrow-right" class="h-3 w-3" />
+        </a>
+      </div>
+    </div>
   </div>
 </section>
 
 <!-- Open Source -->
-<section class="border-y border-sand py-20">
+<section class="border-t border-sand py-20">
   <div class="mx-auto max-w-[800px] px-6 lg:px-8">
     <div data-reveal class="grid gap-6 md:grid-cols-[auto_1fr] md:gap-10">
       <div

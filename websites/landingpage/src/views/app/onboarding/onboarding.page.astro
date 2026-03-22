@@ -2,6 +2,7 @@
 import type { OnboardingTranslations } from "./onboarding.i18n";
 import type { Language } from "@/lib/i18n";
 import { getTranslatedPath } from "@/lib/registry";
+import { siteData } from "@/data/site";
 import { Icon } from "astro-icon/components";
 
 interface Props {
@@ -10,6 +11,9 @@ interface Props {
 }
 
 const { lang, t } = Astro.props;
+
+const { plans, currency } = siteData.pricing;
+const planKeys = ["free", "starter", "business", "growth", "scale"] as const;
 
 const fields = [
   { id: "businessName", type: "text", ...t.fields.businessName },
@@ -106,6 +110,64 @@ const inputClass =
             <option value="other">{t.fields.businessType.options.other}</option>
           </select>
         </div>
+
+        <!-- Plan select -->
+        <div>
+          <label
+            for="plan"
+            class="block text-sm font-medium text-navy-800"
+          >
+            {t.plan.label}
+          </label>
+          <select
+            id="plan"
+            name="plan"
+            required
+            class={`${inputClass} appearance-none`}
+          >
+            {plans.map((plan, i) => (
+              <option value={planKeys[i]}>
+                {planKeys[i].charAt(0).toUpperCase() + planKeys[i].slice(1)} – {plan.price === 0 ? `0${currency}` : `${plan.price}${currency}/${lang === "de" ? "Monat" : lang === "en" ? "month" : lang === "it" ? "mese" : "mes"}`}
+              </option>
+            ))}
+          </select>
+          <p class="mt-1 text-xs text-navy-400">{t.plan.hint}</p>
+        </div>
+
+        <!-- Migration -->
+        <div>
+          <label class="block text-sm font-medium text-navy-800">
+            {t.migration.label}
+          </label>
+          <p class="mt-1 text-xs text-navy-400">{t.migration.description}</p>
+          <div class="mt-3 flex gap-3">
+            <label class="flex flex-1 cursor-pointer items-center gap-2.5 rounded-md border border-sand bg-white px-4 py-3 text-sm text-navy-600 transition-colors has-[:checked]:border-coral-500 has-[:checked]:bg-coral-500/5 has-[:checked]:text-navy-800">
+              <input type="radio" name="migration" value="yes" class="accent-coral-500" />
+              {t.migration.yes}
+            </label>
+            <label class="flex flex-1 cursor-pointer items-center gap-2.5 rounded-md border border-sand bg-white px-4 py-3 text-sm text-navy-600 transition-colors has-[:checked]:border-coral-500 has-[:checked]:bg-coral-500/5 has-[:checked]:text-navy-800">
+              <input type="radio" name="migration" value="no" checked class="accent-coral-500" />
+              {t.migration.no}
+            </label>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div>
+          <label
+            for="notes"
+            class="block text-sm font-medium text-navy-800"
+          >
+            {t.notes.label}
+          </label>
+          <textarea
+            id="notes"
+            name="notes"
+            rows={3}
+            placeholder={t.notes.placeholder}
+            class={`${inputClass} resize-none`}
+          ></textarea>
+        </div>
       </div>
 
       <p id="onboarding-error" class="mt-4 hidden text-sm text-coral-600"></p>
@@ -187,13 +249,22 @@ const inputClass =
           "postalCode",
           "city",
           "businessType",
+          "plan",
+          "migration",
+          "notes",
         ];
         fields.forEach((f) => {
-          const el = document.getElementById(f) as
-            | HTMLInputElement
-            | HTMLSelectElement
-            | null;
-          if (el && data[f]) el.value = data[f];
+          if (f === "migration") {
+            const val = data[f] ? "yes" : "no";
+            const radio = document.querySelector(`input[name="migration"][value="${val}"]`) as HTMLInputElement | null;
+            if (radio) radio.checked = true;
+          } else {
+            const el = document.getElementById(f) as
+              | HTMLInputElement
+              | HTMLSelectElement
+              | null;
+            if (el && data[f]) el.value = data[f];
+          }
         });
       }
     } catch {
@@ -226,8 +297,9 @@ const inputClass =
       btn.disabled = true;
       if (errorEl) errorEl.classList.add("hidden");
 
-      const body: Record<string, string> = {};
+      const body: Record<string, string | boolean> = {};
       formData.forEach((v, k) => (body[k] = v as string));
+      body.migration = body.migration === "yes";
 
       try {
         const res = await fetch(

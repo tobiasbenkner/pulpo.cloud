@@ -5,16 +5,3 @@ services:
     ports:
       - 1025:1025
       - 8025:8025
-      - traefik.enable=true                                                                                                                                                                               
-        # Hauptrouter – nur pulpo.cloud                                                                                                                                                                     
-      - traefik.http.routers.pulpocloud_landingpage.rule=Host(`pulpo.cloud`)                                                                                                                              
-      - traefik.http.routers.pulpocloud_landingpage.tls.certresolver=le                                                                                                                                   
-      # www-Router mit Redirect                                                                                                                                                                           
-      - traefik.http.routers.pulpocloud_www.rule=Host(`www.pulpo.cloud`)
-      - traefik.http.routers.pulpocloud_www.tls.certresolver=le                                                                                                                                           
-      - traefik.http.routers.pulpocloud_www.middlewares=pulpocloud-www-redirect                                                                                                                           
-      # Redirect-Middleware                                                                                                                                                                               
-      - traefik.http.middlewares.pulpocloud-www-redirect.redirectregex.regex=^https?://www\.pulpo\.cloud/(.*)                                                                                             
-      - traefik.http.middlewares.pulpocloud-www-redirect.redirectregex.replacement=https://pulpo.cloud/$${1}                                                                                              
-      - traefik.http.middlewares.pulpocloud-www-redirect.redirectregex.permanent=true                                                                                                                     
-      - com.centurylinklabs.watchtower.enable=true

@@ -30,12 +30,19 @@ func main() {
 
 	app.OnRecordAfterCreateSuccess("users").BindFunc(func(e *core.RecordEvent) error {
 		userEmail := e.Record.GetString("email")
+		plan := e.Record.GetString("plan")
+		migration := e.Record.GetBool("migration")
+
+		migrationText := "Nein"
+		if migration {
+			migrationText = "Ja"
+		}
 
 		msg := &mailer.Message{
 			From:    mail.Address{Name: "Pulpo Cloud", Address: "noreply@pulpo.cloud"},
 			To:      []mail.Address{{Address: "info@pulpo.cloud"}},
 			Subject: fmt.Sprintf("Neue Registrierung: %s", userEmail),
-			Text:    fmt.Sprintf("Ein neuer Benutzer hat sich registriert:\n\nE-Mail: %s", userEmail),
+			Text:    fmt.Sprintf("Ein neuer Benutzer hat sich registriert:\n\nE-Mail: %s\nPlan: %s\nMigration: %s", userEmail, plan, migrationText),
 		}
 
 		if err := app.NewMailClient().Send(msg); err != nil {
