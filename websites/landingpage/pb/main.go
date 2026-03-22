@@ -56,6 +56,23 @@ func main() {
 		return e.Next()
 	})
 
+	app.OnRecordConfirmVerificationRequest("users").BindFunc(func(e *core.RecordConfirmVerificationRequestEvent) error {
+		e.Record.SetVerified(true)
+		if err := e.App.Save(e.Record); err != nil {
+			return e.BadRequestError("Failed to save verification status.", err)
+		}
+
+		token, err := e.Record.NewAuthToken()
+		if err != nil {
+			return e.InternalServerError("Failed to create auth token.", err)
+		}
+
+		return e.JSON(http.StatusOK, map[string]any{
+			"token":  token,
+			"record": e.Record,
+		})
+	})
+
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
 		sub, err := fs.Sub(publicFS, "pb_public")
 		if err != nil {
@@ -128,10 +145,22 @@ var verificationTranslations = map[string]verificationContent{
 	},
 }
 
+var verifyPaths = map[string]string{
+	"es": "/verificar",
+	"de": "/de/verifizieren",
+	"en": "/en/verify",
+	"it": "/it/verifica",
+}
+
 func verificationEmail(lang string, appURL string, token string) (subject string, html string) {
 	t, ok := verificationTranslations[lang]
 	if !ok {
 		t = verificationTranslations["es"]
+	}
+
+	verifyPath, ok := verifyPaths[lang]
+	if !ok {
+		verifyPath = verifyPaths["es"]
 	}
 
 	html = fmt.Sprintf(`<!DOCTYPE html>
@@ -148,7 +177,7 @@ func verificationEmail(lang string, appURL string, token string) (subject string
           <h1 style="margin:0 0 12px;font-size:18px;color:#0f1a2e">%s</h1>
           <p style="margin:0 0 24px;font-size:14px;color:#64748b;line-height:1.5">%s</p>
           <table cellpadding="0" cellspacing="0" width="100%%"><tr><td align="center">
-            <a href="%s/_/#/auth/confirm-verification/%s"
+            <a href="%s%s?token=%s"
                style="display:inline-block;background:#e8546d;color:#fff;padding:12px 28px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none">
               %s
             </a>
@@ -159,7 +188,7 @@ func verificationEmail(lang string, appURL string, token string) (subject string
     </td></tr>
   </table>
 </body>
-</html>`, t.heading, t.text, appURL, token, t.button, t.ignore)
+</html>`, t.heading, t.text, appURL, verifyPath, token, t.button, t.ignore)
 
 	return t.subject, html
 }
