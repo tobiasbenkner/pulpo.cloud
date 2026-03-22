@@ -56,6 +56,10 @@ const { lang, t } = Astro.props;
       </button>
       <p id="login-error" class="hidden text-center text-sm text-coral-600"></p>
     </form>
+    <script id="login-translations" type="application/json" set:html={JSON.stringify({
+      errorInvalidCredentials: t.errorInvalidCredentials,
+      errorUnverified: t.errorUnverified,
+    })} />
 
     <p class="animate-reveal mt-6 text-center text-sm text-navy-400 [animation-delay:300ms]">
       {t.noAccount}{" "}
@@ -106,7 +110,8 @@ const { lang, t } = Astro.props;
       });
 
       if (!res.ok) {
-        throw new Error("E-Mail oder Passwort falsch.");
+        const msgs = JSON.parse(document.getElementById("login-translations")!.textContent!);
+        throw new Error(res.status === 403 ? msgs.errorUnverified : msgs.errorInvalidCredentials);
       }
 
       const result = await res.json();
