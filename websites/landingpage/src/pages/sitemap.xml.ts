@@ -44,7 +44,7 @@ export const GET: APIRoute = async ({ site }) => {
         return `
   <url>
     <loc>${currentUrl}</loc>
-    <lastmod>${new Date().toISOString()}</lastmod>
+    <lastmod>2026-03-22</lastmod>
 ${alternates}
 ${xDefaultLink}
   </url>`;

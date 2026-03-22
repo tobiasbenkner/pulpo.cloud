@@ -6,6 +6,9 @@ import { getTranslatedPath, getRouteLabel } from "@/lib/registry";
 import { siteData } from "@/data/site";
 import { Icon } from "astro-icon/components";
 import logo from "@/assets/logo.png";
+import ogImage from "@/assets/og-image.png";
+import { openGraphLocales } from "@/lib/i18n";
+import { defaultLang } from "@/lib/i18n";
 
 interface Props {
   title: string;
@@ -15,6 +18,9 @@ interface Props {
 }
 
 const { title, description, lang, routeKey } = Astro.props;
+
+const canonicalUrl = `${siteData.meta.url}${getTranslatedPath(routeKey, lang)}`;
+const ogLocale = openGraphLocales[lang];
 
 const mainNav = ["home", "features", "pricing", "contact"] as const;
 const legalNav = ["imprint", "privacy", "terms"] as const;
@@ -32,7 +38,8 @@ const isAuthPage = authRoutes.includes(routeKey);
     {import.meta.env.PROD && (
       <script defer src="https://analytics.pulpo.cloud/script.js" data-website-id="36ee02cf-1e66-48aa-8476-c2023bfc5678" is:inline></script>
     )}
-    <link rel="canonical" href={`${siteData.meta.url}${getTranslatedPath(routeKey, lang)}`} />
+    <!-- Canonical & hreflang -->
+    <link rel="canonical" href={canonicalUrl} />
     {languages.map((l) => (
       <link
         rel="alternate"
@@ -40,6 +47,54 @@ const isAuthPage = authRoutes.includes(routeKey);
         href={`${siteData.meta.url}${getTranslatedPath(routeKey, l)}`}
       />
     ))}
+    <link
+      rel="alternate"
+      hreflang="x-default"
+      href={`${siteData.meta.url}${getTranslatedPath(routeKey, defaultLang)}`}
+    />
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:site_name" content={siteData.meta.name} />
+    <meta property="og:image" content={`${siteData.meta.url}${ogImage.src}`} />
+    <meta property="og:image:width" content={String(ogImage.width)} />
+    <meta property="og:image:height" content={String(ogImage.height)} />
+    <meta property="og:locale" content={ogLocale} />
+    {languages.filter((l) => l !== lang).map((l) => (
+      <meta property="og:locale:alternate" content={openGraphLocales[l]} />
+    ))}
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={`${siteData.meta.url}${ogImage.src}`} />
+    <!-- JSON-LD -->
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": siteData.meta.name,
+      "url": siteData.meta.url,
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "EUR",
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": siteData.meta.name,
+        "url": siteData.meta.url,
+        "logo": `${siteData.meta.url}${logo.src}`,
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "email": siteData.contact.email,
+          "contactType": "customer service",
+        },
+      },
+    })} />
     <noscript>
       <style>
         [data-reveal] {
