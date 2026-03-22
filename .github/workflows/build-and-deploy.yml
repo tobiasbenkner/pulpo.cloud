@@ -60,6 +60,6 @@ jobs:
 
             - name: Deploy
               run: |
-                curl -X GET -H \"Authorization: Bearer $DEPLOY_TOKEN\" https://deploy.pulpo.cloud/v1/update
+                curl -X GET -H "Authorization: Bearer $DEPLOY_TOKEN" https://deploy.pulpo.cloud/v1/update
               env:
                   DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
