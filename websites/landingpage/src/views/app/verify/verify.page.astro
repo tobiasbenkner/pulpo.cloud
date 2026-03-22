@@ -54,6 +54,9 @@ const { lang, t } = Astro.props;
   </div>
 </section>
 
+<script id="verify-data" type="application/json" set:html={JSON.stringify({
+  onboardingPath: getTranslatedPath("onboarding", lang),
+})} />
 <script>
   const pbUrl = import.meta.env.PUBLIC_POCKETBASE_URL || "";
 
@@ -86,14 +89,7 @@ const { lang, t } = Astro.props;
       document.getElementById("verify-loading")!.classList.add("hidden");
       document.getElementById("verify-success")!.classList.remove("hidden");
 
-      const lang = document.documentElement.lang || "es";
-      const paths: Record<string, string> = {
-        es: "/onboarding",
-        de: "/de/onboarding",
-        en: "/en/onboarding",
-        it: "/it/onboarding",
-      };
-
+      const pageData = JSON.parse(document.getElementById("verify-data")!.textContent!);
       let seconds = 5;
       const countdownEl = document.getElementById("verify-countdown")!;
       const interval = setInterval(() => {
@@ -101,7 +97,7 @@ const { lang, t } = Astro.props;
         countdownEl.textContent = String(seconds);
         if (seconds <= 0) {
           clearInterval(interval);
-          window.location.href = paths[lang] || "/onboarding";
+          window.location.href = pageData.onboardingPath;
         }
       }, 1000);
     } catch {

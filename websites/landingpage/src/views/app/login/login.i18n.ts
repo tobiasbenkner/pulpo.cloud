@@ -10,10 +10,10 @@ export const translations = {
   },
   seo: {
     title: {
-      es: `Login – ${siteData.meta.name}`,
-      de: `Login – ${siteData.meta.name}`,
-      en: `Login – ${siteData.meta.name}`,
-      it: `Login – ${siteData.meta.name}`,
+      es: `Login - ${siteData.meta.name}`,
+      de: `Login - ${siteData.meta.name}`,
+      en: `Login - ${siteData.meta.name}`,
+      it: `Login - ${siteData.meta.name}`,
     },
     description: {
       es: "Inicia sesión en tu cuenta de Pulpo.",

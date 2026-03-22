@@ -14,7 +14,7 @@ const { lang, t } = Astro.props;
 ---
 
 <section class="flex min-h-[70vh] items-center py-20 md:py-32">
-  <div class="mx-auto w-full max-w-[400px] px-6 lg:px-8">
+  <div class="mx-auto w-full max-w-100 px-6 lg:px-8">
     <div class="text-center">
       <a href={getTranslatedPath("home", lang)} class="animate-reveal inline-block">
         <img src={logo.src} alt="Pulpo" width="48" height="48" class="mx-auto h-12 w-12" />
@@ -56,9 +56,10 @@ const { lang, t } = Astro.props;
       </button>
       <p id="login-error" class="hidden text-center text-sm text-coral-600"></p>
     </form>
-    <script id="login-translations" type="application/json" set:html={JSON.stringify({
+    <script id="login-data" type="application/json" set:html={JSON.stringify({
       errorInvalidCredentials: t.errorInvalidCredentials,
       errorUnverified: t.errorUnverified,
+      onboardingPath: getTranslatedPath("onboarding", lang),
     })} />
 
     <p class="animate-reveal mt-6 text-center text-sm text-navy-400 [animation-delay:300ms]">
@@ -76,16 +77,11 @@ const { lang, t } = Astro.props;
 <script>
   const pbUrl = import.meta.env.PUBLIC_POCKETBASE_URL || "";
 
+  const pageData = JSON.parse(document.getElementById("login-data")!.textContent!);
+
   // Redirect if already logged in
   if (localStorage.getItem("pb_token")) {
-    const lang = document.documentElement.lang || "es";
-    const onboardingPaths: Record<string, string> = {
-      es: "/onboarding",
-      de: "/de/onboarding",
-      en: "/en/onboarding",
-      it: "/it/onboarding",
-    };
-    window.location.href = onboardingPaths[lang] || "/onboarding";
+    window.location.href = pageData.onboardingPath;
   }
 
   document.getElementById("login-form")?.addEventListener("submit", async (e) => {
@@ -110,22 +106,13 @@ const { lang, t } = Astro.props;
       });
 
       if (!res.ok) {
-        const msgs = JSON.parse(document.getElementById("login-translations")!.textContent!);
-        throw new Error(res.status === 403 ? msgs.errorUnverified : msgs.errorInvalidCredentials);
+        throw new Error(res.status === 403 ? pageData.errorUnverified : pageData.errorInvalidCredentials);
       }
 
       const result = await res.json();
       localStorage.setItem("pb_token", result.token);
       localStorage.setItem("pb_user", JSON.stringify(result.record));
-
-      const lang = document.documentElement.lang || "es";
-      const onboardingPaths: Record<string, string> = {
-        es: "/onboarding",
-        de: "/de/onboarding",
-        en: "/en/onboarding",
-        it: "/it/onboarding",
-      };
-      window.location.href = onboardingPaths[lang] || "/onboarding";
+      window.location.href = pageData.onboardingPath;
     } catch (err: any) {
       if (errorEl) {
         errorEl.textContent = err.message;

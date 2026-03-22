@@ -146,10 +146,10 @@ var verificationTranslations = map[string]verificationContent{
 }
 
 var verifyPaths = map[string]string{
-	"es": "/verificar",
-	"de": "/de/verifizieren",
-	"en": "/en/verify",
-	"it": "/it/verifica",
+	"es": "/app/verificar",
+	"de": "/de/app/verifizieren",
+	"en": "/en/app/verify",
+	"it": "/it/app/verifica",
 }
 
 func verificationEmail(lang string, appURL string, token string) (subject string, html string) {
