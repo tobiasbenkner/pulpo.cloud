@@ -32,6 +32,7 @@ const isAuthPage = authRoutes.includes(routeKey);
     {import.meta.env.PROD && (
       <script defer src="https://analytics.pulpo.cloud/script.js" data-website-id="36ee02cf-1e66-48aa-8476-c2023bfc5678" is:inline></script>
     )}
+    <link rel="canonical" href={`${siteData.meta.url}${getTranslatedPath(routeKey, lang)}`} />
     {languages.map((l) => (
       <link
         rel="alternate"
