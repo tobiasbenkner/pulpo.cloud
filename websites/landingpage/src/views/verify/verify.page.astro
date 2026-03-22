@@ -33,7 +33,7 @@ const { lang, t } = Astro.props;
         <Icon name="lucide:check" class="h-6 w-6 text-coral-500" />
       </div>
       <h1 class="mt-4 font-display text-xl font-bold text-navy-900">{t.success}</h1>
-      <p class="mt-2 text-sm text-navy-400">{t.redirecting}</p>
+      <p class="mt-2 text-sm text-navy-400">{t.redirecting} <span id="verify-countdown">5</span>s</p>
     </div>
 
     <!-- Error state -->
@@ -93,9 +93,17 @@ const { lang, t } = Astro.props;
         en: "/en/onboarding",
         it: "/it/onboarding",
       };
-      setTimeout(() => {
-        window.location.href = paths[lang] || "/onboarding";
-      }, 4000);
+
+      let seconds = 5;
+      const countdownEl = document.getElementById("verify-countdown")!;
+      const interval = setInterval(() => {
+        seconds--;
+        countdownEl.textContent = String(seconds);
+        if (seconds <= 0) {
+          clearInterval(interval);
+          window.location.href = paths[lang] || "/onboarding";
+        }
+      }, 1000);
     } catch {
       showError();
     }
