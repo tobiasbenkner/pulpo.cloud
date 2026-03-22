@@ -43,12 +43,6 @@
       "env": [
         "DOCKER_HUB_TOKEN"
       ]
-    },
-    "deploy": {
-      "cache": false,
-      "env": [
-        "DEPLOY_TOKEN"
-      ]
     }
   }
 }

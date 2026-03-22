@@ -59,6 +59,7 @@ jobs:
                   DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
 
             - name: Deploy
-              run: npx turbo run deploy --filter=...[${{ steps.last_success.outputs.commit }}]
+              run: |
+                curl -X GET -H \"Authorization: Bearer $DEPLOY_TOKEN\" https://deploy.pulpo.cloud/v1/update
               env:
                   DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
