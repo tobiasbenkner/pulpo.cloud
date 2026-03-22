@@ -16,7 +16,7 @@ export const siteData = {
       { key: "starter", invoices: 500, price: 19 },
       { key: "business", invoices: 2000, price: 39 },
       { key: "growth", invoices: 5000, price: 69 },
-      { key: "scale", invoices: 10000, price: 99 },
+      { key: "scale", invoices: 8000, price: 99 },
     ],
   },
 };

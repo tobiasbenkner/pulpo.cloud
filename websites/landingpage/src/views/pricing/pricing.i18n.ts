@@ -54,6 +54,12 @@ export const translations = {
     en: "invoices/month",
     it: "fatture/mese",
   },
+  perMonth: {
+    es: "/mes",
+    de: "/Monat",
+    en: "/month",
+    it: "/mese",
+  },
   upTo: {
     es: "hasta",
     de: "bis",
