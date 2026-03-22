@@ -108,6 +108,7 @@ const isAuthPage = authRoutes.includes(routeKey);
                   ) : (
                     <a
                       href={getTranslatedPath(routeKey, l)}
+                      data-lang-switch={l}
                       class="transition-colors hover:text-coral-500"
                     >
                       {l.toUpperCase()}
@@ -196,6 +197,7 @@ const isAuthPage = authRoutes.includes(routeKey);
             {languages.map((l) => (
               <a
                 href={getTranslatedPath(routeKey, l)}
+                data-lang-switch={l}
                 class:list={[
                   "text-sm font-medium transition-colors",
                   l === lang
@@ -210,6 +212,28 @@ const isAuthPage = authRoutes.includes(routeKey);
         </div>
       </div>
     )}
+
+    <div
+      id="lang-toast"
+      class="fixed bottom-5 right-5 z-50 hidden translate-y-4 opacity-0 transition-all duration-300"
+    >
+      <div class="flex items-center gap-3 rounded-lg bg-navy-900 px-4 py-3 text-sm text-navy-200 shadow-lg">
+        <Icon name="lucide:globe" class="h-4 w-4 shrink-0 text-coral-400" />
+        <span id="lang-toast-text"></span>
+        <a
+          id="lang-toast-link"
+          href="/"
+          class="shrink-0 rounded-md bg-coral-500 px-3 py-1 text-xs font-medium text-white transition-colors hover:bg-coral-600"
+        ></a>
+        <button
+          id="lang-toast-close"
+          class="shrink-0 p-0.5 text-navy-400 transition-colors hover:text-white"
+          aria-label="Close"
+        >
+          <Icon name="lucide:x" class="h-3.5 w-3.5" />
+        </button>
+      </div>
+    </div>
 
     <main class="flex-1">
       <slot />
@@ -350,6 +374,7 @@ const isAuthPage = authRoutes.includes(routeKey);
                 ) : (
                   <a
                     href={getTranslatedPath(routeKey, l)}
+                    data-lang-switch={l}
                     class="transition-colors hover:text-navy-200"
                   >
                     {l.toUpperCase()}
@@ -397,6 +422,80 @@ const isAuthPage = authRoutes.includes(routeKey);
       document
         .querySelectorAll("[data-reveal]")
         .forEach((el) => observer.observe(el));
+
+      document.querySelectorAll<HTMLAnchorElement>("[data-lang-switch]").forEach((link) => {
+        link.addEventListener("click", () => {
+          const lang = link.getAttribute("data-lang-switch");
+          if (lang) localStorage.setItem("pulpo-lang", lang);
+        });
+      });
+
+      // Language suggestion toast
+      (function () {
+        const pageLang = document.documentElement.lang;
+        if (localStorage.getItem("pulpo-lang")) return;
+
+        const messages: Record<string, { text: string; cta: string }> = {
+          de: { text: "Auch auf Deutsch verfügbar.", cta: "Wechseln" },
+          en: { text: "Also available in English.", cta: "Switch" },
+          it: { text: "Disponibile anche in italiano.", cta: "Cambia" },
+          es: { text: "También disponible en español.", cta: "Cambiar" },
+        };
+
+        const supported = Object.keys(messages);
+        const browserLangs = navigator.languages || [navigator.language];
+        let detected: string | null = null;
+
+        for (const bl of browserLangs) {
+          const code = bl.split("-")[0].toLowerCase();
+          if (code === pageLang) return;
+          if (supported.includes(code)) {
+            detected = code;
+            break;
+          }
+        }
+
+        if (!detected) return;
+
+        const _toast = document.getElementById("lang-toast");
+        const _text = document.getElementById("lang-toast-text");
+        const _link = document.getElementById("lang-toast-link") as HTMLAnchorElement | null;
+        const _close = document.getElementById("lang-toast-close");
+
+        if (!_toast || !_text || !_link || !_close) return;
+
+        const toast = _toast;
+        const text = _text;
+        const link = _link;
+        const close = _close;
+
+        const msg = messages[detected];
+        text.textContent = msg.text;
+        link.textContent = msg.cta;
+        link.href = detected === "es" ? "/" : `/${detected}`;
+
+        // Show with animation
+        toast.classList.remove("hidden");
+        requestAnimationFrame(() => {
+          toast.classList.remove("translate-y-4", "opacity-0");
+        });
+
+        // Auto-hide after 8 seconds
+        const autoHide = setTimeout(() => hideToast(pageLang), 8000);
+
+        function hideToast(storeLang: string) {
+          clearTimeout(autoHide);
+          toast.classList.add("translate-y-4", "opacity-0");
+          setTimeout(() => toast.classList.add("hidden"), 300);
+          localStorage.setItem("pulpo-lang", storeLang);
+        }
+
+        link.addEventListener("click", () => {
+          localStorage.setItem("pulpo-lang", detected!);
+        });
+
+        close.addEventListener("click", () => hideToast(pageLang));
+      })();
     </script>
   </body>
 </html>
