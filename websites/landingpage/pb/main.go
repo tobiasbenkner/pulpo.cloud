@@ -2,14 +2,17 @@ package main
 
 import (
 	"embed"
+	"fmt"
 	"io/fs"
 	"log"
 	"net/http"
+	"net/mail"
 	"strings"
 
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/plugins/migratecmd"
+	"github.com/pocketbase/pocketbase/tools/mailer"
 	"github.com/pocketbase/pocketbase/tools/osutils"
 
 	_ "github.com/pulpocloud/landingpage/migrations"
@@ -23,6 +26,23 @@ func main() {
 
 	migratecmd.MustRegister(app, app.RootCmd, migratecmd.Config{
 		Automigrate: osutils.IsProbablyGoRun(),
+	})
+
+	app.OnRecordAfterCreateSuccess("users").BindFunc(func(e *core.RecordEvent) error {
+		userEmail := e.Record.GetString("email")
+
+		msg := &mailer.Message{
+			From:    mail.Address{Name: "Pulpo Cloud", Address: "noreply@pulpo.cloud"},
+			To:      []mail.Address{{Address: "info@pulpo.cloud"}},
+			Subject: fmt.Sprintf("Neue Registrierung: %s", userEmail),
+			Text:    fmt.Sprintf("Ein neuer Benutzer hat sich registriert:\n\nE-Mail: %s", userEmail),
+		}
+
+		if err := app.NewMailClient().Send(msg); err != nil {
+			app.Logger().Error("failed to send registration notification", "error", err, "user", userEmail)
+		}
+
+		return e.Next()
 	})
 
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
