@@ -8,7 +8,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "dockerize": "docker build -t pulpocloud/docs . && docker push pulpocloud/docs",
-    "deploy": "curl -sf -X GET -H \"Authorization: Bearer $DEPLOY_TOKEN\" https://deploy.pulpo.cloud/v1/update"
+    "deploy": "curl -X GET -H \"Authorization: Bearer $DEPLOY_TOKEN\" https://deploy.pulpo.cloud/v1/update"
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.5.19",

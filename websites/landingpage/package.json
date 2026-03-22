@@ -9,7 +9,7 @@
     "build": "astro build",
     "preview": "cd pb && ./pocketbase serve",
     "dockerize": "docker build -t pulpocloud/landingpage . && docker push pulpocloud/landingpage",
-    "deploy": "curl -sf -X GET -H \"Authorization: Bearer $DEPLOY_TOKEN\" https://deploy.pulpo.cloud/v1/update",
+    "deploy": "curl -X GET -H \"Authorization: Bearer $DEPLOY_TOKEN\" https://deploy.pulpo.cloud/v1/update",
     "astro": "astro",
     "pb:setup": "npx tsx pb/setup.ts"
   },
