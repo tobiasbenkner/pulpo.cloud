@@ -16,8 +16,9 @@ export const GET: APIRoute = async ({ site }) => {
   const baseUrl =
     site?.toString().replace(/\/$/, "") || "http://localhost:4321";
 
+  const excludeFromSitemap = new Set(["login", "signup", "onboarding", "verify"]);
   const otherRouteKeys = Object.keys(routeSlugs).filter(
-    (key) => key !== "home",
+    (key) => key !== "home" && !excludeFromSitemap.has(key),
   );
   const allRouteKeys = ["home", ...otherRouteKeys];
 

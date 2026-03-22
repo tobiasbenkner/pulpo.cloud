@@ -6,6 +6,16 @@ export const GET: APIRoute = ({ site }) => {
   const content = `
 User-agent: *
 Allow: /
+Disallow: /login
+Disallow: /onboarding
+Disallow: /registro
+Disallow: /registrieren
+Disallow: /signup
+Disallow: /registrazione
+Disallow: /verificar
+Disallow: /verifizieren
+Disallow: /verify
+Disallow: /verifica
 
 Sitemap: ${sitemapUrl}
 `.trim();
