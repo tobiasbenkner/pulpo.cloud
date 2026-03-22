@@ -214,7 +214,7 @@ const { lang, t } = Astro.props;
       const res = await fetch(`${pbUrl}/api/collections/users/records`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, passwordConfirm: password }),
+        body: JSON.stringify({ email, password, passwordConfirm: password, lang: document.documentElement.lang || "es" }),
       });
 
       if (!res.ok) {
