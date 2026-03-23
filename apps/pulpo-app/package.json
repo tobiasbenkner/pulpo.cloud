@@ -1,0 +1,9 @@
+{
+  "name": "@pulpo/app",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "go run . serve --http=0.0.0.0:8090",
+    "build": "go build -o pulpo-app ."
+  }
+}

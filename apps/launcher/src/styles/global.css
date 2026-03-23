@@ -1,0 +1,158 @@
+@import "tailwindcss";
+@import "@fontsource/syne/400.css";
+@import "@fontsource/syne/600.css";
+@import "@fontsource/syne/700.css";
+@import "@fontsource/dm-sans/400.css";
+@import "@fontsource/dm-sans/500.css";
+
+@theme {
+  --color-navy-50: #eef1f6;
+  --color-navy-100: #dce2ec;
+  --color-navy-200: #b3c1d5;
+  --color-navy-300: #8096b4;
+  --color-navy-400: #506b93;
+  --color-navy-500: #3a5580;
+  --color-navy-600: #2e4366;
+  --color-navy-700: #23344d;
+  --color-navy-800: #1a2332;
+  --color-navy-900: #111722;
+  --color-navy-950: #090c12;
+
+  --color-coral-50: #fef2f4;
+  --color-coral-100: #fee5ea;
+  --color-coral-200: #fcc8d3;
+  --color-coral-300: #f9a1b3;
+  --color-coral-400: #f2748e;
+  --color-coral-500: #e8546d;
+  --color-coral-600: #d33757;
+  --color-coral-700: #b12848;
+  --color-coral-800: #942441;
+  --color-coral-900: #7e223c;
+  --color-coral-950: #460e1e;
+
+  --color-cream: #f8f6f1;
+  --color-sand: #e8e4dc;
+
+  --font-display: "Syne", system-ui, sans-serif;
+  --font-body: "DM Sans", system-ui, sans-serif;
+}
+
+body {
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: var(--color-navy-900);
+  background: var(--color-cream);
+}
+
+/* ── Grain overlay (matches landing page) ── */
+
+.grain {
+  position: relative;
+  isolation: isolate;
+}
+
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 1;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+}
+
+/* ── Dot grid texture ── */
+
+.dot-grid {
+  background-image: radial-gradient(circle, var(--color-navy-200) 0.5px, transparent 0.5px);
+  background-size: 24px 24px;
+}
+
+/* ── Entrance animations ── */
+
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes reveal-scale {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-reveal {
+  opacity: 0;
+  animation: reveal-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-reveal-scale {
+  opacity: 0;
+  animation: reveal-scale 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-fade {
+  opacity: 0;
+  animation: fade-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* ── Input styling ── */
+
+input[type="email"],
+input[type="password"] {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input[type="email"]:focus,
+input[type="password"]:focus {
+  outline: none;
+  border-color: var(--color-coral-400);
+  box-shadow: 0 0 0 3px rgba(232, 84, 109, 0.08);
+}
+
+/* ── App card hover ── */
+
+.app-card {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.35s ease,
+              border-color 0.25s ease;
+}
+
+.app-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -8px rgba(17, 23, 34, 0.08);
+}
+
+/* ── Reduced motion ── */
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-reveal,
+  .animate-reveal-scale,
+  .animate-fade {
+    opacity: 1;
+    animation: none;
+  }
+
+  .app-card:hover {
+    transform: none;
+  }
+}

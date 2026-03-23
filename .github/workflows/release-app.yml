@@ -31,12 +31,14 @@ jobs:
 
       - name: Build frontends
         run: |
+          (cd apps/launcher && npx astro build)
           (cd apps/shop && npx astro build --base /shop)
           (cd apps/agenda && npx astro build --base /agenda)
 
       - name: Copy frontends to pb_public
         run: |
-          rm -rf apps/pulpo-app/pb_public/shop/* apps/pulpo-app/pb_public/agenda/*
+          rm -rf apps/pulpo-app/pb_public/launcher/* apps/pulpo-app/pb_public/shop/* apps/pulpo-app/pb_public/agenda/*
+          cp -r apps/launcher/dist/* apps/pulpo-app/pb_public/launcher/
           cp -r apps/shop/dist/* apps/pulpo-app/pb_public/shop/
           cp -r apps/agenda/dist/* apps/pulpo-app/pb_public/agenda/
 

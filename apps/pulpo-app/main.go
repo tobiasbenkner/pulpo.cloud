@@ -34,7 +34,12 @@ func main() {
 	})
 
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
-		// Embedded frontends servieren: /shop, /agenda, /settings
+		// Launcher auf / servieren
+		if launcher, err := fs.Sub(publicFS, "pb_public/launcher"); err == nil {
+			se.Router.GET("/{path...}", apis.Static(launcher, true))
+		}
+
+		// App-Frontends unter /shop, /agenda, /settings
 		for _, name := range []string{"shop", "agenda", "settings"} {
 			sub, err := fs.Sub(publicFS, "pb_public/"+name)
 			if err != nil {

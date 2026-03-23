@@ -3,6 +3,8 @@ pb_data/
 
 # Frontend build output (wird von CI gebaut und embedded)
 # .gitkeep Dateien bleiben erhalten
+pb_public/launcher/*
+!pb_public/launcher/.gitkeep
 pb_public/shop/*
 !pb_public/shop/.gitkeep
 pb_public/agenda/*

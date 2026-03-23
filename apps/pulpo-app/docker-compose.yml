@@ -1,0 +1,22 @@
+volumes:
+  pb_data:
+
+networks:
+  traefik:
+    external: true
+
+services:
+  app:
+    image: pulpocloud/app:latest
+    volumes:
+      - pb_data:/pb_data
+    networks:
+      - traefik
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.pulpo_demo.rule=Host(`demo.pulpo.cloud`)
+      - traefik.http.routers.pulpo_demo.tls=true
+      - traefik.http.routers.pulpo_demo.tls.certresolver=le
+      - traefik.http.services.pulpo_demo.loadbalancer.server.port=8090
+      - com.centurylinklabs.watchtower.enable=true
