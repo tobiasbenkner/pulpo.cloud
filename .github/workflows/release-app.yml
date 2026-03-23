@@ -1,0 +1,68 @@
+name: Release App
+
+on:
+  push:
+    tags:
+      - "app/v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Install PNPM
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build frontends
+        run: |
+          (cd apps/shop && npx astro build --base /shop)
+          (cd apps/agenda && npx astro build --base /agenda)
+
+      - name: Copy frontends to pb_public
+        run: |
+          rm -rf apps/pulpo-app/pb_public/shop/* apps/pulpo-app/pb_public/agenda/*
+          cp -r apps/shop/dist/* apps/pulpo-app/pb_public/shop/
+          cp -r apps/agenda/dist/* apps/pulpo-app/pb_public/agenda/
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: apps/pulpo-app/go.mod
+          cache-dependency-path: apps/pulpo-app/go.sum
+
+      - name: Docker Hub login
+        uses: docker/login-action@v3
+        with:
+          username: pulpocloud
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          version: latest
+          args: release --clean
+          workdir: apps/pulpo-app
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

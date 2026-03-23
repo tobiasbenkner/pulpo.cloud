@@ -1,0 +1,11 @@
+pulpo-app
+pb_data/
+
+# Frontend build output (wird von CI gebaut und embedded)
+# .gitkeep Dateien bleiben erhalten
+pb_public/shop/*
+!pb_public/shop/.gitkeep
+pb_public/agenda/*
+!pb_public/agenda/.gitkeep
+pb_public/settings/*
+!pb_public/settings/.gitkeep
