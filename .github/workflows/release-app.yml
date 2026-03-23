@@ -69,3 +69,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GORELEASER_CURRENT_TAG: ${{ github.ref_name }}
+
+      - name: Deploy
+        run: |
+          curl -X GET -H "Authorization: Bearer $DEPLOY_TOKEN" https://deploy.pulpo.cloud/v1/update
+        env:
+            DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
