@@ -3,7 +3,7 @@ name: Release App
 on:
   push:
     tags:
-      - "app/v*"
+      - "v*"
 
 permissions:
   contents: write
@@ -66,3 +66,4 @@ jobs:
           workdir: apps/pulpo-app
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GORELEASER_CURRENT_TAG: ${{ github.ref_name }}

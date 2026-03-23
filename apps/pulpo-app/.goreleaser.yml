@@ -2,15 +2,6 @@ version: 2
 
 project_name: pulpo-app
 
-git:
-  tag_sort: -version:refname
-  prerelease_suffix: "-"
-  ignore_tags:
-    - "!app/*"
-
-monorepo:
-  tag_prefix: app/
-
 before:
   hooks:
     - go mod tidy
