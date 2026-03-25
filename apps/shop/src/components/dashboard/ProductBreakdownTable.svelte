@@ -91,7 +91,7 @@
 							{#each group.rows as row}
 								<Table.Row>
 									<Table.Cell class="pl-8 text-sm">{row.product_name}</Table.Cell>
-									<Table.Cell class="text-right tabular-nums text-sm">{row.quantity}</Table.Cell>
+									<Table.Cell class="text-right tabular-nums text-sm">{row.unit === "weight" ? parseFloat(String(row.quantity)).toFixed(3) : row.quantity}</Table.Cell>
 									<Table.Cell class="text-right tabular-nums text-sm">{fmt(row.total_gross)}</Table.Cell>
 									<Table.Cell class="text-right tabular-nums text-sm">{fmt(row.cash_gross)}</Table.Cell>
 									<Table.Cell class="text-right tabular-nums text-sm">{fmt(row.card_gross)}</Table.Cell>
@@ -102,7 +102,7 @@
 						{#each products as row}
 							<Table.Row>
 								<Table.Cell class="text-sm">{row.product_name}</Table.Cell>
-								<Table.Cell class="text-right tabular-nums text-sm">{row.quantity}</Table.Cell>
+								<Table.Cell class="text-right tabular-nums text-sm">{row.unit === "weight" ? parseFloat(String(row.quantity)).toFixed(3) : row.quantity}</Table.Cell>
 								<Table.Cell class="text-right tabular-nums text-sm">{fmt(row.total_gross)}</Table.Cell>
 								<Table.Cell class="text-right tabular-nums text-sm">{fmt(row.cash_gross)}</Table.Cell>
 								<Table.Cell class="text-right tabular-nums text-sm">{fmt(row.card_gross)}</Table.Cell>

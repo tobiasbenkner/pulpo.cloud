@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { getAuthClient } from "@pulpo/auth";
+	import { getAuthClient, getStoredToken } from "@pulpo/auth";
 	import { getReport, getReportExcelUrl, DIRECTUS_URL } from "@pulpo/cms";
 	import type { AggregatedReport } from "@pulpo/cms";
 	import DashboardShell from "../DashboardShell.svelte";
@@ -142,12 +142,20 @@
 		exporting = true;
 		try {
 			const path = getReportExcelUrl(activeTab, getParams());
-			const token = document.cookie
-				.split("; ")
-				.find((c) => c.startsWith("directus_session_token="))
-				?.split("=")[1];
-			const url = `${DIRECTUS_URL}${path}${path.includes("?") ? "&" : "?"}access_token=${token}`;
-			window.open(url, "_blank");
+			const token = getStoredToken();
+			const res = await fetch(`${DIRECTUS_URL}${path}`, {
+				headers: { Authorization: `Bearer ${token?.access_token}` },
+			});
+			if (!res.ok) throw new Error(`HTTP ${res.status}`);
+			const blob = await res.blob();
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement("a");
+			a.href = url;
+			a.download = `Informe_${report.period.label}.xlsx`;
+			a.click();
+			URL.revokeObjectURL(url);
+		} catch (e) {
+			console.error("Error al exportar Excel:", e);
 		} finally {
 			exporting = false;
 		}
@@ -190,6 +198,17 @@
 					{/if}
 				</button>
 			{/each}
+			<div class="ml-auto pb-3">
+				<Button
+					variant="outline"
+					size="sm"
+					onclick={exportExcel}
+					disabled={!hasData || exporting}
+				>
+					<Download class="mr-1.5 size-4" />
+					{exporting ? "Exportando..." : "Excel"}
+				</Button>
+			</div>
 		</nav>
 
 		<!-- Date navigator -->
@@ -237,19 +256,6 @@
 					Hoy
 				</Button>
 			{/if}
-			{#if hasData}
-				<div class="ml-auto">
-					<Button
-						variant="outline"
-						size="sm"
-						onclick={exportExcel}
-						disabled={exporting}
-					>
-						<Download class="mr-1.5 size-4" />
-						{exporting ? "Exportando..." : "Excel"}
-					</Button>
-				</div>
-			{/if}
 		</div>
 
 		<!-- Content -->
@@ -259,7 +265,7 @@
 				Cargando informe...
 			</div>
 		{:else if !hasData}
-			<div class="py-8 text-center text-sm text-muted-foreground">
+			<div class="py-8 text-sm text-muted-foreground">
 				No hay datos para este período.
 			</div>
 		{:else if report}
