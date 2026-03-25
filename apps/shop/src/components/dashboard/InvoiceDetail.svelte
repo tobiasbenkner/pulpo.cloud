@@ -1,19 +1,93 @@
 <script lang="ts">
+	import { onMount } from "svelte";
 	import type { Invoice } from "@pulpo/cms";
+	import { getAuthClient } from "@pulpo/auth";
+	import { getInvoices } from "@pulpo/cms";
 	import * as Sheet from "$lib/components/ui/sheet/index.js";
 	import * as Table from "$lib/components/ui/table/index.js";
 	import { Badge } from "$lib/components/ui/badge/index.js";
 	import { Button } from "$lib/components/ui/button/index.js";
 	import { printInvoice } from "../../stores/printerStore";
+	import RectificativaDialog from "./RectificativaDialog.svelte";
+	import { resolveRectificationReason } from "../../types/shop";
 	import Printer from "lucide-svelte/icons/printer";
+	import Ban from "lucide-svelte/icons/ban";
+	import FileWarning from "lucide-svelte/icons/file-warning";
 
 	let {
 		open = $bindable(false),
 		invoice,
+		onRectificativa,
 	}: {
 		open: boolean;
 		invoice: Invoice | null;
+		onRectificativa?: () => void;
 	} = $props();
+
+	let rectOpen = $state(false);
+	let linkedRectificativas: Invoice[] = $state([]);
+	let originalInvoiceNumber: string | null = $state(null);
+	// Map: "product_id|product_name" → rectified quantity
+	let rectifiedQuantities = $state(new Map<string, number>());
+
+	// Load linked rectificativas when invoice changes
+	$effect(() => {
+		if (invoice && open) {
+			loadLinkedRectificativas();
+			loadOriginalInvoice();
+		} else {
+			linkedRectificativas = [];
+			originalInvoiceNumber = null;
+		}
+	});
+
+	async function loadOriginalInvoice() {
+		if (!invoice?.original_invoice_id) {
+			originalInvoiceNumber = null;
+			return;
+		}
+		try {
+			const client = getAuthClient();
+			const { getInvoice } = await import("@pulpo/cms");
+			const original = await getInvoice(client as any, invoice.original_invoice_id);
+			originalInvoiceNumber = (original as Invoice).invoice_number;
+		} catch {
+			originalInvoiceNumber = null;
+		}
+	}
+
+	async function loadLinkedRectificativas() {
+		if (!invoice) return;
+		// For a normal invoice: find its rectificativas
+		// For a rectificativa: nothing (the original_invoice_id is shown below)
+		if (invoice.invoice_type === "rectificativa") {
+			linkedRectificativas = [];
+			return;
+		}
+		try {
+			const client = getAuthClient();
+			const results = (await getInvoices(client as any, {
+				originalInvoiceId: invoice.id,
+			})) as Invoice[];
+			linkedRectificativas = results.filter(
+				(r) => r.invoice_type === "rectificativa",
+			);
+
+			// Build rectified quantities map
+			const map = new Map<string, number>();
+			for (const rect of linkedRectificativas) {
+				for (const ri of rect.items ?? []) {
+					const key = `${ri.product_id ?? ""}|${ri.product_name}`;
+					const prev = map.get(key) ?? 0;
+					map.set(key, prev + Math.abs(parseInt(String(ri.quantity))));
+				}
+			}
+			rectifiedQuantities = map;
+		} catch {
+			linkedRectificativas = [];
+			rectifiedQuantities = new Map();
+		}
+	}
 
 	let printing = $state(false);
 
@@ -81,7 +155,7 @@
 </script>
 
 <Sheet.Root bind:open>
-	<Sheet.Content side="right" class="w-full overflow-y-auto sm:max-w-xl">
+	<Sheet.Content side="right" class="w-full overflow-y-auto sm:!w-1/2">
 		<Sheet.Header>
 			<Sheet.Title>
 				{#if invoice}
@@ -115,16 +189,27 @@
 							{invoice.status}
 						{/if}
 					</Badge>
-					<Button
-						variant="outline"
-						size="sm"
-						class="ml-auto"
-						onclick={onPrint}
-						disabled={printing}
-					>
-						<Printer class="mr-1.5 size-4" />
-						{printing ? "Imprimiendo..." : "Imprimir"}
-					</Button>
+					<div class="ml-auto flex gap-2">
+						{#if invoice.status === "paid" && invoice.invoice_type !== "rectificativa"}
+							<Button
+								variant="outline"
+								size="sm"
+								onclick={() => { rectOpen = true; }}
+							>
+								<Ban class="mr-1.5 size-4" />
+								Rectificar
+							</Button>
+						{/if}
+						<Button
+							variant="outline"
+							size="sm"
+							onclick={onPrint}
+							disabled={printing}
+						>
+							<Printer class="mr-1.5 size-4" />
+							{printing ? "Imprimiendo..." : "Imprimir"}
+						</Button>
+					</div>
 				</div>
 
 				<!-- Customer -->
@@ -166,7 +251,12 @@
 							</Table.Header>
 							<Table.Body>
 								{#each invoice.items as item (item.id)}
-									<Table.Row>
+									{@const key = `${item.product_id ?? ""}|${item.product_name}`}
+									{@const rectQty = rectifiedQuantities.get(key) ?? 0}
+									{@const origQty = Math.abs(item.unit === "weight" ? parseFloat(String(item.quantity)) : parseInt(String(item.quantity)))}
+									{@const fullyRectified = rectQty >= origQty}
+									{@const partiallyRectified = rectQty > 0 && rectQty < origQty}
+									<Table.Row class={fullyRectified ? "opacity-50 line-through" : ""}>
 										<Table.Cell class="text-sm">
 											{item.product_name}
 											{#if item.discount_type}
@@ -174,6 +264,15 @@
 													({item.discount_type === "percent"
 														? item.discount_value + "%"
 														: fmt(item.discount_value)} dto.)
+												</span>
+											{/if}
+											{#if fullyRectified}
+												<span class="ml-1.5 inline-flex items-center rounded bg-destructive/10 px-1.5 py-0.5 text-xs font-medium text-destructive no-underline">
+													Rectificado
+												</span>
+											{:else if partiallyRectified}
+												<span class="ml-1.5 inline-flex items-center rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-700 no-underline">
+													{rectQty} de {origQty} rectificado
 												</span>
 											{/if}
 										</Table.Cell>
@@ -278,21 +377,62 @@
 					{/each}
 				</div>
 
-				<!-- Rectificativa reference -->
+				<!-- Rectificativa reference (for rectificativas: link to original) -->
 				{#if invoice.original_invoice_id}
-					<div class="space-y-1">
+					<div class="space-y-2">
 						<h4 class="text-sm font-medium">Factura original</h4>
-						<p class="text-sm text-muted-foreground">
-							ID: {invoice.original_invoice_id}
-						</p>
-						{#if invoice.rectification_reason}
-							<p class="text-sm text-muted-foreground">
-								Motivo: {invoice.rectification_reason}
+						<div class="rounded-md bg-muted p-3 text-sm">
+							<p class="font-medium font-mono">
+								{originalInvoiceNumber ?? "Cargando..."}
 							</p>
-						{/if}
+							{#if invoice.rectification_reason}
+								<p class="mt-1 text-muted-foreground">
+									Motivo: {resolveRectificationReason(invoice.rectification_reason) ?? invoice.rectification_reason}
+								</p>
+							{/if}
+						</div>
+					</div>
+				{/if}
+
+				<!-- Linked rectificativas (for normal invoices) -->
+				{#if linkedRectificativas.length > 0}
+					<div class="space-y-2">
+						<h4 class="text-sm font-medium">Rectificativas</h4>
+						{#each linkedRectificativas as rect (rect.id)}
+							<div class="flex items-center gap-3 rounded-md bg-destructive/5 px-3 py-2.5">
+								<FileWarning class="size-4 shrink-0 text-destructive" />
+								<div class="min-w-0 flex-1">
+									<p class="text-sm font-medium font-mono">
+										{rect.invoice_number}
+									</p>
+									<p class="text-xs text-muted-foreground">
+										{new Date(rect.date_created).toLocaleDateString("es-ES", {
+											day: "2-digit",
+											month: "2-digit",
+											year: "numeric",
+											hour: "2-digit",
+											minute: "2-digit",
+										})}
+									</p>
+								</div>
+								<span class="text-sm font-mono font-medium text-destructive">
+									{fmt(rect.total_gross)}
+								</span>
+							</div>
+						{/each}
 					</div>
 				{/if}
 			</div>
 		{/if}
 	</Sheet.Content>
 </Sheet.Root>
+
+<RectificativaDialog
+	bind:open={rectOpen}
+	{invoice}
+	onComplete={() => {
+		rectOpen = false;
+		open = false;
+		onRectificativa?.();
+	}}
+/>

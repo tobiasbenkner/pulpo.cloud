@@ -398,4 +398,4 @@
 {/if}
 
 <!-- Detail Sheet -->
-<InvoiceDetail bind:open={detailOpen} invoice={selectedInvoice} />
+<InvoiceDetail bind:open={detailOpen} invoice={selectedInvoice} onRectificativa={loadInvoices} />
