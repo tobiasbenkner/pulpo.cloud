@@ -10,25 +10,25 @@
 
 	const navItems = [
 		{
-			title: "Übersicht",
+			title: "Resumen",
 			url: "/dashboard",
 			icon: LayoutDashboard,
 			id: "overview",
 		},
 		{
-			title: "Rechnungen",
+			title: "Facturas",
 			url: "/dashboard/invoices",
 			icon: Receipt,
 			id: "invoices",
 		},
 		{
-			title: "Auswertungen",
+			title: "Informes",
 			url: "/dashboard/reports",
 			icon: BarChart3,
 			id: "reports",
 		},
 		{
-			title: "Produkte",
+			title: "Productos",
 			url: "/dashboard/products",
 			icon: Package,
 			id: "products",
@@ -53,7 +53,7 @@
 
 	<Sidebar.Content>
 		<Sidebar.Group>
-			<Sidebar.GroupLabel>Navigation</Sidebar.GroupLabel>
+			<Sidebar.GroupLabel>Navegación</Sidebar.GroupLabel>
 			<Sidebar.GroupContent>
 				<Sidebar.Menu>
 					{#each navItems as item (item.id)}
@@ -83,7 +83,7 @@
 					{#snippet child({ props })}
 						<a href="/" {...props}>
 							<ShoppingCart />
-							<span>Zur Kasse</span>
+							<span>Ir a caja</span>
 						</a>
 					{/snippet}
 				</Sidebar.MenuButton>

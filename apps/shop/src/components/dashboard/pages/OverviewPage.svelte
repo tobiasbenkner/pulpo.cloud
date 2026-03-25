@@ -1,35 +1,102 @@
 <script lang="ts">
+	import { onMount } from "svelte";
+	import { getAuthClient } from "@pulpo/auth";
+	import { getReport } from "@pulpo/cms";
+	import type { AggregatedReport } from "@pulpo/cms";
 	import DashboardShell from "../DashboardShell.svelte";
+	import KpiCards from "../KpiCards.svelte";
+	import RevenueChart from "../RevenueChart.svelte";
+	import PaymentPieChart from "../PaymentPieChart.svelte";
+	import TopProductsChart from "../TopProductsChart.svelte";
+
+	let todayReport: AggregatedReport | null = $state(null);
+	let weekReports: { date: string; report: AggregatedReport }[] = $state([]);
+	let loading = $state(true);
+	let error: string | null = $state(null);
+
+	function formatDate(d: Date): string {
+		const y = d.getFullYear();
+		const m = String(d.getMonth() + 1).padStart(2, "0");
+		const day = String(d.getDate()).padStart(2, "0");
+		return `${y}-${m}-${day}`;
+	}
+
+	async function loadData() {
+		try {
+			const client = getAuthClient();
+			const today = new Date();
+			const todayStr = formatDate(today);
+
+			// Load today's report
+			todayReport = await getReport(client as any, "daily", {
+				date: todayStr,
+			});
+
+			// Load last 7 days for trend chart
+			const days: { date: string; report: AggregatedReport }[] = [];
+			const promises = [];
+			for (let i = 6; i >= 0; i--) {
+				const d = new Date(today);
+				d.setDate(d.getDate() - i);
+				const dateStr = formatDate(d);
+				promises.push(
+					getReport(client as any, "daily", { date: dateStr })
+						.then((r) => ({ date: dateStr, report: r }))
+						.catch(() => null),
+				);
+			}
+			const results = await Promise.all(promises);
+			for (const r of results) {
+				if (r) days.push(r);
+			}
+			weekReports = days;
+		} catch (e: any) {
+			error = e?.message ?? "Error al cargar los datos";
+		} finally {
+			loading = false;
+		}
+	}
+
+	onMount(() => {
+		loadData();
+	});
 </script>
 
 <DashboardShell activePage="overview">
 	<div class="space-y-6">
 		<div>
-			<h2 class="text-2xl font-semibold tracking-tight">Übersicht</h2>
+			<h2 class="text-2xl font-semibold tracking-tight">Resumen</h2>
 			<p class="text-sm text-muted-foreground">
-				Willkommen im Dashboard. Hier siehst du eine Zusammenfassung deiner wichtigsten Kennzahlen.
+				Vista general de tu negocio de hoy.
 			</p>
 		</div>
 
-		<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-			{#each [
-				{ label: "Tagesumsatz", value: "—", desc: "Brutto heute" },
-				{ label: "Transaktionen", value: "—", desc: "Heute" },
-				{ label: "Ø Bon", value: "—", desc: "Durchschnitt" },
-				{ label: "Bar / Karte", value: "—", desc: "Verhältnis" },
-			] as card}
-				<div class="rounded-lg border border-border bg-card p-6">
-					<p class="text-sm font-medium text-muted-foreground">{card.label}</p>
-					<p class="mt-1 text-2xl font-bold">{card.value}</p>
-					<p class="mt-1 text-xs text-muted-foreground">{card.desc}</p>
+		{#if loading}
+			<div class="flex items-center gap-2 text-sm text-muted-foreground">
+				<div
+					class="size-4 animate-spin rounded-full border-2 border-primary border-t-transparent"
+				></div>
+				Cargando datos...
+			</div>
+		{:else if error}
+			<div
+				class="rounded-lg border border-error-border bg-error-bg p-4 text-sm text-error-text"
+			>
+				{error}
+			</div>
+		{:else}
+			<KpiCards report={todayReport} />
+
+			<div class="grid gap-6 lg:grid-cols-3">
+				<div class="lg:col-span-2">
+					<RevenueChart reports={weekReports} />
 				</div>
-			{/each}
-		</div>
+				<div>
+					<PaymentPieChart report={todayReport} />
+				</div>
+			</div>
 
-		<div class="rounded-lg border border-border bg-card p-6">
-			<p class="text-sm text-muted-foreground">
-				Charts und weitere Auswertungen folgen in Phase 1.
-			</p>
-		</div>
+			<TopProductsChart report={todayReport} />
+		{/if}
 	</div>
 </DashboardShell>

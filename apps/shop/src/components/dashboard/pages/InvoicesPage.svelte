@@ -1,20 +1,17 @@
 <script lang="ts">
 	import DashboardShell from "../DashboardShell.svelte";
+	import InvoiceList from "../InvoiceList.svelte";
 </script>
 
 <DashboardShell activePage="invoices">
 	<div class="space-y-6">
 		<div>
-			<h2 class="text-2xl font-semibold tracking-tight">Rechnungen</h2>
+			<h2 class="text-2xl font-semibold tracking-tight">Facturas</h2>
 			<p class="text-sm text-muted-foreground">
-				Alle Rechnungen, Tickets und Korrekturen auf einen Blick.
+				Todas las facturas, tickets y rectificativas de un vistazo.
 			</p>
 		</div>
 
-		<div class="rounded-lg border border-border bg-card p-6">
-			<p class="text-sm text-muted-foreground">
-				Rechnungsliste mit Filter und Suche folgt in Phase 2.
-			</p>
-		</div>
+		<InvoiceList />
 	</div>
 </DashboardShell>
