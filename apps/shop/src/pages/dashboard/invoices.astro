@@ -1,0 +1,8 @@
+---
+import DashboardLayout from "../../layouts/DashboardLayout.astro";
+import InvoicesPage from "../../components/dashboard/pages/InvoicesPage.svelte";
+---
+
+<DashboardLayout title="Rechnungen - Dashboard">
+  <InvoicesPage client:only="svelte" />
+</DashboardLayout>

@@ -1,0 +1,8 @@
+---
+import DashboardLayout from "../../layouts/DashboardLayout.astro";
+import OverviewPage from "../../components/dashboard/pages/OverviewPage.svelte";
+---
+
+<DashboardLayout title="Übersicht - Dashboard">
+  <OverviewPage client:only="svelte" />
+</DashboardLayout>

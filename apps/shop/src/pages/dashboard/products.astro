@@ -1,0 +1,8 @@
+---
+import DashboardLayout from "../../layouts/DashboardLayout.astro";
+import ProductsPage from "../../components/dashboard/pages/ProductsPage.svelte";
+---
+
+<DashboardLayout title="Produkte - Dashboard">
+  <ProductsPage client:only="svelte" />
+</DashboardLayout>
