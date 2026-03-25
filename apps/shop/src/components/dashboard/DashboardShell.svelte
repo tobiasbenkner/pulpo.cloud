@@ -5,6 +5,13 @@
 	import * as Sidebar from "$lib/components/ui/sidebar/index.js";
 	import DashboardSidebar from "./DashboardSidebar.svelte";
 
+	const pageTitles: Record<string, string> = {
+		overview: "Resumen",
+		invoices: "Facturas",
+		reports: "Informes",
+		products: "Productos",
+	};
+
 	let {
 		activePage = "overview",
 		children,
@@ -14,6 +21,8 @@
 	} = $props();
 
 	let authenticated = $state(false);
+
+	let title = $derived(pageTitles[activePage] ?? "Dashboard");
 
 	onMount(async () => {
 		const ok = await checkAuthentication();
@@ -30,11 +39,11 @@
 		<DashboardSidebar {activePage} />
 		<Sidebar.Inset>
 			<header
-				class="flex h-14 items-center gap-2 border-b border-border px-4"
+				class="sticky top-0 z-10 flex h-12 items-center gap-2 border-b border-border bg-background px-4"
 			>
 				<Sidebar.Trigger class="-ml-1" />
 				<div class="h-4 w-px bg-border"></div>
-				<h1 class="text-sm font-medium">Dashboard</h1>
+				<h1 class="text-sm font-semibold">{title}</h1>
 			</header>
 			<div class="flex-1 overflow-auto p-6">
 				{@render children?.()}

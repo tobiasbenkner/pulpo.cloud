@@ -64,13 +64,6 @@
 
 <DashboardShell activePage="overview">
 	<div class="space-y-6">
-		<div>
-			<h2 class="text-2xl font-semibold tracking-tight">Resumen</h2>
-			<p class="text-sm text-muted-foreground">
-				Vista general de tu negocio de hoy.
-			</p>
-		</div>
-
 		{#if loading}
 			<div class="flex items-center gap-2 text-sm text-muted-foreground">
 				<div
