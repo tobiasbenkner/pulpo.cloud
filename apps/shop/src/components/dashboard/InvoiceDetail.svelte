@@ -81,7 +81,7 @@
 </script>
 
 <Sheet.Root bind:open>
-	<Sheet.Content side="right" class="w-full overflow-y-auto sm:max-w-lg">
+	<Sheet.Content side="right" class="w-full overflow-y-auto sm:max-w-xl">
 		<Sheet.Header>
 			<Sheet.Title>
 				{#if invoice}
