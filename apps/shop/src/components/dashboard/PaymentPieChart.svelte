@@ -32,7 +32,7 @@
 				datasets: [
 					{
 						data: [cash, card],
-						backgroundColor: ["#1a202c", "#c2b280"],
+						backgroundColor: ["#10b981", "#6366f1"],
 						borderWidth: 0,
 						hoverOffset: 4,
 					},

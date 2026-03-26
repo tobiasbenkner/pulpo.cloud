@@ -51,8 +51,8 @@
 					{
 						label: "Ventas brutas",
 						data,
-						borderColor: primaryColor || "#1a202c",
-						backgroundColor: (primaryColor || "#1a202c") + "15",
+						borderColor: "#6366f1",
+						backgroundColor: "#6366f115",
 						borderWidth: 2,
 						fill: true,
 						tension: 0.3,

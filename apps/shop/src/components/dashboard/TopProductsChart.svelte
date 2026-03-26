@@ -41,13 +41,13 @@
 					{
 						label: "Efectivo",
 						data: cashData,
-						backgroundColor: "#1a202c",
+						backgroundColor: "#10b981",
 						borderRadius: 4,
 					},
 					{
 						label: "Tarjeta",
 						data: cardData,
-						backgroundColor: "#c2b280",
+						backgroundColor: "#6366f1",
 						borderRadius: 4,
 					},
 				],
