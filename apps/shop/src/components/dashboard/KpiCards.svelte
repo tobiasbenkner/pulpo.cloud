@@ -17,7 +17,7 @@
 		);
 	}
 
-	let avgTicket = $derived(() => {
+	let avgTicket = $derived.by(() => {
 		if (!report || report.summary.transaction_count === 0) return "0,00 €";
 		const avg =
 			parseFloat(report.summary.total_gross) /
@@ -40,12 +40,12 @@
 		{
 			label: "Transacciones",
 			value: String(report?.summary.transaction_count ?? 0),
-			desc: `${report?.invoice_counts.tickets ?? 0} tickets · ${report?.invoice_counts.facturas ?? 0} facturas`,
+			desc: `${report?.invoice_counts.tickets ?? 0} tickets · ${report?.invoice_counts.facturas ?? 0} facturas · ${report?.invoice_counts.rectificativas ?? 0} rect.`,
 			icon: Receipt,
 		},
 		{
 			label: "Ticket medio",
-			value: avgTicket(),
+			value: avgTicket,
 			desc: "Promedio por transacción",
 			icon: Banknote,
 		},

@@ -281,11 +281,11 @@
                   <span class="font-medium">Exportar productos</span>
                 </button>
                 <a
-                  href="/reports"
+                  href="/dashboard"
                   class="w-full flex items-center gap-3 px-4 py-3 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors text-left"
                 >
                   <ChartLine class="w-5 h-5 text-zinc-400" />
-                  <span class="font-medium">Informes</span>
+                  <span class="font-medium">Dashboard</span>
                 </a>
                 <div class="border-t border-zinc-100 my-1"></div>
                 <a
