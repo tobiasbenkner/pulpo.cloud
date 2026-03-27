@@ -10,9 +10,9 @@
     "dockerize": "docker build -t pulpocloud/docs . && docker push pulpocloud/docs"
   },
   "dependencies": {
-    "@tailwindcss/typography": "^0.5.19",
-    "@tailwindcss/vite": "^4.2.1",
-    "astro": "^6.0.8",
-    "tailwindcss": "^4.2.1"
+    "@astrojs/starlight": "^0.38.2",
+    "@fontsource/dm-sans": "^5.2.8",
+    "@fontsource/syne": "^5.2.7",
+    "astro": "^6.0.8"
   }
 }

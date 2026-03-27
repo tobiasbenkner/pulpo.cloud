@@ -1,15 +1,15 @@
 ---
-title: Invoice-Berechnung
-description: Wie die Rechnungsberechnung in @pulpo/invoice funktioniert
+title: Cálculo de facturas
+description: Cómo funciona el cálculo de facturas en @pulpo/invoice
 ---
 
-# Invoice-Berechnung (`@pulpo/invoice`)
+# Cálculo de facturas (`@pulpo/invoice`)
 
-Das Paket `@pulpo/invoice` enthält eine **reine Funktion** `calculateInvoice()`, die aus Positionen und einem optionalen Gesamtrabatt alle Rechnungswerte berechnet. Dieselbe Funktion wird sowohl im Frontend (Shop) als auch im Backend (Directus Extension) verwendet, um identische Ergebnisse zu garantieren.
+El paquete `@pulpo/invoice` contiene una **función pura** `calculateInvoice()` que calcula todos los valores de una factura a partir de las líneas y un descuento global opcional. La misma función se utiliza tanto en el frontend (Shop) como en el backend (Directus Extension) para garantizar resultados idénticos.
 
-Alle Geldbeträge werden intern mit **big.js** verarbeitet – niemals mit nativen JavaScript-`number`-Floats – um Rundungsfehler zu vermeiden.
+Todos los importes monetarios se procesan internamente con **big.js** — nunca con `number` nativos de JavaScript — para evitar errores de redondeo.
 
-## Signatur
+## Signatura
 
 ```ts
 calculateInvoice(
@@ -18,128 +18,128 @@ calculateInvoice(
 ): InvoiceCalculationResult
 ```
 
-## Übersicht
+## Resumen
 
-![Rechnungsberechnung — Schritt für Schritt](/diagrams/invoice-berechnung.svg)
+![Cálculo de facturas — paso a paso](/diagrams/invoice-berechnung.svg)
 
-## Berechnungsablauf
+## Flujo de cálculo
 
-Die Berechnung erfolgt in **fünf Schritten**:
+El cálculo se realiza en **cinco pasos**:
 
-### Schritt 1 – Positionsbeträge (Zeilenebene)
+### Paso 1 – Importes por línea
 
-Für jede Position wird der Brutto-Zeilenbetrag berechnet:
-
-```
-zeileBrutto = priceGross × quantity
-```
-
-Falls die Position einen **Positionsrabatt** hat, wird dieser abgezogen:
-
-| Rabatttyp | Formel |
-|-----------|--------|
-| `fixed` | `zeileBrutto = zeileBrutto − discount.value` |
-| `percent` | `zeileBrutto = zeileBrutto − (zeileBrutto × discount.value / 100)` |
-
-Der Zeilenbetrag wird auf **mindestens 0** begrenzt (kein negativer Wert möglich).
-
-Anschließend werden alle Zeilenbeträge zur **Zwischensumme** (`subtotal`) aufsummiert.
-
-### Schritt 2 – Gesamtrabatt
-
-Wenn ein globaler Rabatt übergeben wird, wird er auf die Zwischensumme angewendet:
-
-| Rabatttyp | Formel |
-|-----------|--------|
-| `fixed` | `endBrutto = subtotal − discount.value` |
-| `percent` | `endBrutto = subtotal − (subtotal × discount.value / 100)` |
-
-Auch hier wird der Endbetrag auf **mindestens 0** begrenzt. Der tatsächliche Rabattbetrag wird ebenfalls auf maximal die Zwischensumme gedeckelt.
-
-### Schritt 3 – Endbetrag (Brutto)
-
-Der Endbetrag (`gross`) ist der Betrag, den der Kunde zahlt: `subtotal − Gesamtrabatt`.
-
-### Schritt 4 – Rabatt anteilig verteilen
-
-Der Gesamtrabatt muss **proportional** auf die verschiedenen Steuergruppen verteilt werden. Dazu wird ein **Rabattverhältnis** berechnet:
+Para cada posición se calcula el importe bruto:
 
 ```
-rabattVerhältnis = endBrutto / subtotal
+líneaBruto = priceGross × quantity
 ```
 
-Für jede Position ergibt sich der anteilige Bruttobetrag nach Rabatt:
+Si la posición tiene un **descuento por línea**, se descuenta:
+
+| Tipo de descuento | Fórmula |
+|-------------------|---------|
+| `fixed` | `líneaBruto = líneaBruto − discount.value` |
+| `percent` | `líneaBruto = líneaBruto − (líneaBruto × discount.value / 100)` |
+
+El importe de la línea se limita a **mínimo 0** (no puede ser negativo).
+
+A continuación, se suman todos los importes de línea para obtener el **subtotal**.
+
+### Paso 2 – Descuento global
+
+Si se proporciona un descuento global, se aplica al subtotal:
+
+| Tipo de descuento | Fórmula |
+|-------------------|---------|
+| `fixed` | `totalBruto = subtotal − discount.value` |
+| `percent` | `totalBruto = subtotal − (subtotal × discount.value / 100)` |
+
+El importe final también se limita a **mínimo 0**. El importe real del descuento se limita al máximo del subtotal.
+
+### Paso 3 – Importe final (bruto)
+
+El importe final (`gross`) es lo que paga el cliente: `subtotal − descuento global`.
+
+### Paso 4 – Distribución proporcional del descuento
+
+El descuento global debe distribuirse **proporcionalmente** entre los diferentes grupos fiscales. Para ello se calcula un **ratio de descuento**:
 
 ```
-zeileBruttoNachRabatt = zeileBrutto × rabattVerhältnis
+ratioDescuento = totalBruto / subtotal
 ```
 
-Die anteiligen Beträge werden dann nach **Steuersatz gruppiert** (z. B. 3 % und 7 % getrennt). Jedes Gruppen-Brutto wird auf 2 Stellen gerundet.
-
-#### Cent-Korrektur
-
-Durch das Runden der einzelnen Gruppen kann die Summe der gerundeten Gruppenwerte um **wenige Cent** vom gerundeten Gesamtbrutto abweichen (maximal ±0,5 Cent pro Gruppe — bei 2 Gruppen also ±1 Cent, bei 4 Gruppen theoretisch ±2 Cent). Diese Differenz wird automatisch auf die **größte Gruppe** aufgeschlagen, wo der relative Fehler am kleinsten ist.
-
-Beispiel (2 Gruppen):
+Para cada posición, el importe bruto proporcional tras el descuento es:
 
 ```
-Zwischensumme:    10,00 €
-Rabatt (fixed):  − 3,33 €
-Endbetrag:         6,67 €
+líneaBrutoTrasDescuento = líneaBruto × ratioDescuento
+```
+
+Los importes proporcionales se agrupan por **tipo impositivo** (p. ej., 3% y 7% por separado). Cada bruto de grupo se redondea a 2 decimales.
+
+#### Corrección de céntimos
+
+Al redondear los grupos individuales, la suma de los valores redondeados puede diferir del total bruto redondeado en **pocos céntimos** (máximo ±0,5 céntimos por grupo). Esta diferencia se ajusta automáticamente en el **grupo más grande**, donde el error relativo es menor.
+
+Ejemplo (2 grupos):
+
+```
+Subtotal:         10,00 €
+Descuento (fijo): − 3,33 €
+Total:             6,67 €
 
 Ratio = 0,667
 
-Gruppe 3%:  5,00 × 0,667 = 3,335 → gerundet: 3,34 €
-Gruppe 7%:  5,00 × 0,667 = 3,335 → gerundet: 3,34 €
-                                     Summe:    6,68 €  ← 1 Cent zu viel
+Grupo 3%:  5,00 × 0,667 = 3,335 → redondeado: 3,34 €
+Grupo 7%:  5,00 × 0,667 = 3,335 → redondeado: 3,34 €
+                                    Suma:       6,68 €  ← 1 céntimo de más
 
-Cent-Korrektur: 6,67 − 6,68 = −0,01 → auf größte Gruppe
-Ergebnis: 3,33 + 3,34 = 6,67 €  ✓
+Corrección: 6,67 − 6,68 = −0,01 → al grupo más grande
+Resultado: 3,33 + 3,34 = 6,67 €  ✓
 ```
 
-### Schritt 5 – Steuer-Rückrechnung
+### Paso 5 – Cálculo inverso de impuestos
 
-Die Steuer wird **aus dem Gruppen-Brutto herausgerechnet** (nicht aufgeschlagen):
+El impuesto se **extrae del bruto del grupo** (no se añade):
 
 ```
-netto  = round2(gruppeBrutto / (1 + steuerSatz))
-steuer = gruppeBrutto − netto
+neto    = round2(grupoBruto / (1 + tipoImpositivo))
+impuesto = grupoBruto − neto
 ```
 
-Da `steuer = brutto − netto` gilt, ist **pro Gruppe** immer `netto + steuer == brutto` exakt erfüllt. Die Netto-Berechnung erfolgt **nur auf Gruppenebene**, nicht pro Einzelposition. Die Gruppen werden aufsteigend nach Steuersatz sortiert.
+Como `impuesto = bruto − neto`, **por grupo** siempre se cumple `neto + impuesto == bruto` exactamente. El cálculo del neto se realiza **solo a nivel de grupo**, no por posición individual. Los grupos se ordenan de menor a mayor tipo impositivo.
 
-## Ergebnis
+## Resultado
 
-Die Funktion gibt ein `InvoiceCalculationResult` zurück:
+La función devuelve un `InvoiceCalculationResult`:
 
-| Feld | Beschreibung | Präzision |
-|------|-------------|-----------|
-| `subtotal` | Zwischensumme (nach Positionsrabatten, vor Gesamtrabatt) | 2 Stellen |
-| `discountTotal` | Gesamtrabatt-Betrag | 2 Stellen |
-| `gross` | Endbetrag brutto | 2 Stellen |
-| `net` | Endbetrag netto | 2 Stellen |
-| `tax` | Steuerbetrag gesamt (`gross − net`) | 2 Stellen |
-| `taxBreakdown` | Steuer aufgeschlüsselt nach Satz | 2 Stellen |
-| `items` | Berechnete Positionen | siehe unten |
-| `count` | Gesamtanzahl Artikel | – |
-| `discountType` | Art des Gesamtrabatts (`"percent"`, `"fixed"` oder `null`) | – |
-| `discountValue` | Wert des Gesamtrabatts (oder `null`) | 4 Stellen |
+| Campo | Descripción | Precisión |
+|-------|------------|-----------|
+| `subtotal` | Subtotal (tras descuentos por línea, antes del descuento global) | 2 decimales |
+| `discountTotal` | Importe del descuento global | 2 decimales |
+| `gross` | Importe final bruto | 2 decimales |
+| `net` | Importe final neto | 2 decimales |
+| `tax` | Impuesto total (`gross − net`) | 2 decimales |
+| `taxBreakdown` | Desglose de impuestos por tipo | 2 decimales |
+| `items` | Posiciones calculadas | ver abajo |
+| `count` | Cantidad total de artículos | – |
+| `discountType` | Tipo de descuento global (`"percent"`, `"fixed"` o `null`) | – |
+| `discountValue` | Valor del descuento global (o `null`) | 4 decimales |
 
-### Berechnete Position (`InvoiceLineResult`)
+### Posición calculada (`InvoiceLineResult`)
 
-| Feld | Beschreibung | Präzision |
-|------|-------------|-----------|
-| `productId` | Produkt-ID | – |
-| `productName` | Produktname | – |
-| `quantity` | Menge | – |
-| `priceGrossUnit` | Brutto-Einzelpreis | 4 Stellen |
-| `taxRateSnapshot` | Steuersatz in Prozent (z. B. `"7.00"`) | 2 Stellen |
-| `rowTotalGross` | Zeilen-Brutto (nach allen Rabatten) | 2 Stellen |
-| `discountType` | Art des Positionsrabatts (`"percent"`, `"fixed"` oder `null`) | – |
-| `discountValue` | Wert des Positionsrabatts (oder `null`) | 4 Stellen |
-| `costCenter` | Kostenstelle (oder `null`) | – |
+| Campo | Descripción | Precisión |
+|-------|------------|-----------|
+| `productId` | ID del producto | – |
+| `productName` | Nombre del producto | – |
+| `quantity` | Cantidad | – |
+| `priceGrossUnit` | Precio bruto unitario | 4 decimales |
+| `taxRateSnapshot` | Tipo impositivo en porcentaje (p. ej. `"7.00"`) | 2 decimales |
+| `rowTotalGross` | Bruto de la línea (tras todos los descuentos) | 2 decimales |
+| `discountType` | Tipo de descuento por línea (`"percent"`, `"fixed"` o `null`) | – |
+| `discountValue` | Valor del descuento por línea (o `null`) | 4 decimales |
+| `costCenter` | Centro de coste (o `null`) | – |
 
-## Beispiel
+## Ejemplo
 
 ```ts
 import { calculateInvoice } from "@pulpo/invoice";
@@ -166,16 +166,16 @@ const result = calculateInvoice(
 );
 
 // result.subtotal   → "7.70"  (2×2.50 + 3.00−10%)
-// result.discountTotal → "0.39"  (5% von 7.70, gerundet)
-// result.gross      → "7.32"  (7.70 − 0.39, gerundet)
-// result.taxBreakdown → aufgeschlüsselt nach 7% und 21%
+// result.discountTotal → "0.39"  (5% de 7.70, redondeado)
+// result.gross      → "7.32"  (7.70 − 0.39, redondeado)
+// result.taxBreakdown → desglosado por 7% y 21%
 ```
 
-## Dezimal-Strategie
+## Estrategia decimal
 
-| Kontext | Präzision | Grund |
-|---------|-----------|-------|
-| Geldbeträge (Summen) | `.toFixed(2)` | Centgenau für Zahlungen |
-| Einzelpreise | `.toFixed(4)` | Mehr Genauigkeit bei kleinen Beträgen |
+| Contexto | Precisión | Motivo |
+|----------|-----------|--------|
+| Importes monetarios (totales) | `.toFixed(2)` | Exactitud al céntimo para pagos |
+| Precios unitarios | `.toFixed(4)` | Mayor precisión para importes pequeños |
 
-Alle Werte werden als **Strings** zurückgegeben, niemals als `number`, um unbeabsichtigte Gleitkomma-Ungenauigkeiten zu verhindern.
+Todos los valores se devuelven como **strings**, nunca como `number`, para evitar imprecisiones de punto flotante.

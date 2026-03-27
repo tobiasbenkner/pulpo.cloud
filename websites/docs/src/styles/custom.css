@@ -1,0 +1,90 @@
+@import "@fontsource/syne/400.css";
+@import "@fontsource/syne/500.css";
+@import "@fontsource/syne/600.css";
+@import "@fontsource/syne/700.css";
+@import "@fontsource/syne/800.css";
+@import "@fontsource/dm-sans/400.css";
+@import "@fontsource/dm-sans/500.css";
+@import "@fontsource/dm-sans/600.css";
+@import "@fontsource/dm-sans/400-italic.css";
+
+/*
+ * Starlight uses an inverted color scale:
+ *   Dark mode: white=lightest, black=darkest (normal)
+ *   Light mode: white=darkest, black=lightest (inverted!)
+ *
+ * Components reference these tokens semantically:
+ *   --sl-color-bg = --sl-color-black (the "page background" end)
+ *   --sl-color-text = --sl-color-gray-2 (readable text)
+ *   Cards use --sl-color-black as their background
+ *
+ * So for light mode we must set black=lightest, white=darkest.
+ */
+:root {
+  color-scheme: light !important;
+
+  --sl-font: "DM Sans", system-ui, sans-serif !important;
+
+  /* Brand accent (coral) */
+  --sl-color-accent-low: #fee5ea !important;
+  --sl-color-accent: #d33757 !important;
+  --sl-color-accent-high: #7e223c !important;
+
+  /* Inverted gray scale for light mode (white=dark text, black=light bg) */
+  --sl-color-white: #1a2332 !important;
+  --sl-color-gray-1: #23344d !important;
+  --sl-color-gray-2: #3a5580 !important;
+  --sl-color-gray-3: #506b93 !important;
+  --sl-color-gray-4: #8096b4 !important;
+  --sl-color-gray-5: #e8e4dc !important;
+  --sl-color-gray-6: #f2f0eb !important;
+  --sl-color-gray-7: #f8f6f1 !important;
+  --sl-color-black: #ffffff !important;
+
+  /* Derived tokens */
+  --sl-color-bg: var(--sl-color-black) !important;
+  --sl-color-text: var(--sl-color-gray-2) !important;
+  --sl-color-text-accent: var(--sl-color-accent) !important;
+  --sl-color-text-invert: var(--sl-color-black) !important;
+  --sl-color-bg-nav: var(--sl-color-gray-7) !important;
+  --sl-color-bg-sidebar: var(--sl-color-bg) !important;
+  --sl-color-bg-inline-code: var(--sl-color-gray-6) !important;
+  --sl-color-bg-accent: var(--sl-color-accent) !important;
+  --sl-color-hairline-light: var(--sl-color-gray-6) !important;
+  --sl-color-hairline: var(--sl-color-gray-6) !important;
+  --sl-color-hairline-shade: var(--sl-color-gray-6) !important;
+
+  --sl-shadow-sm: 0px 1px 1px hsla(0, 0%, 0%, 0.06),
+    0px 2px 1px hsla(0, 0%, 0%, 0.06) !important;
+  --sl-shadow-md: 0px 8px 4px hsla(0, 0%, 0%, 0.03),
+    0px 5px 2px hsla(0, 0%, 0%, 0.03), 0px 3px 2px hsla(0, 0%, 0%, 0.06),
+    0px 1px 1px hsla(0, 0%, 0%, 0.06) !important;
+}
+
+/* ── Primary button ── */
+.sl-link-button.primary {
+  background: #e8546d !important;
+  border-color: #e8546d !important;
+  color: #ffffff !important;
+}
+
+.sl-link-button.primary:hover {
+  background: #d33757 !important;
+  border-color: #d33757 !important;
+  color: #ffffff !important;
+}
+
+/* ── Headings use display font ── */
+:is(h1, h2, h3, h4, h5, h6),
+.sl-markdown-content :is(h1, h2, h3, h4, h5, h6) {
+  font-family: "Syne", system-ui, sans-serif;
+}
+
+.site-title {
+  font-family: "Syne", system-ui, sans-serif;
+  font-weight: 700;
+}
+
+.hero h1 {
+  font-family: "Syne", system-ui, sans-serif;
+}

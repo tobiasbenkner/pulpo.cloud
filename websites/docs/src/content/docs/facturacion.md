@@ -1,4 +1,7 @@
-# Proceso de facturación
+---
+title: Proceso de facturación
+description: Flujo completo de creación de facturas en Pulpo POS
+---
 
 Descripción completa del flujo de creación de facturas en Pulpo POS, desde la solicitud del cliente hasta el almacenamiento final.
 
