@@ -9,6 +9,8 @@ import (
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
+	"github.com/pocketbase/pocketbase/plugins/migratecmd"
+	"github.com/pocketbase/pocketbase/tools/osutils"
 
 	_ "github.com/pulpo-cloud/pulpo-app/migrations"
 )
@@ -28,9 +30,13 @@ func main() {
 	}
 
 	app := pocketbase.NewWithConfig(pocketbase.Config{
-		DefaultDataDir:            "pb_data",
-		DefaultDev:                version == "dev",
-		HideStartBanner:          false,
+		DefaultDataDir:  "pb_data",
+		DefaultDev:      version == "dev",
+		HideStartBanner: false,
+	})
+
+	migratecmd.MustRegister(app, app.RootCmd, migratecmd.Config{
+		Automigrate: osutils.IsProbablyGoRun(),
 	})
 
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
