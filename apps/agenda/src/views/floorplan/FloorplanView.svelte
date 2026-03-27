@@ -26,7 +26,7 @@
 
   // Selection & editing
   let selectedId: string | null = null;
-  let editForm = { label: "", seats: 2, shape: "round" as "round" | "rect" };
+  let editForm = { label: "", seats: 2, min_seats: 0, max_seats: 0, shape: "round" as "round" | "rect", rotation: 0, width: 1 };
 
   // Drag state
   let dragging: string | null = null;
@@ -127,7 +127,7 @@
     deletingId = null;
     if (selectedId) {
       const t = tables.find((t) => t.id === selectedId)!;
-      editForm = { label: t.label, seats: t.seats, shape: t.shape };
+      editForm = { label: t.label, seats: t.seats, min_seats: t.min_seats || 0, max_seats: t.max_seats || 0, shape: t.shape, rotation: t.rotation || 0, width: t.width || 1 };
     }
   }
 
@@ -155,9 +155,13 @@
       await pb.collection("reservations_tables").create({
         label: `Mesa ${tables.length + 1}`,
         seats: 4,
+        min_seats: 3,
+        max_seats: 5,
         x: 50,
         y: 50,
-        shape: "round",
+        shape: "rect",
+        rotation: 0,
+        width: 2,
         zone: activeZoneId || "",
       });
       await loadData();
@@ -246,8 +250,25 @@
 
   // Table dimensions in SVG units
   const TABLE_RADIUS = 5;
-  const RECT_W = 9;
-  const RECT_H = 6.5;
+  const UNIT = 6; // Einzeltisch-Größe
+  const GAP = 0.5; // Abstand zwischen Einzeltischen
+
+  function tableRect(table: Table) {
+    const w = table.width || 1;
+    const totalW = w * UNIT + (w - 1) * GAP;
+    const totalH = UNIT;
+    // Rotation: swap w/h for 90/270
+    const rot = table.rotation || 0;
+    const isVertical = rot === 90 || rot === 270;
+    return {
+      w: isVertical ? totalH : totalW,
+      h: isVertical ? totalW : totalH,
+      unitCount: w,
+      rotation: rot,
+      rawW: totalW,
+      rawH: totalH,
+    };
+  }
 </script>
 
 <div class="flex flex-col h-full animate-fade-in">
@@ -423,6 +444,7 @@
             <!-- Tables -->
             {#each visibleTables as table (table.id)}
               {@const isSelected = editing && selectedId === table.id}
+              {@const tr = tableRect(table)}
               <!-- svelte-ignore a11y_no_static_element_interactions -->
               <g
                 on:mousedown={(e) => startDrag(e, table)}
@@ -440,33 +462,30 @@
                     stroke-width="0.3"
                   />
                 {:else}
-                  <rect
-                    x={table.x - RECT_W / 2} y={table.y - RECT_H / 2}
-                    width={RECT_W} height={RECT_H}
-                    rx="0.5"
-                    fill={isSelected ? "var(--btn-primary-bg)" : "var(--surface)"}
-                    stroke={isSelected ? "var(--btn-primary-bg)" : "var(--border-default)"}
-                    stroke-width="0.3"
-                  />
+                  <g transform="rotate({tr.rotation}, {table.x}, {table.y})">
+                    {#each Array(tr.unitCount) as _, i}
+                      <rect
+                        x={table.x - tr.rawW / 2 + i * (UNIT + GAP)}
+                        y={table.y - tr.rawH / 2}
+                        width={UNIT}
+                        height={UNIT}
+                        rx="0.4"
+                        fill={isSelected ? "var(--btn-primary-bg)" : "var(--surface)"}
+                        stroke={isSelected ? "var(--btn-primary-bg)" : "var(--border-default)"}
+                        stroke-width="0.3"
+                      />
+                    {/each}
+                  </g>
                 {/if}
                 <text
-                  x={table.x} y={table.y - 0.8}
+                  x={table.x} y={table.y + tr.h / 2 + 2.5}
                   text-anchor="middle"
                   dominant-baseline="central"
-                  font-size="2.4"
-                  font-weight="600"
-                  fill={isSelected ? "var(--btn-primary-text)" : "var(--fg)"}
+                  font-size="2.2"
+                  font-weight="500"
+                  fill="var(--fg-secondary)"
                 >
-                  {table.label}
-                </text>
-                <text
-                  x={table.x} y={table.y + 2}
-                  text-anchor="middle"
-                  dominant-baseline="central"
-                  font-size="1.8"
-                  fill={isSelected ? "var(--btn-primary-text)" : "var(--fg-muted)"}
-                >
-                  {table.seats}p
+                  {table.label} · {table.seats}p
                 </text>
               </g>
             {/each}
@@ -515,17 +534,24 @@
             </div>
 
             <div class="space-y-1">
-              <label for="table-seats" class="text-xs font-semibold uppercase tracking-wider text-fg-muted">
-                Comensales
-              </label>
-              <input
-                id="table-seats"
-                type="number"
-                min="1"
-                max="20"
-                bind:value={editForm.seats}
-                class="w-full px-3 py-2 bg-input-bg border border-border-default rounded-sm text-sm text-fg focus:outline-none focus:ring-1 focus:ring-primary"
-              />
+              <span class="text-xs font-semibold uppercase tracking-wider text-fg-muted block">Comensales</span>
+              <div class="grid grid-cols-3 gap-2">
+                <div>
+                  <label for="table-min" class="text-[10px] text-fg-muted">Mín</label>
+                  <input id="table-min" type="number" min="1" max="20" bind:value={editForm.min_seats}
+                    class="w-full px-2 py-1.5 bg-input-bg border border-border-default rounded-sm text-sm text-fg text-center focus:outline-none focus:ring-1 focus:ring-primary" />
+                </div>
+                <div>
+                  <label for="table-seats" class="text-[10px] text-fg-muted">Normal</label>
+                  <input id="table-seats" type="number" min="1" max="20" bind:value={editForm.seats}
+                    class="w-full px-2 py-1.5 bg-input-bg border border-border-default rounded-sm text-sm text-fg text-center focus:outline-none focus:ring-1 focus:ring-primary" />
+                </div>
+                <div>
+                  <label for="table-max" class="text-[10px] text-fg-muted">Máx</label>
+                  <input id="table-max" type="number" min="1" max="20" bind:value={editForm.max_seats}
+                    class="w-full px-2 py-1.5 bg-input-bg border border-border-default rounded-sm text-sm text-fg text-center focus:outline-none focus:ring-1 focus:ring-primary" />
+                </div>
+              </div>
             </div>
 
             <div class="space-y-1">
@@ -551,6 +577,39 @@
                 </button>
               </div>
             </div>
+
+            {#if editForm.shape === "rect"}
+              <div class="space-y-1">
+                <label for="table-width" class="text-xs font-semibold uppercase tracking-wider text-fg-muted">
+                  Mesas individuales
+                </label>
+                <input
+                  id="table-width"
+                  type="number"
+                  min="1"
+                  max="10"
+                  bind:value={editForm.width}
+                  class="w-full px-3 py-2 bg-input-bg border border-border-default rounded-sm text-sm text-fg focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+
+              <div class="space-y-1">
+                <span class="text-xs font-semibold uppercase tracking-wider text-fg-muted block">Rotación</span>
+                <div class="flex gap-1.5">
+                  {#each [0, 90, 180, 270] as r}
+                    <button
+                      type="button"
+                      on:click={() => (editForm.rotation = r)}
+                      class="flex-1 py-2 text-xs font-medium rounded-md border transition-colors {editForm.rotation === r
+                        ? 'border-btn-active-border bg-btn-active-bg text-btn-active-text'
+                        : 'border-border-default bg-input-bg text-fg-secondary hover:bg-surface-hover'}"
+                    >
+                      {r}°
+                    </button>
+                  {/each}
+                </div>
+              </div>
+            {/if}
           </div>
 
           <div class="flex items-center justify-between pt-2 border-t border-border-light">

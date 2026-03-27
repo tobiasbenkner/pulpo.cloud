@@ -45,11 +45,21 @@ export interface Zone extends RecordModel {
 export interface Table extends RecordModel {
   label: string;
   seats: number;
+  min_seats: number;
+  max_seats: number;
   x: number;
   y: number;
   shape: "round" | "rect";
+  rotation: number;
+  width: number;
   zone: string;
   expand?: {
     zone?: Zone;
   };
+}
+
+export interface TableGroup extends RecordModel {
+  label: string;
+  tables: string[];
+  zone: string;
 }
