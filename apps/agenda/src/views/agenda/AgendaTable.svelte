@@ -10,6 +10,7 @@
     LayoutList,
     Columns3,
     Settings,
+    Clock,
     LogOut,
   } from "lucide-svelte";
   import type { Reservation, ReservationTurn } from "../../lib/types";
@@ -492,6 +493,16 @@
                 <Moon size={13} class="shrink-0 text-fg-muted" />
                 <span>Modo oscuro</span>
               {/if}
+            </button>
+            <button
+              on:click={() => {
+                settingsOpen = false;
+                window.location.href = "/settings";
+              }}
+              class="w-full flex items-center gap-2.5 px-3 py-2 text-left text-xs text-fg-secondary hover:bg-surface-hover transition-colors"
+            >
+              <Clock size={13} class="shrink-0 text-fg-muted" />
+              <span>Configurar turnos</span>
             </button>
             <div class="border-t border-border-light my-1"></div>
             <button

@@ -1,0 +1,13 @@
+---
+import Layout from "../layouts/Layout.astro";
+import AuthGuard from "../components/AuthGuard.svelte";
+import TurnsSettings from "../views/settings/TurnsSettings.svelte";
+---
+
+<Layout title="Turnos | Pulpo">
+  <AuthGuard client:only="svelte" protect={true}>
+    <main class="min-h-screen-safe bg-surface">
+      <TurnsSettings client:only="svelte" />
+    </main>
+  </AuthGuard>
+</Layout>
