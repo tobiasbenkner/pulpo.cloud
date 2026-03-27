@@ -1,0 +1,13 @@
+---
+import Layout from "../layouts/Layout.astro";
+import AuthGuard from "../components/AuthGuard.svelte";
+import FloorplanView from "../views/floorplan/FloorplanView.svelte";
+---
+
+<Layout title="Lageplan | Pulpo">
+  <AuthGuard client:only="svelte" protect={true}>
+    <main class="h-screen-safe flex flex-col">
+      <FloorplanView client:only="svelte" />
+    </main>
+  </AuthGuard>
+</Layout>

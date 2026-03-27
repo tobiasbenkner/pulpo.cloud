@@ -36,3 +36,20 @@ export interface ReservationTurn extends RecordModel {
   start: string;
   color: string;
 }
+
+export interface Zone extends RecordModel {
+  label: string;
+  sort: number;
+}
+
+export interface Table extends RecordModel {
+  label: string;
+  seats: number;
+  x: number;
+  y: number;
+  shape: "round" | "rect";
+  zone: string;
+  expand?: {
+    zone?: Zone;
+  };
+}
