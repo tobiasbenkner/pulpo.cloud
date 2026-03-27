@@ -62,4 +62,5 @@ export interface TableGroup extends RecordModel {
   label: string;
   tables: string[];
   zone: string;
+  sort: number;
 }
