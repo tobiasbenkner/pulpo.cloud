@@ -1,6 +1,5 @@
 <script lang="ts">
-  import { directus } from "../lib/directus";
-  import { passwordRequest } from "@directus/sdk";
+  import { pb } from "../lib/pb";
   import { AlertCircle, ArrowLeft, Loader2, Mail, CheckCircle } from "lucide-svelte";
 
   let email = "";
@@ -13,13 +12,10 @@
     error = null;
 
     try {
-      const resetUrl = window.location.origin + "/reset-password";
-      await directus.request(passwordRequest(email, resetUrl));
+      await pb.collection("users").requestPasswordReset(email);
       success = true;
     } catch (e: any) {
       console.error(e);
-      // Directus returns success even if email doesn't exist (security)
-      // So errors here are usually network issues
       error = "No se pudo enviar el correo. Intente nuevamente.";
     } finally {
       isLoading = false;

@@ -11,19 +11,17 @@
   },
   "dependencies": {
     "@astrojs/svelte": "^8.0.3",
-    "@directus/sdk": "^20.3.0",
     "@lucide/astro": "^0.562.0",
-    "@pulpo/cms": "workspace:*",
     "@tailwindcss/vite": "^4.1.18",
     "astro": "^6.0.8",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
-    "jwt-decode": "^4.0.0",
     "lucide-svelte": "^0.562.0",
     "nanostores": "^1.1.0",
+    "pocketbase": "^0.26.8",
+    "sharp": "^0.34.5",
     "svelte": "^5.46.1",
     "tailwindcss": "^4.1.18",
-    "typescript": "^5.9.3",
-    "sharp": "^0.34.5"
+    "typescript": "^5.9.3"
   }
 }

@@ -1,16 +1,8 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { directus } from "../../lib/directus";
-  import {
-    readReservation,
-    createReservation,
-    updatedReservation,
-    deleteReservation,
-    listUsers,
-    getProfile,
-  } from "@pulpo/cms";
+  import { pb } from "../../lib/pb";
   import { loadTurns } from "../../lib/turnsCache";
-  import type { ReservationTurn, User as CmsUser } from "@pulpo/cms";
+  import type { ReservationTurn, User as UserType } from "../../lib/types";
   import {
     ArrowLeft,
     Save,
@@ -40,14 +32,14 @@
   let error: string | null = null;
   let showDeleteConfirm = false;
   let turns: ReservationTurn[] = [];
-  let users: CmsUser[] = [];
+  let users: UserType[] = [];
 
   let formData = {
     date: new Date().toISOString().split("T")[0],
     time: "",
     name: "",
     contact: "",
-    person_count: 2,
+    person_count: "2",
     notes: "",
     user: "",
   };
@@ -57,19 +49,15 @@
   onMount(async () => {
     if (isEditMode && id) {
       try {
-        const res = await readReservation(directus, id);
+        const res = await pb.collection("reservations").getOne(id, { expand: "user" });
         formData = {
           date: res.date,
           time: res.time ? res.time.substring(0, 5) : "",
           name: res.name,
           contact: res.contact || "",
-          person_count: res.person_count || 2,
+          person_count: res.person_count || "2",
           notes: res.notes || "",
-          user: res.user
-            ? typeof res.user === "object"
-              ? res.user.id
-              : res.user
-            : "",
+          user: res.user || "",
         };
         originalDate = res.date;
       } catch (e) {
@@ -84,20 +72,15 @@
     }
     isLoading = false;
 
-    // Turns aus Cache laden, Users und Profil parallel
+    // Turns aus Cache laden, Users parallel
     const { cached, fresh } = loadTurns();
-    if (cached) {
-      turns = cached;
-    } else if (fresh) {
-      fresh.then((t) => (turns = t)).catch(() => {});
-    }
-    listUsers(directus)
+    if (cached) turns = cached;
+    fresh.then((t) => (turns = t)).catch(() => {});
+    pb.collection("users").getFullList<UserType>()
       .then((u) => (users = u))
       .catch(() => {});
-    if (!formData.user) {
-      getProfile(directus)
-        .then((p) => (formData.user = p.id))
-        .catch(() => {});
+    if (!formData.user && pb.authStore.record) {
+      formData.user = pb.authStore.record.id;
     }
   });
 
@@ -107,9 +90,9 @@
 
     try {
       if (isEditMode && id) {
-        await updatedReservation(directus, { id, ...formData } as any);
+        await pb.collection("reservations").update(id, formData);
       } else {
-        await createReservation(directus, formData as any);
+        await pb.collection("reservations").create(formData);
       }
       window.location.href = `/?date=${formData.date}`;
     } catch (e) {
@@ -126,7 +109,7 @@
 
     isDeleting = true;
     try {
-      await deleteReservation(directus, id);
+      await pb.collection("reservations").delete(id);
       window.location.href = `/?date=${formData.date}`;
     } catch (e) {
       error = "Error al eliminar.";
@@ -280,15 +263,13 @@
                     : 'border-border-default bg-input-bg text-fg-secondary hover:border-fg-muted hover:bg-surface-hover'}"
                 >
                   {#if u.avatar}
-                    {@const avatarId =
-                      typeof u.avatar === "object" ? u.avatar.id : u.avatar}
                     <img
-                      src={`https://admin.pulpo.cloud/assets/${avatarId}?width=36&height=36&fit=cover`}
+                      src={pb.files.getURL(u, u.avatar, { thumb: "36x36" })}
                       alt=""
                       class="size-4 rounded-full object-cover"
                     />
                   {/if}
-                  {u.first_name || "?"}
+                  {u.name || "?"}
                 </button>
               {/each}
             </div>

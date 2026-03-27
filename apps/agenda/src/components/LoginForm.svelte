@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { directus, getStoredToken, isTokenExpired } from "../lib/directus";
+  import { pb } from "../lib/pb";
   import { authStore } from "../stores/userStore";
   import { AlertCircle, ArrowRight, Loader2 } from "lucide-svelte";
 
@@ -11,19 +11,13 @@
   let checking = true;
 
   onMount(async () => {
-    const stored = getStoredToken();
-    if (!stored?.refresh_token) {
+    if (!pb.authStore.isValid) {
       checking = false;
       return;
     }
 
-    if (!isTokenExpired()) {
-      window.location.href = "/";
-      return;
-    }
-
     try {
-      await directus.refresh();
+      await pb.collection("users").authRefresh();
       window.location.href = "/";
       return;
     } catch {}
@@ -36,13 +30,13 @@
     error = null;
 
     try {
-      const response = await directus.login({ email, password });
+      await pb.collection("users").authWithPassword(email, password);
       authStore.setKey("isAuthenticated", true);
       window.location.href = "/";
     } catch (e: any) {
       console.error(e);
 
-      if (e?.errors?.[0]?.extensions?.code === "INVALID_CREDENTIALS") {
+      if (e?.status === 400) {
         error =
           "Credenciales incorrectas. Por favor, verifique su email y contraseña.";
       } else {

@@ -1,13 +1,8 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
   import { format } from "date-fns";
-  import { directus, isTokenExpired } from "../../lib/directus";
-  import { readItems, updateItem, withOptions } from "@directus/sdk";
-  import {
-    loadTurns as loadCachedTurns,
-    fetchTurns,
-    invalidateTurns,
-  } from "../../lib/turnsCache";
+  import { pb } from "../../lib/pb";
+  import { loadTurns as loadCachedTurns } from "../../lib/turnsCache";
   import type { Reservation, ReservationTurn } from "../../lib/types";
   import AgendaHeader from "./AgendaHeader.svelte";
   import AgendaTable from "./AgendaTable.svelte";
@@ -15,6 +10,7 @@
   import { CircleAlert, WifiOff, X } from "lucide-svelte";
 
   const POLL_INTERVAL = 3000;
+  const AUTH_REFRESH_INTERVAL = 4 * 60 * 60 * 1000; // 4 Stunden
   const STORAGE_KEY_SHOW_ARRIVED = "pulpo_agenda_show_arrived";
   const STORAGE_KEY_VIEW_MODE = "pulpo_agenda_view_mode";
 
@@ -34,6 +30,7 @@
   let pollTimeout: ReturnType<typeof setTimeout> | null = null;
   let polling = false;
   let pollGeneration = 0;
+  let lastAuthRefresh = Date.now();
 
   // Settings with localStorage persistence
   let showArrived = true;
@@ -91,19 +88,10 @@
   // --- TURNS (cached) ---
   function initTurns() {
     const { cached, fresh } = loadCachedTurns();
-    if (cached) {
-      turns = cached;
-    } else if (fresh) {
-      fresh.then((t) => (turns = t)).catch(() => {});
-    }
+    if (cached) turns = cached;
+    fresh.then((t) => (turns = t)).catch(() => {});
   }
 
-  function refreshTurns() {
-    invalidateTurns();
-    fetchTurns()
-      .then((t) => (turns = t))
-      .catch(() => {});
-  }
 
   // --- POLLING ---
   function startPolling() {
@@ -145,6 +133,18 @@
       return;
     }
 
+    // Token periodisch erneuern (Tablet das dauerhaft offen bleibt)
+    if (Date.now() - lastAuthRefresh > AUTH_REFRESH_INTERVAL) {
+      try {
+        await pb.collection("users").authRefresh();
+        lastAuthRefresh = Date.now();
+      } catch {
+        // Token ungültig → Login-Seite
+        window.location.href = "/login";
+        return;
+      }
+    }
+
     if (abortController) abortController.abort();
     abortController = new AbortController();
     const signal = abortController.signal;
@@ -154,19 +154,15 @@
     error = null;
 
     try {
-      const result = await directus.request(
-        withOptions(
-          readItems("reservations", {
-            filter: { date: { _eq: date } },
-            sort: ["time", "name"],
-            fields: ["*", "user.*", "user.avatar.*"],
-          }),
-          { signal },
-        ),
-      );
+      const result = await pb.collection("reservations").getFullList<Reservation>({
+        filter: `date = "${date}"`,
+        sort: "time,name",
+        expand: "user",
+        signal,
+      });
 
       if (signal.aborted) return;
-      const newData = result as Reservation[];
+      const newData = result;
 
       if (JSON.stringify(newData) !== JSON.stringify(reservations)) {
         reservations = newData;
@@ -217,9 +213,7 @@
     );
 
     try {
-      await directus.request(
-        updateItem("reservations", reservation.id, { arrived: newState }),
-      );
+      await pb.collection("reservations").update(reservation.id, { arrived: newState });
     } catch (e) {
       // Rollback
       reservations = reservations.map((r) =>
@@ -251,9 +245,10 @@
     if (document.visibilityState === "visible") {
       if (abortController) abortController.abort();
 
-      if (isTokenExpired()) {
+      if (!pb.authStore.isValid) {
         try {
-          await directus.refresh();
+          await pb.collection("users").authRefresh();
+          lastAuthRefresh = Date.now();
         } catch {
           // Network error or invalid token — don't redirect,
           // let fetchData handle it and show error to user
@@ -361,7 +356,7 @@
       {selectedTurn}
       onSelectTurn={(turnId) => (selectedTurn = turnId)}
       onToggleViewMode={() => (viewMode = viewMode === "all" ? "tabs" : "all")}
-      onRefreshTurns={refreshTurns}
+
       onToggleFilter={() => (showArrived = !showArrived)}
       onToggleArrived={(res) => toggleArrived(res)}
     />

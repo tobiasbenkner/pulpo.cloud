@@ -1,5 +1,4 @@
-import { listReservationTurns } from "@pulpo/cms";
-import { directus } from "./directus";
+import { pb } from "./pb";
 import type { ReservationTurn } from "./types";
 
 const STORAGE_KEY = "pulpo_agenda_turns";
@@ -27,15 +26,16 @@ function writeToCache(data: ReservationTurn[]) {
 }
 
 export async function fetchTurns(): Promise<ReservationTurn[]> {
-  const data = await listReservationTurns(directus);
-  writeToCache(data);
-  return data;
+  const result = await pb.collection("reservations_turns").getFullList<ReservationTurn>({
+    sort: "start",
+  });
+  writeToCache(result);
+  return result;
 }
 
-export function loadTurns(): { cached: ReservationTurn[] | null; fresh: Promise<ReservationTurn[]> | null } {
+export function loadTurns(): { cached: ReservationTurn[] | null; fresh: Promise<ReservationTurn[]> } {
   const cached = getFromCache();
-  if (cached) return { cached, fresh: null };
-  return { cached: null, fresh: fetchTurns() };
+  return { cached, fresh: fetchTurns() };
 }
 
 export function invalidateTurns() {

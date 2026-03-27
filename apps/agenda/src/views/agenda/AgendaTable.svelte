@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { pb } from "../../lib/pb";
   import {
     Check,
     X,
@@ -30,7 +31,6 @@
 
   export let onToggleFilter: () => void = () => {};
   export let onToggleArrived: (res: Reservation) => void = () => {};
-  export let onRefreshTurns: () => void = () => {};
 
   // Turns sortiert nach Startzeit für Tab-Reihenfolge
   $: sortedTurns = [...turns].sort((a, b) => a.start.localeCompare(b.start));
@@ -191,13 +191,15 @@
           class="flex items-center gap-2.5 px-3 py-2 border-b border-border-light active:bg-surface-alt cursor-pointer select-none"
         >
           <!-- Turn Color Dot -->
-          <div
-            class={clsx(
-              "shrink-0 size-2.5 rounded-full",
-              !turnColor && "bg-fg-muted",
-            )}
-            style={turnColor ? `background-color: ${turnColor}` : ""}
-          ></div>
+          {#if turns.length > 0}
+            <div
+              class={clsx(
+                "shrink-0 size-2.5 rounded-full",
+                !turnColor && "bg-fg-muted",
+              )}
+              style={turnColor ? `background-color: ${turnColor}` : ""}
+            ></div>
+          {/if}
 
           <!-- Time Badge -->
           <div
@@ -245,21 +247,17 @@
           </div>
 
           <!-- Avatar -->
-          {#if typeof res.user === "object" && res.user?.avatar}
-            {@const avatarId =
-              typeof res.user.avatar === "object"
-                ? res.user.avatar.id
-                : res.user.avatar}
+          {#if res.expand?.user?.avatar}
             <img
-              src={`https://admin.pulpo.cloud/assets/${avatarId}?width=56&height=56&fit=cover`}
+              src={pb.files.getURL(res.expand.user, res.expand.user.avatar, { thumb: "56x56" })}
               alt=""
               class="size-7 aspect-square rounded-full border border-border-default object-cover shrink-0"
             />
-          {:else if typeof res.user === "object"}
+          {:else if res.expand?.user}
             <div
               class="size-7 aspect-square rounded-full bg-surface-alt flex items-center justify-center text-[10px] text-fg-muted border border-border-default font-medium shrink-0"
             >
-              {res.user?.first_name?.[0]?.toUpperCase() || "?"}
+              {res.expand.user.name?.[0]?.toUpperCase() || "?"}
             </div>
           {/if}
 
@@ -281,20 +279,31 @@
     <div class="hidden md:flex md:flex-col md:flex-1 md:min-h-0">
       <!-- Sticky Header -->
       <div class="shrink-0 bg-surface-alt border-b border-border-default">
-        <table class="w-full text-left text-sm">
+        <table class="w-full text-left text-sm table-fixed">
+          <colgroup>
+            {#if turns.length > 0}<col class="w-10" />{/if}
+            <col class="w-18" />
+            <col class="w-14" />
+            <col class="w-10" />
+            <col />
+            <col />
+            <col />
+            <col class="w-12" />
+            <col class="w-12" />
+          </colgroup>
           <thead>
             <tr
               class="text-fg-muted uppercase tracking-wider text-[11px] font-medium"
             >
-              <th class="pl-4 pr-1 py-2.5 font-normal w-8"></th>
-              <th class="px-3 py-2.5 font-normal w-16">Hora</th>
-              <th class="px-3 py-2.5 font-normal w-12 text-center">Pax</th>
-              <th class="px-1 py-2.5 font-normal w-8"></th>
+              {#if turns.length > 0}<th class="pl-4 pr-1 py-2.5 font-normal"></th>{/if}
+              <th class="px-3 py-2.5 font-normal">Hora</th>
+              <th class="px-3 py-2.5 font-normal text-center">Pax</th>
+              <th class="px-1 py-2.5 font-normal"></th>
               <th class="px-4 py-2.5 font-normal">Nombre</th>
               <th class="px-4 py-2.5 font-normal">Contacto</th>
               <th class="px-4 py-2.5 font-normal">Notas</th>
-              <th class="px-2 py-2.5 font-normal w-10"></th>
-              <th class="px-2 py-2.5 font-normal w-10"></th>
+              <th class="px-2 py-2.5 font-normal"></th>
+              <th class="px-2 py-2.5 font-normal"></th>
             </tr>
           </thead>
         </table>
@@ -302,7 +311,18 @@
 
       <!-- Scrollable Body -->
       <div class="flex-1 min-h-0 overflow-y-auto">
-        <table class="w-full text-left text-sm">
+        <table class="w-full text-left text-sm table-fixed">
+          <colgroup>
+            {#if turns.length > 0}<col class="w-10" />{/if}
+            <col class="w-18" />
+            <col class="w-14" />
+            <col class="w-10" />
+            <col />
+            <col />
+            <col />
+            <col class="w-12" />
+            <col class="w-12" />
+          </colgroup>
           <tbody class="divide-y divide-border-light">
             {#each reservations as res (res.id)}
               {@const turnColor = getTurnColor(res.time)}
@@ -313,26 +333,28 @@
                 on:keydown={() => {}}
                 class="group transition-colors cursor-pointer select-none hover:bg-surface-hover"
               >
-                <td class="pl-4 pr-1 py-2 w-8">
-                  <div
-                    class={clsx(
-                      "size-2.5 rounded-full",
-                      !turnColor && "bg-fg-muted",
-                    )}
-                    style={turnColor ? `background-color: ${turnColor}` : ""}
-                  ></div>
-                </td>
+                {#if turns.length > 0}
+                  <td class="pl-4 pr-1 py-2">
+                    <div
+                      class={clsx(
+                        "size-2.5 rounded-full",
+                        !turnColor && "bg-fg-muted",
+                      )}
+                      style={turnColor ? `background-color: ${turnColor}` : ""}
+                    ></div>
+                  </td>
+                {/if}
                 <td
-                  class="px-3 py-2 whitespace-nowrap font-medium font-serif text-fg w-16"
+                  class="px-3 py-2 whitespace-nowrap font-medium font-serif text-fg"
                 >
                   {res.time.substring(0, 5)}
                 </td>
                 <td
-                  class="px-3 py-2 w-12 text-center text-fg-secondary text-xs"
+                  class="px-3 py-2 text-center text-fg-secondary text-xs"
                 >
                   {res.person_count || "-"}
                 </td>
-                <td class="px-1 py-2 w-8 text-center">
+                <td class="px-1 py-2 text-center">
                   {#if res.arrived}
                     <Check
                       size={14}
@@ -367,28 +389,24 @@
                 <td class="px-4 py-2 text-fg-muted text-xs italic leading-snug">
                   {res.notes || "-"}
                 </td>
-                <td class="px-2 py-2 w-10">
+                <td class="px-2 py-2">
                   <div class="flex justify-center">
-                    {#if typeof res.user === "object" && res.user?.avatar}
-                      {@const avatarId =
-                        typeof res.user.avatar === "object"
-                          ? res.user.avatar.id
-                          : res.user.avatar}
+                    {#if res.expand?.user?.avatar}
                       <img
-                        src={`https://admin.pulpo.cloud/assets/${avatarId}?width=48&height=48&fit=cover`}
+                        src={pb.files.getURL(res.expand.user, res.expand.user.avatar, { thumb: "48x48" })}
                         alt=""
                         class="w-6 h-6 rounded-full border border-border-default object-cover"
                       />
-                    {:else if typeof res.user === "object"}
+                    {:else if res.expand?.user}
                       <div
                         class="w-6 h-6 rounded-full bg-surface-alt flex items-center justify-center text-[10px] text-fg-muted border border-border-default font-medium"
                       >
-                        {res.user?.first_name?.[0]?.toUpperCase() || "?"}
+                        {res.expand.user.name?.[0]?.toUpperCase() || "?"}
                       </div>
                     {/if}
                   </div>
                 </td>
-                <td class="px-2 py-2 w-10">
+                <td class="px-2 py-2">
                   <!-- svelte-ignore a11y_no_static_element_interactions -->
                   <div
                     on:click={(e) => handleEdit(e, res)}
@@ -474,17 +492,6 @@
                 <Moon size={13} class="shrink-0 text-fg-muted" />
                 <span>Modo oscuro</span>
               {/if}
-            </button>
-            <div class="border-t border-border-light my-1"></div>
-            <button
-              on:click={() => {
-                onRefreshTurns();
-                settingsOpen = false;
-              }}
-              class="w-full flex items-center gap-2.5 px-3 py-2 text-left text-xs text-fg-secondary hover:bg-surface-hover transition-colors"
-            >
-              <RefreshCw size={13} class="shrink-0 text-fg-muted" />
-              <span>Actualizar turnos</span>
             </button>
             <div class="border-t border-border-light my-1"></div>
             <button

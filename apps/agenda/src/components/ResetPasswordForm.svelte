@@ -1,6 +1,5 @@
 <script lang="ts">
-  import { directus } from "../lib/directus";
-  import { passwordReset } from "@directus/sdk";
+  import { pb } from "../lib/pb";
   import { AlertCircle, ArrowLeft, Loader2, KeyRound, CheckCircle } from "lucide-svelte";
 
   let password = "";
@@ -26,11 +25,11 @@
     error = null;
 
     try {
-      await directus.request(passwordReset(token!, password));
+      await pb.collection("users").confirmPasswordReset(token!, password, confirmPassword);
       success = true;
     } catch (e: any) {
       console.error(e);
-      if (e?.errors?.[0]?.extensions?.code === "INVALID_TOKEN") {
+      if (e?.status === 400) {
         error = "El enlace ha expirado o no es válido. Solicite uno nuevo.";
       } else {
         error = "No se pudo restablecer la contraseña. Intente nuevamente.";
