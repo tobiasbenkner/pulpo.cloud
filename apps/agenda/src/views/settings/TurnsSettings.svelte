@@ -20,11 +20,11 @@
 
   // Inline-Editing
   let editingId: string | null = null;
-  let editForm = { label: "", start: "", color: "#6b7280" };
+  let editForm = { label: "", start: "", color: "#6b7280", duration: 90, buffer: 15 };
 
   // Neuer Turn
   let showNew = false;
-  let newForm = { label: "", start: "", color: "#6b7280" };
+  let newForm = { label: "", start: "", color: "#6b7280", duration: 90, buffer: 15 };
 
   // Delete
   let deletingId: string | null = null;
@@ -52,6 +52,8 @@
       label: turn.label,
       start: turn.start.substring(0, 5),
       color: turn.color || "#6b7280",
+      duration: turn.duration || 90,
+      buffer: turn.buffer || 15,
     };
   }
 
@@ -84,7 +86,7 @@
       invalidateTurns();
       await loadTurns();
       showNew = false;
-      newForm = { label: "", start: "", color: "#6b7280" };
+      newForm = { label: "", start: "", color: "#6b7280", duration: 90, buffer: 15 };
     } catch {
       error = "No se pudo crear el turno.";
     } finally {
@@ -144,37 +146,53 @@
           <!-- Edit Mode -->
           <form
             on:submit|preventDefault={saveEdit}
-            class="flex items-center gap-2 p-3 bg-surface border border-primary/30 rounded-lg"
+            class="p-3 bg-surface border border-primary/30 rounded-lg space-y-3"
           >
-            <input
-              type="color"
-              bind:value={editForm.color}
-              class="size-8 rounded cursor-pointer border border-border-default shrink-0"
-            />
-            <input
-              type="text"
-              bind:value={editForm.label}
-              placeholder="Nombre"
-              required
-              class="flex-1 min-w-0 px-2.5 py-1.5 bg-input-bg border border-border-default rounded-sm text-sm text-fg focus:outline-none focus:ring-1 focus:ring-primary"
-            />
-            <div class="w-24 shrink-0">
-              <TimePicker label="" bind:value={editForm.start} />
+            <div class="flex items-center gap-2">
+              <input
+                type="color"
+                bind:value={editForm.color}
+                class="size-8 rounded cursor-pointer border border-border-default shrink-0"
+              />
+              <input
+                type="text"
+                bind:value={editForm.label}
+                placeholder="Nombre"
+                required
+                class="flex-1 min-w-0 px-2.5 py-1.5 bg-input-bg border border-border-default rounded-sm text-sm text-fg focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+              <div class="w-24 shrink-0">
+                <TimePicker label="" bind:value={editForm.start} />
+              </div>
             </div>
-            <button
-              type="submit"
-              disabled={saving}
-              class="px-3 py-1.5 text-xs font-medium bg-btn-primary-bg text-btn-primary-text rounded-sm hover:bg-btn-primary-hover disabled:opacity-70"
-            >
-              {saving ? "..." : "Guardar"}
-            </button>
-            <button
-              type="button"
-              on:click={cancelEdit}
-              class="px-3 py-1.5 text-xs font-medium text-fg-muted hover:text-fg-secondary"
-            >
-              Cancelar
-            </button>
+            <div class="grid grid-cols-2 gap-2">
+              <div class="space-y-1">
+                <label class="text-[10px] text-fg-muted">Duración (min)</label>
+                <input type="number" min="15" max="480" step="15" bind:value={editForm.duration}
+                  class="w-full px-2.5 py-1.5 bg-input-bg border border-border-default rounded-sm text-sm text-fg focus:outline-none focus:ring-1 focus:ring-primary" />
+              </div>
+              <div class="space-y-1">
+                <label class="text-[10px] text-fg-muted">Pausa entre mesas (min)</label>
+                <input type="number" min="0" max="60" step="5" bind:value={editForm.buffer}
+                  class="w-full px-2.5 py-1.5 bg-input-bg border border-border-default rounded-sm text-sm text-fg focus:outline-none focus:ring-1 focus:ring-primary" />
+              </div>
+            </div>
+            <div class="flex justify-end gap-2">
+              <button
+                type="button"
+                on:click={cancelEdit}
+                class="px-3 py-1.5 text-xs font-medium text-fg-muted hover:text-fg-secondary"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                disabled={saving}
+                class="px-3 py-1.5 text-xs font-medium bg-btn-primary-bg text-btn-primary-text rounded-sm hover:bg-btn-primary-hover disabled:opacity-70"
+              >
+                {saving ? "..." : "Guardar"}
+              </button>
+            </div>
           </form>
         {:else}
           <!-- Display Mode -->
@@ -186,8 +204,13 @@
               class="shrink-0 size-4 rounded-full border border-border-default"
               style="background-color: {turn.color}"
             ></div>
-            <span class="flex-1 text-sm font-medium text-fg">{turn.label}</span>
-            <span class="text-sm text-fg-muted font-mono">{turn.start.substring(0, 5)}</span>
+            <div class="flex-1 min-w-0">
+              <span class="text-sm font-medium text-fg">{turn.label}</span>
+              <div class="text-[10px] text-fg-muted">
+                {turn.duration || 90} min · {turn.buffer || 15} min pausa
+              </div>
+            </div>
+            <span class="text-sm text-fg-muted font-mono shrink-0">{turn.start.substring(0, 5)}</span>
             <button
               on:click={() => startEdit(turn)}
               class="px-2 py-1 text-xs text-fg-muted hover:text-fg-secondary opacity-0 group-hover:opacity-100 transition-opacity"
@@ -234,37 +257,53 @@
     {#if showNew}
       <form
         on:submit|preventDefault={createTurn}
-        class="flex items-center gap-2 p-3 bg-surface border border-primary/30 rounded-lg mb-4"
+        class="p-3 bg-surface border border-primary/30 rounded-lg mb-4 space-y-3"
       >
-        <input
-          type="color"
-          bind:value={newForm.color}
-          class="size-8 rounded cursor-pointer border border-border-default shrink-0"
-        />
-        <input
-          type="text"
-          bind:value={newForm.label}
-          placeholder="Nombre del turno"
-          required
-          class="flex-1 min-w-0 px-2.5 py-1.5 bg-input-bg border border-border-default rounded-sm text-sm text-fg placeholder-fg-muted focus:outline-none focus:ring-1 focus:ring-primary"
-        />
-        <div class="w-24 shrink-0">
-          <TimePicker label="" bind:value={newForm.start} />
+        <div class="flex items-center gap-2">
+          <input
+            type="color"
+            bind:value={newForm.color}
+            class="size-8 rounded cursor-pointer border border-border-default shrink-0"
+          />
+          <input
+            type="text"
+            bind:value={newForm.label}
+            placeholder="Nombre del turno"
+            required
+            class="flex-1 min-w-0 px-2.5 py-1.5 bg-input-bg border border-border-default rounded-sm text-sm text-fg placeholder-fg-muted focus:outline-none focus:ring-1 focus:ring-primary"
+          />
+          <div class="w-24 shrink-0">
+            <TimePicker label="" bind:value={newForm.start} />
+          </div>
         </div>
-        <button
-          type="submit"
-          disabled={saving}
-          class="px-3 py-1.5 text-xs font-medium bg-btn-primary-bg text-btn-primary-text rounded-sm hover:bg-btn-primary-hover disabled:opacity-70"
-        >
-          {saving ? "..." : "Crear"}
-        </button>
-        <button
-          type="button"
-          on:click={() => (showNew = false)}
-          class="px-3 py-1.5 text-xs font-medium text-fg-muted hover:text-fg-secondary"
-        >
-          Cancelar
-        </button>
+        <div class="grid grid-cols-2 gap-2">
+          <div class="space-y-1">
+            <label class="text-[10px] text-fg-muted">Duración (min)</label>
+            <input type="number" min="15" max="480" step="15" bind:value={newForm.duration}
+              class="w-full px-2.5 py-1.5 bg-input-bg border border-border-default rounded-sm text-sm text-fg focus:outline-none focus:ring-1 focus:ring-primary" />
+          </div>
+          <div class="space-y-1">
+            <label class="text-[10px] text-fg-muted">Pausa entre mesas (min)</label>
+            <input type="number" min="0" max="60" step="5" bind:value={newForm.buffer}
+              class="w-full px-2.5 py-1.5 bg-input-bg border border-border-default rounded-sm text-sm text-fg focus:outline-none focus:ring-1 focus:ring-primary" />
+          </div>
+        </div>
+        <div class="flex justify-end gap-2">
+          <button
+            type="button"
+            on:click={() => (showNew = false)}
+            class="px-3 py-1.5 text-xs font-medium text-fg-muted hover:text-fg-secondary"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            disabled={saving}
+            class="px-3 py-1.5 text-xs font-medium bg-btn-primary-bg text-btn-primary-text rounded-sm hover:bg-btn-primary-hover disabled:opacity-70"
+          >
+            {saving ? "..." : "Crear"}
+          </button>
+        </div>
       </form>
     {/if}
 

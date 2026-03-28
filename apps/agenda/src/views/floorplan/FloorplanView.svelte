@@ -1,11 +1,14 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { pb } from "../../lib/pb";
-  import type { Table, TableGroup, Zone } from "../../lib/types";
+  import type { Reservation, Table, TableGroup, Zone } from "../../lib/types";
+  import { getOccupiedTableIds } from "../../lib/tableAssignment";
+  import { reservationDraft } from "../../stores/reservationDraftStore";
   import { ArrowLeft, Plus, Pencil, Trash2, Loader2, AlertTriangle, Check, X, Lock, Link } from "lucide-svelte";
   import FloorplanCanvas from "./FloorplanCanvas.svelte";
   import TableEditPanel from "./TableEditPanel.svelte";
   import GroupPanel from "./GroupPanel.svelte";
+  import OccupancyPanel from "./OccupancyPanel.svelte";
 
   let zones: Zone[] = [];
   let tables: Table[] = [];
@@ -32,6 +35,27 @@
   let showGroupPanel = false;
   let activeGroupId: string | null = null;
 
+  // Occupancy mode (from query params)
+  const urlParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : new URLSearchParams();
+  const occDate = urlParams.get("date") || "";
+  const occTime = urlParams.get("time") || "";
+  const occPax = parseInt(urlParams.get("pax") || "0");
+  const occReservationId = urlParams.get("reservation") || "";
+  const occupancyMode = !!(occDate && occTime && occPax);
+
+  let allReservations: Reservation[] = [];
+  let occSelectedTableIds: string[] = [];
+
+  $: occupiedTableIds = occupancyMode && allReservations.length
+    ? getOccupiedTableIds(allReservations, occDate, occTime, 90, 15, occReservationId)
+    : new Set<string>();
+
+  $: occupancyLabels = new Map(
+    allReservations
+      .filter((r) => r.date === occDate && r.reservations_tables?.length)
+      .flatMap((r) => r.reservations_tables.map((tId) => [tId, `${r.name || "?"} · ${r.time?.substring(0, 5)}`] as [string, string]))
+  );
+
   $: selectedTable = tables.find((t) => t.id === selectedId) ?? null;
   $: if (selectedId && editForm) {
     tables = tables.map((t) => t.id === selectedId ? { ...t, ...editForm } : t);
@@ -48,6 +72,7 @@
 
   $: visibleTables = (() => {
     void activeGroupId;
+    void occSelectedTableIds;
     return activeZoneId
       ? tables.filter((t) => t.zone === activeZoneId)
       : tables.filter((t) => !t.zone);
@@ -60,12 +85,24 @@
   async function loadData() {
     loading = true;
     try {
-      [zones, tables, groups] = await Promise.all([
+      const promises: [Promise<Zone[]>, Promise<Table[]>, Promise<TableGroup[]>, Promise<Reservation[]>] = [
         pb.collection("reservations_zones").getFullList<Zone>({ sort: "sort,label" }),
         pb.collection("reservations_tables").getFullList<Table>({ sort: "label" }),
         pb.collection("reservations_table_groups").getFullList<TableGroup>({ sort: "sort,label" }),
-      ]);
+        occupancyMode
+          ? pb.collection("reservations").getFullList<Reservation>({ filter: `date = "${occDate}"`, sort: "time" })
+          : Promise.resolve([]),
+      ];
+      [zones, tables, groups, allReservations] = await Promise.all(promises);
       if (zones.length > 0 && activeZoneId === null) activeZoneId = zones[0].id;
+
+      // Load previously fixed tables if editing existing reservation
+      if (occupancyMode && occReservationId && occSelectedTableIds.length === 0) {
+        const existing = allReservations.find((r) => r.id === occReservationId);
+        if (existing?.reservations_tables?.length) {
+          occSelectedTableIds = [...existing.reservations_tables];
+        }
+      }
     } catch { error = "No se pudieron cargar los datos."; }
     finally { loading = false; }
   }
@@ -107,7 +144,16 @@
   }
 
   function selectTable(id: string) {
-    if (dragging || !editing) return;
+    if (dragging) return;
+
+    // Occupancy mode: click on canvas to select single table
+    if (occupancyMode) {
+      if (occupiedTableIds.has(id)) return;
+      occSelectedTableIds = [id];
+      return;
+    }
+
+    if (!editing) return;
     if (activeGroupId) { toggleTableInGroup(id, activeGroupId); return; }
     selectedId = selectedId === id ? null : id;
     deletingId = null;
@@ -222,7 +268,32 @@
     } catch { error = "No se pudo actualizar el grupo."; } finally { saving = false; }
   }
 
-  function goBack() { window.location.href = "/"; }
+  async function saveOccupancy() {
+    if (occReservationId) {
+      saving = true;
+      try {
+        await pb.collection("reservations").update(occReservationId, { reservations_tables: occSelectedTableIds });
+      } catch { error = "No se pudo asignar las mesas."; saving = false; return; }
+      finally { saving = false; }
+      window.location.href = `/edit?id=${occReservationId}`;
+    } else {
+      // New reservation — update draft with selected tables
+      const draft = $reservationDraft;
+      if (draft) {
+        reservationDraft.set({ ...draft, reservations_tables: occSelectedTableIds });
+      }
+      window.location.href = `/new`;
+    }
+  }
+
+  function cancelOccupancy() {
+    window.history.back();
+  }
+
+  function goBack() {
+    if (occupancyMode) { cancelOccupancy(); return; }
+    window.location.href = "/";
+  }
 </script>
 
 <div class="flex flex-col h-full animate-fade-in">
@@ -233,10 +304,12 @@
         <button on:click={goBack} class="p-2.5 -ml-2.5 hover:bg-surface-hover rounded-full transition-colors text-fg-muted" aria-label="Volver">
           <ArrowLeft size={20} />
         </button>
-        <h1 class="text-sm font-medium text-fg-muted">Plano del restaurante</h1>
+        <h1 class="text-sm font-medium text-fg-muted">
+          {occupancyMode ? "Asignar mesa" : "Plano del restaurante"}
+        </h1>
       </div>
       <div class="flex items-center gap-2">
-        {#if editing}
+        {#if editing && !occupancyMode}
           <button on:click={createTable} disabled={saving || (!activeZoneId && zones.length > 0)}
             class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-surface border border-border-default rounded-md text-fg-secondary hover:bg-surface-hover transition-colors disabled:opacity-70">
             <Plus size={14} /><span>Añadir mesa</span>
@@ -248,12 +321,12 @@
             <Link size={14} /><span>Grupos</span>
           </button>
         {/if}
-        <button on:click={() => { editing = !editing; selectedId = null; deletingId = null; showGroupPanel = false; activeGroupId = null; }}
+        {#if !occupancyMode}<button on:click={() => { editing = !editing; selectedId = null; deletingId = null; showGroupPanel = false; activeGroupId = null; }}
           class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors {editing
             ? 'bg-btn-primary-bg text-btn-primary-text hover:bg-btn-primary-hover'
             : 'bg-surface border border-border-default text-fg-secondary hover:bg-surface-hover'}">
           {#if editing}<Lock size={14} /><span>Bloquear</span>{:else}<Pencil size={14} /><span>Editar</span>{/if}
-        </button>
+        </button>{/if}
       </div>
     </div>
 
@@ -312,12 +385,16 @@
       <div class="flex-1 min-h-0 p-2 md:p-4">
         <FloorplanCanvas
           tables={visibleTables}
-          {editing}
+          editing={occupancyMode ? false : editing}
           {activeGroupId}
           {selectedId}
           {showGroupPanel}
           {activeGroupTables}
           {activeGroupColor}
+          {occupancyMode}
+          {occupiedTableIds}
+          selectedTableIds={occSelectedTableIds}
+          {occupancyLabels}
           onStartDrag={startDrag}
           {onDrag}
           onEndDrag={endDrag}
@@ -335,7 +412,23 @@
         </FloorplanCanvas>
       </div>
 
-      {#if showGroupPanel}
+      {#if occupancyMode}
+        <OccupancyPanel
+          date={occDate}
+          time={occTime}
+          pax={occPax}
+          reservationId={occReservationId}
+          reservations={allReservations}
+          selectedTableIds={occSelectedTableIds}
+          {tables}
+          groups={zoneGroups}
+          {occupiedTableIds}
+          {saving}
+          onSelect={(ids) => (occSelectedTableIds = ids)}
+          onSave={saveOccupancy}
+          onCancel={cancelOccupancy}
+        />
+      {:else if showGroupPanel}
         <GroupPanel
           groups={zoneGroups}
           {tables}

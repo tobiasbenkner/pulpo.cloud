@@ -16,8 +16,11 @@ export interface Reservation extends RecordModel {
   notes: string;
   arrived: boolean;
   user: string;
+  duration: number;
+  reservations_tables: string[];
   expand?: {
     user?: User;
+    reservations_tables?: Table[];
   };
 }
 
@@ -29,12 +32,16 @@ export interface ReservationCreate {
   contact?: string;
   notes?: string;
   arrived?: boolean;
+  duration?: number;
+  reservations_tables?: string[];
 }
 
 export interface ReservationTurn extends RecordModel {
   label: string;
   start: string;
   color: string;
+  duration: number;
+  buffer: number;
 }
 
 export interface Zone extends RecordModel {

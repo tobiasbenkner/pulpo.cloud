@@ -1,8 +1,10 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import { pb } from "../../lib/pb";
   import { loadTurns } from "../../lib/turnsCache";
-  import type { ReservationTurn, User as UserType } from "../../lib/types";
+  import { getOccupiedTableIds } from "../../lib/tableAssignment";
+  import { reservationDraft, clearDraft } from "../../stores/reservationDraftStore";
+  import type { Reservation, ReservationTurn, Table, User as UserType } from "../../lib/types";
   import {
     ArrowLeft,
     Save,
@@ -14,25 +16,29 @@
     AlertTriangle,
     Users,
     Plus,
+    Clock,
+    MapPin,
+    X,
   } from "lucide-svelte";
   import DatePicker from "../../components/ui/DatePicker.svelte";
   import TimePicker from "../../components/ui/TimePicker.svelte";
   import { es } from "date-fns/locale";
 
-  // Props
   export let id: string | null = null;
 
-  // Derived state
   $: isEditMode = !!id;
 
-  // State
   let isLoading = true;
   let isSaving = false;
   let isDeleting = false;
   let error: string | null = null;
+  let tableConflict = false;
   let showDeleteConfirm = false;
   let turns: ReservationTurn[] = [];
   let users: UserType[] = [];
+  let fixedTables: Table[] = [];
+  let allTables: Table[] = [];
+  let allReservations: Reservation[] = [];
 
   let formData = {
     date: new Date().toISOString().split("T")[0],
@@ -42,6 +48,8 @@
     person_count: "2",
     notes: "",
     user: "",
+    duration: 90,
+    reservations_tables: [] as string[],
   };
 
   let originalDate = "";
@@ -49,7 +57,7 @@
   onMount(async () => {
     if (isEditMode && id) {
       try {
-        const res = await pb.collection("reservations").getOne(id, { expand: "user" });
+        const res = await pb.collection("reservations").getOne(id, { expand: "user,reservations_tables" });
         formData = {
           date: res.date,
           time: res.time ? res.time.substring(0, 5) : "",
@@ -58,35 +66,90 @@
           person_count: res.person_count || "2",
           notes: res.notes || "",
           user: res.user || "",
+          duration: res.duration || 90,
+          reservations_tables: res.reservations_tables || [],
         };
+        fixedTables = res.expand?.reservations_tables || [];
         originalDate = res.date;
       } catch (e) {
         error = "No se pudo cargar la reserva.";
       }
     } else {
-      const params = new URLSearchParams(window.location.search);
-      const dateParam = params.get("date");
-      if (dateParam) {
-        formData.date = dateParam;
+      // Restore draft if available (coming back from floorplan)
+      const draft = $reservationDraft;
+      if (draft) {
+        formData = { ...draft };
+        clearDraft();
+      } else {
+        const params = new URLSearchParams(window.location.search);
+        const dateParam = params.get("date");
+        if (dateParam) formData.date = dateParam;
       }
     }
     isLoading = false;
 
-    // Turns aus Cache laden, Users parallel
+    // Load tables and reservations for conflict detection
+    pb.collection("reservations_tables").getFullList<Table>({ sort: "label" }).then((t) => {
+      allTables = t;
+      fixedTables = t.filter((t) => formData.reservations_tables.includes(t.id));
+    }).catch(() => {});
+    pb.collection("reservations").getFullList<Reservation>().then((r) => (allReservations = r)).catch(() => {});
+
     const { cached, fresh } = loadTurns();
     if (cached) turns = cached;
     fresh.then((t) => (turns = t)).catch(() => {});
-    pb.collection("users").getFullList<UserType>()
-      .then((u) => (users = u))
-      .catch(() => {});
-    if (!formData.user && pb.authStore.record) {
-      formData.user = pb.authStore.record.id;
-    }
+    pb.collection("users").getFullList<UserType>().then((u) => (users = u)).catch(() => {});
+    if (!formData.user && pb.authStore.record) formData.user = pb.authStore.record.id;
   });
+
+  // Check for table conflicts when time/date changes
+  $: if (formData.time && formData.date && formData.reservations_tables.length > 0 && allReservations.length) {
+    const occupied = getOccupiedTableIds(allReservations, formData.date, formData.time, formData.duration, 15, id || undefined);
+    tableConflict = formData.reservations_tables.some((tid) => occupied.has(tid));
+  } else {
+    tableConflict = false;
+  }
+
+  function selectTurn(turn: ReservationTurn) {
+    formData.time = turn.start.substring(0, 5);
+    if (turn.duration) formData.duration = turn.duration;
+  }
+
+  function clearFixedTables() {
+    formData.reservations_tables = [];
+    fixedTables = [];
+    tableConflict = false;
+  }
+
+  function navigateToFloorplan() {
+    // Save draft so form data is preserved
+    if (!isEditMode) {
+      reservationDraft.set({ ...formData });
+    }
+    window.location.href = `/floorplan?date=${formData.date}&time=${formData.time}&pax=${formData.person_count}&reservation=${id || ''}`;
+  }
 
   async function handleSubmit() {
     isSaving = true;
     error = null;
+
+    // Re-check table availability with fresh data before saving
+    if (formData.reservations_tables.length > 0) {
+      try {
+        const freshReservations = await pb.collection("reservations").getFullList<Reservation>({
+          filter: `date = "${formData.date}"`,
+        });
+        const occupied = getOccupiedTableIds(freshReservations, formData.date, formData.time, formData.duration, 15, id || undefined);
+        if (formData.reservations_tables.some((tid) => occupied.has(tid))) {
+          error = "No se puede guardar: la mesa asignada está ocupada a esta hora.";
+          allReservations = freshReservations;
+          isSaving = false;
+          return;
+        }
+      } catch {
+        // If we can't verify, proceed with save
+      }
+    }
 
     try {
       if (isEditMode && id) {
@@ -94,6 +157,7 @@
       } else {
         await pb.collection("reservations").create(formData);
       }
+      clearDraft();
       window.location.href = `/?date=${formData.date}`;
     } catch (e) {
       console.error(e);
@@ -106,10 +170,10 @@
 
   async function handleDelete() {
     if (!id) return;
-
     isDeleting = true;
     try {
       await pb.collection("reservations").delete(id);
+      clearDraft();
       window.location.href = `/?date=${formData.date}`;
     } catch (e) {
       error = "Error al eliminar.";
@@ -119,8 +183,8 @@
   }
 
   function goBack() {
-    const targetDate =
-      originalDate || formData.date || new Date().toISOString().split("T")[0];
+    clearDraft();
+    const targetDate = originalDate || formData.date || new Date().toISOString().split("T")[0];
     window.location.href = `/?date=${targetDate}`;
   }
 </script>
@@ -177,7 +241,7 @@
             {#each turns as turn}
               <button
                 type="button"
-                on:click={() => (formData.time = turn.start.substring(0, 5))}
+                on:click={() => selectTurn(turn)}
                 class="px-2.5 py-1 text-xs rounded-md border transition-colors {formData.time ===
                 turn.start.substring(0, 5)
                   ? 'border-btn-active-border bg-btn-active-bg text-btn-active-text'
@@ -275,6 +339,70 @@
             </div>
           </div>
         {/if}
+
+        <!-- Duration -->
+        <div class="space-y-1">
+          <label
+            for="duration"
+            class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-fg-muted"
+          >
+            <Clock size={14} /> Duración (min)
+          </label>
+          <input
+            id="duration"
+            type="number"
+            min="15"
+            max="480"
+            step="15"
+            bind:value={formData.duration}
+            class="w-full px-3 py-2.5 bg-input-bg border border-border-default rounded-sm text-sm text-fg focus:outline-none focus:ring-1 focus:ring-primary focus:bg-surface transition-all"
+          />
+        </div>
+
+        <!-- Fixed Table -->
+        <div class="space-y-1.5">
+          <span class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-fg-muted">
+            <MapPin size={14} /> Mesa
+          </span>
+          {#if fixedTables.length > 0}
+            <div class="flex flex-wrap items-center gap-1.5">
+              {#each fixedTables as table}
+                <span class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs rounded-md border {tableConflict
+                  ? 'border-error-border bg-error-bg text-error-text'
+                  : 'border-btn-active-border bg-btn-active-bg text-btn-active-text'}">
+                  {table.label} · {table.seats}p
+                </span>
+              {/each}
+              <button type="button" on:click={clearFixedTables}
+                class="p-1 text-fg-muted hover:text-error-text transition-colors">
+                <X size={14} />
+              </button>
+            </div>
+            {#if tableConflict}
+              <p class="text-xs text-error-text flex items-center gap-1.5">
+                <AlertTriangle size={13} />
+                Mesa ocupada a esta hora. Cambia la hora o quita la mesa.
+              </p>
+            {/if}
+          {:else}
+            <p class="text-xs text-fg-muted italic">Asignación automática — se calculará según disponibilidad.</p>
+          {/if}
+          {#if formData.time}
+            <button
+              type="button"
+              on:click={navigateToFloorplan}
+              class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-md border border-border-default bg-input-bg text-fg-secondary hover:bg-surface-hover transition-colors"
+            >
+              <MapPin size={14} />
+              {fixedTables.length > 0 ? "Cambiar mesa" : "Fijar mesa en el plano"}
+            </button>
+          {:else}
+            <span class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-md border border-border-default bg-input-bg text-fg-muted/50 cursor-not-allowed">
+              <MapPin size={14} />
+              Fijar mesa en el plano
+            </span>
+          {/if}
+        </div>
 
         <!-- Notes -->
         <div class="space-y-1">

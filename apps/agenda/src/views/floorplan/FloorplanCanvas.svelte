@@ -9,6 +9,12 @@
   export let activeGroupTables: Set<string> = new Set();
   export let activeGroupColor: string = "#6366f1";
 
+  // Occupancy mode
+  export let occupancyMode = false;
+  export let occupiedTableIds: Set<string> = new Set();
+  export let selectedTableIds: string[] = [];
+  export let occupancyLabels: Map<string, string> = new Map();
+
   export let onStartDrag: (e: MouseEvent | TouchEvent, table: Table) => void = () => {};
   export let onDrag: (e: MouseEvent | TouchEvent) => void = () => {};
   export let onEndDrag: () => void = () => {};
@@ -27,9 +33,15 @@
   }
 
   function getStyle(table: Table) {
+    if (occupancyMode) {
+      const isChosen = selectedTableIds.includes(table.id);
+      const isOccupied = occupiedTableIds.has(table.id);
+      if (isChosen) return { fill: "#10b981", stroke: "#10b981", strokeW: "0.5", textColor: "#10b981" };
+      if (isOccupied) return { fill: "var(--error-bg)", stroke: "var(--error-text)", strokeW: "0.4", textColor: "var(--error-text)" };
+      return { fill: "var(--surface)", stroke: "var(--border-default)", strokeW: "0.3", textColor: "var(--fg-secondary)" };
+    }
     const isSelected = editing && !activeGroupId && !showGroupPanel && selectedId === table.id;
     const isInActiveGroup = activeGroupId && activeGroupTables.has(table.id);
-
     if (isSelected) return { fill: "var(--btn-primary-bg)", stroke: "var(--btn-primary-bg)", strokeW: "0.3", textColor: "var(--btn-primary-bg)" };
     if (activeGroupId && isInActiveGroup) return { fill: activeGroupColor + "25", stroke: activeGroupColor, strokeW: "0.6", textColor: activeGroupColor };
     return { fill: "var(--surface)", stroke: "var(--border-default)", strokeW: "0.3", textColor: "var(--fg-secondary)" };
@@ -55,7 +67,7 @@
       <!-- svelte-ignore a11y_no_static_element_interactions -->
       <g on:mousedown={(e) => onStartDrag(e, table)} on:touchstart={(e) => onStartDrag(e, table)}
         on:click|stopPropagation={() => onSelectTable(table.id)} on:keydown={() => {}}
-        class={editing ? (activeGroupId ? "cursor-pointer" : "cursor-grab active:cursor-grabbing") : "cursor-default"}
+        class={occupancyMode ? "cursor-pointer" : editing ? (activeGroupId ? "cursor-pointer" : "cursor-grab active:cursor-grabbing") : "cursor-default"}
         style="outline: none; -webkit-tap-highlight-color: transparent;">
         {#if table.shape === "round"}
           <circle cx={table.x} cy={table.y} r={TABLE_RADIUS} fill={ts.fill} stroke={ts.stroke} stroke-width={ts.strokeW} />
@@ -71,6 +83,12 @@
           font-size="2.2" font-weight="500" fill={ts.textColor}>
           {table.label} · {table.seats}p
         </text>
+        {#if occupancyMode && occupancyLabels.has(table.id)}
+          <text x={table.x} y={table.y + tr.h/2 + 5} text-anchor="middle" dominant-baseline="central"
+            font-size="1.6" fill="var(--error-text)">
+            {occupancyLabels.get(table.id)}
+          </text>
+        {/if}
       </g>
     {/each}
   </svg>
