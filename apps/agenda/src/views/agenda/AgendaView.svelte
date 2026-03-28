@@ -3,7 +3,7 @@
   import { format } from "date-fns";
   import { pb } from "../../lib/pb";
   import { loadTurns as loadCachedTurns } from "../../lib/turnsCache";
-  import { computeTableAssignments } from "../../lib/tableAssignment";
+  import { computeTableAssignments, buildAssignmentLabels } from "../../lib/tableAssignment";
   import type { Reservation, ReservationTurn, Table, TableGroup, Zone } from "../../lib/types";
   import AgendaHeader from "./AgendaHeader.svelte";
   import AgendaTable from "./AgendaTable.svelte";
@@ -50,33 +50,38 @@
 
   $: try { localStorage.setItem(STORAGE_KEY_DISPLAY, display); } catch {}
 
-  // Belegungsdaten für Floorplan
+  // Floorplan: Turn-basierte Belegungsansicht
+  let floorplanTurnId: string | null = null;
+
+  // Aktuellen Turn ermitteln (basierend auf jetzt oder nächster)
+  $: {
+    if (display === "floorplan" && turns.length && !floorplanTurnId) {
+      const now = new Date().toTimeString().substring(0, 5);
+      // Finde den Turn der gerade läuft oder als nächstes kommt
+      const sorted = [...turns].sort((a, b) => a.start.localeCompare(b.start));
+      let found = sorted[sorted.length - 1]; // Default: letzter Turn
+      for (const turn of sorted) {
+        if (turn.start.substring(0, 5) >= now) { found = turn; break; }
+      }
+      floorplanTurnId = found?.id ?? null;
+    }
+  }
+
+  $: activeTurn = turns.find((t) => t.id === floorplanTurnId);
+
+  // Zuweisung berechnen
   $: floorplanState = (allTables.length && reservations.length)
     ? computeTableAssignments(reservations, allTables, groups)
     : null;
 
-  $: occupiedTableIds = (() => {
-    if (!floorplanState) return new Set<string>();
-    const ids = new Set<string>();
-    for (const tIds of floorplanState.assignments.values()) {
-      for (const tId of tIds) ids.add(tId);
-    }
-    return ids;
+  // Zeitgefiltert nach aktivem Turn
+  $: floorplanLabels = (() => {
+    if (!floorplanState || !activeTurn) return { fixedIds: new Set<string>(), autoIds: new Set<string>(), labels: new Map<string, string>() };
+    return buildAssignmentLabels(floorplanState, reservations, activeTurn.start.substring(0, 5), activeTurn.duration || 90);
   })();
 
-  $: occupancyLabels = (() => {
-    if (!floorplanState) return new Map<string, string>();
-    const labels = new Map<string, string>();
-    for (const [resId, tIds] of floorplanState.assignments) {
-      const res = reservations.find((r) => r.id === resId);
-      if (!res) continue;
-      const start = (res.time || "00:00").substring(0, 5);
-      const label = `${res.name || "?"} · ${start} · ${res.person_count}p`;
-      for (const tId of tIds) labels.set(tId, label);
-    }
-    return labels;
-  })();
-
+  $: occupiedTableIds = new Set([...floorplanLabels.fixedIds, ...floorplanLabels.autoIds]);
+  $: occupancyLabels = floorplanLabels.labels;
   $: unassignedReservations = floorplanState?.unassigned ?? [];
 
   $: visibleTables = activeZoneId
@@ -439,9 +444,32 @@
       />
     </div>
   {:else}
-    <!-- Zone Tabs -->
-    {#if zones.length > 1}
-      <div class="shrink-0 flex items-center gap-1.5 px-3 md:px-8 py-2 bg-surface border-b border-border-default overflow-x-auto no-scrollbar">
+    <!-- Turn + Zone Tabs -->
+    <div class="shrink-0 flex items-center gap-1.5 px-3 md:px-8 py-2 bg-surface border-b border-border-default overflow-x-auto no-scrollbar">
+      <!-- Turn tabs -->
+      {#each [...turns].sort((a, b) => a.start.localeCompare(b.start)) as turn (turn.id)}
+        {@const count = reservations.filter((r) => {
+          if (!r.time) return false;
+          const t = r.time.substring(0, 5);
+          const turnStart = turn.start.substring(0, 5);
+          const nextTurn = [...turns].sort((a, b) => a.start.localeCompare(b.start)).find((tt) => tt.start.substring(0, 5) > turnStart);
+          return t >= turnStart && (!nextTurn || t < nextTurn.start.substring(0, 5));
+        }).length}
+        <button
+          on:click={() => (floorplanTurnId = turn.id)}
+          class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors {floorplanTurnId === turn.id
+            ? 'text-white'
+            : 'bg-surface-alt text-fg-muted hover:text-fg-secondary hover:bg-surface-hover'}"
+          style={floorplanTurnId === turn.id ? `background-color: ${turn.color || 'var(--primary)'}` : ""}
+        >
+          {turn.label}
+          <span class="opacity-60">({count})</span>
+        </button>
+      {/each}
+
+      <!-- Separator + Zone tabs -->
+      {#if zones.length > 1}
+        <div class="shrink-0 w-px h-5 bg-border-default mx-1"></div>
         {#each zones as zone (zone.id)}
           <button
             on:click={() => (activeZoneId = zone.id)}
@@ -452,8 +480,8 @@
             {zone.label}
           </button>
         {/each}
-      </div>
-    {/if}
+      {/if}
+    </div>
 
     <!-- Floorplan -->
     <div class="flex-1 min-h-0 p-2 md:p-4">
