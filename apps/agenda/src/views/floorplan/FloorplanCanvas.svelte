@@ -1,20 +1,17 @@
 <script lang="ts">
   import type { Table } from "../../lib/types";
 
-  export let tables: Table[] = [];
-  export let editing = false;
-  export let activeGroupId: string | null = null;
-  export let selectedId: string | null = null;
-  export let showGroupPanel = false;
-  export let activeGroupTables: Set<string> = new Set();
-  export let activeGroupColor: string = "#6366f1";
+  interface TableStyle {
+    fill: string;
+    stroke: string;
+    strokeW: string;
+    textColor: string;
+    label?: string;
+    cursor: string;
+  }
 
-  // Occupancy mode
+  export let tables: (Table & { _style: TableStyle })[] = [];
   export let occupancyMode = false;
-  export let occupiedTableIds: Set<string> = new Set();
-  export let autoAssignedTableIds: Set<string> = new Set();
-  export let selectedTableIds: string[] = [];
-  export let occupancyLabels: Map<string, string> = new Map();
 
   export let onStartDrag: (e: MouseEvent | TouchEvent, table: Table) => void = () => {};
   export let onDrag: (e: MouseEvent | TouchEvent) => void = () => {};
@@ -32,30 +29,11 @@
     const v = rot === 90 || rot === 270;
     return { w: v ? UNIT : totalW, h: v ? totalW : UNIT, unitCount: w, rotation: rot, rawW: totalW, rawH: UNIT };
   }
-
-  function getStyle(table: Table) {
-    if (occupancyMode) {
-      const isChosen = selectedTableIds.includes(table.id);
-      const isOccupied = occupiedTableIds.has(table.id);
-      const isAuto = autoAssignedTableIds.has(table.id);
-      if (isChosen) return { fill: "#10b981", stroke: "#10b981", strokeW: "0.5", textColor: "#10b981" };
-      if (isOccupied && !isAuto) return { fill: "var(--error-bg)", stroke: "var(--error-text)", strokeW: "0.4", textColor: "var(--error-text)" };
-      if (isAuto) return { fill: "#f59e0b20", stroke: "#f59e0b", strokeW: "0.4", textColor: "#f59e0b" };
-      return { fill: "var(--surface)", stroke: "var(--border-default)", strokeW: "0.3", textColor: "var(--fg-secondary)" };
-    }
-    const isSelected = editing && !activeGroupId && !showGroupPanel && selectedId === table.id;
-    const isInActiveGroup = activeGroupId && activeGroupTables.has(table.id);
-    if (isSelected) return { fill: "var(--btn-primary-bg)", stroke: "var(--btn-primary-bg)", strokeW: "0.3", textColor: "var(--btn-primary-bg)" };
-    if (activeGroupId && isInActiveGroup) return { fill: activeGroupColor + "25", stroke: activeGroupColor, strokeW: "0.6", textColor: activeGroupColor };
-    return { fill: "var(--surface)", stroke: "var(--border-default)", strokeW: "0.3", textColor: "var(--fg-secondary)" };
-  }
-
-  let svgRef: SVGSVGElement;
 </script>
 
 <div class="w-full h-full bg-surface-alt border border-border-default rounded-lg overflow-hidden relative">
   <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <svg bind:this={svgRef} viewBox="0 0 100 100" class="floorplan-svg w-full h-full select-none"
+  <svg viewBox="0 0 100 100" class="floorplan-svg w-full h-full select-none"
     style="touch-action: none; -webkit-tap-highlight-color: transparent;"
     on:mousemove={onDrag} on:mouseup={onEndDrag} on:mouseleave={onEndDrag}
     on:touchmove={onDrag} on:touchend={onEndDrag}>
@@ -65,31 +43,31 @@
     {/each}
 
     {#each tables as table (table.id)}
-      {@const ts = getStyle(table)}
+      {@const s = table._style}
       {@const tr = tableRect(table)}
       <!-- svelte-ignore a11y_no_static_element_interactions -->
       <g on:mousedown={(e) => onStartDrag(e, table)} on:touchstart={(e) => onStartDrag(e, table)}
         on:click|stopPropagation={() => onSelectTable(table.id)} on:keydown={() => {}}
-        class={occupancyMode ? "cursor-pointer" : editing ? (activeGroupId ? "cursor-pointer" : "cursor-grab active:cursor-grabbing") : "cursor-default"}
+        class={s.cursor}
         style="outline: none; -webkit-tap-highlight-color: transparent;">
         {#if table.shape === "round"}
-          <circle cx={table.x} cy={table.y} r={TABLE_RADIUS} fill={ts.fill} stroke={ts.stroke} stroke-width={ts.strokeW} />
+          <circle cx={table.x} cy={table.y} r={TABLE_RADIUS} fill={s.fill} stroke={s.stroke} stroke-width={s.strokeW} />
         {:else}
           <g transform="rotate({tr.rotation}, {table.x}, {table.y})">
             {#each Array(tr.unitCount) as _, i}
               <rect x={table.x - tr.rawW/2 + i*(UNIT+GAP)} y={table.y - tr.rawH/2} width={UNIT} height={UNIT} rx="0.4"
-                fill={ts.fill} stroke={ts.stroke} stroke-width={ts.strokeW} />
+                fill={s.fill} stroke={s.stroke} stroke-width={s.strokeW} />
             {/each}
           </g>
         {/if}
         <text x={table.x} y={table.y + tr.h/2 + 2.5} text-anchor="middle" dominant-baseline="central"
-          font-size="2.2" font-weight="500" fill={ts.textColor}>
+          font-size="2.2" font-weight="500" fill={s.textColor}>
           {table.label} · {table.seats}p
         </text>
-        {#if occupancyMode && occupancyLabels.has(table.id)}
+        {#if s.label}
           <text x={table.x} y={table.y + tr.h/2 + 5} text-anchor="middle" dominant-baseline="central"
-            font-size="1.6" fill="var(--error-text)">
-            {occupancyLabels.get(table.id)}
+            font-size="1.6" fill={s.textColor}>
+            {s.label}
           </text>
         {/if}
       </g>

@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import { pb } from "../../lib/pb";
   import type { Reservation, Table, TableGroup, Zone } from "../../lib/types";
-  import { getOccupiedTableIds, suggestTables } from "../../lib/tableAssignment";
+  import { computeTableAssignments, displaceAndReassign, buildAssignmentLabels } from "../../lib/tableAssignment";
   import { reservationDraft } from "../../stores/reservationDraftStore";
   import { ArrowLeft, Plus, Pencil, Trash2, Loader2, AlertTriangle, Check, X, Lock, Link } from "lucide-svelte";
   import FloorplanCanvas from "./FloorplanCanvas.svelte";
@@ -46,174 +46,29 @@
   let allReservations: Reservation[] = [];
   let occSelectedTableIds: string[] = [];
 
-  // Stabile Belegungsberechnung:
-  // 1. Erst ohne User-Auswahl berechnen (stabile Basis)
-  // 2. Dann verdrängte Reservierung(en) neu zuweisen
+  // Stabile Basis (ohne User-Auswahl)
+  $: baseState = (occupancyMode && allReservations.length && tables.length)
+    ? computeTableAssignments(allReservations, tables, groups, occReservationId)
+    : { assignments: new Map<string, string[]>(), tableSlots: new Map(), unassigned: [] };
 
-  function addMins(time: string, mins: number): string {
-    const [h, m] = time.split(":").map(Number);
-    const total = h * 60 + m + mins;
-    return `${String(Math.floor(total / 60) % 24).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`;
-  }
-
-  // Basis-Zuweisung (ohne User-Auswahl) — stabil
-  $: baseAssignments = (() => {
-    if (!occupancyMode || !allReservations.length || !tables.length) {
-      return new Map<string, string[]>(); // resId → tableIds
-    }
-
-    const result = new Map<string, string[]>();
-    const tableSlots = new Map<string, { start: string; end: string }[]>();
-
-    const sorted = [...allReservations]
-      .filter((r) => r.id !== occReservationId)
-      .sort((a, b) => {
-        const af = (a.reservations_tables?.length || 0) > 0 ? 0 : 1;
-        const bf = (b.reservations_tables?.length || 0) > 0 ? 0 : 1;
-        if (af !== bf) return af - bf;
-        return a.time.localeCompare(b.time);
-      });
-
-    for (const res of sorted) {
-      const start = (res.time || "00:00").substring(0, 5);
-      const end = addMins(start, (res.duration || 90) + 15);
-
-      if (res.reservations_tables?.length) {
-        result.set(res.id, res.reservations_tables);
-        for (const tId of res.reservations_tables) {
-          if (!tableSlots.has(tId)) tableSlots.set(tId, []);
-          tableSlots.get(tId)!.push({ start, end });
-        }
-      } else {
-        const occupied = new Set<string>();
-        for (const [tId, slots] of tableSlots) {
-          if (slots.some((s) => start < s.end && s.start < end)) occupied.add(tId);
-        }
-        const partySize = parseInt(res.person_count) || 2;
-        const suggestion = suggestTables(partySize, tables, groups, occupied);
-        if (suggestion) {
-          const ids = suggestion.tables.map((t) => t.id);
-          result.set(res.id, ids);
-          for (const tId of ids) {
-            if (!tableSlots.has(tId)) tableSlots.set(tId, []);
-            tableSlots.get(tId)!.push({ start, end });
-          }
-        }
-      }
-    }
-
-    return result;
-  })();
-
-  // Finale Zuweisung: Basis + User-Auswahl → verdrängte neu zuweisen
-  $: occAssignments = (() => {
+  // Finale Zuweisung mit Verdrängung
+  $: occFinalState = (() => {
     void occSelectedTableIds;
-    const queryStart = occTime;
-    const queryEnd = addMins(occTime, 90 + 15);
-
-    const fixedIds = new Set<string>();
-    const autoIds = new Set<string>();
-    const labels = new Map<string, string>();
-    const unassigned: Reservation[] = [];
-
-    if (!occupancyMode || !tables.length) {
-      return { fixedIds, autoIds, labels, unassigned };
-    }
-
-    // Kopie der Basis-Zuweisungen
-    const assignments = new Map<string, string[]>();
-    for (const [resId, tIds] of baseAssignments) {
-      assignments.set(resId, [...tIds]);
-    }
-
-    // Finde verdrängte Reservierungen (deren Tische der User ausgewählt hat)
-    const displacedResIds: string[] = [];
-    if (occSelectedTableIds.length > 0) {
-      for (const [resId, tIds] of assignments) {
-        const res = allReservations.find((r) => r.id === resId);
-        if (!res || res.reservations_tables?.length) continue; // fixierte nicht verdrängen
-        if (tIds.some((tId) => occSelectedTableIds.includes(tId))) {
-          displacedResIds.push(resId);
-          assignments.delete(resId);
-        }
-      }
-    }
-
-    // Alle belegten Slots sammeln (fixierte + verbleibende auto + user-auswahl)
-    const tableSlots = new Map<string, { start: string; end: string }[]>();
-
-    // User-Auswahl eintragen
-    if (occSelectedTableIds.length > 0) {
-      const selEnd = addMins(occTime, 90 + 15);
-      for (const tId of occSelectedTableIds) {
-        if (!tableSlots.has(tId)) tableSlots.set(tId, []);
-        tableSlots.get(tId)!.push({ start: occTime, end: selEnd });
-      }
-    }
-
-    // Verbleibende Zuweisungen eintragen
-    for (const [resId, tIds] of assignments) {
-      const res = allReservations.find((r) => r.id === resId);
-      if (!res) continue;
-      const start = (res.time || "00:00").substring(0, 5);
-      const end = addMins(start, (res.duration || 90) + 15);
-      for (const tId of tIds) {
-        if (!tableSlots.has(tId)) tableSlots.set(tId, []);
-        tableSlots.get(tId)!.push({ start, end });
-      }
-    }
-
-    // Verdrängte Reservierungen neu zuweisen
-    for (const resId of displacedResIds) {
-      const res = allReservations.find((r) => r.id === resId);
-      if (!res) continue;
-      const start = (res.time || "00:00").substring(0, 5);
-      const end = addMins(start, (res.duration || 90) + 15);
-      const occupied = new Set<string>();
-      for (const [tId, slots] of tableSlots) {
-        if (slots.some((s) => start < s.end && s.start < end)) occupied.add(tId);
-      }
-      const partySize = parseInt(res.person_count) || 2;
-      const suggestion = suggestTables(partySize, tables, groups, occupied);
-      if (suggestion) {
-        const ids = suggestion.tables.map((t) => t.id);
-        assignments.set(resId, ids);
-        for (const tId of ids) {
-          if (!tableSlots.has(tId)) tableSlots.set(tId, []);
-          tableSlots.get(tId)!.push({ start, end });
-        }
-      }
-    }
-
-    // Labels und Kategorien aufbauen
-    for (const [resId, tIds] of assignments) {
-      const res = allReservations.find((r) => r.id === resId);
-      if (!res) continue;
-      const start = (res.time || "00:00").substring(0, 5);
-      const label = `${res.name || "?"} · ${start} · ${res.person_count}p`;
-      const overlaps = start < queryEnd && queryStart < addMins(start, (res.duration || 90) + 15);
-      if (!overlaps) continue;
-
-      const isFixed = !!(res.reservations_tables?.length);
-      for (const tId of tIds) {
-        if (isFixed) fixedIds.add(tId); else autoIds.add(tId);
-        labels.set(tId, label);
-      }
-    }
-
-    // Verdrängte ohne neuen Tisch
-    for (const resId of displacedResIds) {
-      if (!assignments.has(resId)) {
-        const res = allReservations.find((r) => r.id === resId);
-        if (res) unassigned.push(res);
-      }
-    }
-
-    return { fixedIds, autoIds, labels, unassigned };
+    if (!occupancyMode || !tables.length) return baseState;
+    return occSelectedTableIds.length > 0
+      ? displaceAndReassign(baseState, occSelectedTableIds, occTime, 90, allReservations, tables, groups)
+      : baseState;
   })();
 
-  $: occupiedTableIds = new Set([...occAssignments.fixedIds, ...occAssignments.autoIds]);
-  $: occupancyLabels = occAssignments.labels;
+  // Labels mit Zeitfilter (nur überlappende Reservierungen zeigen Text)
+  $: occLabels = buildAssignmentLabels(occFinalState, allReservations, occTime, 90);
+  // Alle Zuweisungen ungefiltert (für Belegungsanzeige)
+  $: occLabelsAll = buildAssignmentLabels(occFinalState, allReservations);
+  $: occAssignments = { ...occLabels, unassigned: occFinalState.unassigned };
+  // Belegte Tische: ALLE Zuweisungen, nicht nur zeitgefiltert
+  $: occupiedTableIds = new Set([...occLabelsAll.fixedIds, ...occLabelsAll.autoIds]);
+  // Labels: nur die zeitlich relevanten
+  $: occupancyLabels = occLabels.labels;
 
   $: selectedTable = tables.find((t) => t.id === selectedId) ?? null;
   $: if (selectedId && editForm) {
@@ -229,13 +84,37 @@
   );
   $: activeGroupColor = activeGroupId ? groupColorMap.get(activeGroupId) ?? "#6366f1" : "#6366f1";
 
-  $: visibleTables = (() => {
-    void activeGroupId;
-    void occSelectedTableIds;
-    return activeZoneId
-      ? tables.filter((t) => t.zone === activeZoneId)
-      : tables.filter((t) => !t.zone);
-  })();
+  $: visibleTables = activeZoneId
+    ? tables.filter((t) => t.zone === activeZoneId)
+    : tables.filter((t) => !t.zone);
+
+  // Styled tables: jeder Tisch bekommt seinen berechneten Style als Property
+  // Alle relevanten Abhängigkeiten sind hier explizit, dadurch kein Reaktivitäts-Problem
+  $: styledTables = visibleTables.map((t) => ({
+    ...t,
+    _style: getTableStyle(t),
+  }));
+
+  function getTableStyle(table: Table) {
+    const defaultStyle = { fill: "var(--surface)", stroke: "var(--border-default)", strokeW: "0.3", textColor: "var(--fg-secondary)", cursor: "cursor-default" as string, label: undefined as string | undefined };
+
+    if (occupancyMode) {
+      const isChosen = occSelectedTableIds.includes(table.id);
+      const isOccupied = occupiedTableIds.has(table.id);
+      const isAuto = occLabelsAll.autoIds.has(table.id);
+      const label = occupancyLabels.get(table.id);
+      if (isChosen) return { ...defaultStyle, fill: "#10b981", stroke: "#10b981", strokeW: "0.5", textColor: "#10b981", cursor: "cursor-pointer", label };
+      if (isOccupied && !isAuto) return { ...defaultStyle, fill: "var(--error-bg)", stroke: "var(--error-text)", strokeW: "0.4", textColor: "var(--error-text)", cursor: "cursor-default", label };
+      if (isAuto) return { ...defaultStyle, fill: "#f59e0b20", stroke: "#f59e0b", strokeW: "0.4", textColor: "#f59e0b", cursor: "cursor-pointer", label };
+      return { ...defaultStyle, cursor: "cursor-pointer" };
+    }
+
+    const isSelected = editing && !activeGroupId && !showGroupPanel && selectedId === table.id;
+    const isInActiveGroup = activeGroupId && activeGroupTables.has(table.id);
+    if (isSelected) return { ...defaultStyle, fill: "var(--btn-primary-bg)", stroke: "var(--btn-primary-bg)", textColor: "var(--btn-primary-bg)", cursor: "cursor-grab active:cursor-grabbing" };
+    if (activeGroupId && isInActiveGroup) return { ...defaultStyle, fill: activeGroupColor + "25", stroke: activeGroupColor, strokeW: "0.6", textColor: activeGroupColor, cursor: "cursor-pointer" };
+    return { ...defaultStyle, cursor: editing ? (activeGroupId ? "cursor-pointer" : "cursor-grab active:cursor-grabbing") : "cursor-default" };
+  }
 
   $: if (!showGroupPanel) activeGroupId = null;
 
@@ -308,7 +187,7 @@
     // Occupancy mode: toggle table in selection
     // Fixierte Tische sind blockiert, auto-zugewiesene können überschrieben werden
     if (occupancyMode) {
-      if (occAssignments.fixedIds.has(id)) return;
+      if (occLabelsAll.fixedIds.has(id)) return;
       if (occSelectedTableIds.includes(id)) {
         occSelectedTableIds = occSelectedTableIds.filter((tid) => tid !== id);
       } else {
@@ -548,18 +427,8 @@
     <div class="flex-1 min-h-0 flex flex-col md:flex-row">
       <div class="flex-1 min-h-0 p-2 md:p-4">
         <FloorplanCanvas
-          tables={visibleTables}
-          editing={occupancyMode ? false : editing}
-          {activeGroupId}
-          {selectedId}
-          {showGroupPanel}
-          {activeGroupTables}
-          {activeGroupColor}
+          tables={styledTables}
           {occupancyMode}
-          {occupiedTableIds}
-          autoAssignedTableIds={occAssignments.autoIds}
-          selectedTableIds={occSelectedTableIds}
-          {occupancyLabels}
           onStartDrag={startDrag}
           {onDrag}
           onEndDrag={endDrag}
@@ -588,7 +457,7 @@
           {tables}
           groups={zoneGroups}
           {occupiedTableIds}
-          fixedTableIds={occAssignments.fixedIds}
+          fixedTableIds={occLabelsAll.fixedIds}
           {saving}
           onSelect={(ids) => (occSelectedTableIds = ids)}
           onSave={saveOccupancy}

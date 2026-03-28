@@ -3,7 +3,7 @@
   import { format } from "date-fns";
   import { pb } from "../../lib/pb";
   import { loadTurns as loadCachedTurns } from "../../lib/turnsCache";
-  import { suggestTables } from "../../lib/tableAssignment";
+  import { computeTableAssignments } from "../../lib/tableAssignment";
   import type { Reservation, ReservationTurn, Table, TableGroup, Zone } from "../../lib/types";
   import AgendaHeader from "./AgendaHeader.svelte";
   import AgendaTable from "./AgendaTable.svelte";
@@ -50,84 +50,50 @@
 
   $: try { localStorage.setItem(STORAGE_KEY_DISPLAY, display); } catch {}
 
-  // Belegungsdaten für Floorplan — inkl. Auto-Zuweisung mit Zeitfenster
-  $: floorplanAssignments = (() => {
-    if (!allTables.length || !reservations.length) return { occupied: new Set<string>(), labels: new Map<string, string>(), unassigned: [] as Reservation[] };
+  // Belegungsdaten für Floorplan
+  $: floorplanState = (allTables.length && reservations.length)
+    ? computeTableAssignments(reservations, allTables, groups)
+    : null;
 
-    const labels = new Map<string, string>();
-    const unassigned: Reservation[] = [];
-
-    // Pro Tisch: Liste der belegten Zeitfenster [start, end]
-    const tableSlots = new Map<string, { start: string; end: string }[]>();
-
-    function addMinutes(time: string, mins: number): string {
-      const [h, m] = time.split(":").map(Number);
-      const total = h * 60 + m + mins;
-      return `${String(Math.floor(total / 60) % 24).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`;
+  $: occupiedTableIds = (() => {
+    if (!floorplanState) return new Set<string>();
+    const ids = new Set<string>();
+    for (const tIds of floorplanState.assignments.values()) {
+      for (const tId of tIds) ids.add(tId);
     }
-
-    function isTableFreeAt(tableId: string, start: string, end: string): boolean {
-      const slots = tableSlots.get(tableId) || [];
-      return !slots.some((s) => start < s.end && s.start < end);
-    }
-
-    function occupyTable(tableId: string, start: string, end: string, label: string) {
-      if (!tableSlots.has(tableId)) tableSlots.set(tableId, []);
-      tableSlots.get(tableId)!.push({ start, end });
-      labels.set(tableId, label);
-    }
-
-    // Sortiert: fixierte zuerst, dann nach Zeit
-    const sorted = [...reservations].sort((a, b) => {
-      const aFixed = (a.reservations_tables?.length || 0) > 0 ? 0 : 1;
-      const bFixed = (b.reservations_tables?.length || 0) > 0 ? 0 : 1;
-      if (aFixed !== bFixed) return aFixed - bFixed;
-      return a.time.localeCompare(b.time);
-    });
-
-    for (const res of sorted) {
-      const duration = res.duration || 90;
-      const buffer = 15;
-      const start = res.time?.substring(0, 5) || "00:00";
-      const end = addMinutes(start, duration + buffer);
-      const label = `${res.name || "?"} · ${start} · ${res.person_count}p`;
-
-      if (res.reservations_tables?.length) {
-        // Manuell fixiert — immer eintragen
-        for (const tId of res.reservations_tables) {
-          occupyTable(tId, start, end, label);
-        }
-      } else {
-        // Auto-Zuweisung mit Zeitfenster-Prüfung
-        const partySize = parseInt(res.person_count) || 2;
-        const currentlyOccupied = new Set<string>();
-        for (const [tId, slots] of tableSlots) {
-          if (slots.some((s) => start < s.end && s.start < end)) currentlyOccupied.add(tId);
-        }
-        const suggestion = suggestTables(partySize, allTables, groups, currentlyOccupied);
-        if (suggestion) {
-          for (const t of suggestion.tables) {
-            occupyTable(t.id, start, end, label);
-          }
-        } else {
-          unassigned.push(res);
-        }
-      }
-    }
-
-    // Aktuell belegte Tische (für Anzeige): alle die jetzt oder in Zukunft belegt sind
-    const occupied = new Set(labels.keys());
-
-    return { occupied, labels, unassigned };
+    return ids;
   })();
 
-  $: occupiedTableIds = floorplanAssignments.occupied;
-  $: occupancyLabels = floorplanAssignments.labels;
-  $: unassignedReservations = floorplanAssignments.unassigned;
+  $: occupancyLabels = (() => {
+    if (!floorplanState) return new Map<string, string>();
+    const labels = new Map<string, string>();
+    for (const [resId, tIds] of floorplanState.assignments) {
+      const res = reservations.find((r) => r.id === resId);
+      if (!res) continue;
+      const start = (res.time || "00:00").substring(0, 5);
+      const label = `${res.name || "?"} · ${start} · ${res.person_count}p`;
+      for (const tId of tIds) labels.set(tId, label);
+    }
+    return labels;
+  })();
+
+  $: unassignedReservations = floorplanState?.unassigned ?? [];
 
   $: visibleTables = activeZoneId
     ? allTables.filter((t) => t.zone === activeZoneId)
     : allTables;
+
+  $: styledTables = visibleTables.map((t) => ({
+    ...t,
+    _style: {
+      fill: occupiedTableIds.has(t.id) ? "var(--error-bg)" : "var(--surface)",
+      stroke: occupiedTableIds.has(t.id) ? "var(--error-text)" : "var(--border-default)",
+      strokeW: occupiedTableIds.has(t.id) ? "0.4" : "0.3",
+      textColor: occupiedTableIds.has(t.id) ? "var(--error-text)" : "var(--fg-secondary)",
+      cursor: "cursor-default",
+      label: occupancyLabels.get(t.id),
+    },
+  }));
 
   // Settings with localStorage persistence
   let showArrived = true;
@@ -493,18 +459,8 @@
     <div class="flex-1 min-h-0 p-2 md:p-4">
       <div class="w-full h-full relative">
         <FloorplanCanvas
-          tables={visibleTables}
-          editing={false}
-          activeGroupId={null}
-          selectedId={null}
-          showGroupPanel={false}
-          activeGroupTables={new Set()}
-          activeGroupColor="#6366f1"
+          tables={styledTables}
           occupancyMode={true}
-          {occupiedTableIds}
-          autoAssignedTableIds={new Set()}
-          selectedTableIds={[]}
-          {occupancyLabels}
           onStartDrag={() => {}}
           onDrag={() => {}}
           onEndDrag={() => {}}

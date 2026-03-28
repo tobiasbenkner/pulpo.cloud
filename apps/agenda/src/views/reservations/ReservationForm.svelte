@@ -2,7 +2,7 @@
   import { onMount, onDestroy } from "svelte";
   import { pb } from "../../lib/pb";
   import { loadTurns } from "../../lib/turnsCache";
-  import { getOccupiedTableIds, suggestTables } from "../../lib/tableAssignment";
+  import { getOccupiedTableIds, computeTableAssignments } from "../../lib/tableAssignment";
   import { reservationDraft, clearDraft } from "../../stores/reservationDraftStore";
   import type { Reservation, ReservationTurn, Table, TableGroup, User as UserType } from "../../lib/types";
   import {
@@ -155,7 +155,6 @@
       }
 
       // Kapazitätsprüfung nur wenn kein Tisch fixiert ist
-      // (bei fixierten Tischen wurde die Verfügbarkeit schon auf dem Floorplan geprüft)
       if (!force && formData.reservations_tables.length === 0) {
         if (!allTables.length) {
           try {
@@ -164,54 +163,12 @@
           } catch {}
         }
         if (allTables.length > 0) {
-          // Alle Reservierungen simulieren inkl. der neuen
           const allForDay = [
             ...freshReservations.filter((r) => r.id !== id),
             { ...formData, id: id || "__new__", reservations_tables: [] } as any,
           ];
-
-          const tableSlots = new Map<string, { start: string; end: string }[]>();
-          let hasUnassigned = false;
-
-          // Fixierte zuerst
-          const sorted = [...allForDay].sort((a: any, b: any) => {
-            const af = (a.reservations_tables?.length || 0) > 0 ? 0 : 1;
-            const bf = (b.reservations_tables?.length || 0) > 0 ? 0 : 1;
-            if (af !== bf) return af - bf;
-            return (a.time || "").localeCompare(b.time || "");
-          });
-
-          for (const res of sorted) {
-            const start = (res.time || "00:00").substring(0, 5);
-            const dur = res.duration || 90;
-            const [sh, sm] = start.split(":").map(Number);
-            const total = sh * 60 + sm + dur + 15;
-            const end = `${String(Math.floor(total / 60) % 24).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`;
-
-            if (res.reservations_tables?.length) {
-              for (const tId of res.reservations_tables) {
-                if (!tableSlots.has(tId)) tableSlots.set(tId, []);
-                tableSlots.get(tId)!.push({ start, end });
-              }
-            } else {
-              const occupied = new Set<string>();
-              for (const [tId, slots] of tableSlots) {
-                if (slots.some((s) => start < s.end && s.start < end)) occupied.add(tId);
-              }
-              const partySize = parseInt(res.person_count) || 2;
-              const suggestion = suggestTables(partySize, allTables, groups, occupied);
-              if (suggestion) {
-                for (const t of suggestion.tables) {
-                  if (!tableSlots.has(t.id)) tableSlots.set(t.id, []);
-                  tableSlots.get(t.id)!.push({ start, end });
-                }
-              } else {
-                hasUnassigned = true;
-              }
-            }
-          }
-
-          if (hasUnassigned) {
+          const { unassigned } = computeTableAssignments(allForDay, allTables, groups);
+          if (unassigned.length > 0) {
             showCapacityWarning = true;
             isSaving = false;
             return;
