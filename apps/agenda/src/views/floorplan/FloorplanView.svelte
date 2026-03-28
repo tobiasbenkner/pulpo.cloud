@@ -60,14 +60,10 @@
       : baseState;
   })();
 
-  // Labels mit Zeitfilter (nur überlappende Reservierungen zeigen Text)
+  // Belegung gegen Zeitfenster der aktuellen Reservierung prüfen
   $: occLabels = buildAssignmentLabels(occFinalState, allReservations, occTime, 90);
-  // Alle Zuweisungen ungefiltert (für Belegungsanzeige)
-  $: occLabelsAll = buildAssignmentLabels(occFinalState, allReservations);
   $: occAssignments = { ...occLabels, unassigned: occFinalState.unassigned };
-  // Belegte Tische: ALLE Zuweisungen, nicht nur zeitgefiltert
-  $: occupiedTableIds = new Set([...occLabelsAll.fixedIds, ...occLabelsAll.autoIds]);
-  // Labels: nur die zeitlich relevanten
+  $: occupiedTableIds = new Set([...occLabels.fixedIds, ...occLabels.autoIds]);
   $: occupancyLabels = occLabels.labels;
 
   $: selectedTable = tables.find((t) => t.id === selectedId) ?? null;
@@ -101,7 +97,7 @@
     if (occupancyMode) {
       const isChosen = occSelectedTableIds.includes(table.id);
       const isOccupied = occupiedTableIds.has(table.id);
-      const isAuto = occLabelsAll.autoIds.has(table.id);
+      const isAuto = occLabels.autoIds.has(table.id);
       const label = occupancyLabels.get(table.id);
       if (isChosen) return { ...defaultStyle, fill: "#10b981", stroke: "#10b981", strokeW: "0.5", textColor: "#10b981", cursor: "cursor-pointer", label };
       if (isOccupied && !isAuto) return { ...defaultStyle, fill: "var(--error-bg)", stroke: "var(--error-text)", strokeW: "0.4", textColor: "var(--error-text)", cursor: "cursor-default", label };
@@ -187,12 +183,8 @@
     // Occupancy mode: toggle table in selection
     // Fixierte Tische sind blockiert, auto-zugewiesene können überschrieben werden
     if (occupancyMode) {
-      if (occLabelsAll.fixedIds.has(id)) return;
-      if (occSelectedTableIds.includes(id)) {
-        occSelectedTableIds = occSelectedTableIds.filter((tid) => tid !== id);
-      } else {
-        occSelectedTableIds = [...occSelectedTableIds, id];
-      }
+      if (occLabels.fixedIds.has(id)) return;
+      occSelectedTableIds = occSelectedTableIds.includes(id) ? [] : [id];
       return;
     }
 
@@ -457,7 +449,7 @@
           {tables}
           groups={zoneGroups}
           {occupiedTableIds}
-          fixedTableIds={occLabelsAll.fixedIds}
+          fixedTableIds={occLabels.fixedIds}
           {saving}
           onSelect={(ids) => (occSelectedTableIds = ids)}
           onSave={saveOccupancy}

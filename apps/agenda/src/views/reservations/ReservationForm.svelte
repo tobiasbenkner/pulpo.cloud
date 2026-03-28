@@ -163,12 +163,14 @@
           } catch {}
         }
         if (allTables.length > 0) {
+          const currentId = id || "__new__";
           const allForDay = [
             ...freshReservations.filter((r) => r.id !== id),
-            { ...formData, id: id || "__new__", reservations_tables: [] } as any,
+            { ...formData, id: currentId, reservations_tables: [] } as any,
           ];
           const { unassigned } = computeTableAssignments(allForDay, allTables, groups);
-          if (unassigned.length > 0) {
+          // Nur warnen wenn die AKTUELLE Reservierung keinen Tisch bekommt
+          if (unassigned.some((r) => r.id === currentId)) {
             showCapacityWarning = true;
             isSaving = false;
             return;
