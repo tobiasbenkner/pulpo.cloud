@@ -12,6 +12,7 @@
   // Occupancy mode
   export let occupancyMode = false;
   export let occupiedTableIds: Set<string> = new Set();
+  export let autoAssignedTableIds: Set<string> = new Set();
   export let selectedTableIds: string[] = [];
   export let occupancyLabels: Map<string, string> = new Map();
 
@@ -36,8 +37,10 @@
     if (occupancyMode) {
       const isChosen = selectedTableIds.includes(table.id);
       const isOccupied = occupiedTableIds.has(table.id);
+      const isAuto = autoAssignedTableIds.has(table.id);
       if (isChosen) return { fill: "#10b981", stroke: "#10b981", strokeW: "0.5", textColor: "#10b981" };
-      if (isOccupied) return { fill: "var(--error-bg)", stroke: "var(--error-text)", strokeW: "0.4", textColor: "var(--error-text)" };
+      if (isOccupied && !isAuto) return { fill: "var(--error-bg)", stroke: "var(--error-text)", strokeW: "0.4", textColor: "var(--error-text)" };
+      if (isAuto) return { fill: "#f59e0b20", stroke: "#f59e0b", strokeW: "0.4", textColor: "#f59e0b" };
       return { fill: "var(--surface)", stroke: "var(--border-default)", strokeW: "0.3", textColor: "var(--fg-secondary)" };
     }
     const isSelected = editing && !activeGroupId && !showGroupPanel && selectedId === table.id;

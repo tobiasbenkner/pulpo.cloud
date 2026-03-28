@@ -11,6 +11,7 @@
   export let tables: Table[] = [];
   export let groups: TableGroup[] = [];
   export let occupiedTableIds: Set<string> = new Set();
+  export let fixedTableIds: Set<string> = new Set();
   export let saving = false;
 
   export let onSelect: (tableIds: string[]) => void = () => {};
@@ -24,7 +25,7 @@
   $: availableGroups = groups
     .map((g) => {
       const groupTables = g.tables.map((id) => tables.find((t) => t.id === id)).filter(Boolean) as Table[];
-      const allFree = g.tables.every((id) => !occupiedTableIds.has(id));
+      const allFree = g.tables.every((id) => !fixedTableIds.has(id));
       const seats = groupTables.reduce((s, t) => s + t.seats, 0);
       return { ...g, groupTables, allFree, totalSeats: seats };
     })

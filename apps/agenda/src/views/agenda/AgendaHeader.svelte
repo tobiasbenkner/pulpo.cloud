@@ -1,7 +1,7 @@
 <script lang="ts">
   import { format, parseISO, subDays, addDays } from "date-fns";
   import { es } from "date-fns/locale";
-  import { ChevronLeft, ChevronRight, Plus, Eye, EyeOff } from "lucide-svelte";
+  import { ChevronLeft, ChevronRight, Plus, Eye, EyeOff, LayoutList, Map } from "lucide-svelte";
   import { clsx } from "clsx";
   import { slide } from "svelte/transition";
   import Calendar from "../../components/ui/Calendar.svelte";
@@ -13,6 +13,8 @@
   // Callback Prop statt dispatch
   export let onToggleFilter: () => void = () => {};
   export let onDateChange: (newDate: string) => void = () => {};
+  export let display: "list" | "floorplan" = "list";
+  export let onToggleDisplay: () => void = () => {};
 
   let isCalendarOpen = false;
   let calendarWrapperRef: HTMLElement;
@@ -93,7 +95,7 @@
         class="text-center cursor-pointer focus:outline-none px-1 md:px-2"
       >
         <h2
-          class="text-sm md:text-xl font-serif text-fg capitalize whitespace-nowrap min-w-28 md:min-w-64"
+          class="text-sm md:text-xl font-serif text-fg capitalize whitespace-nowrap min-w-18.75 md:min-w-64"
         >
           <span class="md:hidden">{displayDateShort}</span>
           <span class="hidden md:inline">{displayDateFull}</span>
@@ -146,6 +148,18 @@
 
   <!-- Actions -->
   <div class="flex items-center gap-1.5 md:gap-2 shrink-0">
+    <button
+      on:click={onToggleDisplay}
+      class="inline-flex items-center justify-center h-9 md:h-10 px-2.5 rounded-md border border-border-default bg-surface text-fg-secondary hover:border-fg-muted text-sm transition-colors"
+      aria-label={display === "list" ? "Vista plano" : "Vista lista"}
+    >
+      {#if display === "list"}
+        <Map size={16} />
+      {:else}
+        <LayoutList size={16} />
+      {/if}
+    </button>
+
     <button
       on:click={onToggleFilter}
       class={clsx(

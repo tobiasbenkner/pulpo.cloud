@@ -2,9 +2,9 @@
   import { onMount, onDestroy } from "svelte";
   import { pb } from "../../lib/pb";
   import { loadTurns } from "../../lib/turnsCache";
-  import { getOccupiedTableIds } from "../../lib/tableAssignment";
+  import { getOccupiedTableIds, suggestTables } from "../../lib/tableAssignment";
   import { reservationDraft, clearDraft } from "../../stores/reservationDraftStore";
-  import type { Reservation, ReservationTurn, Table, User as UserType } from "../../lib/types";
+  import type { Reservation, ReservationTurn, Table, TableGroup, User as UserType } from "../../lib/types";
   import {
     ArrowLeft,
     Save,
@@ -34,10 +34,12 @@
   let error: string | null = null;
   let tableConflict = false;
   let showDeleteConfirm = false;
+  let showCapacityWarning = false;
   let turns: ReservationTurn[] = [];
   let users: UserType[] = [];
   let fixedTables: Table[] = [];
   let allTables: Table[] = [];
+  let groups: TableGroup[] = [];
   let allReservations: Reservation[] = [];
 
   let formData = {
@@ -93,6 +95,7 @@
       allTables = t;
       fixedTables = t.filter((t) => formData.reservations_tables.includes(t.id));
     }).catch(() => {});
+    pb.collection("reservations_table_groups").getFullList<TableGroup>({ sort: "sort,label" }).then((g) => (groups = g)).catch(() => {});
     pb.collection("reservations").getFullList<Reservation>().then((r) => (allReservations = r)).catch(() => {});
 
     const { cached, fresh } = loadTurns();
@@ -129,16 +132,19 @@
     window.location.href = `/floorplan?date=${formData.date}&time=${formData.time}&pax=${formData.person_count}&reservation=${id || ''}`;
   }
 
-  async function handleSubmit() {
+  async function handleSubmit(force = false) {
     isSaving = true;
     error = null;
+    showCapacityWarning = false;
 
-    // Re-check table availability with fresh data before saving
-    if (formData.reservations_tables.length > 0) {
-      try {
-        const freshReservations = await pb.collection("reservations").getFullList<Reservation>({
-          filter: `date = "${formData.date}"`,
-        });
+    try {
+      // Frische Daten laden
+      const freshReservations = await pb.collection("reservations").getFullList<Reservation>({
+        filter: `date = "${formData.date}"`,
+      });
+
+      // Fixierte Tische: Doppelbelegung prüfen
+      if (formData.reservations_tables.length > 0) {
         const occupied = getOccupiedTableIds(freshReservations, formData.date, formData.time, formData.duration, 15, id || undefined);
         if (formData.reservations_tables.some((tid) => occupied.has(tid))) {
           error = "No se puede guardar: la mesa asignada está ocupada a esta hora.";
@@ -146,11 +152,83 @@
           isSaving = false;
           return;
         }
-      } catch {
-        // If we can't verify, proceed with save
       }
+
+      // Kapazitätsprüfung nur wenn kein Tisch fixiert ist
+      // (bei fixierten Tischen wurde die Verfügbarkeit schon auf dem Floorplan geprüft)
+      if (!force && formData.reservations_tables.length === 0) {
+        if (!allTables.length) {
+          try {
+            allTables = await pb.collection("reservations_tables").getFullList<Table>({ sort: "label" });
+            groups = await pb.collection("reservations_table_groups").getFullList<TableGroup>({ sort: "sort,label" });
+          } catch {}
+        }
+        if (allTables.length > 0) {
+          // Alle Reservierungen simulieren inkl. der neuen
+          const allForDay = [
+            ...freshReservations.filter((r) => r.id !== id),
+            { ...formData, id: id || "__new__", reservations_tables: [] } as any,
+          ];
+
+          const tableSlots = new Map<string, { start: string; end: string }[]>();
+          let hasUnassigned = false;
+
+          // Fixierte zuerst
+          const sorted = [...allForDay].sort((a: any, b: any) => {
+            const af = (a.reservations_tables?.length || 0) > 0 ? 0 : 1;
+            const bf = (b.reservations_tables?.length || 0) > 0 ? 0 : 1;
+            if (af !== bf) return af - bf;
+            return (a.time || "").localeCompare(b.time || "");
+          });
+
+          for (const res of sorted) {
+            const start = (res.time || "00:00").substring(0, 5);
+            const dur = res.duration || 90;
+            const [sh, sm] = start.split(":").map(Number);
+            const total = sh * 60 + sm + dur + 15;
+            const end = `${String(Math.floor(total / 60) % 24).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`;
+
+            if (res.reservations_tables?.length) {
+              for (const tId of res.reservations_tables) {
+                if (!tableSlots.has(tId)) tableSlots.set(tId, []);
+                tableSlots.get(tId)!.push({ start, end });
+              }
+            } else {
+              const occupied = new Set<string>();
+              for (const [tId, slots] of tableSlots) {
+                if (slots.some((s) => start < s.end && s.start < end)) occupied.add(tId);
+              }
+              const partySize = parseInt(res.person_count) || 2;
+              const suggestion = suggestTables(partySize, allTables, groups, occupied);
+              if (suggestion) {
+                for (const t of suggestion.tables) {
+                  if (!tableSlots.has(t.id)) tableSlots.set(t.id, []);
+                  tableSlots.get(t.id)!.push({ start, end });
+                }
+              } else {
+                hasUnassigned = true;
+              }
+            }
+          }
+
+          if (hasUnassigned) {
+            showCapacityWarning = true;
+            isSaving = false;
+            return;
+          }
+        }
+      }
+    } catch {
+      // If check fails, proceed with save
     }
 
+    await doSave();
+  }
+
+  async function doSave() {
+    isSaving = true;
+    error = null;
+    showCapacityWarning = false;
     try {
       if (isEditMode && id) {
         await pb.collection("reservations").update(id, formData);
@@ -221,7 +299,7 @@
         </div>
       {/if}
 
-      <form on:submit|preventDefault={handleSubmit} class="space-y-4">
+      <form on:submit|preventDefault={() => handleSubmit(false)} class="space-y-4">
         <!-- Date & Time -->
         <div class="grid grid-cols-2 gap-3 md:gap-6">
           <DatePicker
@@ -464,6 +542,52 @@
 </div>
 
 <!-- Delete Confirmation Dialog -->
+<!-- Capacity Warning Dialog -->
+{#if showCapacityWarning}
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+    on:click|self={() => (showCapacityWarning = false)}
+    on:keydown={(e) => e.key === "Escape" && (showCapacityWarning = false)}
+  >
+    <div class="bg-surface rounded-lg shadow-xl w-full max-w-sm p-6 animate-fade-in">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="p-2 bg-warning-icon-bg rounded-full">
+          <AlertTriangle size={20} class="text-warning-icon" />
+        </div>
+        <h2 class="text-base font-semibold text-fg">Sin mesa disponible</h2>
+      </div>
+
+      <p class="text-sm text-fg-muted mb-6">
+        No hay suficientes mesas disponibles para todas las reservas a esta hora. ¿Deseas guardar de todas formas?
+      </p>
+
+      <div class="flex justify-end gap-2">
+        <button
+          type="button"
+          on:click={() => (showCapacityWarning = false)}
+          class="px-4 py-2 text-sm font-medium text-fg-secondary hover:text-fg rounded-md hover:bg-surface-hover transition-colors"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          on:click={doSave}
+          disabled={isSaving}
+          class="px-4 py-2 text-sm font-medium text-white bg-warning-icon hover:opacity-90 rounded-md transition-colors disabled:opacity-70 flex items-center gap-2"
+        >
+          {#if isSaving}
+            <Loader2 class="animate-spin" size={14} />
+            Guardando...
+          {:else}
+            Guardar de todas formas
+          {/if}
+        </button>
+      </div>
+    </div>
+  </div>
+{/if}
+
 {#if showDeleteConfirm}
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
