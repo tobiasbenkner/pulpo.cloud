@@ -7,6 +7,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "dockerize": "docker build -t pulpocloud/agenda . && docker push pulpocloud/agenda"
   },
   "dependencies": {
@@ -23,5 +25,8 @@
     "svelte": "^5.46.1",
     "tailwindcss": "^4.1.18",
     "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.18"
   }
 }

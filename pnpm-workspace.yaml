@@ -6,3 +6,6 @@ packages:
 
 onlyBuiltDependencies:
   - esbuild
+  - sharp
+  - usb
+  - vue-demi
