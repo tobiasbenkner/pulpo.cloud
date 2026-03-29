@@ -3,6 +3,12 @@ import type { Reservation, Table, TableGroup } from "./types";
 const DEFAULT_DURATION = 90;
 const DEFAULT_BUFFER = 15;
 
+const RANDOM_COLORS = ["#6366f1", "#f59e0b", "#10b981", "#ef4444", "#8b5cf6", "#ec4899", "#14b8a6", "#f97316", "#0ea5e9", "#84cc16"];
+
+export function randomGroupColor(): string {
+  return RANDOM_COLORS[Math.floor(Math.random() * RANDOM_COLORS.length)];
+}
+
 // --- Helpers ---
 
 export function addMinutes(time: string, mins: number): string {
@@ -72,6 +78,7 @@ export interface AssignmentResult {
   tables: Table[];
   totalSeats: number;
   isGroup: boolean;
+  groupId?: string;
   groupLabel?: string;
 }
 
@@ -104,7 +111,8 @@ export function suggestTables(
     return { tables: [flexCandidates[0]], totalSeats: flexCandidates[0].seats, isGroup: false };
   }
 
-  // 3. Gruppen
+  // 3. Gruppen — nur nutzen wenn kein freier Einzeltisch reichen würde
+  // (Steps 1+2 haben schon alle freien Einzeltische geprüft und keinen gefunden)
   const groupResults: AssignmentResult[] = [];
   for (const group of groups) {
     if (zone && group.zone !== zone) continue;
@@ -115,7 +123,7 @@ export function suggestTables(
     const totalSeats = groupTables.reduce((s, t) => s + t.seats, 0);
     const totalMax = groupTables.reduce((s, t) => s + (t.max_seats || t.seats), 0);
     if (totalMax >= partySize) {
-      groupResults.push({ tables: groupTables, totalSeats, isGroup: true, groupLabel: group.label });
+      groupResults.push({ tables: groupTables, totalSeats, isGroup: true, groupId: group.id, groupLabel: group.label });
     }
   }
   groupResults.sort((a, b) => a.totalSeats - b.totalSeats);
@@ -127,6 +135,8 @@ export function suggestTables(
 export interface AssignmentState {
   /** resId → assigned table IDs */
   assignments: Map<string, string[]>;
+  /** resId → group ID (if assigned via group) */
+  assignmentGroups: Map<string, string>;
   /** tableId → occupied time slots */
   tableSlots: Map<string, { start: string; end: string }[]>;
   /** Reservations that could not be assigned */
@@ -145,6 +155,7 @@ export function computeTableAssignments(
   excludeReservationId?: string,
 ): AssignmentState {
   const assignments = new Map<string, string[]>();
+  const assignmentGroups = new Map<string, string>();
   const tableSlots = new Map<string, { start: string; end: string }[]>();
   const unassigned: Reservation[] = [];
 
@@ -180,6 +191,9 @@ export function computeTableAssignments(
       if (suggestion) {
         const ids = suggestion.tables.map((t) => t.id);
         assignments.set(res.id, ids);
+        if (suggestion.isGroup && suggestion.groupId) {
+          assignmentGroups.set(res.id, suggestion.groupId);
+        }
         for (const tId of ids) {
           occupyTable(tableSlots, tId, start, end);
         }
@@ -189,7 +203,7 @@ export function computeTableAssignments(
     }
   }
 
-  return { assignments, tableSlots, unassigned };
+  return { assignments, assignmentGroups, tableSlots, unassigned };
 }
 
 /**
@@ -208,6 +222,7 @@ export function displaceAndReassign(
 ): AssignmentState {
   // Kopieren
   const assignments = new Map(base.assignments);
+  const assignmentGroups = new Map(base.assignmentGroups);
   const unassigned = [...base.unassigned];
 
   const selStart = selectedTime;
@@ -256,6 +271,9 @@ export function displaceAndReassign(
     if (suggestion) {
       const ids = suggestion.tables.map((t) => t.id);
       assignments.set(resId, ids);
+      if (suggestion.isGroup && suggestion.groupId) {
+        assignmentGroups.set(resId, suggestion.groupId);
+      }
       for (const tId of ids) {
         occupyTable(tableSlots, tId, start, end);
       }
@@ -264,7 +282,7 @@ export function displaceAndReassign(
     }
   }
 
-  return { assignments, tableSlots, unassigned };
+  return { assignments, assignmentGroups, tableSlots, unassigned };
 }
 
 /**
@@ -274,34 +292,42 @@ export function displaceAndReassign(
 export function buildAssignmentLabels(
   state: AssignmentState,
   reservations: Reservation[],
+  groups: TableGroup[],
+  groupColorMap: Map<string, string>,
   queryTime?: string,
   queryDuration?: number,
-): { fixedIds: Set<string>; autoIds: Set<string>; labels: Map<string, string> } {
+): { fixedIds: Set<string>; autoIds: Set<string>; labels: Map<string, string>; tableColors: Map<string, string> } {
   const fixedIds = new Set<string>();
   const autoIds = new Set<string>();
   const labels = new Map<string, string>();
+  const tableColors = new Map<string, string>();
 
   const queryStart = queryTime;
-  const queryEnd = queryTime ? addMinutes(queryTime, (queryDuration || DEFAULT_DURATION) + DEFAULT_BUFFER) : null;
+  const queryEnd = queryTime ? addMinutes(queryTime, queryDuration || DEFAULT_DURATION) : null;
 
   for (const [resId, tIds] of state.assignments) {
     const res = reservations.find((r) => r.id === resId);
     if (!res) continue;
 
     const start = (res.time || "00:00").substring(0, 5);
-    const end = addMinutes(start, (res.duration || DEFAULT_DURATION) + DEFAULT_BUFFER);
+    const end = addMinutes(start, res.duration || DEFAULT_DURATION);
 
-    // Zeitfenster-Filter
+    // Zeitfenster-Filter (ohne Buffer — der ist nur für Tisch-Slot-Berechnung)
     if (queryStart && queryEnd && !overlaps(queryStart, queryEnd, start, end)) continue;
 
     const label = `${res.name || "?"} · ${start} · ${res.person_count}p`;
     const isFixed = !!(res.reservations_tables?.length);
 
+    // Gruppenfarbe ermitteln
+    const groupId = state.assignmentGroups.get(resId);
+    const groupColor = groupId ? groupColorMap.get(groupId) : undefined;
+
     for (const tId of tIds) {
       if (isFixed) fixedIds.add(tId); else autoIds.add(tId);
       labels.set(tId, label);
+      if (groupColor) tableColors.set(tId, groupColor);
     }
   }
 
-  return { fixedIds, autoIds, labels };
+  return { fixedIds, autoIds, labels, tableColors };
 }

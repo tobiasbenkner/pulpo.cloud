@@ -70,4 +70,5 @@ export interface TableGroup extends RecordModel {
   tables: string[];
   zone: string;
   sort: number;
+  color: string;
 }

@@ -14,17 +14,20 @@
   export let onRenameGroup: (id: string, label: string) => void = () => {};
   export let onDeleteGroup: (id: string) => void = () => {};
   export let onMoveGroup: (id: string, direction: "up" | "down") => void = () => {};
+  export let onUpdateGroupColor: (id: string, color: string) => void = () => {};
 
   let newGroupLabel = "";
   let renamingGroupId: string | null = null;
   let renameGroupLabel = "";
+  let renameGroupColor = "";
   let deletingGroupId: string | null = null;
 
-  function startRename(group: TableGroup) { renamingGroupId = group.id; renameGroupLabel = group.label; }
+  function startRename(group: TableGroup) { renamingGroupId = group.id; renameGroupLabel = group.label; renameGroupColor = group.color || "#6366f1"; }
 
   function submitRename() {
     if (!renamingGroupId || !renameGroupLabel.trim()) return;
     onRenameGroup(renamingGroupId, renameGroupLabel.trim());
+    if (renameGroupColor) onUpdateGroupColor(renamingGroupId, renameGroupColor);
     renamingGroupId = null;
   }
 
@@ -67,7 +70,8 @@
       {@const isLast = idx === groups.length - 1}
       {#if renamingGroupId === group.id}
         <form on:submit|preventDefault={submitRename} class="flex items-center gap-1.5 p-2 border border-border-default rounded-lg">
-          <div class="size-3 rounded-full shrink-0" style="background-color: {color}"></div>
+          <input type="color" bind:value={renameGroupColor}
+            class="size-6 rounded cursor-pointer border border-border-default shrink-0" />
           <input type="text" bind:value={renameGroupLabel}
             class="flex-1 px-2 py-1 text-xs bg-input-bg border border-border-default rounded-sm text-fg focus:outline-none focus:ring-1 focus:ring-primary" />
           <button type="submit" disabled={saving || !renameGroupLabel.trim()} class="p-1 text-arrived-check disabled:opacity-50"><Check size={13} /></button>

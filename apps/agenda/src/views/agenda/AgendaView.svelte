@@ -68,16 +68,34 @@
   }
 
   $: activeTurn = turns.find((t) => t.id === floorplanTurnId);
+  $: sortedTurnsForFloorplan = [...turns].sort((a, b) => a.start.localeCompare(b.start));
+
+  // Dauer des Turn-Zeitfensters: von Turn-Start bis zum Start des nächsten Turns
+  $: activeTurnWindowMinutes = (() => {
+    if (!activeTurn) return 120;
+    const turnStart = activeTurn.start.substring(0, 5);
+    const idx = sortedTurnsForFloorplan.findIndex((t) => t.id === activeTurn!.id);
+    const nextTurn = idx >= 0 && idx < sortedTurnsForFloorplan.length - 1
+      ? sortedTurnsForFloorplan[idx + 1]
+      : null;
+    if (nextTurn) {
+      const [sh, sm] = turnStart.split(":").map(Number);
+      const [nh, nm] = nextTurn.start.substring(0, 5).split(":").map(Number);
+      return (nh * 60 + nm) - (sh * 60 + sm);
+    }
+    // Letzter Turn: 4 Stunden oder bis Mitternacht
+    return 240;
+  })();
 
   // Zuweisung berechnen
   $: floorplanState = (allTables.length && reservations.length)
     ? computeTableAssignments(reservations, allTables, groups)
     : null;
 
-  // Zeitgefiltert nach aktivem Turn
+  // Zeitgefiltert nach aktivem Turn-Fenster
   $: floorplanLabels = (() => {
-    if (!floorplanState || !activeTurn) return { fixedIds: new Set<string>(), autoIds: new Set<string>(), labels: new Map<string, string>() };
-    return buildAssignmentLabels(floorplanState, reservations, activeTurn.start.substring(0, 5), activeTurn.duration || 90);
+    if (!floorplanState || !activeTurn) return { fixedIds: new Set<string>(), autoIds: new Set<string>(), labels: new Map<string, string>(), tableColors: new Map<string, string>() };
+    return buildAssignmentLabels(floorplanState, reservations, groups, groupColorMap, activeTurn.start.substring(0, 5), activeTurnWindowMinutes);
   })();
 
   $: occupiedTableIds = new Set([...floorplanLabels.fixedIds, ...floorplanLabels.autoIds]);
@@ -88,17 +106,26 @@
     ? allTables.filter((t) => t.zone === activeZoneId)
     : allTables;
 
-  $: styledTables = visibleTables.map((t) => ({
-    ...t,
-    _style: {
-      fill: occupiedTableIds.has(t.id) ? "var(--error-bg)" : "var(--surface)",
-      stroke: occupiedTableIds.has(t.id) ? "var(--error-text)" : "var(--border-default)",
-      strokeW: occupiedTableIds.has(t.id) ? "0.4" : "0.3",
-      textColor: occupiedTableIds.has(t.id) ? "var(--error-text)" : "var(--fg-secondary)",
-      cursor: "cursor-default",
-      label: occupancyLabels.get(t.id),
-    },
-  }));
+  // Gruppen-Farben: nur anzeigen wenn die Reservierung tatsächlich eine Gruppe nutzt
+  $: groupColorMap = new Map(groups.filter((g) => g.color).map((g) => [g.id, g.color]));
+
+  $: styledTables = visibleTables.map((t) => {
+    const occupied = occupiedTableIds.has(t.id);
+    const groupColor = occupied ? floorplanLabels.tableColors.get(t.id) : null;
+    const color = groupColor || (occupied ? "var(--error-text)" : null);
+    const bg = occupied && groupColor ? groupColor + "15" : occupied ? "var(--error-bg)" : "var(--surface)";
+    return {
+      ...t,
+      _style: {
+        fill: bg,
+        stroke: color || "var(--border-default)",
+        strokeW: occupied ? "0.4" : "0.3",
+        textColor: color || "var(--fg-secondary)",
+        cursor: "cursor-default",
+        label: occupancyLabels.get(t.id),
+      },
+    };
+  });
 
   // Settings with localStorage persistence
   let showArrived = true;

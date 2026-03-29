@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import { pb } from "../../lib/pb";
   import type { Reservation, Table, TableGroup, Zone } from "../../lib/types";
-  import { computeTableAssignments, displaceAndReassign, buildAssignmentLabels } from "../../lib/tableAssignment";
+  import { computeTableAssignments, displaceAndReassign, buildAssignmentLabels, randomGroupColor } from "../../lib/tableAssignment";
   import { reservationDraft } from "../../stores/reservationDraftStore";
   import { ArrowLeft, Plus, Pencil, Trash2, Loader2, AlertTriangle, Check, X, Lock, Link } from "lucide-svelte";
   import FloorplanCanvas from "./FloorplanCanvas.svelte";
@@ -61,7 +61,7 @@
   })();
 
   // Belegung gegen Zeitfenster der aktuellen Reservierung prüfen
-  $: occLabels = buildAssignmentLabels(occFinalState, allReservations, occTime, 90);
+  $: occLabels = buildAssignmentLabels(occFinalState, allReservations, groups, groupColorMap, occTime, 90);
   $: occAssignments = { ...occLabels, unassigned: occFinalState.unassigned };
   $: occupiedTableIds = new Set([...occLabels.fixedIds, ...occLabels.autoIds]);
   $: occupancyLabels = occLabels.labels;
@@ -71,8 +71,7 @@
     tables = tables.map((t) => t.id === selectedId ? { ...t, ...editForm } : t);
   }
 
-  const GROUP_COLORS = ["#6366f1", "#f59e0b", "#10b981", "#ef4444", "#8b5cf6", "#ec4899", "#14b8a6", "#f97316"];
-  $: groupColorMap = new Map(groups.map((g, i) => [g.id, GROUP_COLORS[i % GROUP_COLORS.length]]));
+  $: groupColorMap = new Map(groups.filter((g) => g.color).map((g) => [g.id, g.color]));
   $: zoneGroups = groups.filter((g) => g.zone === activeZoneId);
 
   $: activeGroupTables = new Set(
@@ -84,12 +83,24 @@
     ? tables.filter((t) => t.zone === activeZoneId)
     : tables.filter((t) => !t.zone);
 
-  // Styled tables: jeder Tisch bekommt seinen berechneten Style als Property
-  // Alle relevanten Abhängigkeiten sind hier explizit, dadurch kein Reaktivitäts-Problem
-  $: styledTables = visibleTables.map((t) => ({
-    ...t,
-    _style: getTableStyle(t),
-  }));
+  // Styled tables: alle Abhängigkeiten explizit damit Svelte re-evaluiert
+  $: styledTables = (() => {
+    // Explizite Abhängigkeiten für Svelte-Reaktivität
+    void activeGroupId;
+    void activeGroupTables;
+    void activeGroupColor;
+    void selectedId;
+    void showGroupPanel;
+    void editing;
+    void occupancyMode;
+    void occSelectedTableIds;
+    void occupiedTableIds;
+    void occupancyLabels;
+    return visibleTables.map((t) => ({
+      ...t,
+      _style: getTableStyle(t),
+    }));
+  })();
 
   function getTableStyle(table: Table) {
     const defaultStyle = { fill: "var(--surface)", stroke: "var(--border-default)", strokeW: "0.3", textColor: "var(--fg-secondary)", cursor: "cursor-default" as string, label: undefined as string | undefined };
@@ -255,7 +266,7 @@
   async function createGroup(label: string) {
     saving = true;
     try {
-      const g = await pb.collection("reservations_table_groups").create<TableGroup>({ label, tables: [], zone: activeZoneId || "", sort: groups.length });
+      const g = await pb.collection("reservations_table_groups").create<TableGroup>({ label, tables: [], zone: activeZoneId || "", sort: groups.length, color: randomGroupColor() });
       await loadData(); activeGroupId = g.id;
     } catch { error = "No se pudo crear el grupo."; } finally { saving = false; }
   }
@@ -288,6 +299,12 @@
     saving = true;
     try { await pb.collection("reservations_table_groups").update(id, { label }); await loadData(); }
     catch { error = "No se pudo renombrar el grupo."; } finally { saving = false; }
+  }
+
+  async function updateGroupColor(id: string, color: string) {
+    saving = true;
+    try { await pb.collection("reservations_table_groups").update(id, { color }); await loadData(); }
+    catch { error = "No se pudo actualizar el color."; } finally { saving = false; }
   }
 
   async function toggleTableInGroup(tableId: string, groupId: string) {
@@ -468,6 +485,7 @@
           onRenameGroup={renameGroup}
           onDeleteGroup={deleteGroup}
           onMoveGroup={moveGroup}
+          onUpdateGroupColor={updateGroupColor}
         />
       {:else if editing && selectedTable}
         <TableEditPanel
