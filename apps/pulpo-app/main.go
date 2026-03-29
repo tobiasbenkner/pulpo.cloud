@@ -13,6 +13,7 @@ import (
 	"github.com/pocketbase/pocketbase/tools/osutils"
 
 	_ "github.com/pulpo-cloud/pulpo-app/migrations"
+	"github.com/pulpo-cloud/pulpo-app/routes"
 )
 
 var (
@@ -40,6 +41,11 @@ func main() {
 	})
 
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
+		// Custom API routes
+		routes.RegisterInvoiceRoutes(app, se)
+		routes.RegisterCashRegisterRoutes(app, se)
+		routes.RegisterReportRoutes(app, se)
+
 		// Launcher auf / servieren
 		if launcher, err := fs.Sub(publicFS, "pb_public/launcher"); err == nil {
 			se.Router.GET("/{path...}", apis.Static(launcher, true))
