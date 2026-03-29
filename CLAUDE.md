@@ -64,15 +64,15 @@ Being replaced by PocketBase SDK directly in each app. Do not add new functional
 Located at `packages/invoice/`, provides:
 - `calculateInvoice(lines, discount?)` - Pure function for invoice calculation (totals, tax, discounts)
 - Uses `big.js` for precise decimal arithmetic
-- Source-only package (no build step), consumed by both `@pulpo/shop` and `pulpo-extension`
+- Source-only package (no build step), consumed by `@pulpo/shop` for cart preview
+- Cross-validated against the Go implementation (7 shared test cases, identical results)
 
-### Directus Extension (pulpo-extension)
+### Directus Extension (pulpo-extension) — DEPRECATED
 
-Located at `packages/directus-extension/`, a custom Directus endpoint extension implementing the POS backend (invoices, cash register, reports). Built via `directus-extension build` and installed into the Directus Docker image.
+Located at `packages/directus-extension/`, being replaced by Go endpoints in `apps/pulpo-app/routes/`.
 
 All shared packages are used via workspace dependency:
 ```json
-"@pulpo/cms": "workspace:*"
 "@pulpo/invoice": "workspace:*"
 ```
 
@@ -118,21 +118,46 @@ See `ARCHITECTURE.md` and `MIGRATION_PLAN.md` for the full plan.
 - Tests: 26 unit tests in `tableAssignment.test.ts`
 - PocketBase URL: `http://localhost:8090` (dev), `/` (prod)
 
-### PocketBase Collections (agenda)
+### Completed: Shop Backend (Phase 3+4)
 
-Created via Admin UI, not code migrations:
-- `reservations` — date, time, name, person_count, contact, notes, arrived, user, duration, reservations_tables
-- `reservations_turns` — label, start, color, duration, buffer
-- `reservations_tables` — label, seats, min_seats, max_seats, x, y, shape, rotation, width, zone
-- `reservations_zones` — label, sort
-- `reservations_table_groups` — label, tables, zone, sort, color
+`apps/pulpo-app/` — Go backend with PocketBase, all shop endpoints implemented:
+
+**Go Packages:**
+- `invoice/` — `CalculateInvoice()` with `shopspring/decimal` (port of `@pulpo/invoice`)
+- `excel/` — Reusable Excel generation (`GenerateClosureExcel`, `GenerateReportExcel`, `WriteProductosSheet`)
+- `routes/` — Custom API endpoints + hooks
+
+**API Endpoints (all auth-protected):**
+- `POST /api/custom/invoices` — Create invoice (load products, resolve tax, calculate, store in transaction)
+- `POST /api/custom/invoices/rectify` — Create rectificativa (negative invoice, restore stock)
+- `POST /api/custom/cash-register/open` — Open register (checks for existing open closure)
+- `POST /api/custom/cash-register/close` — Close register (computes all totals on-the-fly)
+- `GET /api/custom/reports/{period}` — JSON reports (daily/weekly/monthly/quarterly/yearly)
+- `GET /api/custom/reports/{period}/excel` — Excel download
+
+**Hook:** `OnRecordAfterUpdateSuccess("closures")` — sends closure email with Excel attachment (async)
+
+**Tests: 125 total**
+- 34 Go invoice tests (27 unit + 7 cross-validation)
+- 34 TS invoice tests (27 unit + 7 cross-validation)
+- 57 Go route tests (helpers, aggregation, reports, tax)
+
+**Design decisions:**
+- All monetary values as text (string-decimals), arithmetic via `shopspring/decimal`
+- No JSON fields — everything normalized or computed on-the-fly
+- 1 invoice per table, N payments per invoice (Spanish POS standard)
+- Closures store no aggregated data — totals computed from invoices
+
+### PocketBase Collections
+
+**Agenda:** `reservations`, `reservations_turns`, `reservations_tables`, `reservations_zones`, `reservations_table_groups`
+
+**Shop:** `company`, `tax_classes`, `tax_zones`, `tax_rules`, `cost_centers`, `customers`, `products_categories`, `products`, `closures`, `closure_denominations`, `invoices`, `invoice_items`, `invoice_payments`
 
 ### Pending Phases
 
 | Phase | Description | Status |
 |-------|-------------|--------|
-| 3 | Invoice calculation in Go | Not started |
-| 4 | Shop backend endpoints (Go) | Not started |
 | 5 | Shop frontend migration | Not started |
 | 6 | Settings view | Not started |
 | 7 | Docker + npm distribution | Dockerfile exists |
