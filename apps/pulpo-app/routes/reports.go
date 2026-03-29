@@ -1,13 +1,18 @@
 package routes
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
+	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/pocketbase/pocketbase/core"
 	"github.com/shopspring/decimal"
+
+	"github.com/pulpo-cloud/pulpo-app/excel"
 )
 
 type productAcc struct {
@@ -34,6 +39,10 @@ func RegisterReportRoutes(app core.App, se *core.ServeEvent) {
 
 	g.GET("/reports/{period}", func(e *core.RequestEvent) error {
 		return handleReport(e)
+	})
+
+	g.GET("/reports/{period}/excel", func(e *core.RequestEvent) error {
+		return handleReportExcel(e)
 	})
 }
 
@@ -89,6 +98,116 @@ func handleReport(e *core.RequestEvent) error {
 	}
 
 	return e.JSON(http.StatusOK, report)
+}
+
+func handleReportExcel(e *core.RequestEvent) error {
+	period := e.Request.PathValue("period")
+
+	validPeriods := map[string]bool{
+		"daily": true, "weekly": true, "monthly": true,
+		"quarterly": true, "yearly": true,
+	}
+	if !validPeriods[period] {
+		return e.BadRequestError("Invalid period", nil)
+	}
+
+	company, err := e.App.FindFirstRecordByFilter("company", "id != ''")
+	if err != nil {
+		return e.InternalServerError("Company settings not found", err)
+	}
+	timezone := company.GetString("timezone")
+	if timezone == "" {
+		timezone = "Europe/Madrid"
+	}
+	tenantName := company.GetString("name")
+	taxName := TaxZoneName(company.GetString("postcode"))
+
+	loc, err := time.LoadLocation(timezone)
+	if err != nil {
+		loc, _ = time.LoadLocation("Europe/Madrid")
+	}
+
+	query := e.Request.URL.Query()
+	from, to, label, err := getDateRange(period, query, loc)
+	if err != nil {
+		return e.BadRequestError(err.Error(), nil)
+	}
+
+	closures, err := e.App.FindRecordsByFilter(
+		"closures",
+		"status = 'closed' && period_start >= {:from} && period_start <= {:to}",
+		"-period_start", 0, 0,
+		map[string]any{"from": from, "to": to},
+	)
+	if err != nil {
+		return e.InternalServerError("Failed to load closures", err)
+	}
+
+	includeShifts := period == "daily"
+	report, err := aggregateClosures(e.App, closures, period, label, from, to, includeShifts)
+	if err != nil {
+		return e.InternalServerError("Failed to aggregate report", err)
+	}
+
+	// Convert to excel types
+	excelData := excel.AggregatedReportData{
+		Label:            label,
+		TenantName:       tenantName,
+		TotalGross:       report.Summary["total_gross"].(string),
+		TotalNet:         report.Summary["total_net"].(string),
+		TotalTax:         report.Summary["total_tax"].(string),
+		TotalCash:        report.Summary["total_cash"].(string),
+		TotalCard:        report.Summary["total_card"].(string),
+		TransactionCount: report.Summary["transaction_count"].(int),
+		InvoiceCounts: excel.InvoiceTypeCounts{
+			Tickets:        report.InvoiceCounts.Tickets,
+			Facturas:       report.InvoiceCounts.Facturas,
+			Rectificativas: report.InvoiceCounts.Rectificativas,
+		},
+		TaxBreakdown:     toExcelTaxBreakdown(report.TaxBreakdown),
+		ProductBreakdown: toExcelProductRows(report.ProductBreakdown),
+	}
+
+	// Convert shifts
+	for _, s := range report.Shifts {
+		excelData.Shifts = append(excelData.Shifts, excel.ShiftRow{
+			ID:               s.ID,
+			PeriodStart:      s.PeriodStart,
+			PeriodEnd:        s.PeriodEnd,
+			TransactionCount: s.TransactionCount,
+			InvoiceCounts: excel.InvoiceTypeCounts{
+				Tickets:        s.InvoiceCounts.Tickets,
+				Facturas:       s.InvoiceCounts.Facturas,
+				Rectificativas: s.InvoiceCounts.Rectificativas,
+			},
+			TotalGross:       s.TotalGross,
+			TotalCash:        s.TotalCash,
+			TotalCard:        s.TotalCard,
+			Difference:       s.Difference,
+			ProductBreakdown: toExcelProductRows(s.ProductBreakdown),
+		})
+	}
+
+	f, err := excel.GenerateReportExcel(excelData, taxName)
+	if err != nil {
+		return e.InternalServerError("Failed to generate Excel", err)
+	}
+
+	var buf bytes.Buffer
+	if err := f.Write(&buf); err != nil {
+		return e.InternalServerError("Failed to write Excel", err)
+	}
+	f.Close()
+
+	// Safe filename
+	re := regexp.MustCompile(`[^a-zA-Z0-9áéíóúñÁÉÍÓÚÑ ]+`)
+	safeName := strings.ReplaceAll(re.ReplaceAllString(label, ""), " ", "_")
+
+	e.Response.Header().Set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+	e.Response.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="Informe_%s.xlsx"`, safeName))
+	e.Response.WriteHeader(http.StatusOK)
+	e.Response.Write(buf.Bytes())
+	return nil
 }
 
 func aggregateClosures(

@@ -40,6 +40,9 @@ func main() {
 		Automigrate: osutils.IsProbablyGoRun(),
 	})
 
+	// Hooks (react to record changes)
+	routes.RegisterHooks(app)
+
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
 		// Custom API routes
 		routes.RegisterInvoiceRoutes(app, se)
