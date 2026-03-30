@@ -192,7 +192,7 @@ func handleCreateInvoice(e *core.RequestEvent) error {
 	var createdInvoice *core.Record
 
 	err = e.App.RunInTransaction(func(txApp core.App) error {
-		// Lock and increment counter
+		// Load company for issuer data
 		companyRecord, err := txApp.FindFirstRecordByFilter("company", "id != ''")
 		if err != nil {
 			return err
@@ -204,20 +204,25 @@ func handleCreateInvoice(e *core.RequestEvent) error {
 			return fmt.Errorf("NO_OPEN_CLOSURE")
 		}
 
-		// Generate invoice number
-		counterField := "last_ticket_number"
-		if invoiceType == "factura" {
-			counterField = "last_factura_number"
+		// Lock and increment counter
+		countersRecord, err := txApp.FindFirstRecordByFilter("counters", "id != ''")
+		if err != nil {
+			return fmt.Errorf("counters record not found: %w", err)
 		}
 
-		counter := companyRecord.GetInt(counterField) + 1
-		companyRecord.Set(counterField, counter)
-		if err := txApp.Save(companyRecord); err != nil {
+		counterField := "ticket"
+		if invoiceType == "factura" {
+			counterField = "factura"
+		}
+
+		counter := countersRecord.GetInt(counterField) + 1
+		countersRecord.Set(counterField, counter)
+		if err := txApp.Save(countersRecord); err != nil {
 			return err
 		}
 
 		invoiceNumber := generateInvoiceNumber(
-			companyRecord.GetString("invoice_prefix"),
+			countersRecord.GetString("invoice_prefix"),
 			invoiceType,
 			counter,
 		)
@@ -514,20 +519,20 @@ func handleRectifyInvoice(e *core.RequestEvent) error {
 			return fmt.Errorf("NO_OPEN_CLOSURE")
 		}
 
-		// Increment rectificativa counter
-		companyRecord, err := txApp.FindFirstRecordByFilter("company", "id != ''")
+		// Lock and increment rectificativa counter
+		countersRecord, err := txApp.FindFirstRecordByFilter("counters", "id != ''")
 		if err != nil {
-			return err
+			return fmt.Errorf("counters record not found: %w", err)
 		}
 
-		counter := companyRecord.GetInt("last_rectificativa_number") + 1
-		companyRecord.Set("last_rectificativa_number", counter)
-		if err := txApp.Save(companyRecord); err != nil {
+		counter := countersRecord.GetInt("rectificativa_number") + 1
+		countersRecord.Set("rectificativa_number", counter)
+		if err := txApp.Save(countersRecord); err != nil {
 			return err
 		}
 
 		invoiceNumber := generateInvoiceNumber(
-			companyRecord.GetString("invoice_prefix"),
+			countersRecord.GetString("invoice_prefix"),
 			"rectificativa",
 			counter,
 		)

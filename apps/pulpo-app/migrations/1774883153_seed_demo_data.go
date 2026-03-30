@@ -113,12 +113,25 @@ func init() {
 			company.Set("city", "Las Palmas de Gran Canaria")
 			company.Set("email", "demo@pulpo.cloud")
 			company.Set("timezone", "Atlantic/Canary")
-			company.Set("invoice_prefix", "%count%")
-			company.Set("last_ticket_number", 0)
-			company.Set("last_factura_number", 0)
-			company.Set("last_rectificativa_number", 0)
 			if err := app.Save(company); err != nil {
 				return fmt.Errorf("failed to create demo company: %w", err)
+			}
+		}
+
+		// --- Ensure counters exist ---
+		counters, _ := app.FindFirstRecordByFilter("counters", "id != ''")
+		if counters == nil {
+			counterCol, err := app.FindCollectionByNameOrId("counters")
+			if err != nil {
+				return err
+			}
+			counters = core.NewRecord(counterCol)
+			counters.Set("invoice_prefix", "%count%")
+			counters.Set("ticket", 0)
+			counters.Set("factura", 0)
+			counters.Set("rectificativa_number", 0)
+			if err := app.Save(counters); err != nil {
+				return fmt.Errorf("failed to create demo counters: %w", err)
 			}
 		}
 
@@ -251,7 +264,7 @@ func init() {
 		itemCol, _ := app.FindCollectionByNameOrId("invoice_items")
 		paymentCol, _ := app.FindCollectionByNameOrId("invoice_payments")
 
-		prefix := company.GetString("invoice_prefix")
+		prefix := counters.GetString("invoice_prefix")
 		ticketCounter := 0
 		facturaCounter := 0
 
@@ -452,10 +465,10 @@ func init() {
 			setCreated("closures", closure.Id, openTime)
 		}
 
-		// Update company counters
-		company.Set("last_ticket_number", ticketCounter)
-		company.Set("last_factura_number", facturaCounter)
-		return app.Save(company)
+		// Update counters
+		counters.Set("ticket", ticketCounter)
+		counters.Set("factura", facturaCounter)
+		return app.Save(counters)
 
 	}, nil)
 }

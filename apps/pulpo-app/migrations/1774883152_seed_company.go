@@ -33,7 +33,6 @@ func init() {
 		record.Set("zip", os.Getenv("PB_COMPANY_ZIP"))
 		record.Set("city", os.Getenv("PB_COMPANY_CITY"))
 		record.Set("email", os.Getenv("PB_COMPANY_EMAIL"))
-		record.Set("invoice_prefix", os.Getenv("PB_COMPANY_INVOICE_PREFIX"))
 		record.Set("closure_email", os.Getenv("PB_COMPANY_CLOSURE_EMAIL"))
 
 		// Timezone: default to Europe/Madrid if not set
@@ -43,11 +42,27 @@ func init() {
 		}
 		record.Set("timezone", tz)
 
-		// Counters start at 0
-		record.Set("last_ticket_number", 0)
-		record.Set("last_factura_number", 0)
-		record.Set("last_rectificativa_number", 0)
+		if err := app.Save(record); err != nil {
+			return err
+		}
 
-		return app.Save(record)
+		// Seed counters record
+		counterCol, err := app.FindCollectionByNameOrId("counters")
+		if err != nil {
+			return err
+		}
+		existingCounter, _ := app.FindFirstRecordByFilter(counterCol.Id, "id != ''")
+		if existingCounter == nil {
+			counter := core.NewRecord(counterCol)
+			counter.Set("invoice_prefix", os.Getenv("PB_COMPANY_INVOICE_PREFIX"))
+			counter.Set("ticket", 0)
+			counter.Set("factura", 0)
+			counter.Set("rectificativa_number", 0)
+			if err := app.Save(counter); err != nil {
+				return err
+			}
+		}
+
+		return nil
 	}, nil)
 }
