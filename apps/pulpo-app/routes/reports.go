@@ -120,7 +120,7 @@ func handleReportExcel(e *core.RequestEvent) error {
 		timezone = "Europe/Madrid"
 	}
 	tenantName := company.GetString("name")
-	taxName := TaxZoneName(company.GetString("postcode"))
+	taxName := TaxZoneName(company.GetString("zip"))
 
 	loc, err := time.LoadLocation(timezone)
 	if err != nil {

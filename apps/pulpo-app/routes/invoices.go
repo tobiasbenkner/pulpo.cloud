@@ -82,9 +82,9 @@ func handleCreateInvoice(e *core.RequestEvent) error {
 		return e.InternalServerError("Company settings not found", err)
 	}
 
-	postcode := company.GetString("postcode")
+	postcode := company.GetString("zip")
 	if postcode == "" {
-		return e.BadRequestError("Company postcode not configured", nil)
+		return e.BadRequestError("Company zip not configured", nil)
 	}
 
 	// Resolve tax rates
@@ -242,7 +242,7 @@ func handleCreateInvoice(e *core.RequestEvent) error {
 		inv.Set("issuer_name", companyRecord.GetString("name"))
 		inv.Set("issuer_nif", companyRecord.GetString("nif"))
 		inv.Set("issuer_street", companyRecord.GetString("street"))
-		inv.Set("issuer_zip", companyRecord.GetString("postcode"))
+		inv.Set("issuer_zip", companyRecord.GetString("zip"))
 		inv.Set("issuer_city", companyRecord.GetString("city"))
 
 		// Customer snapshot

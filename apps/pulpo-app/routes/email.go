@@ -27,7 +27,7 @@ func sendClosureEmailSync(app core.App, closureID string, summary *ClosureSummar
 	}
 
 	tenantName := company.GetString("name")
-	postcode := company.GetString("postcode")
+	postcode := company.GetString("zip")
 	taxName := TaxZoneName(postcode)
 
 	// Load closure
