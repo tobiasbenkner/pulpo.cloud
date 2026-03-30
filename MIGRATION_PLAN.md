@@ -570,80 +570,7 @@ Wie bei Agenda: PocketBase Auth statt `@pulpo/auth` Directus-Client.
 
 API-Calls von `/pulpo-extension/reports/*` auf `/api/custom/reports/*` umstellen. Die Svelte-Komponenten selbst bleiben weitgehend gleich.
 
-### 5.5 Drucker-Integration umstellen
-
-Der `printerStore.ts` (584 LOC) generiert bereits ESC/POS Commands in JavaScript. Nur der Transport-Layer muss geändert werden (~20 Zeilen).
-
-**USB-Drucker → Web USB API (Browser-nativ):**
-
-```javascript
-// lib/printer.ts — neu
-let device: USBDevice | null = null;
-
-export async function connectPrinter() {
-  device = await navigator.usb.requestDevice({
-    filters: [
-      { vendorId: 0x04b8 },  // Epson
-      { vendorId: 0x0519 },  // Star Micronics
-    ]
-  });
-  await device.open();
-  await device.selectConfiguration(1);
-  await device.claimInterface(0);
-}
-
-export async function printRaw(data: Uint8Array) {
-  await device!.transferOut(1, data);
-}
-
-export async function openDrawer() {
-  await device!.transferOut(1, new Uint8Array([0x1B, 0x70, 0x00, 0x19, 0xFA]));
-}
-```
-
-**Netzwerk-Drucker → PocketBase TCP-Endpoint:**
-
-```go
-// routes/printer.go — im Go Backend
-se.Router.POST("/api/custom/print", func(e *core.RequestEvent) error {
-    var job struct {
-        PrinterIP string `json:"printer_ip"`
-        Data      []byte `json:"data"`
-    }
-    e.BindBody(&job)
-
-    conn, err := net.DialTimeout("tcp", job.PrinterIP+":9100", 5*time.Second)
-    if err != nil {
-        return e.JSON(500, map[string]string{"error": "printer unreachable"})
-    }
-    defer conn.Close()
-    conn.Write(job.Data)
-
-    return e.JSON(200, map[string]string{"status": "ok"})
-}).Bind(apis.RequireAuth())
-```
-
-**Änderung im printerStore.ts:**
-
-```javascript
-// Vorher:
-await fetch('http://localhost:8091/print', { method: 'POST', body: escPosData });
-
-// Nachher (USB):
-await printRaw(escPosData);
-
-// Nachher (Netzwerk):
-await pb.send('/api/custom/print', {
-  method: 'POST',
-  body: JSON.stringify({ printer_ip: printerIP, data: Array.from(escPosData) })
-});
-```
-
-ESC/POS-Generierung (der Großteil des Codes) bleibt identisch.
-
-**Ergebnis:** `apps/thermal-printer-service/` wird komplett überflüssig.
-
-### 5.6 @pulpo/cms und @pulpo/auth Pakete
+### 5.5 @pulpo/cms und @pulpo/auth Pakete
 
 Diese Pakete werden **nicht mehr benötigt** nach der Migration:
 
@@ -696,7 +623,111 @@ await pb.collection('settings').update(settings.id, { name, nif, ... })
 
 ---
 
-## Phase 7: Static Files, Docker Image & npm Distribution
+## Phase 7: Drucker-Migration
+
+**Fokus:** `apps/thermal-printer-service/` (Node.js) ablösen. Die ESC/POS-Generierung bleibt im `printerStore.ts` — nur der Transport-Layer ändert sich.
+
+### Aktuelle Architektur
+
+```
+Shop (Browser) → baut ESC/POS Receipt → HTTP POST → thermal-printer-service (Node.js :8080) → USB/Netzwerk-Drucker
+```
+
+Der Printer-Service ist nur ein Transport-Proxy: nimmt Bytes und schickt sie an den Drucker.
+
+### Neue Architektur
+
+| Drucker-Typ | Heute | Nachher |
+|-------------|-------|---------|
+| Netzwerk (IP) | Node.js Service → TCP :9100 | Go-Endpoint `POST /api/custom/print` → TCP :9100 |
+| USB | Node.js Service → node-usb/libusb | Web USB API (Browser direkt, kein Backend) |
+
+**Einschränkung:** Web USB funktioniert nur in Chromium-Browsern (Chrome, Edge). Für POS-Systeme kein Problem, da die Hardware kontrolliert wird.
+
+### 7.1 Go-Endpoint für Netzwerk-Drucker
+
+```go
+// routes/printer.go
+se.Router.POST("/api/custom/print", func(e *core.RequestEvent) error {
+    var job struct {
+        PrinterID string `json:"printer_id"`
+        Data      []byte `json:"data"`
+    }
+    e.BindBody(&job)
+
+    // Drucker-Config aus PocketBase laden
+    printer, err := e.App.FindRecordById("printers", job.PrinterID)
+    if err != nil {
+        return e.JSON(404, map[string]string{"error": "printer not found"})
+    }
+
+    addr := fmt.Sprintf("%s:%d", printer.GetString("ip"), printer.GetInt("port"))
+    conn, err := net.DialTimeout("tcp", addr, 5*time.Second)
+    if err != nil {
+        return e.JSON(500, map[string]string{"error": "printer unreachable"})
+    }
+    defer conn.Close()
+    conn.Write(job.Data)
+
+    return e.JSON(200, map[string]string{"status": "ok"})
+}).Bind(apis.RequireAuth())
+```
+
+### 7.2 Web USB API für USB-Drucker
+
+```typescript
+// lib/printer.ts — neu
+let device: USBDevice | null = null;
+
+export async function connectPrinter(vendorId: number, productId: number) {
+  device = await navigator.usb.requestDevice({
+    filters: [{ vendorId, productId }]
+  });
+  await device.open();
+  await device.selectConfiguration(1);
+  await device.claimInterface(0);
+}
+
+export async function printRaw(data: Uint8Array) {
+  await device!.transferOut(1, data);
+}
+
+export async function openDrawer() {
+  await device!.transferOut(1, new Uint8Array([0x1B, 0x70, 0x00, 0x19, 0xFA]));
+}
+```
+
+### 7.3 printerStore.ts Transport-Layer umstellen
+
+```typescript
+// Vorher:
+await fetch('http://localhost:8080/thermal-printer-service/print', { method: 'POST', body: job });
+
+// Nachher (USB):
+await printRaw(escPosData);
+
+// Nachher (Netzwerk):
+await pb.send('/api/custom/print', {
+  method: 'POST',
+  body: JSON.stringify({ printer_id: printer.id, data: Array.from(escPosData) })
+});
+```
+
+### 7.4 Drucker-Config aus PocketBase laden
+
+Aktuell liest der Shop die Drucker-Config aus einer statischen `data.json`. Umstellen auf PocketBase `printers` Collection (CRUD existiert bereits in `api.ts`).
+
+### 7.5 Aufräumen
+
+- [ ] `apps/thermal-printer-service/` löschen
+- [ ] `data.json` Printer-Sektion entfernen
+- [ ] `@node-escpos` Dependencies entfernen
+
+**Ergebnis:** Kein separater Printer-Service mehr. Netzwerk-Drucker über Go-Backend, USB-Drucker direkt vom Browser.
+
+---
+
+## Phase 8: Static Files, Docker Image & Distribution
 
 **Aufwand:** ~1-2 Tage
 
@@ -911,7 +942,7 @@ cd apps/pulpo-app && go build -o pulpo-app .
 
 ---
 
-## Phase 8: Datenmigration
+## Phase 9: Datenmigration
 
 **Aufwand:** ~2-3 Tage (pro Kunde)
 
@@ -946,7 +977,7 @@ cd apps/pulpo-app && go build -o pulpo-app .
 
 ---
 
-## Phase 9: Platform-App (SaaS, optional)
+## Phase 10: Platform-App (SaaS, optional)
 
 **Aufwand:** ~3-5 Tage
 **Nur nötig wenn SaaS angeboten wird.**
@@ -1073,19 +1104,18 @@ func deprovision(slug string) error {
 
 ## Zusammenfassung Aufwand
 
-| Phase | Beschreibung | Aufwand |
+| Phase | Beschreibung | Status |
 |---|---|---|
-| 1 | PocketBase Projekt + Schema + Admin-Absicherung | 1-2 Tage |
-| 2 | Agenda migrieren | 2-3 Tage |
-| 3 | Invoice-Berechnung Go | 3-5 Tage |
-| 4 | Shop Backend Endpoints | 5-7 Tage |
-| 5 | Shop Frontend | 3-5 Tage |
-| 6 | Settings-View | 1-2 Tage |
-| 7 | Docker Image + npm Distribution + go:embed | 1-2 Tage |
-| 8 | Datenmigration | 2-3 Tage |
-| 9 | Platform + Traefik (optional) | 3-5 Tage |
-| | **Gesamt (ohne Platform)** | **~19-29 Tage** |
-| | **Gesamt (mit Platform)** | **~22-34 Tage** |
+| 1 | PocketBase Projekt + Schema + Admin-Absicherung | Erledigt |
+| 2 | Agenda migrieren | Erledigt |
+| 3 | Invoice-Berechnung Go | Erledigt |
+| 4 | Shop Backend Endpoints | Erledigt |
+| 5 | Shop Frontend | Erledigt |
+| 6 | Settings & Produktverwaltung | Erledigt |
+| 7 | Drucker-Migration (Web USB + Go TCP) | Offen |
+| 8 | Docker Image & Distribution | Erledigt |
+| 9 | Datenmigration Directus→PB | Offen |
+| 10 | Platform + Traefik (optional) | Offen |
 
 ---
 
