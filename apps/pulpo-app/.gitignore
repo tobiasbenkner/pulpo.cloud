@@ -1,5 +1,6 @@
 pulpo-app
 pb_data/
+.env
 
 # Frontend build output (wird von CI gebaut und embedded)
 # .gitkeep Dateien bleiben erhalten

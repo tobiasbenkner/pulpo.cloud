@@ -25,12 +25,12 @@
 	let title = $derived(pageTitles[activePage] ?? "Dashboard");
 
 	onMount(async () => {
-		const ok = await checkAuthentication();
-		if (!ok) {
+		try {
+			await checkAuthentication();
+			authenticated = true;
+		} catch {
 			window.location.href = "/login";
-			return;
 		}
-		authenticated = true;
 	});
 </script>
 

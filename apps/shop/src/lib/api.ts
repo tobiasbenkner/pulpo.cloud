@@ -213,9 +213,11 @@ export async function getInvoices(query?: {
   if (query?.invoiceNumber)
     filters.push(`invoice_number = "${query.invoiceNumber}"`);
   if (query?.originalInvoiceId)
-    filters.push(`original_invoice_id = "${query.originalInvoiceId}"`);
-  if (query?.dateFrom) filters.push(`created >= "${query.dateFrom}"`);
-  if (query?.dateTo) filters.push(`created <= "${query.dateTo}"`);
+    filters.push(`original_invoice = "${query.originalInvoiceId}"`);
+  if (query?.dateFrom)
+    filters.push(`created >= "${query.dateFrom.replace("T", " ")}"`);
+  if (query?.dateTo)
+    filters.push(`created <= "${query.dateTo.replace("T", " ")}"`);
 
   const records = await pb.collection("invoices").getFullList({
     filter: filters.join(" && "),

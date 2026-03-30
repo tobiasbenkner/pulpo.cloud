@@ -230,6 +230,13 @@ func init() {
 			return fmt.Errorf("failed to resolve tax rates: %w", err)
 		}
 
+		// setCreated overrides PocketBase's autodate via raw SQL
+		setCreated := func(collection, id string, t time.Time) {
+			ts := t.UTC().Format("2006-01-02 15:04:05.000Z")
+			_, _ = app.DB().NewQuery("UPDATE " + collection + " SET created = {:ts}, updated = {:ts} WHERE id = {:id}").
+				Bind(map[string]any{"ts": ts, "id": id}).Execute()
+		}
+
 		// --- Generate 90 days of historical data ---
 		rng := rand.New(rand.NewSource(42))
 		now := time.Now()
@@ -273,10 +280,10 @@ func init() {
 			closure.Set("period_start", openTime.UTC().Format("2006-01-02 15:04:05.000Z"))
 			closure.Set("period_end", closeTime.UTC().Format("2006-01-02 15:04:05.000Z"))
 			closure.Set("starting_cash", startingCash.StringFixed(2))
-			closure.Set("created", openTime.UTC().Format("2006-01-02 15:04:05.000Z"))
 			if err := app.Save(closure); err != nil {
 				return fmt.Errorf("failed to create closure for %s: %w", day.Format("2006-01-02"), err)
 			}
+			setCreated("closures", closure.Id, openTime)
 
 			// Generate invoices for this day
 			totalCash := decimal.Zero
@@ -369,7 +376,6 @@ func init() {
 				inv.Set("issuer_street", company.GetString("street"))
 				inv.Set("issuer_zip", company.GetString("zip"))
 				inv.Set("issuer_city", company.GetString("city"))
-				inv.Set("created", invoiceTime.UTC().Format("2006-01-02 15:04:05.000Z"))
 
 				// Tax breakdown as JSON
 				if len(calc.TaxBreakdown) > 0 {
@@ -394,6 +400,7 @@ func init() {
 				if err := app.Save(inv); err != nil {
 					return fmt.Errorf("failed to create invoice: %w", err)
 				}
+				setCreated("invoices", inv.Id, invoiceTime)
 
 				// Create items
 				for _, item := range calc.Items {
@@ -415,10 +422,10 @@ func init() {
 					if item.CostCenter != nil {
 						rec.Set("cost_center", *item.CostCenter)
 					}
-					rec.Set("created", invoiceTime.UTC().Format("2006-01-02 15:04:05.000Z"))
 					if err := app.Save(rec); err != nil {
 						return fmt.Errorf("failed to create invoice item: %w", err)
 					}
+					setCreated("invoice_items", rec.Id, invoiceTime)
 				}
 
 				// Create payment
@@ -428,10 +435,10 @@ func init() {
 				pmt.Set("amount", calc.Gross)
 				pmt.Set("tendered", tendered)
 				pmt.Set("change", change)
-				pmt.Set("created", invoiceTime.UTC().Format("2006-01-02 15:04:05.000Z"))
 				if err := app.Save(pmt); err != nil {
 					return fmt.Errorf("failed to create payment: %w", err)
 				}
+				setCreated("invoice_payments", pmt.Id, invoiceTime)
 			}
 
 			// Update closure with counted cash (realistic: small random difference)
@@ -442,6 +449,7 @@ func init() {
 			if err := app.Save(closure); err != nil {
 				return err
 			}
+			setCreated("closures", closure.Id, openTime)
 		}
 
 		// Update company counters
