@@ -21,8 +21,8 @@ func TestGetDateRange_Daily(t *testing.T) {
 	}
 
 	// Parse and verify the date range
-	fromTime, _ := time.Parse(time.RFC3339, from)
-	toTime, _ := time.Parse(time.RFC3339, to)
+	fromTime, _ := time.Parse("2006-01-02 15:04:05.000Z", from)
+	toTime, _ := time.Parse("2006-01-02 15:04:05.000Z", to)
 
 	// From should be start of day in Madrid timezone
 	fromLocal := fromTime.In(loc)
@@ -56,8 +56,8 @@ func TestGetDateRange_Weekly(t *testing.T) {
 	}
 
 	// Parse dates
-	fromTime, _ := time.Parse(time.RFC3339, from)
-	toTime, _ := time.Parse(time.RFC3339, to)
+	fromTime, _ := time.Parse("2006-01-02 15:04:05.000Z", from)
+	toTime, _ := time.Parse("2006-01-02 15:04:05.000Z", to)
 	fromLocal := fromTime.In(loc)
 	toLocal := toTime.In(loc)
 
@@ -87,8 +87,8 @@ func TestGetDateRange_Weekly_Sunday(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	fromTime, _ := time.Parse(time.RFC3339, from)
-	toTime, _ := time.Parse(time.RFC3339, to)
+	fromTime, _ := time.Parse("2006-01-02 15:04:05.000Z", from)
+	toTime, _ := time.Parse("2006-01-02 15:04:05.000Z", to)
 	fromLocal := fromTime.In(loc)
 	toLocal := toTime.In(loc)
 
@@ -112,8 +112,8 @@ func TestGetDateRange_Monthly(t *testing.T) {
 		t.Errorf("label = %q, want %q", label, "Febrero 2026")
 	}
 
-	fromTime, _ := time.Parse(time.RFC3339, from)
-	toTime, _ := time.Parse(time.RFC3339, to)
+	fromTime, _ := time.Parse("2006-01-02 15:04:05.000Z", from)
+	toTime, _ := time.Parse("2006-01-02 15:04:05.000Z", to)
 	fromLocal := fromTime.In(loc)
 	toLocal := toTime.In(loc)
 
@@ -133,7 +133,7 @@ func TestGetDateRange_Monthly_LeapYear(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	toTime, _ := time.Parse(time.RFC3339, to)
+	toTime, _ := time.Parse("2006-01-02 15:04:05.000Z", to)
 	toLocal := toTime.In(loc)
 
 	if toLocal.Day() != 29 { // 2028 is a leap year
@@ -169,8 +169,8 @@ func TestGetDateRange_Quarterly(t *testing.T) {
 				t.Errorf("label = %q, want %q", label, tt.wantLabel)
 			}
 
-			fromTime, _ := time.Parse(time.RFC3339, from)
-			toTime, _ := time.Parse(time.RFC3339, to)
+			fromTime, _ := time.Parse("2006-01-02 15:04:05.000Z", from)
+			toTime, _ := time.Parse("2006-01-02 15:04:05.000Z", to)
 			fromLocal := fromTime.In(loc)
 			toLocal := toTime.In(loc)
 
@@ -196,8 +196,8 @@ func TestGetDateRange_Yearly(t *testing.T) {
 		t.Errorf("label = %q, want %q", label, "2026")
 	}
 
-	fromTime, _ := time.Parse(time.RFC3339, from)
-	toTime, _ := time.Parse(time.RFC3339, to)
+	fromTime, _ := time.Parse("2006-01-02 15:04:05.000Z", from)
+	toTime, _ := time.Parse("2006-01-02 15:04:05.000Z", to)
 	fromLocal := fromTime.In(loc)
 	toLocal := toTime.In(loc)
 
@@ -247,7 +247,7 @@ func TestGetDateRange_CanaryTimezone(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	fromTime, _ := time.Parse(time.RFC3339, from)
+	fromTime, _ := time.Parse("2006-01-02 15:04:05.000Z", from)
 	fromLocal := fromTime.In(loc)
 
 	if fromLocal.Hour() != 0 {

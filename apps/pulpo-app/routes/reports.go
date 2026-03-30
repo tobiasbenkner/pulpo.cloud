@@ -423,7 +423,7 @@ func getDateRange(period string, query map[string][]string, loc *time.Location) 
 		start := time.Date(y, m, d, 0, 0, 0, 0, loc)
 		end := time.Date(y, m, d, 23, 59, 59, 0, loc)
 		label = fmt.Sprintf("%02d/%02d/%d", d, m, y)
-		return start.UTC().Format(time.RFC3339), end.UTC().Format(time.RFC3339), label, nil
+		return start.UTC().Format("2006-01-02 15:04:05.000Z"), end.UTC().Format("2006-01-02 15:04:05.000Z"), label, nil
 
 	case "weekly":
 		dateStr := getParam("date")
@@ -449,7 +449,7 @@ func getDateRange(period string, query map[string][]string, loc *time.Location) 
 
 		_, week := monday.ISOWeek()
 		label = fmt.Sprintf("Semana %d, %d", week, my)
-		return start.UTC().Format(time.RFC3339), end.UTC().Format(time.RFC3339), label, nil
+		return start.UTC().Format("2006-01-02 15:04:05.000Z"), end.UTC().Format("2006-01-02 15:04:05.000Z"), label, nil
 
 	case "monthly":
 		yearStr := getParam("year")
@@ -469,7 +469,7 @@ func getDateRange(period string, query map[string][]string, loc *time.Location) 
 
 		monthName := spanishMonth(time.Month(month))
 		label = fmt.Sprintf("%s %d", monthName, year)
-		return start.UTC().Format(time.RFC3339), end.UTC().Format(time.RFC3339), label, nil
+		return start.UTC().Format("2006-01-02 15:04:05.000Z"), end.UTC().Format("2006-01-02 15:04:05.000Z"), label, nil
 
 	case "quarterly":
 		yearStr := getParam("year")
@@ -490,7 +490,7 @@ func getDateRange(period string, query map[string][]string, loc *time.Location) 
 		end := time.Date(year, endMonth, lastDay.Day(), 23, 59, 59, 0, loc)
 
 		label = fmt.Sprintf("Q%d %d", quarter, year)
-		return start.UTC().Format(time.RFC3339), end.UTC().Format(time.RFC3339), label, nil
+		return start.UTC().Format("2006-01-02 15:04:05.000Z"), end.UTC().Format("2006-01-02 15:04:05.000Z"), label, nil
 
 	case "yearly":
 		yearStr := getParam("year")
@@ -505,7 +505,7 @@ func getDateRange(period string, query map[string][]string, loc *time.Location) 
 		start := time.Date(year, 1, 1, 0, 0, 0, 0, loc)
 		end := time.Date(year, 12, 31, 23, 59, 59, 0, loc)
 		label = fmt.Sprintf("%d", year)
-		return start.UTC().Format(time.RFC3339), end.UTC().Format(time.RFC3339), label, nil
+		return start.UTC().Format("2006-01-02 15:04:05.000Z"), end.UTC().Format("2006-01-02 15:04:05.000Z"), label, nil
 	}
 
 	return "", "", "", fmt.Errorf("unknown period: %s", period)

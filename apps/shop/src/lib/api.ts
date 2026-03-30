@@ -146,6 +146,12 @@ export async function deleteCustomer(id: string): Promise<void> {
 
 // --- Invoices ---
 
+export async function getInvoicesForDate(date: string): Promise<Invoice[]> {
+  const tz = await getTimezone();
+  const { from, to } = localDayToUTCRange(date, tz);
+  return getInvoices({ dateFrom: from, dateTo: to });
+}
+
 export async function createInvoice(data: {
   status: "paid";
   items: {
@@ -214,10 +220,14 @@ export async function getInvoices(query?: {
     filters.push(`invoice_number = "${query.invoiceNumber}"`);
   if (query?.originalInvoiceId)
     filters.push(`original_invoice = "${query.originalInvoiceId}"`);
-  if (query?.dateFrom)
-    filters.push(`created >= "${query.dateFrom.replace("T", " ")}"`);
-  if (query?.dateTo)
-    filters.push(`created <= "${query.dateTo.replace("T", " ")}"`);
+  if (query?.dateFrom) {
+    const v = query.dateFrom.replace("T", " ");
+    filters.push(`created >= "${v}"`);
+  }
+  if (query?.dateTo) {
+    const v = query.dateTo.replace("T", " ");
+    filters.push(`created <= "${v}"`);
+  }
 
   const records = await pb.collection("invoices").getFullList({
     filter: filters.join(" && "),
@@ -244,6 +254,54 @@ export async function updateInvoicePaymentMethod(
     method: "POST",
     body: { payment_id: paymentId, method: newMethod },
   });
+}
+
+// --- Date/Timezone helpers ---
+
+let cachedTimezone: string | null = null;
+
+export async function getTimezone(): Promise<string> {
+  if (cachedTimezone) return cachedTimezone;
+  try {
+    const company = await getCompany();
+    cachedTimezone = company.timezone || "Europe/Madrid";
+  } catch {
+    cachedTimezone = "Europe/Madrid";
+  }
+  return cachedTimezone;
+}
+
+/**
+ * Convert a local date (YYYY-MM-DD) to a UTC range for PocketBase queries.
+ * Accounts for timezone offset (e.g. Madrid=UTC+1/+2, Canarias=UTC+0/+1).
+ */
+function localDayToUTCRange(
+  date: string,
+  tz: string,
+): { from: string; to: string } {
+  // Get UTC offset for the given date in the given timezone
+  // by comparing the timezone interpretation with UTC
+  const refDate = new Date(date + "T12:00:00Z"); // noon UTC to avoid DST edge
+  const localStr = refDate.toLocaleString("en-US", {
+    timeZone: tz,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+  const localParsed = new Date(localStr + " UTC");
+  const offsetMs = localParsed.getTime() - refDate.getTime();
+
+  // Local midnight/end-of-day → UTC
+  const startMs = new Date(date + "T00:00:00Z").getTime() - offsetMs;
+  const endMs = new Date(date + "T23:59:59Z").getTime() - offsetMs;
+
+  const fmt = (ms: number) =>
+    new Date(ms).toISOString().replace("T", " ").replace(/\.\d{3}Z$/, ".000Z");
+  return { from: fmt(startMs), to: fmt(endMs) };
 }
 
 // --- Cash Register ---
@@ -288,11 +346,11 @@ export async function getLastClosure(): Promise<Closure | null> {
 }
 
 export async function getClosuresForDate(date: string): Promise<Closure[]> {
-  const dayStart = `${date} 00:00:00`;
-  const dayEnd = `${date} 23:59:59`;
+  const tz = await getTimezone();
+  const { from, to } = localDayToUTCRange(date, tz);
 
   return pb.collection("closures").getFullList<Closure>({
-    filter: `status = "closed" && period_start >= "${dayStart}" && period_start <= "${dayEnd}"`,
+    filter: `status = "closed" && period_start >= "${from}" && period_start <= "${to}"`,
     sort: "-period_start",
     requestKey: null,
   });

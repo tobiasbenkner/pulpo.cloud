@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { getReport, getInvoices } from "../../../lib/api";
+	import { getReport, getInvoicesForDate } from "../../../lib/api";
 	import type { AggregatedReport, Invoice } from "../../../lib/types";
 	import DashboardShell from "../DashboardShell.svelte";
 	import KpiCards from "../KpiCards.svelte";
@@ -134,10 +134,7 @@
 			const todayStr = formatDate(today);
 
 			// Load today's invoices directly (includes open shift)
-			const todayInvoices = (await getInvoices({
-				dateFrom: todayStr + "T00:00:00",
-				dateTo: todayStr + "T23:59:59",
-			})) as Invoice[];
+			const todayInvoices = await getInvoicesForDate(todayStr);
 
 			todayReport = buildReportFromInvoices(todayInvoices, todayStr);
 
