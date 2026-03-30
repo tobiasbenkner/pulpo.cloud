@@ -83,6 +83,14 @@ func main() {
 	})
 
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
+		// Version endpoint (public, no auth)
+		se.Router.GET("/api/version", func(e *core.RequestEvent) error {
+			return e.JSON(200, map[string]string{
+				"version": version,
+				"commit":  commit,
+			})
+		})
+
 		// Custom API routes
 		routes.RegisterInvoiceRoutes(app, se)
 		routes.RegisterCashRegisterRoutes(app, se)

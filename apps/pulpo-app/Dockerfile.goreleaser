@@ -1,6 +1,0 @@
-FROM alpine:3.21
-RUN apk add --no-cache ca-certificates
-COPY pulpo-app /usr/local/bin/pulpo-app
-EXPOSE 8090
-VOLUME /pb_data
-CMD ["pulpo-app", "serve", "--http=0.0.0.0:8090"]

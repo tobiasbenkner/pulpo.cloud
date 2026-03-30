@@ -17,6 +17,17 @@ pnpm --filter @pulpo/app test
 
 The dev server starts at `http://localhost:8090`. PocketBase Admin UI is available at `http://localhost:8090/_/`.
 
+## Docker (Self-Deploy)
+
+```bash
+docker run -d \
+  -v ./data:/pb_data \
+  -p 8090:8090 \
+  pulpocloud/app:latest
+```
+
+Open `http://localhost:8090` — PocketBase Admin UI at `http://localhost:8090/_/`.
+
 ## API Endpoints
 
 All custom endpoints require authentication (`/api/custom/*`).

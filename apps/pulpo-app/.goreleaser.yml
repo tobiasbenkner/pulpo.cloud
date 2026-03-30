@@ -19,9 +19,6 @@ builds:
     goarch:
       - amd64
       - arm64
-    ignore:
-      - goos: windows
-        goarch: arm64
     ldflags:
       - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}}
 
@@ -34,36 +31,6 @@ archives:
         formats:
           - zip
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
-
-dockers:
-  - image_templates:
-      - "pulpocloud/app:{{ .Version }}-amd64"
-      - "pulpocloud/app:latest-amd64"
-    use: buildx
-    dockerfile: Dockerfile.goreleaser
-    build_flag_templates:
-      - "--platform=linux/amd64"
-    goarch: amd64
-
-  - image_templates:
-      - "pulpocloud/app:{{ .Version }}-arm64"
-      - "pulpocloud/app:latest-arm64"
-    use: buildx
-    dockerfile: Dockerfile.goreleaser
-    build_flag_templates:
-      - "--platform=linux/arm64"
-    goarch: arm64
-
-docker_manifests:
-  - name_template: "pulpocloud/app:{{ .Version }}"
-    image_templates:
-      - "pulpocloud/app:{{ .Version }}-amd64"
-      - "pulpocloud/app:{{ .Version }}-arm64"
-
-  - name_template: "pulpocloud/app:latest"
-    image_templates:
-      - "pulpocloud/app:latest-amd64"
-      - "pulpocloud/app:latest-arm64"
 
 checksum:
   name_template: "checksums.txt"

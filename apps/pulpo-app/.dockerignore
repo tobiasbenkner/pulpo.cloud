@@ -1,0 +1,8 @@
+pb_data/
+pulpo-app
+.env
+.env.*
+*.md
+.gitignore
+.gitkeep
+.goreleaser.yml
