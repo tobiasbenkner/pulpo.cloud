@@ -10,7 +10,7 @@
   import { printInvoice } from "../stores/printerStore";
   import { resolveRectificationReason } from "../types/shop";
   import { taxName } from "../stores/taxStore";
-  import type { Invoice } from "@pulpo/cms";
+  import type { Invoice } from "../lib/types";
   import { X, Search, FileText, Printer } from "lucide-svelte";
   import RefundIcon from "./icons/RefundIcon.svelte";
   import Big from "big.js";

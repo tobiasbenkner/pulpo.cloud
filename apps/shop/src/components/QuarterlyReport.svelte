@@ -1,7 +1,7 @@
 <script lang="ts">
   import { ChevronLeft, ChevronRight } from "lucide-svelte";
   import PeriodReport from "./PeriodReport.svelte";
-  import type { AggregatedReport } from "@pulpo/cms";
+  import type { AggregatedReport } from "../lib/types";
 
   let { onreport }: { onreport?: (report: AggregatedReport | null) => void } =
     $props();

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { ClosureProductBreakdown } from "@pulpo/cms";
+	import type { ClosureProductBreakdown } from "../../lib/types";
 	import * as Table from "$lib/components/ui/table/index.js";
 
 	let {

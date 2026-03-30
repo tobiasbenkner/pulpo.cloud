@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { getAuthClient } from "@pulpo/auth";
-	import { getInvoices } from "@pulpo/cms";
-	import type { Invoice } from "@pulpo/cms";
+	import { getInvoices } from "../../lib/api";
+	import type { Invoice } from "../../lib/types";
 	import * as Table from "$lib/components/ui/table/index.js";
 	import { Badge } from "$lib/components/ui/badge/index.js";
 	import { Button } from "$lib/components/ui/button/index.js";
@@ -190,11 +189,10 @@
 		loading = true;
 		error = null;
 		try {
-			const client = getAuthClient();
 			const query: any = {};
 			if (dateFrom) query.dateFrom = dateFrom + "T00:00:00";
 			if (dateTo) query.dateTo = dateTo + "T23:59:59";
-			invoices = (await getInvoices(client as any, query)) as Invoice[];
+			invoices = (await getInvoices(query)) as Invoice[];
 		} catch (e: any) {
 			error = e?.message ?? "Error al cargar las facturas";
 		} finally {

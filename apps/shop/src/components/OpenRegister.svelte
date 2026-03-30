@@ -1,10 +1,10 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { openRegister, fetchLastClosure } from "../stores/registerStore";
-  import type { CashRegisterClosure } from "@pulpo/cms";
+  import type { Closure } from "../lib/types";
 
   let inputCents = $state(0);
-  let lastClosure = $state<CashRegisterClosure | null>(null);
+  let lastClosure = $state<Closure | null>(null);
   let loading = $state(true);
   let submitting = $state(false);
   let errorMsg = $state<string | null>(null);

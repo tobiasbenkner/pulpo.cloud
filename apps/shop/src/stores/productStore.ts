@@ -1,11 +1,10 @@
 import { atom } from "nanostores";
-import { getAuthClient, getStoredToken } from "@pulpo/auth";
 import {
   getCategoriesWithProducts,
-  imageUrl,
-  updateProductStock,
-} from "@pulpo/cms";
-import type { ProductCategory as CmsCategory } from "@pulpo/cms";
+  updateProductStock as apiUpdateProductStock,
+  getFileUrl,
+} from "../lib/api";
+import type { PbProduct } from "../lib/types";
 import type { Product } from "../types/shop";
 import { loadTaxRates } from "./taxStore";
 import { loadTenant, tenant as tenantAtom } from "./printerStore";
@@ -22,30 +21,19 @@ export const isLoading = atom(false);
 export const error = atom<string | null>(null);
 export const stockEditProduct = atom<Product | null>(null);
 
-function resolveTranslation(translations: Record<string, string>): string {
-  return translations["es"] || translations["_"] || Object.values(translations)[0] || "";
-}
-
-function buildImageUrl(image: any): string {
-  if (!image?.id) return "";
-  const stored = getStoredToken();
-  const token = stored?.access_token ?? "";
-  return imageUrl(image.id).replace("access_token=", `access_token=${token}`);
-}
-
-function mapCmsToShopProduct(
-  product: CmsCategory["products"][number],
+function mapPbToShopProduct(
+  product: PbProduct,
   categoryName: string,
 ): Product {
   return {
     id: product.id,
-    name: resolveTranslation(product.name as Record<string, string>),
+    name: product.name,
     priceGross: product.price_gross,
-    taxClass: (product.tax_class?.code as Product["taxClass"]) ?? "STD",
-    image: buildImageUrl(product.image),
+    taxClass: (product.expand?.tax_class?.code as Product["taxClass"]) ?? "STD",
+    image: product.image ? getFileUrl(product as any, product.image) : "",
     category: categoryName,
     stock: product.stock ?? undefined,
-    costCenter: product.cost_center?.name ?? undefined,
+    costCenter: product.expand?.cost_center?.name ?? undefined,
     unit: product.unit ?? "unit",
   };
 }
@@ -108,8 +96,7 @@ export function incrementStock(
 }
 
 export async function setStock(productId: string, stock: number | null) {
-  const client = getAuthClient();
-  await updateProductStock(client as any, productId, stock);
+  await apiUpdateProductStock(productId, stock);
 
   const current = categories.get();
   categories.set(
@@ -129,18 +116,12 @@ export async function loadProducts() {
   error.set(null);
 
   try {
-    const client = getAuthClient();
-    const cmsCategories = await getCategoriesWithProducts(client as any);
+    const cmsCategories = await getCategoriesWithProducts();
 
     const mapped: ShopCategory[] = cmsCategories.map((cat) => ({
       id: cat.id,
-      name: resolveTranslation(cat.name as Record<string, string>),
-      products: cat.products.map((p) =>
-        mapCmsToShopProduct(
-          p,
-          resolveTranslation(cat.name as Record<string, string>),
-        ),
-      ),
+      name: cat.name,
+      products: cat.products.map((p) => mapPbToShopProduct(p, cat.name)),
     }));
 
     categories.set(mapped);
@@ -152,7 +133,7 @@ export async function loadProducts() {
     if (!t?.name) missing.push("nombre");
     if (!t?.nif) missing.push("NIF");
     if (!t?.street) missing.push("dirección");
-    if (!t?.postcode) missing.push("código postal");
+    if (!t?.zip) missing.push("código postal");
     if (!t?.city) missing.push("ciudad");
 
     if (missing.length > 0) {
@@ -162,7 +143,7 @@ export async function loadProducts() {
       return;
     }
 
-    loadTaxRates(t!.postcode);
+    loadTaxRates(t!.zip);
   } catch (e: any) {
     console.error("Failed to load products:", e);
     error.set(e.message || "Failed to load products");

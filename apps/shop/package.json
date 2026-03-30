@@ -11,11 +11,9 @@
   },
   "dependencies": {
     "@astrojs/svelte": "^8.0.3",
-    "@directus/sdk": "^20.3.0",
     "@nanostores/persistent": "^1.2.0",
-    "@pulpo/auth": "workspace:*",
-    "@pulpo/cms": "workspace:*",
     "@pulpo/invoice": "workspace:*",
+    "pocketbase": "^0.26.8",
     "@tailwindcss/vite": "^4.1.18",
     "astro": "^6.0.8",
     "big.js": "^7.0.1",

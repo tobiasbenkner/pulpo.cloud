@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { AggregatedReport } from "@pulpo/cms";
+	import type { AggregatedReport } from "../../lib/types";
 
 	let {
 		report,

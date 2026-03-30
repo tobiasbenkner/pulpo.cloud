@@ -5,8 +5,7 @@
     swapLastTransactionMethod,
   } from "../stores/cartStore";
   import { printInvoice } from "../stores/printerStore";
-  import { getAuthClient } from "@pulpo/auth";
-  import { getInvoice } from "@pulpo/cms";
+  import { getInvoice } from "../lib/api";
   import type { TransactionResult } from "../types/shop";
   import { HandCoins, CreditCard, Printer } from "lucide-svelte";
 
@@ -32,8 +31,7 @@
   async function handleReprint() {
     if (!tx) return;
     try {
-      const client = getAuthClient();
-      const invoice = await getInvoice(client as any, tx.invoiceId);
+      const invoice = await getInvoice(tx.invoiceId);
       await printInvoice(invoice as any);
     } catch (e) {
       console.error("Failed to reprint:", e);

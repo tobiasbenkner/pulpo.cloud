@@ -131,18 +131,9 @@ importers:
       '@astrojs/svelte':
         specifier: ^8.0.3
         version: 8.0.3(@types/node@25.2.3)(astro@6.0.8(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(rollup@4.59.0)(terser@5.46.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))(jiti@2.6.1)(lightningcss@1.31.1)(svelte@5.50.0)(terser@5.46.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
-      '@directus/sdk':
-        specifier: ^20.3.0
-        version: 20.3.0
       '@nanostores/persistent':
         specifier: ^1.2.0
         version: 1.2.0(nanostores@1.1.0)
-      '@pulpo/auth':
-        specifier: workspace:*
-        version: link:../../packages/auth
-      '@pulpo/cms':
-        specifier: workspace:*
-        version: link:../../packages/cms
       '@pulpo/invoice':
         specifier: workspace:*
         version: link:../../packages/invoice
@@ -170,6 +161,9 @@ importers:
       nanostores:
         specifier: ^1.1.0
         version: 1.1.0
+      pocketbase:
+        specifier: ^0.26.8
+        version: 0.26.8
       svelte:
         specifier: ^5.50.0
         version: 5.50.0

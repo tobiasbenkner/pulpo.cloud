@@ -11,7 +11,7 @@
   import { incrementStock } from "../stores/productStore";
   import { RECTIFICATION_REASONS } from "../types/shop";
   import type { RectificationReason } from "../types/shop";
-  import type { Invoice, InvoiceItem } from "@pulpo/cms";
+  import type { Invoice, InvoiceItem } from "../lib/types";
   import {
     X,
     Check,

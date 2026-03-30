@@ -5,14 +5,13 @@
     customerModalMode,
     setCustomer,
   } from "../stores/cartStore";
-  import { getAuthClient } from "@pulpo/auth";
   import {
     getCustomers,
     searchCustomers,
     createCustomer,
     updateCustomer,
     deleteCustomer,
-  } from "@pulpo/cms";
+  } from "../lib/api";
   import type { Customer } from "../types/shop";
   import {
     X,
@@ -101,8 +100,7 @@
     loading = true;
     error = "";
     try {
-      const client = getAuthClient();
-      const result = await getCustomers(client as any);
+      const result = await getCustomers();
       customers = result as Customer[];
     } catch (e) {
       console.error("Failed to load customers:", e);
@@ -116,8 +114,7 @@
     loading = true;
     error = "";
     try {
-      const client = getAuthClient();
-      const result = await searchCustomers(client as any, query);
+      const result = await searchCustomers(query);
       customers = result as Customer[];
     } catch (e) {
       console.error("Failed to search customers:", e);
@@ -190,13 +187,12 @@
     };
 
     try {
-      const client = getAuthClient();
       if (view === "edit" && editId) {
-        await updateCustomer(client as any, editId, data);
+        await updateCustomer(editId, data);
         goToList();
         await loadAllCustomers();
       } else {
-        const created = await createCustomer(client as any, data);
+        const created = await createCustomer(data);
         if (mode === "select") {
           setCustomer(created as Customer);
         } else {
@@ -218,8 +214,7 @@
   async function handleDelete(id: string) {
     deleting = true;
     try {
-      const client = getAuthClient();
-      await deleteCustomer(client as any, id);
+      await deleteCustomer(id);
       deleteConfirmId = null;
       await loadAllCustomers();
     } catch (e) {

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { AggregatedReport } from "@pulpo/cms";
+	import type { AggregatedReport } from "../../lib/types";
 	import TrendingUp from "lucide-svelte/icons/trending-up";
 	import Receipt from "lucide-svelte/icons/receipt";
 	import Banknote from "lucide-svelte/icons/banknote";

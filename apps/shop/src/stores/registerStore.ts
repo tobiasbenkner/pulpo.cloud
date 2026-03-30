@@ -1,7 +1,6 @@
 import { atom } from "nanostores";
 import { persistentAtom } from "@nanostores/persistent";
 import Big from "big.js";
-import { getAuthClient } from "@pulpo/auth";
 import {
   getInvoices,
   updateInvoicePaymentMethod,
@@ -11,8 +10,8 @@ import {
   getLastClosure,
   getOpenClosure,
   getClosuresForDate,
-} from "@pulpo/cms";
-import type { Invoice, CashRegisterClosure } from "@pulpo/cms";
+} from "../lib/api";
+import type { Invoice, Closure } from "../lib/types";
 import type { ClosureReport } from "../types/shop";
 import { lastTransaction } from "./cartStore";
 
@@ -54,10 +53,8 @@ export const isInvoiceSearchModalOpen = atom<boolean>(false);
 // --- ACTIONS ---
 
 export async function openRegister(startAmount: string): Promise<void> {
-  const client = getAuthClient();
-
   try {
-    const closure = await openClosure(client as any, {
+    const closure = await openClosure({
       starting_cash: startAmount,
     });
 
@@ -70,7 +67,7 @@ export async function openRegister(startAmount: string): Promise<void> {
     isRegisterOpen.set(true);
   } catch (e: any) {
     // 409 = already open closure — sync state from backend instead of showing error
-    const status = e?.response?.status;
+    const status = e?.status ?? e?.response?.status;
     if (status === 409) {
       await syncRegisterState();
       return;
@@ -83,12 +80,11 @@ export async function generateClosureReport(): Promise<ClosureReport> {
   closureLoading.set(true);
 
   try {
-    const client = getAuthClient();
     const closureId = currentClosureId.get();
     const pStart = periodStart.get();
 
     // Query invoices assigned to this closure by the backend
-    const invoices = await getInvoices(client as any, {
+    const invoices = await getInvoices({
       status: ["paid", "rectificada"],
       closureId: closureId || undefined,
     });
@@ -210,17 +206,15 @@ export async function finalizeClosure(
   const closureId = currentClosureId.get();
   if (!closureId) throw new Error("No open closure ID");
 
-  const client = getAuthClient();
-
   try {
     // Close via extension (server computes all totals from invoice data)
-    await closeClosure(client as any, {
+    await closeClosure({
       counted_cash: countedCash,
       denomination_count: denominationCount,
     });
   } catch (e: any) {
     // Already closed (404) — reset state silently
-    const status = e?.response?.status;
+    const status = e?.status ?? e?.response?.status;
     if (status === 404) {
       resetRegisterState();
       return;
@@ -243,8 +237,7 @@ export function resetRegisterState() {
 
 export async function fetchLastClosure() {
   try {
-    const client = getAuthClient();
-    return await getLastClosure(client as any);
+    return await getLastClosure();
   } catch (e) {
     console.error("Failed to fetch last closure:", e);
     return null;
@@ -258,8 +251,7 @@ export async function fetchLastClosure() {
  */
 export async function syncRegisterState(): Promise<void> {
   try {
-    const client = getAuthClient();
-    const open = await getOpenClosure(client as any);
+    const open = await getOpenClosure();
 
     if (open) {
       // Backend has an open closure — ensure frontend matches
@@ -278,10 +270,9 @@ export async function syncRegisterState(): Promise<void> {
 }
 
 export async function loadShiftInvoices(): Promise<void> {
-  const client = getAuthClient();
   const closureId = currentClosureId.get();
 
-  const invoices = await getInvoices(client as any, {
+  const invoices = await getInvoices({
     status: ["paid", "rectificada"],
     closureId: closureId || undefined,
   });
@@ -300,8 +291,7 @@ export async function createRectificativa(data: {
     quantity: number;
   }[];
 }): Promise<{ rectificativa: Invoice; original: Invoice }> {
-  const client = getAuthClient();
-  const result = await rectifyInvoice(client as any, data);
+  const result = await rectifyInvoice(data);
 
   // Update local shift invoices list
   const current = shiftInvoices.get();
@@ -316,38 +306,35 @@ export async function createRectificativa(data: {
 
 export async function loadDailyClosures(
   date: string,
-): Promise<CashRegisterClosure[]> {
-  const client = getAuthClient();
-  return await getClosuresForDate(client as any, date);
+): Promise<Closure[]> {
+  return await getClosuresForDate(date);
 }
 
 export async function searchInvoiceByNumber(
   invoiceNumber: string,
 ): Promise<{ invoice: Invoice; rectificativas: Invoice[] } | null> {
-  const client = getAuthClient();
-  const invoices = await getInvoices(client as any, {
+  const invoices = await getInvoices({
     invoiceNumber,
     status: ["paid", "rectificada"],
   });
   if (invoices.length === 0) return null;
 
-  const invoice = invoices[0] as Invoice;
+  const invoice = invoices[0];
   // Also fetch any existing rectificativas for this invoice
-  const rectificativas = (await getInvoices(client as any, {
+  const rectificativas = await getInvoices({
     originalInvoiceId: invoice.id,
-  })) as Invoice[];
+  });
 
   return { invoice, rectificativas };
 }
 
 export async function swapPaymentMethod(
   invoiceId: string,
-  paymentId: number,
+  paymentId: string,
   newMethod: "cash" | "card",
   amount: string,
 ): Promise<void> {
-  const client = getAuthClient();
-  await updateInvoicePaymentMethod(client as any, paymentId, newMethod, amount);
+  await updateInvoicePaymentMethod(paymentId, newMethod, amount);
 
   // Update local state
   const current = shiftInvoices.get();

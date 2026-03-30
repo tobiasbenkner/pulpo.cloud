@@ -1,13 +1,10 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
-  import { initAuthClient, checkAuthentication } from "@pulpo/auth";
-  import { DIRECTUS_URL } from "@pulpo/cms";
+  import { checkAuthentication } from "../lib/auth";
   import { loadProducts, startAutoRefresh } from "../stores/productStore";
   import { isRegisterOpen, syncRegisterState } from "../stores/registerStore";
   import ProductGrid from "./ProductGrid.svelte";
   import OpenRegister from "./OpenRegister.svelte";
-
-  initAuthClient(DIRECTUS_URL);
 
   let state: "loading" | "ready" | "error" = $state("loading");
   let registerOpen = $state(false);

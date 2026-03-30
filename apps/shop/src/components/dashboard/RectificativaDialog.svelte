@@ -1,7 +1,6 @@
 <script lang="ts">
-	import type { Invoice, InvoiceItem } from "@pulpo/cms";
-	import { getAuthClient } from "@pulpo/auth";
-	import { rectifyInvoice, getInvoices } from "@pulpo/cms";
+	import type { Invoice, InvoiceItem } from "../../lib/types";
+	import { rectifyInvoice, getInvoices } from "../../lib/api";
 	import { printInvoice } from "../../stores/printerStore";
 	import {
 		RECTIFICATION_REASONS,
@@ -96,8 +95,7 @@
 		// Fetch existing rectificativas for this invoice
 		const alreadyRectified = new Map<string, number>();
 		try {
-			const client = getAuthClient();
-			const rectificativas = (await getInvoices(client as any, {
+			const rectificativas = (await getInvoices({
 				originalInvoiceId: invoice.id,
 			})) as Invoice[];
 
@@ -154,7 +152,6 @@
 		submitting = true;
 
 		try {
-			const client = getAuthClient();
 			const items = selectedItems
 				.filter((s) => s.selected)
 				.map((s) => ({
@@ -163,7 +160,7 @@
 					quantity: s.quantity,
 				}));
 
-			const result = await rectifyInvoice(client as any, {
+			const result = await rectifyInvoice({
 				original_invoice_id: invoice.id,
 				reason: reason as string,
 				reason_detail: reason === "otros" ? reasonDetail : undefined,

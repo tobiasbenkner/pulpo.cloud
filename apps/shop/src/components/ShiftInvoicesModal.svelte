@@ -9,7 +9,7 @@
     rectificativaInvoice,
   } from "../stores/registerStore";
   import { printInvoice } from "../stores/printerStore";
-  import type { Invoice } from "@pulpo/cms";
+  import type { Invoice } from "../lib/types";
   import {
     X,
     FileText,

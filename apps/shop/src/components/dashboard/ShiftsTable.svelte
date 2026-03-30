@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { AggregatedReport } from "@pulpo/cms";
+	import type { AggregatedReport } from "../../lib/types";
 	import * as Table from "$lib/components/ui/table/index.js";
 	import { Badge } from "$lib/components/ui/badge/index.js";
 	import ProductBreakdownTable from "./ProductBreakdownTable.svelte";

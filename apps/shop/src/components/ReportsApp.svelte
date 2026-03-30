@@ -1,16 +1,15 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { initAuthClient, checkAuthentication, getStoredToken } from "@pulpo/auth";
-  import { DIRECTUS_URL, getReportExcelUrl } from "@pulpo/cms";
-  import type { AggregatedReport } from "@pulpo/cms";
+  import { checkAuthentication } from "../lib/auth";
+  import { getReportExcelUrl } from "../lib/api";
+  import { pb } from "../lib/pb";
+  import type { AggregatedReport } from "../lib/types";
   import { loadProducts } from "../stores/productStore";
   import { ArrowLeft, Download } from "lucide-svelte";
   import DailyOverview from "./DailyOverview.svelte";
   import MonthlyReport from "./MonthlyReport.svelte";
   import QuarterlyReport from "./QuarterlyReport.svelte";
   import YearlyReport from "./YearlyReport.svelte";
-
-  initAuthClient(DIRECTUS_URL);
 
   let state: "loading" | "ready" = $state("loading");
   let activeTab = $state("day");
@@ -28,9 +27,8 @@
       const { period } = currentReport;
       const params = buildParamsFromPeriod(period);
       const path = getReportExcelUrl(period.type, params);
-      const token = getStoredToken();
-      const res = await fetch(`${DIRECTUS_URL}${path}`, {
-        headers: { Authorization: `Bearer ${token?.access_token}` },
+      const res = await fetch(`${pb.baseURL}${path}`, {
+        headers: { Authorization: `Bearer ${pb.authStore.token}` },
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const blob = await res.blob();

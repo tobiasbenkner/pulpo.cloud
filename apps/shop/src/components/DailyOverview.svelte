@@ -1,9 +1,8 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { taxName } from "../stores/taxStore";
-  import { getAuthClient } from "@pulpo/auth";
-  import { getReport } from "@pulpo/cms";
-  import type { AggregatedReport, ClosureProductBreakdown } from "@pulpo/cms";
+  import { getReport } from "../lib/api";
+  import type { AggregatedReport, ClosureProductBreakdown } from "../lib/types";
   import { ChevronLeft, ChevronRight, ChevronDown } from "lucide-svelte";
 
   let { onreport }: { onreport?: (report: AggregatedReport | null) => void } =
@@ -160,8 +159,7 @@
     expandedClosures = new Set();
     totalProductsExpanded = false;
     try {
-      const client = getAuthClient();
-      report = await getReport(client as any, "daily", {
+      report = await getReport("daily", {
         date: selectedDate,
       });
       if (report?.shifts?.length === 1) {

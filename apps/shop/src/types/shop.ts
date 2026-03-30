@@ -57,7 +57,7 @@ export interface TransactionResult {
   type: "ticket" | "invoice";
   invoiceNumber: string;
   invoiceId: string;
-  paymentId: number;
+  paymentId: string;
 }
 
 export type RectificationReason =

@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { getAuthClient } from "@pulpo/auth";
-	import { getReport, getInvoices } from "@pulpo/cms";
-	import type { AggregatedReport, Invoice } from "@pulpo/cms";
+	import { getReport, getInvoices } from "../../../lib/api";
+	import type { AggregatedReport, Invoice } from "../../../lib/types";
 	import DashboardShell from "../DashboardShell.svelte";
 	import KpiCards from "../KpiCards.svelte";
 	import RevenueChart from "../RevenueChart.svelte";
@@ -131,12 +130,11 @@
 
 	async function loadData() {
 		try {
-			const client = getAuthClient();
 			const today = new Date();
 			const todayStr = formatDate(today);
 
 			// Load today's invoices directly (includes open shift)
-			const todayInvoices = (await getInvoices(client as any, {
+			const todayInvoices = (await getInvoices({
 				dateFrom: todayStr + "T00:00:00",
 				dateTo: todayStr + "T23:59:59",
 			})) as Invoice[];
@@ -150,7 +148,7 @@
 				d.setDate(d.getDate() - i);
 				const dateStr = formatDate(d);
 				promises.push(
-					getReport(client as any, "daily", { date: dateStr })
+					getReport("daily", { date: dateStr })
 						.then((r) => ({ date: dateStr, report: r }))
 						.catch(() => null),
 				);

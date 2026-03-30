@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { getAuthClient, getStoredToken } from "@pulpo/auth";
-	import { getReport, getReportExcelUrl, DIRECTUS_URL } from "@pulpo/cms";
-	import type { AggregatedReport } from "@pulpo/cms";
+	import { getReport, getReportExcelUrl } from "../../../lib/api";
+	import { pb } from "../../../lib/pb";
+	import type { AggregatedReport } from "../../../lib/types";
 	import DashboardShell from "../DashboardShell.svelte";
 	import ReportSummaryCard from "../ReportSummaryCard.svelte";
 	import ProductBreakdownTable from "../ProductBreakdownTable.svelte";
@@ -127,8 +127,7 @@
 	async function loadReport() {
 		loading = true;
 		try {
-			const client = getAuthClient();
-			report = await getReport(client as any, activeTab, getParams());
+			report = await getReport(activeTab, getParams());
 		} catch (e) {
 			console.error("Error loading report:", e);
 			report = null;
@@ -142,9 +141,8 @@
 		exporting = true;
 		try {
 			const path = getReportExcelUrl(activeTab, getParams());
-			const token = getStoredToken();
-			const res = await fetch(`${DIRECTUS_URL}${path}`, {
-				headers: { Authorization: `Bearer ${token?.access_token}` },
+			const res = await fetch(`${pb.baseURL}${path}`, {
+				headers: { Authorization: `Bearer ${pb.authStore.token}` },
 			});
 			if (!res.ok) throw new Error(`HTTP ${res.status}`);
 			const blob = await res.blob();

@@ -1,7 +1,6 @@
 import { atom } from "nanostores";
-import { getAuthClient, getStoredToken } from "@pulpo/auth";
-import { getProfile, getTenant, imageUrl } from "@pulpo/cms";
-import type { Tenant, Invoice } from "@pulpo/cms";
+import { getCompany, getFileUrl } from "../lib/api";
+import type { Company, Invoice } from "../lib/types";
 import type { CartTotals, ClosureReport } from "../types/shop";
 import { taxName } from "./taxStore";
 import Big from "big.js";
@@ -48,7 +47,7 @@ interface PrintJob {
 
 // --- STATE ---
 
-export const tenant = atom<Tenant | null>(null);
+export const tenant = atom<Company | null>(null);
 
 // --- HELPERS ---
 
@@ -91,9 +90,7 @@ function twoColTable(
 
 export async function loadTenant(): Promise<void> {
   try {
-    const client = getAuthClient();
-    const user = await getProfile(client as any);
-    const t = await getTenant(client as any, user.tenant);
+    const t = await getCompany();
     tenant.set(t);
   } catch (e) {
     console.error("Failed to load tenant:", e);
@@ -137,18 +134,14 @@ function buildReceipt(receiptData: {
   // Header: Logo + Business name
   if (t) {
     if (t.invoice_image) {
-      const token = getStoredToken()?.access_token ?? "";
-      const url = imageUrl(t.invoice_image).replace(
-        "access_token=",
-        `access_token=${token}`,
-      );
+      const url = getFileUrl(t as any, t.invoice_image);
       lines.push({ ...DEFAULTS, type: "image", text: url, align: "CT" });
       lines.push(emptyLine());
     }
     lines.push(textLine(t.name, { align: "CT", fontSize: "big", style: "B" }));
     if (t.nif) lines.push(textLine(`NIF: ${t.nif}`, { align: "CT" }));
     lines.push(textLine(t.street, { align: "CT" }));
-    lines.push(textLine(`${t.postcode} ${t.city}`, { align: "CT" }));
+    lines.push(textLine(`${t.zip} ${t.city}`, { align: "CT" }));
   }
 
   lines.push(emptyLine());
@@ -382,7 +375,7 @@ export async function printInvoice(
 
   // Map InvoiceItems → CartTotalsItems
   const items = (invoice.items ?? []).map((item) => ({
-    productId: item.product_id ?? "",
+    productId: item.product ?? "",
     productName: item.product_name,
     quantity: item.quantity,
     priceGrossUnit: item.price_gross_unit,

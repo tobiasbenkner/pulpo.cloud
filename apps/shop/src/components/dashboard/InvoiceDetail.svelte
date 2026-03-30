@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import type { Invoice } from "@pulpo/cms";
-	import { getAuthClient } from "@pulpo/auth";
-	import { getInvoices } from "@pulpo/cms";
+	import type { Invoice } from "../../lib/types";
+	import { getInvoices, getInvoice } from "../../lib/api";
 	import * as Sheet from "$lib/components/ui/sheet/index.js";
 	import * as Table from "$lib/components/ui/table/index.js";
 	import { Badge } from "$lib/components/ui/badge/index.js";
@@ -47,9 +46,7 @@
 			return;
 		}
 		try {
-			const client = getAuthClient();
-			const { getInvoice } = await import("@pulpo/cms");
-			const original = await getInvoice(client as any, invoice.original_invoice_id);
+			const original = await getInvoice(invoice.original_invoice_id);
 			originalInvoiceNumber = (original as Invoice).invoice_number;
 		} catch {
 			originalInvoiceNumber = null;
@@ -65,8 +62,7 @@
 			return;
 		}
 		try {
-			const client = getAuthClient();
-			const results = (await getInvoices(client as any, {
+			const results = (await getInvoices({
 				originalInvoiceId: invoice.id,
 			})) as Invoice[];
 			linkedRectificativas = results.filter(

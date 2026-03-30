@@ -3,8 +3,7 @@
 import { atom, computed } from "nanostores";
 import { persistentMap, persistentAtom } from "@nanostores/persistent";
 import Big from "big.js";
-import { getAuthClient } from "@pulpo/auth";
-import { createInvoice, updateInvoicePaymentMethod } from "@pulpo/cms";
+import { createInvoice, updateInvoicePaymentMethod } from "../lib/api";
 import { calculateInvoice } from "@pulpo/invoice";
 import type {
   Product,
@@ -267,13 +266,7 @@ export const swapLastTransactionMethod = async () => {
   if (!tx) return;
   const newMethod = tx.method === "cash" ? "card" : "cash";
 
-  const client = getAuthClient();
-  await updateInvoicePaymentMethod(
-    client as any,
-    tx.paymentId,
-    newMethod,
-    tx.total,
-  );
+  await updateInvoicePaymentMethod(tx.paymentId, newMethod, tx.total);
 
   lastTransaction.set({
     ...tx,
@@ -296,8 +289,7 @@ export const completeTransaction = async (
   // Invoice über Extension-Endpoint erstellen (invoice_number wird server-seitig gesetzt)
   let invoice: any;
   try {
-    const client = getAuthClient();
-    invoice = await createInvoice(client, {
+    invoice = await createInvoice({
       status: "paid",
       items: totals.items.map((item) => ({
         product_id: item.productId,

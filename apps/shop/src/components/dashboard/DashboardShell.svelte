@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from "svelte";
 	import { onMount } from "svelte";
-	import { checkAuthentication } from "@pulpo/auth";
+	import { checkAuthentication } from "../../lib/auth";
 	import * as Sidebar from "$lib/components/ui/sidebar/index.js";
 	import DashboardSidebar from "./DashboardSidebar.svelte";
 

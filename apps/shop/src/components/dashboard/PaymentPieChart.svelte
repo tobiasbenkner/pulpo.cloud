@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import type { AggregatedReport } from "@pulpo/cms";
+	import type { AggregatedReport } from "../../lib/types";
 	import {
 		Chart,
 		DoughnutController,

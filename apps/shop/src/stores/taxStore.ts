@@ -1,6 +1,5 @@
 import { atom } from "nanostores";
-import { getAuthClient } from "@pulpo/auth";
-import { getTaxRulesForPostcode } from "@pulpo/cms";
+import { getTaxRulesForPostcode } from "../lib/api";
 
 export const taxRates = atom<Record<string, string>>({});
 
@@ -20,8 +19,7 @@ export async function loadTaxRates(postcode: string) {
   taxName.set(resolveTaxName(postcode));
 
   try {
-    const client = getAuthClient();
-    const rules = await getTaxRulesForPostcode(client as any, postcode);
+    const rules = await getTaxRulesForPostcode(postcode);
 
     if (rules.length > 0) {
       const rates: Record<string, string> = {};
