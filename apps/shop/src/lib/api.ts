@@ -9,8 +9,37 @@ import type {
   Customer,
   Closure,
   Invoice,
+  InvoiceItem,
+  InvoicePayment,
   AggregatedReport,
 } from "./types";
+
+// --- Helpers ---
+
+function normalizeInvoice(record: any): Invoice {
+  const inv = { ...record };
+  const rawItems =
+    record.expand?.invoice_items_via_invoice ?? record.items ?? [];
+  // Add product_id alias for backward compatibility (PB field is "product")
+  inv.items = rawItems.map((item: any) => ({
+    ...item,
+    product_id: item.product_id ?? item.product ?? null,
+    invoice_id: item.invoice_id ?? item.invoice ?? null,
+  }));
+  const rawPayments =
+    record.expand?.invoice_payments_via_invoice ?? record.payments ?? [];
+  inv.payments = rawPayments.map((pmt: any) => ({
+    ...pmt,
+    invoice_id: pmt.invoice_id ?? pmt.invoice ?? null,
+    date_created: pmt.date_created ?? pmt.created ?? null,
+  }));
+  // Alias for date_created
+  inv.date_created = inv.date_created ?? inv.created ?? null;
+  inv.closure_id = inv.closure_id ?? inv.closure ?? null;
+  inv.original_invoice_id =
+    inv.original_invoice_id ?? inv.original_invoice ?? null;
+  return inv as Invoice;
+}
 
 // --- Company ---
 
@@ -138,7 +167,7 @@ export async function createInvoice(data: {
     method: "POST",
     body: data,
   });
-  return res.invoice ?? res;
+  return normalizeInvoice(res.invoice ?? res);
 }
 
 export async function rectifyInvoice(data: {
@@ -152,10 +181,14 @@ export async function rectifyInvoice(data: {
     quantity: number;
   }[];
 }): Promise<{ rectificativa: Invoice; original: Invoice }> {
-  return pb.send("/api/custom/invoices/rectify", {
+  const res = await pb.send("/api/custom/invoices/rectify", {
     method: "POST",
     body: data,
   });
+  return {
+    rectificativa: normalizeInvoice(res.rectificativa),
+    original: normalizeInvoice(res.original),
+  };
 }
 
 export async function getInvoices(query?: {
@@ -184,18 +217,20 @@ export async function getInvoices(query?: {
   if (query?.dateFrom) filters.push(`created >= "${query.dateFrom}"`);
   if (query?.dateTo) filters.push(`created <= "${query.dateTo}"`);
 
-  return pb.collection("invoices").getFullList<Invoice>({
+  const records = await pb.collection("invoices").getFullList({
     filter: filters.join(" && "),
     sort: "-created",
     expand: "invoice_items_via_invoice,invoice_payments_via_invoice",
     requestKey: null,
   });
+  return records.map(normalizeInvoice);
 }
 
 export async function getInvoice(id: string): Promise<Invoice> {
-  return pb.collection("invoices").getOne<Invoice>(id, {
+  const record = await pb.collection("invoices").getOne(id, {
     expand: "invoice_items_via_invoice,invoice_payments_via_invoice",
   });
+  return normalizeInvoice(record);
 }
 
 export async function updateInvoicePaymentMethod(

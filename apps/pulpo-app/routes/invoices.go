@@ -675,22 +675,51 @@ func handleRectifyInvoice(e *core.RequestEvent) error {
 	items, _ := e.App.FindRecordsByFilter("invoice_items", "invoice = {:id}", "", 0, 0, map[string]any{"id": rectInvoice.Id})
 	payments, _ := e.App.FindRecordsByFilter("invoice_payments", "invoice = {:id}", "", 0, 0, map[string]any{"id": rectInvoice.Id})
 
-	// Reload original
+	// Reload original with items and payments
 	updatedOriginal, _ := e.App.FindRecordById("invoices", req.OriginalInvoiceID)
+	origItems, _ := e.App.FindRecordsByFilter("invoice_items", "invoice = {:id}", "", 0, 0, map[string]any{"id": req.OriginalInvoiceID})
+	origPayments, _ := e.App.FindRecordsByFilter("invoice_payments", "invoice = {:id}", "", 0, 0, map[string]any{"id": req.OriginalInvoiceID})
 
 	return e.JSON(http.StatusOK, map[string]any{
 		"rectificativa": map[string]any{
-			"id":             rectInvoice.Id,
-			"invoice_number": rectInvoice.GetString("invoice_number"),
-			"invoice_type":   "rectificativa",
-			"status":         "paid",
-			"total_gross":    negGross,
-			"total_net":      negNet,
-			"total_tax":      negTax,
-			"items":          items,
-			"payments":       payments,
+			"id":                  rectInvoice.Id,
+			"invoice_number":      rectInvoice.GetString("invoice_number"),
+			"invoice_type":        "rectificativa",
+			"status":              "paid",
+			"total_gross":         negGross,
+			"total_net":           negNet,
+			"total_tax":           negTax,
+			"original_invoice_id": req.OriginalInvoiceID,
+			"rectification_reason": rectInvoice.GetString("rectification_reason"),
+			"closure":             rectInvoice.GetString("closure"),
+			"created":             rectInvoice.GetString("created"),
+			"items":               items,
+			"payments":            payments,
 		},
-		"original": updatedOriginal,
+		"original": map[string]any{
+			"id":                  updatedOriginal.Id,
+			"invoice_number":      updatedOriginal.GetString("invoice_number"),
+			"invoice_type":        updatedOriginal.GetString("invoice_type"),
+			"status":              updatedOriginal.GetString("status"),
+			"total_gross":         updatedOriginal.GetString("total_gross"),
+			"total_net":           updatedOriginal.GetString("total_net"),
+			"total_tax":           updatedOriginal.GetString("total_tax"),
+			"discount_type":       updatedOriginal.GetString("discount_type"),
+			"discount_value":      updatedOriginal.GetString("discount_value"),
+			"closure":             updatedOriginal.GetString("closure"),
+			"customer":            updatedOriginal.GetString("customer"),
+			"customer_name":       updatedOriginal.GetString("customer_name"),
+			"customer_nif":        updatedOriginal.GetString("customer_nif"),
+			"customer_street":     updatedOriginal.GetString("customer_street"),
+			"customer_zip":        updatedOriginal.GetString("customer_zip"),
+			"customer_city":       updatedOriginal.GetString("customer_city"),
+			"tax_breakdown":       updatedOriginal.Get("tax_breakdown"),
+			"rectification_reason": updatedOriginal.GetString("rectification_reason"),
+			"original_invoice_id": updatedOriginal.GetString("original_invoice"),
+			"created":             updatedOriginal.GetString("created"),
+			"items":               origItems,
+			"payments":            origPayments,
+		},
 	})
 }
 
@@ -705,6 +734,14 @@ func generateInvoiceNumber(prefix string, invoiceType string, counter int) strin
 	number = strings.ReplaceAll(number, "%day%", fmt.Sprintf("%02d", now.Day()))
 	number = strings.ReplaceAll(number, "%date%", fmt.Sprintf("%d%02d%02d", now.Year(), now.Month(), now.Day()))
 	number = strings.ReplaceAll(number, "%count%", fmt.Sprintf("%05d", counter))
+
+	// If prefix didn't contain %count%, append the counter
+	if !strings.Contains(prefix, "%count%") {
+		if number != "" {
+			number += "-"
+		}
+		number += fmt.Sprintf("%05d", counter)
+	}
 
 	typePrefix := "T-"
 	if invoiceType == "factura" {

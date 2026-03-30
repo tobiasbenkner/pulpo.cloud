@@ -43,11 +43,13 @@
       selected: boolean;
       quantity: number;
       maxQuantity: number;
+      originalQuantity: number;
+      rectifiedQuantity: number;
     }[]
   >([]);
 
   // Derived
-  let allRectified = $derived(selectedItems.length === 0);
+  let allRectified = $derived(selectedItems.every((s) => s.maxQuantity === 0));
 
   let hasValidSelection = $derived(
     reason !== "" && selectedItems.some((s) => s.selected),
@@ -96,20 +98,20 @@
       }
     }
 
-    selectedItems = (inv.items ?? [])
-      .map((item) => {
-        const key = `${item.product_id ?? ""}|${item.product_name}`;
-        const origQty = Math.abs(parseInt(String(item.quantity)));
-        const rectified = alreadyRectified.get(key) ?? 0;
-        const remaining = Math.max(0, origQty - rectified);
-        return {
-          item,
-          selected: remaining > 0,
-          quantity: remaining,
-          maxQuantity: remaining,
-        };
-      })
-      .filter((s) => s.maxQuantity > 0);
+    selectedItems = (inv.items ?? []).map((item) => {
+      const key = `${item.product_id ?? ""}|${item.product_name}`;
+      const origQty = Math.abs(parseInt(String(item.quantity)));
+      const rectified = alreadyRectified.get(key) ?? 0;
+      const remaining = Math.max(0, origQty - rectified);
+      return {
+        item,
+        selected: false,
+        quantity: remaining,
+        maxQuantity: remaining,
+        originalQuantity: origQty,
+        rectifiedQuantity: rectified,
+      };
+    });
   }
 
   function toggleItem(index: number) {
@@ -154,7 +156,7 @@
 
   function buildItemsPayload() {
     return selectedItems
-      .filter((s) => s.selected)
+      .filter((s) => s.selected && s.maxQuantity > 0)
       .map((s) => ({
         product_id: s.item.product_id,
         product_name: s.item.product_name,
@@ -333,37 +335,55 @@
                     class="border border-zinc-200 rounded-xl overflow-hidden divide-y divide-zinc-100"
                   >
                     {#each selectedItems as s, i}
+                      {@const fullyRectified = s.maxQuantity === 0}
                       <div
-                        class="flex items-center gap-3 px-4 py-3 transition-colors {s.selected
-                          ? 'bg-white'
-                          : 'bg-zinc-50 opacity-50'}"
+                        class="flex items-center gap-3 px-4 py-3 transition-colors {fullyRectified
+                          ? 'bg-zinc-50 opacity-40'
+                          : s.selected
+                            ? 'bg-white'
+                            : 'bg-zinc-50 opacity-60'}"
                       >
                         <!-- Checkbox -->
-                        <button
-                          class="w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors {s.selected
-                            ? 'border-zinc-700 bg-zinc-700 text-white'
-                            : 'border-zinc-300 bg-white'}"
-                          onclick={() => toggleItem(i)}
-                        >
-                          {#if s.selected}
-                            <Check class="w-3 h-3" />
-                          {/if}
-                        </button>
+                        {#if fullyRectified}
+                          <div
+                            class="w-5 h-5 rounded border-2 border-zinc-200 bg-zinc-100 flex items-center justify-center shrink-0"
+                          >
+                            <Check class="w-3 h-3 text-zinc-400" />
+                          </div>
+                        {:else}
+                          <button
+                            class="w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors {s.selected
+                              ? 'border-zinc-700 bg-zinc-700 text-white'
+                              : 'border-zinc-300 bg-white'}"
+                            onclick={() => toggleItem(i)}
+                          >
+                            {#if s.selected}
+                              <Check class="w-3 h-3" />
+                            {/if}
+                          </button>
+                        {/if}
 
                         <!-- Product info -->
                         <div class="flex-1 min-w-0">
                           <div
-                            class="text-sm text-zinc-800 font-medium truncate"
+                            class="text-sm font-medium truncate {fullyRectified
+                              ? 'text-zinc-400 line-through'
+                              : 'text-zinc-800'}"
                           >
                             {s.item.product_name}
                           </div>
                           <div class="text-xs text-zinc-400">
-                            @ {formatCurrency(s.item.price_gross_unit)} &euro;
+                            {s.originalQuantity}x @ {formatCurrency(s.item.price_gross_unit)} &euro;
+                            {#if s.rectifiedQuantity > 0}
+                              <span class="text-red-400 font-medium">
+                                &middot; {s.rectifiedQuantity} anulado{s.rectifiedQuantity > 1 ? "s" : ""}
+                              </span>
+                            {/if}
                           </div>
                         </div>
 
                         <!-- Quantity controls -->
-                        {#if s.selected}
+                        {#if s.selected && !fullyRectified}
                           <div class="flex items-center gap-1 shrink-0">
                             <button
                               class="w-8 h-8 rounded-lg bg-zinc-100 text-zinc-600 flex items-center justify-center text-lg font-bold hover:bg-zinc-200 transition-colors disabled:opacity-30"
@@ -390,7 +410,11 @@
                         <div
                           class="text-sm font-bold tabular-nums text-right w-16 shrink-0"
                         >
-                          {#if s.selected}
+                          {#if fullyRectified}
+                            <span class="text-zinc-300 line-through"
+                              >{formatCurrency(s.item.row_total_gross)}</span
+                            >
+                          {:else if s.selected}
                             {(() => {
                               const ratio = new Big(s.quantity).div(
                                 s.maxQuantity,

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/pocketbase/pocketbase/core"
@@ -112,7 +113,7 @@ func init() {
 			company.Set("city", "Las Palmas de Gran Canaria")
 			company.Set("email", "demo@pulpo.cloud")
 			company.Set("timezone", "Atlantic/Canary")
-			company.Set("invoice_prefix", "DEMO")
+			company.Set("invoice_prefix", "%count%")
 			company.Set("last_ticket_number", 0)
 			company.Set("last_factura_number", 0)
 			company.Set("last_rectificativa_number", 0)
@@ -328,10 +329,10 @@ func init() {
 				var invoiceNumber string
 				if invoiceType == "ticket" {
 					ticketCounter++
-					invoiceNumber = fmtInvoiceNumber(prefix, "ticket", ticketCounter)
+					invoiceNumber = fmtInvoiceNumber(prefix, "ticket", ticketCounter, invoiceTime)
 				} else {
 					facturaCounter++
-					invoiceNumber = fmtInvoiceNumber(prefix, "factura", facturaCounter)
+					invoiceNumber = fmtInvoiceNumber(prefix, "factura", facturaCounter, invoiceTime)
 				}
 
 				// Payment: 55% cash, 45% card
@@ -451,17 +452,19 @@ func init() {
 	}, nil)
 }
 
-func fmtInvoiceNumber(prefix, invoiceType string, counter int) string {
-	p := prefix
-	if p != "" {
-		p += "-"
+func fmtInvoiceNumber(prefix, invoiceType string, counter int, t time.Time) string {
+	number := prefix
+	number = strings.ReplaceAll(number, "%year%", fmt.Sprintf("%d", t.Year()))
+	number = strings.ReplaceAll(number, "%month%", fmt.Sprintf("%02d", t.Month()))
+	number = strings.ReplaceAll(number, "%day%", fmt.Sprintf("%02d", t.Day()))
+	number = strings.ReplaceAll(number, "%date%", fmt.Sprintf("%d%02d%02d", t.Year(), t.Month(), t.Day()))
+	number = strings.ReplaceAll(number, "%count%", fmt.Sprintf("%05d", counter))
+
+	typePrefix := "T-"
+	if invoiceType == "factura" {
+		typePrefix = "F-"
+	} else if invoiceType == "rectificativa" {
+		typePrefix = "R-"
 	}
-	switch invoiceType {
-	case "factura":
-		return fmt.Sprintf("%sF-%05d", p, counter)
-	case "rectificativa":
-		return fmt.Sprintf("%sR-%05d", p, counter)
-	default:
-		return fmt.Sprintf("%sT-%05d", p, counter)
-	}
+	return typePrefix + number
 }
