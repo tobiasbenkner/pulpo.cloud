@@ -1,60 +1,56 @@
 # pulpo.cloud
 
-Business management platform for hospitality and retail -- built with Astro, Svelte, and Directus.
+Business management platform for hospitality and retail — built with Astro, Svelte, PocketBase, and Go.
 
 ## Tech Stack
 
-- **Astro 5** -- Static site generation
-- **Svelte 5** -- Reactive UI components
-- **Tailwind CSS v4** -- Styling
-- **Directus 11** -- Headless CMS
-- **TypeScript 5.9** -- Type safety
-- **Turborepo + pnpm** -- Monorepo management
+- **Go + PocketBase** — Backend (API, auth, SQLite database)
+- **Astro 6** — Static site generation
+- **Svelte 5** — Reactive UI components
+- **Tailwind CSS v4** — Styling
+- **TypeScript 5.9** — Type safety
+- **Turborepo + pnpm** — Monorepo management
 
 ## Project Structure
 
 ```
 apps/
-  agenda/                  # Reservation & calendar management
-  shop/                    # Point-of-Sale system (POS)
-  thermal-printer-service/ # ESC/POS thermal printer HTTP service
-  directus/                # Directus CMS instance + custom extensions
+  pulpo-app/   # Go backend (PocketBase), serves all frontends as static files
+  agenda/      # Reservation & floorplan management (Astro + Svelte 5)
+  shop/        # Point-of-Sale system (Astro + Svelte 5 + nanostores)
+  website/     # Standard website template
 
 packages/
-  cms/                     # Typed Directus SDK wrapper (@pulpo/cms)
-  auth/                    # Authentication layer + Svelte components (@pulpo/auth)
-  i18n/                    # Multi-language routing framework (@pulpo/i18n)
+  invoice/     # Shared invoice calculation logic (@pulpo/invoice, big.js)
+
+websites/      # Client website instances
+  beckernet.es/
+  holacanterasclub.com/
+  pulpo.cloud/
 
 tools/
-  migrate/                 # PocketBase -> Directus data migration
-  telegram_bot/            # Telegram bot for event uploads
-  proxy/                   # Traefik reverse proxy config
+  migrate/     # Data migration scripts
+  proxy/       # Traefik reverse proxy config
 ```
 
 ## Apps
 
+### POS Shop (`@pulpo/shop`)
+
+Full point-of-sale system with product catalog, stock management, shopping cart, multi-region Spanish tax calculation (IGIC/IVA/IPSI), invoice generation (tickets, facturas & rectificativas), cash register workflows, thermal printer integration, and reporting with Excel export.
+
 ### Agenda (`@pulpo/agenda`)
 
-Reservation management app with calendar views, time slot management, and arrival tracking. Uses polling-based real-time updates. Deployed as Docker image.
+Reservation management with floorplan editor, table assignment algorithm, time slot management, and arrival tracking. Real-time updates via polling.
 
-### Shop (`@pulpo/shop`)
+### Backend (`@pulpo/app`)
 
-Full point-of-sale system with product catalog, stock management, shopping cart, multi-region Spanish tax calculation (IGIC/IVA/IPSI), invoice generation (tickets & facturas), cash register workflows, thermal printer integration, and daily reporting. Deployed as Docker image.
-
-### Thermal Printer Service
-
-Standalone Express.js HTTP service for ESC/POS thermal printer communication via USB or network.
-
-### Directus
-
-Self-hosted Directus CMS with a custom `invoice-processor` extension handling invoice numbering, stock decrement, and tenant assignment. Runs via Docker Compose with PostgreSQL.
-
-## Shared Packages
-
-| Package       | Description                                                                                                                        |
-| ------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `@pulpo/cms`  | Typed Directus client factory, domain API functions (invoices, products, customers, tax, reports), and collection type definitions |
-| `@pulpo/auth` | Token-based authentication with localStorage persistence, auth store (nanostores), and reusable Svelte login components            |
+Go backend with PocketBase providing:
+- Custom API endpoints for invoices, cash register, and reports
+- Invoice calculation with `shopspring/decimal` (cross-validated with TypeScript version)
+- Excel report generation
+- Email notifications on cash register closure
+- Auto-migrations for schema + seed data
 
 ## Getting Started
 
@@ -62,6 +58,7 @@ Self-hosted Directus CMS with a custom `invoice-processor` extension handling in
 
 - Node.js >= 18
 - pnpm 10.28+
+- Go 1.23+
 
 ### Install
 
@@ -69,29 +66,40 @@ Self-hosted Directus CMS with a custom `invoice-processor` extension handling in
 pnpm install
 ```
 
-### Environment Variables
+### Configuration
 
-Create `.env` files in the respective app directories:
-
-```env
-DIRECTUS_URL=https://your-directus-instance.com
-DIRECTUS_TOKEN=your-api-token
-```
-
-For Cloudflare deployment:
+Create `apps/pulpo-app/.env`:
 
 ```env
-CLOUDFLARE_API_TOKEN=...
-CLOUDFLARE_ACCOUNT_ID=...
+# Demo mode (seeds products, customers, 90 days of sample data)
+PB_SEED_DEMO=true
+
+# PocketBase superuser (for /_/ admin panel)
+PB_ADMIN_EMAIL=admin@example.com
+PB_ADMIN_PASSWORD=changeme
+
+# App user (for shop/agenda login)
+PB_USER_EMAIL=user@example.com
+PB_USER_PASSWORD=changeme
+PB_USER_NAME=Demo User
+
+# Company data
+PB_COMPANY_NAME=My Restaurant
+PB_COMPANY_NIF=B12345678
+PB_COMPANY_STREET=Calle Mayor 1
+PB_COMPANY_ZIP=35001
+PB_COMPANY_CITY=Las Palmas de Gran Canaria
+PB_COMPANY_TIMEZONE=Atlantic/Canary
+PB_COMPANY_INVOICE_PREFIX=%count%
 ```
 
 ### Development
 
 ```bash
-# Start all dev servers
-pnpm dev
+# Start Go backend (reads .env, runs migrations, seeds data)
+pnpm --filter @pulpo/app dev
 
-# Start a specific app
+# Start frontend dev servers (in separate terminals)
 pnpm --filter @pulpo/shop dev
 pnpm --filter @pulpo/agenda dev
 ```
@@ -99,26 +107,21 @@ pnpm --filter @pulpo/agenda dev
 ### Build
 
 ```bash
-# Build all packages
 pnpm build
-
-# Build a specific app
-pnpm --filter @pulpo/shop build
 ```
 
-### Other Commands
+### Test
 
 ```bash
-pnpm lint          # Lint all packages
-pnpm check-types   # TypeScript type checking
-pnpm format        # Format code with Prettier
-pnpm deploy        # Deploy all deployable packages
+pnpm test                        # All tests
+go test ./... -C apps/pulpo-app  # Go tests only
 ```
 
 ## Architecture Highlights
 
-- **Client-side rendering** -- Astro generates static HTML, Svelte components handle interactivity via `client:only`
-- **Shared CMS layer** -- All apps connect to a single Directus instance through `@pulpo/cms`
-- **Multi-tenant** -- Tenant-aware schema with per-tenant invoice numbering and postcode-based tax region detection
-- **Decimal precision** -- Financial calculations use `big.js` to avoid floating-point errors
-- **Spanish tax compliance** -- Multi-region tax system (Canary Islands, Ceuta, Melilla, mainland) with VeriFactu invoice hashing
+- **Per-customer deployment** — Each customer gets their own PocketBase process + SQLite database
+- **Single binary** — Go binary embeds all frontends via `go:embed`
+- **Client-side rendering** — Astro generates static HTML, Svelte handles interactivity via `client:only`
+- **Decimal precision** — Financial calculations use `big.js` (frontend) and `shopspring/decimal` (backend)
+- **Spanish tax compliance** — Multi-region tax system (Canary Islands, Ceuta, Melilla, mainland)
+- **Timezone-aware** — All date queries use the restaurant's timezone (`company.timezone`), not the browser's

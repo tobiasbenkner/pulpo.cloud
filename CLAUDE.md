@@ -21,6 +21,7 @@ To run commands for a specific workspace:
 ```bash
 pnpm --filter @pulpo/website dev
 pnpm --filter @pulpo/shop build
+pnpm --filter @pulpo/app dev    # Go backend (reads .env automatically via godotenv)
 ```
 
 ## Architecture
@@ -28,15 +29,15 @@ pnpm --filter @pulpo/shop build
 ### Monorepo Structure
 
 ```
-apps/           # Astro applications
+apps/           # Applications
 ├── agenda/     # Reservation & floorplan app (Astro + Svelte 5 + PocketBase)
 ├── pulpo-app/  # Go backend (PocketBase), serves agenda/shop as static files
-├── shop/       # POS app with nanostores (still on Directus, migration pending)
+├── shop/       # POS app (Astro + Svelte 5 + PocketBase SDK + nanostores)
 └── website/    # Standard website template
 
 packages/       # Shared libraries
-├── cms/                # Directus SDK wrapper — DEPRECATED, being replaced by PocketBase SDK
-├── directus-extension/ # Directus endpoint extension — will be replaced by Go hooks
+├── cms/                # Directus SDK wrapper — DEPRECATED, no longer used by shop/agenda
+├── directus-extension/ # Directus endpoint extension — DEPRECATED, replaced by Go hooks
 └── invoice/            # Shared invoice calculation logic (@pulpo/invoice)
 
 websites/       # Client website instances
@@ -55,10 +56,6 @@ tools/          # Development and migration tools
 - **websites/** are client-specific deployments that may extend or customize apps
 - Both use the same patterns: Astro + Tailwind CSS v4
 
-### Shared CMS Package (@pulpo/cms) — DEPRECATED
-
-Being replaced by PocketBase SDK directly in each app. Do not add new functionality here.
-
 ### Shared Invoice Package (@pulpo/invoice)
 
 Located at `packages/invoice/`, provides:
@@ -66,10 +63,6 @@ Located at `packages/invoice/`, provides:
 - Uses `big.js` for precise decimal arithmetic
 - Source-only package (no build step), consumed by `@pulpo/shop` for cart preview
 - Cross-validated against the Go implementation (7 shared test cases, identical results)
-
-### Directus Extension (pulpo-extension) — DEPRECATED
-
-Located at `packages/directus-extension/`, being replaced by Go endpoints in `apps/pulpo-app/routes/`.
 
 All shared packages are used via workspace dependency:
 ```json
@@ -91,9 +84,11 @@ Website apps use a convention-based routing system:
 
 ### Environment Variables
 
-Required for CMS-connected apps:
-- `DIRECTUS_URL` - Directus instance URL
-- `DIRECTUS_TOKEN` - API token
+For PocketBase backend (`apps/pulpo-app/.env`):
+- `PB_ADMIN_EMAIL` / `PB_ADMIN_PASSWORD` — PocketBase superuser
+- `PB_USER_EMAIL` / `PB_USER_PASSWORD` / `PB_USER_NAME` — App user
+- `PB_COMPANY_*` — Company data (NAME, NIF, STREET, ZIP, CITY, TIMEZONE, INVOICE_PREFIX)
+- `PB_SEED_DEMO` — Enable demo data seeding (products, customers, 90 days of invoices)
 
 For deployment:
 - `CLOUDFLARE_API_TOKEN`
@@ -101,7 +96,9 @@ For deployment:
 
 ### Deployment
 
-Apps deploy to **Cloudflare Pages** via Wrangler CLI. The `pnpm deploy` command builds and pushes to the configured Cloudflare project.
+- **Shop + Agenda**: Served as static files embedded in the Go binary via `go:embed`
+- **Websites**: Deploy to **Cloudflare Pages** via Wrangler CLI
+- **Per-customer deployment**: Each customer gets their own PocketBase process + SQLite database
 
 ## Migration Status: Directus → PocketBase
 
@@ -130,12 +127,18 @@ See `ARCHITECTURE.md` and `MIGRATION_PLAN.md` for the full plan.
 **API Endpoints (all auth-protected):**
 - `POST /api/custom/invoices` — Create invoice (load products, resolve tax, calculate, store in transaction)
 - `POST /api/custom/invoices/rectify` — Create rectificativa (negative invoice, restore stock)
+- `POST /api/custom/invoices/swap-payment` — Swap payment method (cash↔card, amount unchanged)
 - `POST /api/custom/cash-register/open` — Open register (checks for existing open closure)
 - `POST /api/custom/cash-register/close` — Close register (computes all totals on-the-fly)
 - `GET /api/custom/reports/{period}` — JSON reports (daily/weekly/monthly/quarterly/yearly)
 - `GET /api/custom/reports/{period}/excel` — Excel download
 
 **Hook:** `OnRecordAfterUpdateSuccess("closures")` — sends closure email with Excel attachment (async)
+
+**Seed Migrations:**
+- `seed_tax_data.go` — 5 tax classes, 4 zones (Spanish regions), 19 rules (idempotent)
+- `seed_company.go` — Company record from `PB_COMPANY_*` env vars
+- `seed_demo_data.go` — Demo data (`PB_SEED_DEMO=true`): 21 products, 5 customers, 90 days of historical invoices
 
 **Tests: 125 total**
 - 34 Go invoice tests (27 unit + 7 cross-validation)
@@ -147,6 +150,21 @@ See `ARCHITECTURE.md` and `MIGRATION_PLAN.md` for the full plan.
 - No JSON fields — everything normalized or computed on-the-fly
 - 1 invoice per table, N payments per invoice (Spanish POS standard)
 - Closures store no aggregated data — totals computed from invoices
+- Invoice prefix supports placeholders: `%count%`, `%year%`, `%month%`, `%day%`, `%date%`
+- PocketBase datetime format: `"2006-01-02 15:04:05.000Z"` (not RFC3339)
+- Timezone from `company.timezone` field, never browser timezone
+
+### Completed: Shop Frontend (Phase 5)
+
+`apps/shop/` has been fully migrated from Directus to PocketBase:
+- Auth: PocketBase SDK (`src/lib/pb.ts`), local auth components in `src/components/auth/`
+- API: All functions in `src/lib/api.ts` using `pb.collection()` and `pb.send()` for custom endpoints
+- Types: Local type definitions in `src/lib/types.ts` extending PocketBase `RecordModel`
+- Stores: All 5 stores migrated (taxStore, printerStore, productStore, registerStore, cartStore)
+- `normalizeInvoice()`: Maps PB back-relations to `items`/`payments` arrays, adds Directus field aliases
+- Timezone-aware date queries via `localDayToUTCRange()` using `company.timezone`
+- Dependencies: `pocketbase` SDK replaces `@directus/sdk`, `@pulpo/auth`, `@pulpo/cms`
+- `@pulpo/invoice` kept for cart live-preview (server recalculates at checkout)
 
 ### PocketBase Collections
 
@@ -158,7 +176,6 @@ See `ARCHITECTURE.md` and `MIGRATION_PLAN.md` for the full plan.
 
 | Phase | Description | Status |
 |-------|-------------|--------|
-| 5 | Shop frontend migration | Not started |
 | 6 | Settings view | Not started |
 | 7 | Docker + npm distribution | Dockerfile exists |
 | 8 | Data migration Directus→PB | Not started |
