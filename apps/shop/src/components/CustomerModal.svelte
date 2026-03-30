@@ -51,7 +51,7 @@
   let formNotes = $state("");
 
   let debounceTimer: ReturnType<typeof setTimeout> | undefined;
-  let searchInputEl: HTMLInputElement | undefined;
+  let searchInputEl: HTMLInputElement | undefined = $state();
 
   let title = $derived(
     view === "create"

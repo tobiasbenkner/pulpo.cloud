@@ -233,17 +233,24 @@
                       </div>
                     </div>
                   </div>
-                  <button
+                  <div
+                    role="button"
+                    tabindex="0"
                     class="p-2.5 rounded-xl text-zinc-400 hover:text-red-500 hover:bg-red-50 transition-colors"
                     title="Quitar cliente"
                     onclick={(e) => {
                       e.stopPropagation();
                       setCustomer(null);
                     }}
-                    type="button"
+                    onkeydown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.stopPropagation();
+                        setCustomer(null);
+                      }
+                    }}
                   >
                     <X class="w-5 h-5" />
-                  </button>
+                  </div>
                 {:else}
                   <div class="flex items-center gap-3 text-zinc-500">
                     <div

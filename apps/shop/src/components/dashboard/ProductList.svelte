@@ -611,8 +611,8 @@
 									</div>
 								</div>
 								<div class="space-y-1.5">
-									<label class="text-sm font-medium"
-										>Unidad de venta</label
+									<span class="text-sm font-medium"
+										>Unidad de venta</span
 									>
 									<Select.Root
 										type="single"
@@ -650,8 +650,8 @@
 						<div class="space-y-4 p-5">
 							<div class="grid gap-4 sm:grid-cols-3">
 								<div class="space-y-1.5">
-									<label class="text-sm font-medium"
-										>Categoria</label
+									<span class="text-sm font-medium"
+										>Categoria</span
 									>
 									<Select.Root
 										type="single"
@@ -674,8 +674,8 @@
 									</Select.Root>
 								</div>
 								<div class="space-y-1.5">
-									<label class="text-sm font-medium"
-										>Clase de impuesto</label
+									<span class="text-sm font-medium"
+										>Clase de impuesto</span
 									>
 									<Select.Root
 										type="single"
@@ -698,8 +698,8 @@
 									</Select.Root>
 								</div>
 								<div class="space-y-1.5">
-									<label class="text-sm font-medium"
-										>Centro de coste</label
+									<span class="text-sm font-medium"
+										>Centro de coste</span
 									>
 									<Select.Root
 										type="single"

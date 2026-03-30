@@ -111,11 +111,12 @@
     onkeydown={(e) => e.key === "Escape" && close()}
   >
     <!-- Backdrop -->
-    <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <div
+    <button
+      type="button"
       class="absolute inset-0 bg-black/50 backdrop-blur-sm"
       onclick={close}
-    ></div>
+      aria-label="Cerrar"
+    ></button>
 
     <!-- Modal -->
     <div

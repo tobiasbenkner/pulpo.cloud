@@ -709,16 +709,24 @@
             {customer ? customer.name : "Cliente"}
           </span>
           {#if customer}
-            <button
+            <div
+              role="button"
+              tabindex="0"
               class="ml-1 p-0.5 rounded-full hover:bg-blue-200 transition-colors"
               onclick={(e) => {
                 e.stopPropagation();
                 setCustomer(null);
               }}
+              onkeydown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.stopPropagation();
+                  setCustomer(null);
+                }
+              }}
               title="Quitar cliente"
             >
               <XIcon class="w-5 h-5" />
-            </button>
+            </div>
           {/if}
         </button>
 

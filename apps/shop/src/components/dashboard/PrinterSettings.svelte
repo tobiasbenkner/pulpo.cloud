@@ -305,7 +305,7 @@
 								<Input id="pr-name" bind:value={formName} placeholder="Ej. Barra, Cocina" required />
 							</div>
 							<div class="space-y-1.5">
-								<label class="text-sm font-medium">Conexion</label>
+								<span class="text-sm font-medium">Conexion</span>
 								<Select.Root type="single" bind:value={formConnection}>
 									<Select.Trigger class="w-full">
 										{formConnection === "USB" ? "USB" : "Red (IP)"}
