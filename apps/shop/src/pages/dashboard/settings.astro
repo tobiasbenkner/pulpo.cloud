@@ -1,0 +1,8 @@
+---
+import DashboardLayout from "../../layouts/DashboardLayout.astro";
+import SettingsPage from "../../components/dashboard/pages/SettingsPage.svelte";
+---
+
+<DashboardLayout title="Ajustes - Dashboard">
+  <SettingsPage client:only="svelte" />
+</DashboardLayout>

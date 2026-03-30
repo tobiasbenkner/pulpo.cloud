@@ -1,11 +1,14 @@
 import { pb } from "./pb";
 import type {
   Company,
+  User,
+  Printer,
   ProductCategory,
   PbProduct,
   TaxZone,
   TaxRule,
   TaxClass,
+  CostCenter,
   Customer,
   Closure,
   Invoice,
@@ -51,6 +54,42 @@ export async function getCompany(): Promise<Company> {
   return records[0];
 }
 
+export async function updateCompany(
+  id: string,
+  data: Partial<Company>,
+): Promise<Company> {
+  return pb.collection("company").update<Company>(id, data);
+}
+
+// --- Users ---
+
+export async function getUsers(): Promise<User[]> {
+  return pb
+    .collection("users")
+    .getFullList<User>({ sort: "name", requestKey: null });
+}
+
+export async function createUser(data: {
+  email: string;
+  password: string;
+  passwordConfirm: string;
+  name: string;
+  role: string;
+}): Promise<User> {
+  return pb.collection("users").create<User>(data);
+}
+
+export async function updateUser(
+  id: string,
+  data: Partial<User> & { password?: string; passwordConfirm?: string },
+): Promise<User> {
+  return pb.collection("users").update<User>(id, data);
+}
+
+export async function deleteUser(id: string): Promise<void> {
+  await pb.collection("users").delete(id);
+}
+
 // --- Products ---
 
 export async function getCategoriesWithProducts() {
@@ -76,6 +115,102 @@ export async function updateProductStock(
   stock: number | null,
 ) {
   await pb.collection("products").update(productId, { stock });
+}
+
+export async function createProduct(data: FormData): Promise<PbProduct> {
+  return pb.collection("products").create<PbProduct>(data);
+}
+
+export async function updateProduct(
+  id: string,
+  data: FormData,
+): Promise<PbProduct> {
+  return pb.collection("products").update<PbProduct>(id, data);
+}
+
+export async function deleteProduct(id: string): Promise<void> {
+  await pb.collection("products").delete(id);
+}
+
+// --- Categories ---
+
+export async function getCategories(): Promise<ProductCategory[]> {
+  return pb
+    .collection("products_categories")
+    .getFullList<ProductCategory>({ sort: "sort", requestKey: null });
+}
+
+export async function createCategory(
+  data: Partial<ProductCategory>,
+): Promise<ProductCategory> {
+  return pb.collection("products_categories").create<ProductCategory>(data);
+}
+
+export async function updateCategory(
+  id: string,
+  data: Partial<ProductCategory>,
+): Promise<ProductCategory> {
+  return pb.collection("products_categories").update<ProductCategory>(id, data);
+}
+
+export async function deleteCategory(id: string): Promise<void> {
+  await pb.collection("products_categories").delete(id);
+}
+
+// --- Tax Classes & Cost Centers ---
+
+export async function getTaxClasses(): Promise<TaxClass[]> {
+  return pb
+    .collection("tax_classes")
+    .getFullList<TaxClass>({ sort: "name", requestKey: null });
+}
+
+export async function getCostCenters(): Promise<CostCenter[]> {
+  return pb
+    .collection("cost_centers")
+    .getFullList<CostCenter>({ sort: "name", requestKey: null });
+}
+
+export async function createCostCenter(
+  data: Partial<CostCenter>,
+): Promise<CostCenter> {
+  return pb.collection("cost_centers").create<CostCenter>(data);
+}
+
+export async function updateCostCenter(
+  id: string,
+  data: Partial<CostCenter>,
+): Promise<CostCenter> {
+  return pb.collection("cost_centers").update<CostCenter>(id, data);
+}
+
+export async function deleteCostCenter(id: string): Promise<void> {
+  await pb.collection("cost_centers").delete(id);
+}
+
+// --- Printers ---
+
+export async function getPrinters(): Promise<Printer[]> {
+  return pb
+    .collection("printers")
+    .getFullList<Printer>({ sort: "name", requestKey: null });
+}
+
+export async function createPrinter(
+  data: Partial<Printer>,
+): Promise<Printer> {
+  return pb.collection("printers").create<Printer>(data);
+}
+
+export async function updatePrinter(
+  id: string,
+  data: Partial<Printer>,
+): Promise<Printer> {
+  return pb.collection("printers").update<Printer>(id, data);
+}
+
+export async function deletePrinter(id: string): Promise<void> {
+  await pb.collection("printers").delete(id);
 }
 
 // --- Tax ---

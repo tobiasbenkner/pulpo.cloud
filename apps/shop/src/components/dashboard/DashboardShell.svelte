@@ -10,6 +10,7 @@
 		invoices: "Facturas",
 		reports: "Informes",
 		products: "Productos",
+		settings: "Ajustes",
 	};
 
 	let {

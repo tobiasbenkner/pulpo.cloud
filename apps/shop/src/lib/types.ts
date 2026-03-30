@@ -10,9 +10,17 @@ export interface Company extends RecordModel {
   city: string;
   email: string | null;
   timezone: string | null;
-  invoice_prefix: string | null;
+  closure_email: string | null;
   invoice_image: string | null;
   simplified_invoice_limit: number | null;
+}
+
+export interface User extends RecordModel {
+  email: string;
+  name: string;
+  role: "admin" | "user";
+  verified: boolean;
+  avatar: string;
 }
 
 export interface ProductCategory extends RecordModel {
@@ -73,6 +81,20 @@ export interface Customer extends RecordModel {
 
 export interface CostCenter extends RecordModel {
   name: string;
+}
+
+export interface Printer extends RecordModel {
+  name: string;
+  connection: "USB" | "IP";
+  ip: string | null;
+  port: number | null;
+  width: number | null;
+  encoding: string | null;
+  replace_accents: boolean;
+  feed: number | null;
+  vendor_id: number | null;
+  product_id: number | null;
+  is_default: boolean;
 }
 
 export interface Closure extends RecordModel {

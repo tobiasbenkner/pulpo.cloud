@@ -4,6 +4,7 @@
 	import Receipt from "lucide-svelte/icons/receipt";
 	import BarChart3 from "lucide-svelte/icons/bar-chart-3";
 	import Package from "lucide-svelte/icons/package";
+	import Settings from "lucide-svelte/icons/settings";
 	import ShoppingCart from "lucide-svelte/icons/shopping-cart";
 
 	let { activePage = "overview" }: { activePage?: string } = $props();
@@ -32,6 +33,12 @@
 			url: "/dashboard/products",
 			icon: Package,
 			id: "products",
+		},
+		{
+			title: "Ajustes",
+			url: "/dashboard/settings",
+			icon: Settings,
+			id: "settings",
 		},
 	];
 </script>
