@@ -166,17 +166,51 @@ See `ARCHITECTURE.md` and `MIGRATION_PLAN.md` for the full plan.
 - Dependencies: `pocketbase` SDK replaces `@directus/sdk`, `@pulpo/auth`, `@pulpo/cms`
 - `@pulpo/invoice` kept for cart live-preview (server recalculates at checkout)
 
+### Completed: Settings & Product Management (Phase 6)
+
+`apps/shop/` dashboard views for admin configuration:
+
+**Dashboard Pages (`/dashboard/*`):**
+- `/dashboard` — Overview (KPIs, charts)
+- `/dashboard/invoices` — Invoice list
+- `/dashboard/reports` — Reports with multi-period navigation
+- `/dashboard/products` — Product management (3 tabs: Productos, Categorias, Centros de coste)
+- `/dashboard/settings` — Settings (4 tabs: Empresa, Usuarios, Impresoras, Caja)
+
+**Product Management:**
+- Product CRUD with image upload, search, category filter, sortable columns
+- Category CRUD with expandable product lists and up/down reordering
+- Cost center CRUD
+- Product form with sectioned layout (Basic info, Classification, Inventory, Details, Image)
+
+**Settings:**
+- Company data editing (name, NIF, address, timezone)
+- User management (CRUD, admin-only, role-based: admin/user)
+- Printer configuration (USB/IP, multiple printers, default printer)
+- Cash register settings (closure email)
+
+**Collection changes:**
+- `counters` collection: `invoice_prefix`, `ticket`, `factura`, `rectificativa_number` (all API rules `null` — Go-backend only)
+- `company` collection: counter fields removed, `updateRule` set to admin-only
+- `users` collection: `role` field added (select: admin/user), CRUD rules for admin users
+- `printers` collection: name, connection (USB/IP), ip, port, width, encoding, replace_accents, feed, vendor_id, product_id, is_default
+
+**Go backend changes:**
+- `routes/invoices.go`: reads/writes counters from `counters` collection instead of `company`
+- `seed_company.go`: seeds `counters` record separately
+- `seed_demo_data.go`: uses `counters` for prefix/counter
+
 ### PocketBase Collections
 
 **Agenda:** `reservations`, `reservations_turns`, `reservations_tables`, `reservations_zones`, `reservations_table_groups`
 
-**Shop:** `company`, `tax_classes`, `tax_zones`, `tax_rules`, `cost_centers`, `customers`, `products_categories`, `products`, `closures`, `closure_denominations`, `invoices`, `invoice_items`, `invoice_payments`
+**Shop:** `company`, `counters`, `printers`, `tax_classes`, `tax_zones`, `tax_rules`, `cost_centers`, `customers`, `products_categories`, `products`, `closures`, `closure_denominations`, `invoices`, `invoice_items`, `invoice_payments`
 
 ### Pending Phases
 
 | Phase | Description | Status |
 |-------|-------------|--------|
-| 6 | Settings view | Not started |
+| 6 | Settings & Product Management | Completed |
 | 7 | Docker + npm distribution | Dockerfile exists |
 | 8 | Data migration Directus→PB | Not started |
 | 9 | Platform/SaaS (optional) | Not started |
