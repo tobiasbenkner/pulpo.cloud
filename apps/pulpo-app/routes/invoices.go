@@ -59,6 +59,10 @@ func RegisterInvoiceRoutes(app core.App, se *core.ServeEvent) {
 	g.POST("/invoices/rectify", func(e *core.RequestEvent) error {
 		return handleRectifyInvoice(e)
 	})
+
+	g.POST("/invoices/swap-payment", func(e *core.RequestEvent) error {
+		return handleSwapPaymentMethod(e)
+	})
 }
 
 // --- Handlers ---
@@ -720,6 +724,49 @@ func handleRectifyInvoice(e *core.RequestEvent) error {
 			"items":               origItems,
 			"payments":            origPayments,
 		},
+	})
+}
+
+// --- Swap payment method ---
+
+type swapPaymentRequest struct {
+	PaymentID string `json:"payment_id"`
+	Method    string `json:"method"`
+}
+
+func handleSwapPaymentMethod(e *core.RequestEvent) error {
+	var req swapPaymentRequest
+	if err := e.BindBody(&req); err != nil {
+		return e.BadRequestError("Invalid request body", err)
+	}
+
+	if req.PaymentID == "" {
+		return e.BadRequestError("payment_id required", nil)
+	}
+	if req.Method != "cash" && req.Method != "card" {
+		return e.BadRequestError("method must be 'cash' or 'card'", nil)
+	}
+
+	payment, err := e.App.FindRecordById("invoice_payments", req.PaymentID)
+	if err != nil {
+		return e.NotFoundError("Payment not found", err)
+	}
+
+	// Only swap the method — amount stays the same, reset tendered/change
+	payment.Set("method", req.Method)
+	payment.Set("tendered", payment.GetString("amount"))
+	payment.Set("change", "0.00")
+
+	if err := e.App.Save(payment); err != nil {
+		return e.InternalServerError("Failed to update payment", err)
+	}
+
+	return e.JSON(http.StatusOK, map[string]any{
+		"id":       payment.Id,
+		"method":   req.Method,
+		"amount":   payment.GetString("amount"),
+		"tendered": payment.GetString("amount"),
+		"change":   "0.00",
 	})
 }
 

@@ -236,12 +236,11 @@ export async function getInvoice(id: string): Promise<Invoice> {
 export async function updateInvoicePaymentMethod(
   paymentId: string,
   newMethod: "cash" | "card",
-  amount: string,
+  _amount?: string,
 ) {
-  return pb.collection("invoice_payments").update(paymentId, {
-    method: newMethod,
-    tendered: amount,
-    change: "0.00",
+  return pb.send("/api/custom/invoices/swap-payment", {
+    method: "POST",
+    body: { payment_id: paymentId, method: newMethod },
   });
 }
 
