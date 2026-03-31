@@ -32,12 +32,17 @@ jobs:
                   LAST_SHA=$(gh run list --workflow "Build and Deploy" --branch main --status success --limit 1 --json headSha -q '.[0].headSha')
 
                   if [ -z "$LAST_SHA" ]; then
-                      # Fallback, falls es noch keinen erfolgreichen Run gab (z.B. beim allerersten Mal)
                       echo "Kein erfolgreicher Run gefunden. Vergleiche mit dem vorherigen Commit."
                       LAST_SHA=${{ github.event.before }}
                   fi
 
-                  echo "Vergleiche Änderungen seit: $LAST_SHA"
+                  # Prüfen ob der Commit im Repo erreichbar ist (kann nach rebase/force-push fehlen)
+                  if ! git cat-file -e "$LAST_SHA" 2>/dev/null; then
+                      echo "Commit $LAST_SHA nicht erreichbar — baue alles."
+                      LAST_SHA=""
+                  fi
+
+                  echo "Vergleiche Änderungen seit: ${LAST_SHA:-HEAD~1}"
                   echo "commit=$LAST_SHA" >> "$GITHUB_OUTPUT"
 
             - name: Install Dependencies
@@ -50,14 +55,25 @@ jobs:
               env:
                   DIRECTUS_URL: ${{ secrets.DIRECTUS_URL }}
                   DIRECTUS_TOKEN: ${{ secrets.DIRECTUS_TOKEN }}
-              run: npx turbo run build --filter=...[${{ steps.last_success.outputs.commit }}]
+                  LAST_SHA: ${{ steps.last_success.outputs.commit }}
+              run: |
+                  if [ -n "$LAST_SHA" ]; then
+                      npx turbo run build --filter=...[$LAST_SHA]
+                  else
+                      npx turbo run build
+                  fi
 
             - name: Dockerize
-              run: |
-                  echo "${DOCKER_HUB_TOKEN}" | docker login -u pulpocloud --password-stdin
-                  npx turbo run dockerize --filter=...[${{ steps.last_success.outputs.commit }}]
               env:
                   DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
+                  LAST_SHA: ${{ steps.last_success.outputs.commit }}
+              run: |
+                  echo "${DOCKER_HUB_TOKEN}" | docker login -u pulpocloud --password-stdin
+                  if [ -n "$LAST_SHA" ]; then
+                      npx turbo run dockerize --filter=...[$LAST_SHA]
+                  else
+                      npx turbo run dockerize
+                  fi
 
             - name: Deploy
               run: |
