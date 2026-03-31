@@ -12,6 +12,7 @@ import (
 	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/plugins/migratecmd"
 	"github.com/pocketbase/pocketbase/tools/osutils"
+	"github.com/pocketbase/pocketbase/tools/security"
 
 	_ "github.com/pulpo-cloud/pulpo-app/migrations"
 	"github.com/pulpo-cloud/pulpo-app/routes"
@@ -64,16 +65,27 @@ func main() {
 			}
 		}
 		if email := os.Getenv("PB_USER_EMAIL"); email != "" {
-			if pw := os.Getenv("PB_USER_PASSWORD"); pw != "" {
-				users, _ := se.App.FindCollectionByNameOrId("users")
-				if users != nil {
-					existing, _ := se.App.FindAuthRecordByEmail(users, email)
-					if existing == nil {
-						rec := core.NewRecord(users)
-						rec.SetEmail(email)
+			hash := os.Getenv("PB_USER_PASSWORD_HASH")
+			tokenKey := os.Getenv("PB_USER_TOKEN_KEY")
+			pw := os.Getenv("PB_USER_PASSWORD")
+			users, _ := se.App.FindCollectionByNameOrId("users")
+			if users != nil {
+				existing, _ := se.App.FindAuthRecordByEmail(users, email)
+				if existing == nil {
+					rec := core.NewRecord(users)
+					rec.SetEmail(email)
+					rec.Set("name", os.Getenv("PB_USER_NAME"))
+					rec.Set("role", "admin")
+					rec.SetVerified(true)
+					if hash != "" && tokenKey != "" {
+						// Copy auth from another PocketBase instance — both hash + tokenKey via raw SQL
+						rec.SetPassword(security.RandomString(30))
+						if err := se.App.Save(rec); err == nil {
+							_, _ = se.App.DB().NewQuery("UPDATE users SET password = {:hash}, tokenKey = {:tokenKey} WHERE id = {:id}").
+								Bind(map[string]any{"hash": hash, "tokenKey": tokenKey, "id": rec.Id}).Execute()
+						}
+					} else if pw != "" {
 						rec.SetPassword(pw)
-						rec.Set("name", os.Getenv("PB_USER_NAME"))
-						rec.Set("role", "admin")
 						_ = se.App.Save(rec)
 					}
 				}
