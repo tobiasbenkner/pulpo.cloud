@@ -2,6 +2,7 @@
 	import type { Snippet } from "svelte";
 	import { onMount } from "svelte";
 	import { checkAuthentication } from "../../lib/auth";
+	import { url } from "../../lib/url";
 	import * as Sidebar from "$lib/components/ui/sidebar/index.js";
 	import DashboardSidebar from "./DashboardSidebar.svelte";
 
@@ -30,7 +31,7 @@
 			await checkAuthentication();
 			authenticated = true;
 		} catch {
-			window.location.href = "/login";
+			window.location.href = url("/login");
 		}
 	});
 </script>

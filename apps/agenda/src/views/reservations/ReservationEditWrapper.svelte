@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import { url } from "../../lib/url";
   import ReservationForm from "./ReservationForm.svelte";
 
   let id: string | null = null;
@@ -19,7 +20,7 @@
   <div class="max-w-2xl mx-auto py-12">
     <div class="bg-error-bg border border-error-border text-error-text p-6 rounded-lg">
       <p>{error}</p>
-      <a href="/" class="text-error-text underline mt-2 inline-block">
+      <a href={url("/")} class="text-error-text underline mt-2 inline-block">
         Volver a la agenda
       </a>
     </div>

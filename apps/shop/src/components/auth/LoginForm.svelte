@@ -2,10 +2,11 @@
   import { onMount } from "svelte";
   import { pb } from "../../lib/pb";
   import { AlertCircle, ArrowRight, Loader2 } from "lucide-svelte";
+  import { url } from "../../lib/url";
 
-  export let redirectPath = "/";
-  export let forgotPasswordPath = "/forgot-password";
-  export let supportPath = "/support";
+  export let redirectPath = url("/");
+  export let forgotPasswordPath = url("/forgot-password");
+  export let supportPath = url("/support");
 
   let email = "";
   let password = "";

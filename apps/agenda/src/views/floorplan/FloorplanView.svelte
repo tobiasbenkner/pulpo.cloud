@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { pb } from "../../lib/pb";
+  import { url } from "../../lib/url";
   import type { Reservation, Table, TableGroup, Zone } from "../../lib/types";
   import { computeTableAssignments, displaceAndReassign, buildAssignmentLabels, randomGroupColor } from "../../lib/tableAssignment";
   import { reservationDraft } from "../../stores/reservationDraftStore";
@@ -327,14 +328,14 @@
         await pb.collection("reservations").update(occReservationId, { reservations_tables: occSelectedTableIds });
       } catch { error = "No se pudo asignar las mesas."; saving = false; return; }
       finally { saving = false; }
-      window.location.href = `/edit?id=${occReservationId}`;
+      window.location.href = url(`/edit?id=${occReservationId}`);
     } else {
       // New reservation — update draft with selected tables
       const draft = $reservationDraft;
       if (draft) {
         reservationDraft.set({ ...draft, reservations_tables: occSelectedTableIds });
       }
-      window.location.href = `/new`;
+      window.location.href = url(`/new`);
     }
   }
 
@@ -344,7 +345,7 @@
 
   function goBack() {
     if (occupancyMode) { cancelOccupancy(); return; }
-    window.location.href = "/";
+    window.location.href = url("/");
   }
 </script>
 

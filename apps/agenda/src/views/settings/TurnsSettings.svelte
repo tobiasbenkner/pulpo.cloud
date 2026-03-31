@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { pb } from "../../lib/pb";
+  import { url } from "../../lib/url";
   import { invalidateTurns } from "../../lib/turnsCache";
   import type { ReservationTurn } from "../../lib/types";
   import {
@@ -110,7 +111,7 @@
   }
 
   function goBack() {
-    window.location.href = "/";
+    window.location.href = url("/");
   }
 </script>
 

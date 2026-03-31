@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
   import { pb } from "../../lib/pb";
+  import { url } from "../../lib/url";
   import { loadTurns } from "../../lib/turnsCache";
   import { getOccupiedTableIds, computeTableAssignments } from "../../lib/tableAssignment";
   import { reservationDraft, clearDraft } from "../../stores/reservationDraftStore";
@@ -129,7 +130,7 @@
     if (!isEditMode) {
       reservationDraft.set({ ...formData });
     }
-    window.location.href = `/floorplan?date=${formData.date}&time=${formData.time}&pax=${formData.person_count}&reservation=${id || ''}`;
+    window.location.href = url(`/floorplan?date=${formData.date}&time=${formData.time}&pax=${formData.person_count}&reservation=${id || ''}`);
   }
 
   async function handleSubmit(force = false) {
@@ -195,7 +196,7 @@
         await pb.collection("reservations").create(formData);
       }
       clearDraft();
-      window.location.href = `/?date=${formData.date}`;
+      window.location.href = url(`/?date=${formData.date}`);
     } catch (e) {
       console.error(e);
       error = isEditMode
@@ -211,7 +212,7 @@
     try {
       await pb.collection("reservations").delete(id);
       clearDraft();
-      window.location.href = `/?date=${formData.date}`;
+      window.location.href = url(`/?date=${formData.date}`);
     } catch (e) {
       error = "Error al eliminar.";
       isDeleting = false;
@@ -222,7 +223,7 @@
   function goBack() {
     clearDraft();
     const targetDate = originalDate || formData.date || new Date().toISOString().split("T")[0];
-    window.location.href = `/?date=${targetDate}`;
+    window.location.href = url(`/?date=${targetDate}`);
   }
 </script>
 

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
   import { checkAuthentication } from "../lib/auth";
+  import { url } from "../lib/url";
   import { loadProducts, startAutoRefresh } from "../stores/productStore";
   import { isRegisterOpen, syncRegisterState } from "../stores/registerStore";
   import ProductGrid from "./ProductGrid.svelte";
@@ -23,7 +24,7 @@
       syncRegisterState();
       stopAutoRefresh = startAutoRefresh();
     } catch {
-      window.location.href = "/login";
+      window.location.href = url("/login");
     }
   });
 

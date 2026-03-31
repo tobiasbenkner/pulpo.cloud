@@ -1,6 +1,7 @@
 <script lang="ts">
   import { pb } from "../lib/pb";
   import { AlertCircle, ArrowLeft, Loader2, KeyRound, CheckCircle } from "lucide-svelte";
+  import { url } from "../lib/url";
 
   let password = "";
   let confirmPassword = "";
@@ -46,7 +47,7 @@
     <h1 class="text-2xl font-serif text-fg mb-2">Enlace inválido</h1>
     <p class="text-fg-muted text-sm mb-6">Este enlace no contiene un token válido.</p>
     <a
-      href="/forgot-password"
+      href={url("/forgot-password")}
       class="inline-flex items-center gap-2 text-sm text-secondary hover:underline decoration-secondary underline-offset-4"
     >
       Solicitar un nuevo enlace
@@ -63,7 +64,7 @@
         Su contraseña ha sido restablecida correctamente.
       </p>
       <a
-        href="/login"
+        href={url("/login")}
         class="inline-flex items-center justify-center gap-2 w-full bg-btn-primary-bg text-btn-primary-text py-3.5 px-4 rounded-sm hover:bg-btn-primary-hover transition-all font-medium tracking-wide shadow-md shadow-[var(--shadow-color)]"
       >
         Iniciar sesión
@@ -134,7 +135,7 @@
 
     <div class="mt-6 md:mt-8 text-center border-t border-border-light pt-4 md:pt-6">
       <a
-        href="/login"
+        href={url("/login")}
         class="inline-flex items-center gap-2 text-sm text-fg-muted hover:text-fg-secondary transition-colors"
       >
         <ArrowLeft size={16} />

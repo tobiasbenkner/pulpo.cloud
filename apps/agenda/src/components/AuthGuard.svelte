@@ -3,6 +3,7 @@
   import { checkAuthentication } from "../lib/auth";
   import { authStore } from "../stores/userStore";
   import { Loader } from "lucide-svelte";
+  import { url } from "../lib/url";
 
   export let protect = true;
 
@@ -24,7 +25,7 @@
       });
 
       if (protect) {
-        window.location.href = "/login";
+        window.location.href = url("/login");
       }
     }
   });

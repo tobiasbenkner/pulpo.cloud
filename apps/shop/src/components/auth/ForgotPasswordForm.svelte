@@ -1,8 +1,9 @@
 <script lang="ts">
   import { pb } from "../../lib/pb";
   import { AlertCircle, ArrowLeft, Loader2, Mail, CheckCircle } from "lucide-svelte";
+  import { url } from "../../lib/url";
 
-  export let loginPath = "/login";
+  export let loginPath = url("/login");
 
   let email = "";
   let isLoading = false;

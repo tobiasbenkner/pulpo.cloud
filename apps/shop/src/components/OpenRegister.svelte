@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { openRegister, fetchLastClosure } from "../stores/registerStore";
+  import { url } from "../lib/url";
   import type { Closure } from "../lib/types";
 
   let inputCents = $state(0);
@@ -143,7 +144,7 @@
 
     <!-- Reports link -->
     <a
-      href="/dashboard"
+      href={url("/dashboard")}
       class="flex items-center justify-center gap-2 w-full text-center font-bold text-sm text-zinc-600 hover:text-zinc-900 bg-zinc-100 hover:bg-zinc-200 transition-all mt-3 py-3 rounded-2xl border border-zinc-200"
     >
       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

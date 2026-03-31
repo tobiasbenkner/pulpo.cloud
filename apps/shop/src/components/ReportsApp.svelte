@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { checkAuthentication } from "../lib/auth";
+  import { url } from "../lib/url";
   import { getReportExcelUrl } from "../lib/api";
   import { pb } from "../lib/pb";
   import type { AggregatedReport } from "../lib/types";
@@ -81,7 +82,7 @@
       state = "ready";
       loadProducts();
     } catch {
-      window.location.href = "/login";
+      window.location.href = url("/login");
     }
   });
 </script>
@@ -104,7 +105,7 @@
       class="flex-none flex items-center gap-4 px-4 py-3 bg-zinc-50 z-10 shadow-sm border-b border-zinc-200 min-h-[64px]"
     >
       <a
-        href="/"
+        href={url("/")}
         class="flex items-center gap-1 text-sm font-medium text-zinc-500 hover:text-zinc-900 transition-colors"
       >
         <ArrowLeft class="w-5 h-5" />

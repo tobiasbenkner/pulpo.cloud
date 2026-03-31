@@ -33,6 +33,7 @@
   import type { ParkedCart } from "../stores/cartStore";
   import Big from "big.js";
   import LastChangeWidget from "./LastChangeWidget.svelte";
+  import { url } from "../lib/url";
   import {
     SquareParking,
     UserRound,
@@ -281,7 +282,7 @@
                   <span class="font-medium">Exportar productos</span>
                 </button>
                 <a
-                  href="/dashboard"
+                  href={url("/dashboard")}
                   class="w-full flex items-center gap-3 px-4 py-3 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors text-left"
                 >
                   <ChartLine class="w-5 h-5 text-zinc-400" />
@@ -289,7 +290,7 @@
                 </a>
                 <div class="border-t border-zinc-100 my-1"></div>
                 <a
-                  href="/logout"
+                  href={url("/logout")}
                   class="w-full flex items-center gap-3 px-4 py-3 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors text-left"
                 >
                   <LogOut class="w-5 h-5 text-zinc-400" />

@@ -1,8 +1,9 @@
 <script lang="ts">
   import { logout } from "../../lib/auth";
   import { LogOut, ArrowLeft, Loader2 } from "lucide-svelte";
+  import { url } from "../../lib/url";
 
-  export let loginPath = "/login";
+  export let loginPath = url("/login");
   export let backLabel = "Volver";
 
   let isLoading = false;

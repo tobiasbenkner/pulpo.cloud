@@ -3,6 +3,7 @@
   import { pb } from "../lib/pb";
   import { authStore } from "../stores/userStore";
   import { AlertCircle, ArrowRight, Loader2 } from "lucide-svelte";
+  import { url } from "../lib/url";
 
   let email = "";
   let password = "";
@@ -18,7 +19,7 @@
 
     try {
       await pb.collection("users").authRefresh();
-      window.location.href = "/";
+      window.location.href = url("/");
       return;
     } catch {}
 
@@ -32,7 +33,7 @@
     try {
       await pb.collection("users").authWithPassword(email, password);
       authStore.setKey("isAuthenticated", true);
-      window.location.href = "/";
+      window.location.href = url("/");
     } catch (e: any) {
       console.error(e);
 
@@ -124,7 +125,7 @@
   <div class="mt-6 md:mt-8 text-center border-t border-border-light pt-4 md:pt-6 space-y-2">
     <p class="text-sm text-fg-muted">
       <a
-        href="/forgot-password"
+        href={url("/forgot-password")}
         class="text-secondary hover:underline decoration-secondary underline-offset-4"
       >
         ¿Olvidó su contraseña?
@@ -132,7 +133,7 @@
     </p>
     <p class="text-sm text-fg-muted">
       <a
-        href="/support"
+        href={url("/support")}
         class="text-fg-muted hover:text-fg-secondary hover:underline underline-offset-4 transition-colors"
       >
         Contactar Soporte

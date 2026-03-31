@@ -1,9 +1,10 @@
 <script lang="ts">
   import { pb } from "../../lib/pb";
   import { AlertCircle, ArrowLeft, Loader2, KeyRound, CheckCircle } from "lucide-svelte";
+  import { url } from "../../lib/url";
 
-  export let loginPath = "/login";
-  export let forgotPasswordPath = "/forgot-password";
+  export let loginPath = url("/login");
+  export let forgotPasswordPath = url("/forgot-password");
 
   let password = "";
   let confirmPassword = "";

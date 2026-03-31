@@ -1,5 +1,6 @@
 <script lang="ts">
 	import * as Sidebar from "$lib/components/ui/sidebar/index.js";
+	import { url } from "../../lib/url";
 	import LayoutDashboard from "lucide-svelte/icons/layout-dashboard";
 	import Receipt from "lucide-svelte/icons/receipt";
 	import BarChart3 from "lucide-svelte/icons/bar-chart-3";
@@ -12,31 +13,31 @@
 	const navItems = [
 		{
 			title: "Resumen",
-			url: "/dashboard",
+			url: url("/dashboard"),
 			icon: LayoutDashboard,
 			id: "overview",
 		},
 		{
 			title: "Facturas",
-			url: "/dashboard/invoices",
+			url: url("/dashboard/invoices"),
 			icon: Receipt,
 			id: "invoices",
 		},
 		{
 			title: "Informes",
-			url: "/dashboard/reports",
+			url: url("/dashboard/reports"),
 			icon: BarChart3,
 			id: "reports",
 		},
 		{
 			title: "Productos",
-			url: "/dashboard/products",
+			url: url("/dashboard/products"),
 			icon: Package,
 			id: "products",
 		},
 		{
 			title: "Ajustes",
-			url: "/dashboard/settings",
+			url: url("/dashboard/settings"),
 			icon: Settings,
 			id: "settings",
 		},
@@ -88,7 +89,7 @@
 			<Sidebar.MenuItem>
 				<Sidebar.MenuButton>
 					{#snippet child({ props })}
-						<a href="/" {...props}>
+						<a href={url("/")} {...props}>
 							<ShoppingCart />
 							<span>Ir a caja</span>
 						</a>

@@ -2,6 +2,7 @@
   import { onMount, onDestroy } from "svelte";
   import { format } from "date-fns";
   import { pb } from "../../lib/pb";
+  import { url } from "../../lib/url";
   import { loadTurns as loadCachedTurns } from "../../lib/turnsCache";
   import { computeTableAssignments, buildAssignmentLabels } from "../../lib/tableAssignment";
   import type { Reservation, ReservationTurn, Table, TableGroup, Zone } from "../../lib/types";
@@ -235,7 +236,7 @@
         lastAuthRefresh = Date.now();
       } catch {
         // Token ungültig → Login-Seite
-        window.location.href = "/login";
+        window.location.href = url("/login");
         return;
       }
     }

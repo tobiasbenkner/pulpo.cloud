@@ -2,6 +2,7 @@
   import { logout } from "../lib/auth";
   import { authStore } from "../stores/userStore";
   import { LogOut, ArrowLeft, Loader2 } from "lucide-svelte";
+  import { url } from "../lib/url";
 
   let isLoading = false;
 
@@ -12,7 +13,7 @@
       isAuthenticated: false,
       loading: false,
     });
-    window.location.href = "/login";
+    window.location.href = url("/login");
   }
 
   function handleCancel() {

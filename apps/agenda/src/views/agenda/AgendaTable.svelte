@@ -1,5 +1,6 @@
 <script lang="ts">
   import { pb } from "../../lib/pb";
+  import { url } from "../../lib/url";
   import {
     Check,
     X,
@@ -85,7 +86,7 @@
   // --- Edit Button → Bearbeiten ---
   function handleEdit(e: Event, res: Reservation) {
     e.stopPropagation();
-    window.location.href = `/edit?id=${res.id}`;
+    window.location.href = url(`/edit?id=${res.id}`);
   }
 
   onDestroy(() => {
@@ -498,7 +499,7 @@
             <button
               on:click={() => {
                 settingsOpen = false;
-                window.location.href = "/settings";
+                window.location.href = url("/settings");
               }}
               class="w-full flex items-center gap-2.5 px-3 py-2 text-left text-xs text-fg-secondary hover:bg-surface-hover transition-colors"
             >
@@ -508,7 +509,7 @@
             <button
               on:click={() => {
                 settingsOpen = false;
-                window.location.href = "/floorplan";
+                window.location.href = url("/floorplan");
               }}
               class="w-full flex items-center gap-2.5 px-3 py-2 text-left text-xs text-fg-secondary hover:bg-surface-hover transition-colors"
             >
@@ -519,7 +520,7 @@
             <button
               on:click={() => {
                 settingsOpen = false;
-                window.location.href = "/logout";
+                window.location.href = url("/logout");
               }}
               class="w-full flex items-center gap-2.5 px-3 py-2 text-left text-xs text-error-text hover:bg-surface-hover transition-colors"
             >

@@ -2,6 +2,7 @@
   import { format, parseISO, subDays, addDays } from "date-fns";
   import { es } from "date-fns/locale";
   import { ChevronLeft, ChevronRight, Plus, Eye, EyeOff, LayoutList, Map } from "lucide-svelte";
+  import { url } from "../../lib/url";
   import { clsx } from "clsx";
   import { slide } from "svelte/transition";
   import Calendar from "../../components/ui/Calendar.svelte";
@@ -178,7 +179,7 @@
     </button>
 
     <a
-      href="/new?date={dateStr}"
+      href={url(`/new?date=${dateStr}`)}
       class="inline-flex items-center justify-center gap-2 h-9 md:h-10 px-2.5 md:px-5 bg-btn-primary-bg text-btn-primary-text rounded-md hover:bg-btn-primary-hover transition-colors shadow-sm text-sm font-medium whitespace-nowrap"
     >
       <Plus size={18} />

@@ -3,6 +3,7 @@ import { Image } from "astro:assets";
 import Layout from "../layouts/Layout.astro";
 import logo from "../assets/logo.png";
 import contact from "../data/contact.json";
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
 <Layout title="Soporte | Pulpo Agenda">
@@ -125,7 +126,7 @@ import contact from "../data/contact.json";
           class="mt-6 md:mt-8 text-center border-t border-border-light pt-4 md:pt-6"
         >
           <a
-            href="/login"
+            href={`${base}/login`}
             class="inline-flex items-center gap-2 text-sm text-fg-muted hover:text-fg-secondary transition-colors"
           >
             <svg

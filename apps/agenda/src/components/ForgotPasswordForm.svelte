@@ -1,6 +1,7 @@
 <script lang="ts">
   import { pb } from "../lib/pb";
   import { AlertCircle, ArrowLeft, Loader2, Mail, CheckCircle } from "lucide-svelte";
+  import { url } from "../lib/url";
 
   let email = "";
   let isLoading = false;
@@ -35,7 +36,7 @@
         recibirá un correo con instrucciones para restablecer su contraseña.
       </p>
       <a
-        href="/login"
+        href={url("/login")}
         class="inline-flex items-center gap-2 text-sm text-secondary hover:underline decoration-secondary underline-offset-4"
       >
         <ArrowLeft size={16} />
@@ -93,7 +94,7 @@
 
     <div class="mt-6 md:mt-8 text-center border-t border-border-light pt-4 md:pt-6">
       <a
-        href="/login"
+        href={url("/login")}
         class="inline-flex items-center gap-2 text-sm text-fg-muted hover:text-fg-secondary transition-colors"
       >
         <ArrowLeft size={16} />
