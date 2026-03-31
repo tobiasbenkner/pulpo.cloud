@@ -33,6 +33,7 @@
   let renamingZoneId: string | null = null;
   let renameZoneLabel = "";
 
+  let showDeleteZone = false;
   let showGroupPanel = false;
   let activeGroupId: string | null = null;
 
@@ -257,7 +258,6 @@
   async function deleteZone(id: string) {
     saving = true;
     try {
-      for (const t of tables.filter((t) => t.zone === id)) await pb.collection("reservations_tables").update(t.id, { zone: "" });
       await pb.collection("reservations_zones").delete(id); await loadData();
       activeZoneId = zones.length > 0 ? zones[0].id : null;
     } catch { error = "No se pudo eliminar la zona."; } finally { saving = false; }
@@ -363,7 +363,7 @@
       </div>
       <div class="flex items-center gap-2">
         {#if editing && !occupancyMode}
-          <button on:click={createTable} disabled={saving || (!activeZoneId && zones.length > 0)}
+          <button on:click={createTable} disabled={saving || !activeZoneId}
             class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-surface border border-border-default rounded-md text-fg-secondary hover:bg-surface-hover transition-colors disabled:opacity-70">
             <Plus size={14} /><span>Añadir mesa</span>
           </button>
@@ -427,7 +427,7 @@
           </button>
         {/if}
         {#if activeZoneId}
-          <button on:click={() => { if (confirm("¿Eliminar esta zona? Las mesas se desasignarán.")) deleteZone(activeZoneId); }}
+          <button on:click={() => (showDeleteZone = true)}
             class="shrink-0 p-1.5 text-fg-muted hover:text-error-text rounded-full transition-colors" aria-label="Eliminar zona"><Trash2 size={13} /></button>
         {/if}
       {/if}
@@ -504,3 +504,48 @@
     </div>
   {/if}
 </div>
+
+{#if showDeleteZone}
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+    on:click|self={() => (showDeleteZone = false)}
+    on:keydown={(e) => e.key === "Escape" && (showDeleteZone = false)}
+  >
+    <div class="bg-surface rounded-lg shadow-xl w-full max-w-sm p-6 animate-fade-in">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="p-2 bg-error-bg rounded-full">
+          <AlertTriangle size={20} class="text-error-icon" />
+        </div>
+        <h2 class="text-base font-semibold text-fg">Eliminar zona</h2>
+      </div>
+
+      <p class="text-sm text-fg-muted mb-6">
+        ¿Eliminar esta zona y todas sus mesas? Esta acción no se puede deshacer.
+      </p>
+
+      <div class="flex justify-end gap-2">
+        <button
+          type="button"
+          on:click={() => (showDeleteZone = false)}
+          class="px-4 py-2 text-sm font-medium text-fg-secondary hover:text-fg rounded-md hover:bg-surface-hover transition-colors"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          on:click={() => { showDeleteZone = false; if (activeZoneId) deleteZone(activeZoneId); }}
+          disabled={saving}
+          class="px-4 py-2 text-sm font-medium text-white bg-delete hover:bg-delete-hover rounded-md transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2"
+        >
+          {#if saving}
+            <Loader2 class="animate-spin" size={14} />
+            Eliminando...
+          {:else}
+            Eliminar
+          {/if}
+        </button>
+      </div>
+    </div>
+  </div>
+{/if}
