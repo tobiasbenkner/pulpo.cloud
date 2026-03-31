@@ -80,7 +80,7 @@
     errorMsg = "";
 
     try {
-      const stockValue = trackStock ? (currentStock ?? 0) : null;
+      const stockValue = trackStock ? (currentStock ?? 0) : -1;
       await setStock(product.id, stockValue);
       closeModal();
     } catch (e: any) {
@@ -94,8 +94,8 @@
     return stockEditProduct.subscribe((p) => {
       if (p) {
         product = p;
-        trackStock = typeof p.stock === "number";
-        inputValue = typeof p.stock === "number" ? String(p.stock) : "";
+        trackStock = p.stock != null && p.stock >= 0;
+        inputValue = trackStock ? String(p.stock) : "";
         errorMsg = "";
         saving = false;
         openModalAnim();

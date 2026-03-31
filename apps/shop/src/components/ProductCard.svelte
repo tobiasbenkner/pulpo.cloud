@@ -11,7 +11,7 @@
   let { product }: Props = $props();
 
   let hasImage = $derived(!!product.image && product.image.trim() !== "");
-  let tracksStock = $derived(typeof product.stock === "number");
+  let tracksStock = $derived(product.stock != null && product.stock >= 0);
   let isOutOfStock = $derived(tracksStock && product.stock === 0);
   let isLowStock = $derived(
     tracksStock && product.stock! > 0 && product.stock! <= 5,

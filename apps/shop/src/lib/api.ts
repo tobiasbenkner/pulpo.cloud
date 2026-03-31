@@ -112,7 +112,7 @@ export async function getCategoriesWithProducts() {
 
 export async function updateProductStock(
   productId: string,
-  stock: number | null,
+  stock: number,
 ) {
   await pb.collection("products").update(productId, { stock });
 }

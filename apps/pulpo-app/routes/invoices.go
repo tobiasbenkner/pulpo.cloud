@@ -334,17 +334,16 @@ func handleCreateInvoice(e *core.RequestEvent) error {
 			}
 		}
 
-		// Decrement stock
+		// Decrement stock (-1 = unlimited, skip)
 		for _, reqItem := range req.Items {
 			product := productMap[reqItem.ProductID]
 			if product == nil {
 				continue
 			}
-			stock := product.Get("stock")
-			if stock == nil {
-				continue // no stock tracking
-			}
 			currentStock := product.GetInt("stock")
+			if currentStock < 0 {
+				continue
+			}
 			newStock := currentStock - reqItem.Quantity
 			if newStock < 0 {
 				newStock = 0
@@ -616,7 +615,7 @@ func handleRectifyInvoice(e *core.RequestEvent) error {
 			return err
 		}
 
-		// Restore stock
+		// Restore stock (-1 = unlimited, skip)
 		for _, ri := range req.Items {
 			if ri.ProductID == nil {
 				continue
@@ -625,10 +624,10 @@ func handleRectifyInvoice(e *core.RequestEvent) error {
 			if err != nil {
 				continue
 			}
-			if product.Get("stock") == nil {
+			currentStock := product.GetInt("stock")
+			if currentStock < 0 {
 				continue
 			}
-			currentStock := product.GetInt("stock")
 			product.Set("stock", currentStock+ri.Quantity)
 			if err := txApp.Save(product); err != nil {
 				return err

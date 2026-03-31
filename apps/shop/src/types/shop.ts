@@ -15,7 +15,7 @@ export interface Product {
   taxClass: TaxClassCode;
   image: string;
   category: string;
-  stock?: number;
+  stock: number; // -1 = unlimited (no tracking), >= 0 = tracked
   costCenter?: string;
   unit: "unit" | "weight";
 }

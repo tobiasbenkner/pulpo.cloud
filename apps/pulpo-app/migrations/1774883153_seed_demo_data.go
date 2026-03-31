@@ -30,7 +30,7 @@ type demoProd struct {
 	CostCenter string // "Barra" or "Cocina"
 	Category   int    // index into categories
 	Sort       int
-	Stock      int    // initial stock, 0 = no tracking (null)
+	Stock      int    // -1 = unlimited (no tracking), >= 0 = actual stock
 }
 
 type demoCust struct {
@@ -51,15 +51,15 @@ var demoCategories = []demoCat{
 }
 
 var demoProducts = []demoProd{
-	// Bebidas (cat 0) — no stock tracking (0 = null)
-	{"Café solo", "1.20", "STD", "Barra", 0, 1, 0},
-	{"Cortado", "1.40", "STD", "Barra", 0, 2, 0},
-	{"Café con leche", "1.60", "STD", "Barra", 0, 3, 0},
-	{"Caña", "1.80", "STD", "Barra", 0, 4, 0},
-	{"Copa de vino tinto", "2.50", "STD", "Barra", 0, 5, 0},
-	{"Agua mineral", "1.00", "STD", "Barra", 0, 6, 50},
-	{"Refresco", "2.00", "STD", "Barra", 0, 7, 48},
-	{"Zumo natural", "3.00", "STD", "Barra", 0, 8, 20},
+	// Bebidas (cat 0) — unlimited, no stock tracking
+	{"Café solo", "1.20", "STD", "Barra", 0, 1, -1},
+	{"Cortado", "1.40", "STD", "Barra", 0, 2, -1},
+	{"Café con leche", "1.60", "STD", "Barra", 0, 3, -1},
+	{"Caña", "1.80", "STD", "Barra", 0, 4, -1},
+	{"Copa de vino tinto", "2.50", "STD", "Barra", 0, 5, -1},
+	{"Agua mineral", "1.00", "STD", "Barra", 0, 6, -1},
+	{"Refresco", "2.00", "STD", "Barra", 0, 7, -1},
+	{"Zumo natural", "3.00", "STD", "Barra", 0, 8, -1},
 	// Tapas (cat 1)
 	{"Papas arrugadas con mojo", "4.50", "STD", "Cocina", 1, 1, 30},
 	{"Croquetas caseras", "5.00", "STD", "Cocina", 1, 2, 25},
@@ -200,9 +200,7 @@ func init() {
 			rec.Set("category", categoryIDs[p.Category])
 			rec.Set("sort", p.Sort)
 			rec.Set("unit", "unit")
-			if p.Stock > 0 {
-				rec.Set("stock", p.Stock)
-			}
+			rec.Set("stock", p.Stock)
 			if err := app.Save(rec); err != nil {
 				return err
 			}

@@ -82,8 +82,8 @@
 				case "category":
 					return categoryName(a.category).localeCompare(categoryName(b.category)) * dir;
 				case "stock": {
-					const sa = typeof a.stock === "number" ? a.stock : -1;
-					const sb = typeof b.stock === "number" ? b.stock : -1;
+					const sa = a.stock ?? -1;
+					const sb = b.stock ?? -1;
 					return (sa - sb) * dir;
 				}
 				case "sort":
@@ -202,7 +202,7 @@
 		formCostCenter = product.cost_center ?? "";
 		formUnit = product.unit ?? "unit";
 		formStock = product.stock;
-		formTrackStock = typeof product.stock === "number";
+		formTrackStock = product.stock != null && product.stock >= 0;
 		formNote = product.note ?? "";
 		formSort = product.sort ?? 0;
 		view = "edit";
@@ -253,7 +253,7 @@
 			if (formTrackStock) {
 				fd.append("stock", String(formStock ?? 0));
 			} else {
-				fd.append("stock", "");
+				fd.append("stock", "-1");
 			}
 
 			if (formImage) {
@@ -475,7 +475,7 @@
 								>{categoryName(product.category)}</Table.Cell
 							>
 							<Table.Cell>
-								{#if typeof product.stock === "number"}
+								{#if product.stock != null && product.stock >= 0}
 									{product.stock}
 								{:else}
 									<span class="text-muted-foreground"

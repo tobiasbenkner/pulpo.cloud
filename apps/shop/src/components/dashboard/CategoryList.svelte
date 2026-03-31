@@ -362,7 +362,7 @@
 											>{product.price_gross}
 											&euro;</span
 										>
-										{#if typeof product.stock === "number"}
+										{#if product.stock != null && product.stock >= 0}
 											<span
 												class="text-xs text-muted-foreground"
 												>{product.stock} uds.</span

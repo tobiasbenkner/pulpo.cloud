@@ -32,7 +32,7 @@ function mapPbToShopProduct(
     taxClass: (product.expand?.tax_class?.code as Product["taxClass"]) ?? "STD",
     image: product.image ? getFileUrl(product as any, product.image) : "",
     category: categoryName,
-    stock: product.stock ?? undefined,
+    stock: product.stock ?? -1,
     costCenter: product.expand?.cost_center?.name ?? undefined,
     unit: product.unit ?? "unit",
   };
@@ -68,7 +68,7 @@ export function decrementStock(
       ...cat,
       products: cat.products.map((p) => {
         const qty = decrements.get(p.id);
-        if (qty == null || p.stock == null) return p;
+        if (qty == null || p.stock == null || p.stock < 0) return p;
         return { ...p, stock: Math.max(0, p.stock - qty) };
       }),
     })),
@@ -88,14 +88,14 @@ export function incrementStock(
       ...cat,
       products: cat.products.map((p) => {
         const qty = increments.get(p.id);
-        if (qty == null || p.stock == null) return p;
+        if (qty == null || p.stock == null || p.stock < 0) return p;
         return { ...p, stock: p.stock + qty };
       }),
     })),
   );
 }
 
-export async function setStock(productId: string, stock: number | null) {
+export async function setStock(productId: string, stock: number) {
   await apiUpdateProductStock(productId, stock);
 
   const current = categories.get();
@@ -103,7 +103,7 @@ export async function setStock(productId: string, stock: number | null) {
     current.map((cat) => ({
       ...cat,
       products: cat.products.map((p) =>
-        p.id === productId ? { ...p, stock: stock ?? undefined } : p,
+        p.id === productId ? { ...p, stock } : p,
       ),
     })),
   );
