@@ -14,6 +14,15 @@ const { title = "POS Pulpo" } = Astro.props;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
+    <script is:inline>
+      if (location.hostname === 'demo.pulpo.cloud') {
+        const s = document.createElement('script');
+        s.defer = true;
+        s.src = 'https://analytics.pulpo.cloud/script.js';
+        s.dataset.websiteId = '5e6cbf28-ccbf-42b9-a358-fcbfa378afd7';
+        document.head.appendChild(s);
+      }
+    </script>
   </head>
   <body class="h-dvh w-dvw overflow-hidden">
     <slot />

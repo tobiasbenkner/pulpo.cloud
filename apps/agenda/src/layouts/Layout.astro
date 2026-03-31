@@ -17,6 +17,15 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     <link rel="icon" type="image/webp" href={`${base}/favicon.webp`} />
     <title>{title}</title>
     <script is:inline>
+      if (location.hostname === 'demo.pulpo.cloud') {
+        const s = document.createElement('script');
+        s.defer = true;
+        s.src = 'https://analytics.pulpo.cloud/script.js';
+        s.dataset.websiteId = '5e6cbf28-ccbf-42b9-a358-fcbfa378afd7';
+        document.head.appendChild(s);
+      }
+    </script>
+    <script is:inline>
       (function () {
         if (localStorage.getItem("pulpo_agenda_theme") === "dark") {
           document.documentElement.classList.add("dark");
