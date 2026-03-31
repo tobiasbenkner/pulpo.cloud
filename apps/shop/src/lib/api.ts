@@ -104,10 +104,22 @@ export async function getCategoriesWithProducts() {
     }),
   ]);
 
-  return categories.map((cat) => ({
+  const result = categories.map((cat) => ({
     ...cat,
     products: products.filter((p) => p.category === cat.id),
   }));
+
+  const uncategorized = products.filter((p) => !p.category);
+  if (uncategorized.length > 0) {
+    result.push({
+      id: "__uncategorized__",
+      name: "Sin categoría",
+      sort: 999999,
+      products: uncategorized,
+    } as any);
+  }
+
+  return result;
 }
 
 export async function updateProductStock(
