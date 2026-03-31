@@ -1,8 +1,9 @@
 <script lang="ts">
   import { pb } from '../lib/pb';
+  import { config } from '../lib/config';
 
-  let email = $state('');
-  let password = $state('');
+  let email = $state(config.defaultEmail);
+  let password = $state(config.defaultPassword);
   let error = $state('');
   let loading = $state(false);
 
