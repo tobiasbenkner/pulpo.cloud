@@ -62,7 +62,7 @@
         {/if}
         <text x={table.x} y={table.y + tr.h/2 + 2.5} text-anchor="middle" dominant-baseline="central"
           font-size="2.2" font-weight="500" fill={s.textColor}>
-          {table.label} · {table.seats}p
+          {table.label}
         </text>
         {#if s.label}
           <text x={table.x} y={table.y + tr.h/2 + 5} text-anchor="middle" dominant-baseline="central"
