@@ -84,8 +84,8 @@
       const [nh, nm] = nextTurn.start.substring(0, 5).split(":").map(Number);
       return (nh * 60 + nm) - (sh * 60 + sm);
     }
-    // Letzter Turn: 4 Stunden oder bis Mitternacht
-    return 240;
+    // Letzter Turn: Turn-Dauer + Buffer
+    return (activeTurn.duration || 90) + (activeTurn.buffer || 15);
   })();
 
   // Zuweisung berechnen

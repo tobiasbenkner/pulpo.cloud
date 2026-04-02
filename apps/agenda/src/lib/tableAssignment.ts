@@ -17,8 +17,18 @@ export function addMinutes(time: string, mins: number): string {
   return `${String(Math.floor(total / 60) % 24).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`;
 }
 
+function toMinutes(time: string): number {
+  const [h, m] = time.split(":").map(Number);
+  return h * 60 + m;
+}
+
 function overlaps(startA: string, endA: string, startB: string, endB: string): boolean {
-  return startA < endB && startB < endA;
+  let sA = toMinutes(startA), eA = toMinutes(endA);
+  let sB = toMinutes(startB), eB = toMinutes(endB);
+  // Mitternachts-Überlauf: wenn Ende vor Start, auf nächsten Tag erweitern
+  if (eA <= sA) eA += 1440;
+  if (eB <= sB) eB += 1440;
+  return sA < eB && sB < eA;
 }
 
 function getOccupiedAtTime(
@@ -93,26 +103,9 @@ export function suggestTables(
     !occupiedIds.has(t.id) && (!zone || t.zone === zone)
   );
 
-  // 1. Einzeltisch (min/max range)
-  const singleCandidates = freeTables
-    .filter((t) => (t.max_seats || t.seats) >= partySize && (t.min_seats || 1) <= partySize)
-    .sort((a, b) => a.seats - b.seats);
-
-  if (singleCandidates.length > 0) {
-    return { tables: [singleCandidates[0]], totalSeats: singleCandidates[0].seats, isGroup: false };
-  }
-
-  // 2. Einzeltisch (nur seats)
-  const flexCandidates = freeTables
-    .filter((t) => t.seats >= partySize)
-    .sort((a, b) => a.seats - b.seats);
-
-  if (flexCandidates.length > 0) {
-    return { tables: [flexCandidates[0]], totalSeats: flexCandidates[0].seats, isGroup: false };
-  }
-
-  // 3. Gruppen — nur nutzen wenn kein freier Einzeltisch reichen würde
-  // (Steps 1+2 haben schon alle freien Einzeltische geprüft und keinen gefunden)
+  // 1. Gruppen zuerst (größte zuerst → kleinste passende wählen)
+  // Große Reservierungen brauchen Gruppen — diese zuerst prüfen,
+  // damit Einzeltische für kleine Reservierungen frei bleiben.
   const groupResults: AssignmentResult[] = [];
   for (const group of groups) {
     if (zone && group.zone !== zone) continue;
@@ -127,7 +120,29 @@ export function suggestTables(
     }
   }
   groupResults.sort((a, b) => a.totalSeats - b.totalSeats);
-  return groupResults[0] ?? null;
+  if (groupResults.length > 0) {
+    return groupResults[0];
+  }
+
+  // 2. Einzeltisch (min/max range)
+  const singleCandidates = freeTables
+    .filter((t) => (t.max_seats || t.seats) >= partySize && (t.min_seats || 1) <= partySize)
+    .sort((a, b) => a.seats - b.seats);
+
+  if (singleCandidates.length > 0) {
+    return { tables: [singleCandidates[0]], totalSeats: singleCandidates[0].seats, isGroup: false };
+  }
+
+  // 3. Einzeltisch (nur seats)
+  const flexCandidates = freeTables
+    .filter((t) => t.seats >= partySize)
+    .sort((a, b) => a.seats - b.seats);
+
+  if (flexCandidates.length > 0) {
+    return { tables: [flexCandidates[0]], totalSeats: flexCandidates[0].seats, isGroup: false };
+  }
+
+  return null;
 }
 
 // --- New: Consolidated assignment logic ---
@@ -159,20 +174,19 @@ export function computeTableAssignments(
   const tableSlots = new Map<string, { start: string; end: string }[]>();
   const unassigned: Reservation[] = [];
 
-  // Sortierung: fixierte zuerst, dann nach Zeit, bei gleicher Zeit größere Gruppen zuerst
-  // (größere Gruppen haben weniger Optionen und müssen Vorrang bekommen)
+  // Sortierung: fixierte zuerst, dann größte Gruppen zuerst (superincreasing),
+  // bei gleicher Größe nach Zeit. Große Gruppen brauchen Tischgruppen und müssen
+  // Vorrang bekommen, bevor Einzeltische von kleinen Reservierungen belegt werden.
   const sorted = reservations
     .filter((r) => !excludeReservationId || r.id !== excludeReservationId)
     .sort((a, b) => {
       const af = (a.reservations_tables?.length || 0) > 0 ? 0 : 1;
       const bf = (b.reservations_tables?.length || 0) > 0 ? 0 : 1;
       if (af !== bf) return af - bf;
-      const timeComp = (a.time || "").localeCompare(b.time || "");
-      if (timeComp !== 0) return timeComp;
-      // Bei gleicher Zeit: größere Gruppen zuerst (schwerer zu platzieren)
       const aPax = parseInt(a.person_count) || 0;
       const bPax = parseInt(b.person_count) || 0;
-      return bPax - aPax;
+      if (aPax !== bPax) return bPax - aPax;
+      return (a.time || "").localeCompare(b.time || "");
     });
 
   for (const res of sorted) {
