@@ -93,9 +93,14 @@
     ? computeTableAssignments(reservations, allTables, groups)
     : null;
 
-  // Zeitgefiltert nach aktivem Turn-Fenster
+  // Zeitgefiltert nach aktivem Turn-Fenster, oder alle wenn keine Turns konfiguriert
   $: floorplanLabels = (() => {
-    if (!floorplanState || !activeTurn) return { fixedIds: new Set<string>(), autoIds: new Set<string>(), labels: new Map<string, string>(), tableColors: new Map<string, string>() };
+    if (!floorplanState) return { fixedIds: new Set<string>(), autoIds: new Set<string>(), labels: new Map<string, string>(), tableColors: new Map<string, string>() };
+    if (!activeTurn) {
+      const now = new Date();
+      const nowTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+      return buildAssignmentLabels(floorplanState, reservations, groups, groupColorMap, nowTime, 90);
+    }
     return buildAssignmentLabels(floorplanState, reservations, groups, groupColorMap, activeTurn.start.substring(0, 5), activeTurnWindowMinutes);
   })();
 
@@ -473,6 +478,7 @@
     </div>
   {:else}
     <!-- Turn + Zone Tabs -->
+    {#if turns.length > 0 || zones.length > 1}
     <div class="shrink-0 flex items-center gap-1.5 px-3 md:px-8 py-2 bg-surface border-b border-border-default overflow-x-auto no-scrollbar">
       <!-- Turn tabs -->
       {#each [...turns].sort((a, b) => a.start.localeCompare(b.start)) as turn (turn.id)}
@@ -510,6 +516,7 @@
         {/each}
       {/if}
     </div>
+    {/if}
 
     <!-- Floorplan -->
     <div class="flex-1 min-h-0 p-2 md:p-4">
@@ -527,6 +534,12 @@
             <p class="text-sm">Configura el plano en la sección de edición</p>
           </svelte:fragment>
         </FloorplanCanvas>
+
+        {#if turns.length === 0}
+          <div class="absolute top-3 left-3 px-3 py-1.5 bg-surface-alt/80 backdrop-blur-sm border border-border-default rounded-full">
+            <p class="text-[11px] text-fg-muted">Mostrando reservas en curso y próximas 90 min</p>
+          </div>
+        {/if}
 
         {#if unassignedReservations.length > 0}
           <div class="absolute bottom-3 left-3 right-3 p-3 bg-error-bg border border-error-border rounded-lg shadow-sm">
