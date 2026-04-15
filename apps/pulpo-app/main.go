@@ -23,6 +23,7 @@ var (
 	commit  = "none"
 )
 
+//go:embed all:pb_public
 var publicFS embed.FS
 
 func main() {
