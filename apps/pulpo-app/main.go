@@ -23,7 +23,6 @@ var (
 	commit  = "none"
 )
 
-//go:embed all:pb_public
 var publicFS embed.FS
 
 func main() {
@@ -108,14 +107,29 @@ func main() {
 		routes.RegisterCashRegisterRoutes(app, se)
 		routes.RegisterReportRoutes(app, se)
 
+		// In sim mode (PULPO_SIM_MODE=1) serve pb_public from disk so that
+		// rebuilt frontends are picked up without restarting the Go binary.
+		// Otherwise use the go:embed snapshot baked into the binary.
+		var pbRoot fs.FS
+		if os.Getenv("PULPO_SIM_MODE") == "1" {
+			pbRoot = os.DirFS("pb_public")
+			log.Println("pb_public: serving from disk (sim mode)")
+		} else {
+			sub, err := fs.Sub(publicFS, "pb_public")
+			if err != nil {
+				return err
+			}
+			pbRoot = sub
+		}
+
 		// Launcher auf / servieren
-		if launcher, err := fs.Sub(publicFS, "pb_public/launcher"); err == nil {
+		if launcher, err := fs.Sub(pbRoot, "launcher"); err == nil {
 			se.Router.GET("/{path...}", apis.Static(launcher, true))
 		}
 
-		// App-Frontends unter /shop, /agenda, /settings
-		for _, name := range []string{"shop", "agenda", "settings"} {
-			sub, err := fs.Sub(publicFS, "pb_public/"+name)
+		// App-Frontends unter /shop, /agenda, /settings, /menu, /admin
+		for _, name := range []string{"shop", "agenda", "settings", "menu", "admin"} {
+			sub, err := fs.Sub(pbRoot, name)
 			if err != nil {
 				continue
 			}

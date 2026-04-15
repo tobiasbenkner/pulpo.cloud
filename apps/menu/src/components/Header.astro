@@ -1,0 +1,49 @@
+---
+---
+
+<header id="site-header" class="sticky top-0 z-50 bg-white/90 backdrop-blur-sm border-b border-neutral-100">
+  <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+    <a href="/menu" class="font-semibold text-lg" id="header-name">
+      <!-- Filled by JS from config -->
+    </a>
+    <nav class="flex items-center gap-6">
+      <a href="/menu" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 transition-colors" id="nav-menu"></a>
+      <a href="/menu/contact" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 transition-colors" id="nav-contact"></a>
+      <select id="lang-switcher" class="text-sm bg-transparent border border-neutral-200 rounded-md px-2 py-1 cursor-pointer">
+        <!-- Filled by JS from config.languages -->
+      </select>
+    </nav>
+  </div>
+</header>
+
+<script>
+  function initHeader(config: any, lang: string, t: (key: string, lang: string) => string) {
+    const nameEl = document.getElementById("header-name");
+    if (nameEl) nameEl.textContent = config?.name || "";
+
+    const navMenu = document.getElementById("nav-menu");
+    if (navMenu) navMenu.textContent = t("menu", lang);
+
+    const navContact = document.getElementById("nav-contact");
+    if (navContact) navContact.textContent = t("contact", lang);
+
+    // Language switcher
+    const switcher = document.getElementById("lang-switcher") as HTMLSelectElement | null;
+    if (switcher && config?.languages) {
+      const languages = config.languages as string[];
+      switcher.innerHTML = languages
+        .map((l: string) => `<option value="${l}" ${l === lang ? "selected" : ""}>${l.toUpperCase()}</option>`)
+        .join("");
+      switcher.addEventListener("change", () => {
+        const url = new URL(window.location.href);
+        url.searchParams.set("lang", switcher.value);
+        window.location.href = url.toString();
+      });
+    } else if (switcher) {
+      switcher.style.display = "none";
+    }
+  }
+
+  // Expose for pages to call after fetching config
+  (window as any).__initHeader = initHeader;
+</script>

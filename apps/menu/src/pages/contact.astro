@@ -1,0 +1,215 @@
+---
+import Layout from "@/layouts/Layout.astro";
+---
+
+<Layout title="Contact">
+  <!-- Loading state -->
+  <div id="loading" class="max-w-5xl mx-auto px-4 py-16 text-center text-neutral-400">
+    <div class="animate-pulse" id="loading-text"></div>
+  </div>
+
+  <!-- Contact content -->
+  <div id="contact-content" class="max-w-5xl mx-auto px-4 py-12 hidden">
+    <div class="grid gap-12 lg:grid-cols-2">
+      <!-- Left: Info -->
+      <div class="space-y-8">
+        <!-- Address -->
+        <div>
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-muted mb-3" id="label-address"></h2>
+          <p class="text-lg" id="contact-address"></p>
+        </div>
+
+        <!-- Phone -->
+        <div id="phone-section">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-muted mb-3" id="label-phone"></h2>
+          <a id="contact-phone" href="#" class="text-lg hover:text-primary-600 transition-colors"></a>
+        </div>
+
+        <!-- Email -->
+        <div id="email-section">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-muted mb-3" id="label-email"></h2>
+          <a id="contact-email" href="#" class="text-lg hover:text-primary-600 transition-colors"></a>
+        </div>
+
+        <!-- Opening Hours -->
+        <div id="hours-section">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-muted mb-3" id="label-hours"></h2>
+          <table id="hours-table" class="w-full text-sm">
+            <!-- Filled by JS -->
+          </table>
+        </div>
+
+        <!-- Social Links -->
+        <div id="social-section" class="hidden">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-muted mb-3" id="label-social"></h2>
+          <div id="social-links" class="flex gap-4">
+            <!-- Filled by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Map -->
+      <div id="map-section" class="hidden">
+        <div class="rounded-xl overflow-hidden shadow-sm border border-neutral-100 aspect-square lg:aspect-auto lg:h-full lg:min-h-96">
+          <iframe
+            id="google-map"
+            class="w-full h-full min-h-80"
+            style="border:0"
+            loading="lazy"
+            allowfullscreen
+            referrerpolicy="no-referrer-when-downgrade"
+          ></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  import { t, getLang } from "@/lib/i18n";
+
+  const PB_URL = import.meta.env.DEV ? "http://localhost:8090" : "";
+
+  async function fetchJSON<T>(path: string): Promise<T> {
+    const res = await fetch(`${PB_URL}${path}`);
+    return res.json();
+  }
+
+  async function init() {
+    const [companyRes, menuConfigRes] = await Promise.all([
+      fetchJSON<{ items: any[] }>("/api/collections/company/records"),
+      fetchJSON<{ items: any[] }>("/api/collections/website_config/records").catch(() => ({ items: [] })),
+    ]);
+
+    const company = companyRes.items[0] || {};
+    const menuConfig = menuConfigRes.items[0] || {};
+    const config = { ...company, ...menuConfig };
+
+    const defaultLang = config.default_language || "es";
+    const lang = getLang(new URL(window.location.href), localStorage.getItem("menu-lang") || defaultLang);
+    localStorage.setItem("menu-lang", lang);
+
+    document.documentElement.lang = lang;
+
+    (window as any).__initHeader?.(config, lang, t);
+    (window as any).__initFooter?.(config, lang, t);
+
+    const loadingText = document.getElementById("loading-text");
+    if (loadingText) loadingText.textContent = t("loading", lang);
+
+    // Labels
+    setText("label-address", t("address", lang));
+    setText("label-phone", t("phone", lang));
+    setText("label-email", t("email", lang));
+    setText("label-hours", t("openingHours", lang));
+    setText("label-social", t("followUs", lang));
+
+    // Address
+    const parts = [config.street, config.postcode && config.city ? `${config.postcode} ${config.city}` : config.city].filter(Boolean);
+    setText("contact-address", parts.join("\n"));
+    const addressEl = document.getElementById("contact-address");
+    if (addressEl) addressEl.style.whiteSpace = "pre-line";
+
+    // Phone
+    if (config.phone) {
+      const phoneEl = document.getElementById("contact-phone") as HTMLAnchorElement | null;
+      if (phoneEl) {
+        phoneEl.textContent = config.phone;
+        phoneEl.href = `tel:${config.phone.replace(/\s/g, "")}`;
+      }
+    } else {
+      hide("phone-section");
+    }
+
+    // Email
+    if (config.email) {
+      const emailEl = document.getElementById("contact-email") as HTMLAnchorElement | null;
+      if (emailEl) {
+        emailEl.textContent = config.email;
+        emailEl.href = `mailto:${config.email}`;
+      }
+    } else {
+      hide("email-section");
+    }
+
+    // Opening Hours
+    const hours = config.opening_hours as { day: string; open: string; close: string }[] | null;
+    if (hours && hours.length > 0) {
+      const table = document.getElementById("hours-table");
+      if (table) {
+        for (const entry of hours) {
+          const row = document.createElement("tr");
+          row.className = "border-b border-neutral-100 last:border-0";
+
+          const dayCell = document.createElement("td");
+          dayCell.className = "py-2 font-medium";
+          dayCell.textContent = t(entry.day, lang);
+
+          const timeCell = document.createElement("td");
+          timeCell.className = "py-2 text-right text-muted";
+          timeCell.textContent = entry.open && entry.close
+            ? `${entry.open} – ${entry.close}`
+            : t("closed", lang);
+
+          row.appendChild(dayCell);
+          row.appendChild(timeCell);
+          table.appendChild(row);
+        }
+      }
+    } else {
+      hide("hours-section");
+    }
+
+    // Social Links
+    const socials: { key: string; label: string; urlPrefix?: string }[] = [
+      { key: "social_instagram", label: "Instagram" },
+      { key: "social_facebook", label: "Facebook" },
+      { key: "social_whatsapp", label: "WhatsApp", urlPrefix: "https://wa.me/" },
+    ];
+    const socialLinks = document.getElementById("social-links");
+    let hasSocials = false;
+    for (const s of socials) {
+      const value = config[s.key];
+      if (!value) continue;
+      hasSocials = true;
+      const link = document.createElement("a");
+      link.href = s.urlPrefix ? `${s.urlPrefix}${value}` : value;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.className = "inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-neutral-100 text-sm font-medium text-neutral-700 hover:bg-neutral-200 transition-colors";
+      link.textContent = s.label;
+      socialLinks?.appendChild(link);
+    }
+    if (hasSocials) {
+      show("social-section");
+    }
+
+    // Google Maps
+    if (config.google_maps_url) {
+      const iframe = document.getElementById("google-map") as HTMLIFrameElement | null;
+      if (iframe) {
+        iframe.src = config.google_maps_url;
+        show("map-section");
+      }
+    }
+
+    // Show content
+    document.getElementById("loading")?.classList.add("hidden");
+    document.getElementById("contact-content")?.classList.remove("hidden");
+  }
+
+  function setText(id: string, text: string) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
+  }
+
+  function hide(id: string) {
+    document.getElementById(id)?.classList.add("hidden");
+  }
+
+  function show(id: string) {
+    document.getElementById(id)?.classList.remove("hidden");
+  }
+
+  init();
+</script>

@@ -1,0 +1,10 @@
+{
+  "name": "@pulpo/proxy",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Production simulator — builds every frontend, embeds it into the Go binary's pb_public, and serves the whole stack on http://localhost:8080 with production-identical URLs.",
+  "scripts": {
+    "dev": "node sim.mjs",
+    "dev:port": "node sim.mjs"
+  }
+}

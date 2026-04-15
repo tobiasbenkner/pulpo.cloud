@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev",
+    "dev": "turbo run dev --filter=@pulpo/app --filter=@pulpo/launcher --filter=@pulpo/admin --filter=@pulpo/menu --filter=@pulpo/shop --filter=@pulpo/agenda",
+    "sim": "pnpm --filter @pulpo/proxy dev",
     "dockerize": "turbo run dockerize",
     "test": "turbo run test",
     "lint": "turbo run lint",

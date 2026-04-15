@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "go run . serve --http=0.0.0.0:8090",
+    "dev": "for d in launcher shop agenda settings menu admin; do mkdir -p pb_public/$d && touch pb_public/$d/.gitkeep; done && go run . serve --http=0.0.0.0:8090",
     "build": "go build -o pulpo-app .",
     "test": "go test ./..."
   }

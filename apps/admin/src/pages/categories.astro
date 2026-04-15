@@ -1,0 +1,401 @@
+---
+import AdminLayout from "@/layouts/AdminLayout.astro";
+---
+
+<AdminLayout title="Categorías">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold">Categorías</h1>
+    <button id="btn-create" class="px-4 py-2 bg-neutral-900 text-white rounded-lg text-sm font-medium hover:bg-neutral-800 transition-colors">
+      + Nueva categoría
+    </button>
+  </div>
+
+  <!-- Category list -->
+  <div id="category-list" class="bg-white rounded-xl border border-neutral-200 divide-y divide-neutral-100">
+    <!-- Filled by JS -->
+  </div>
+
+  <!-- Empty state -->
+  <div id="empty-state" class="hidden text-center py-12 text-neutral-400">
+    No hay categorías
+  </div>
+
+  <!-- Modal -->
+  <div id="modal-overlay" class="hidden fixed inset-0 z-50 bg-black/50 flex items-start justify-center pt-16 overflow-y-auto">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 mb-16">
+      <div class="flex items-center justify-between p-4 border-b border-neutral-100">
+        <h2 id="modal-title" class="text-lg font-semibold"></h2>
+        <button id="modal-close" class="text-neutral-400 hover:text-neutral-600 text-xl leading-none">&times;</button>
+      </div>
+
+      <form id="category-form" class="p-4 space-y-4">
+        <div id="form-error" class="hidden p-3 rounded-lg bg-red-50 text-red-700 text-sm"></div>
+
+        <!-- Name -->
+        <div>
+          <label class="block text-sm font-medium text-neutral-700 mb-1">Nombre *</label>
+          <input id="f-name" type="text" required
+            class="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent" />
+        </div>
+
+        <!-- Description -->
+        <div>
+          <label class="block text-sm font-medium text-neutral-700 mb-1">Descripción</label>
+          <textarea id="f-description" rows="2"
+            class="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent"></textarea>
+        </div>
+
+        <!-- Image -->
+        <div>
+          <label class="block text-sm font-medium text-neutral-700 mb-1">Imagen</label>
+          <div id="image-preview-container" class="hidden mb-2">
+            <div class="relative inline-block">
+              <img id="image-preview" class="w-24 h-24 rounded-lg object-cover" />
+              <button type="button" id="image-remove" class="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs leading-none flex items-center justify-center">&times;</button>
+            </div>
+          </div>
+          <input id="f-image" type="file" accept="image/*"
+            class="w-full text-sm text-neutral-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-neutral-100 file:text-neutral-700 hover:file:bg-neutral-200" />
+        </div>
+
+        <!-- Sort -->
+        <div>
+          <label class="block text-sm font-medium text-neutral-700 mb-1">Orden</label>
+          <input id="f-sort" type="number" value="0"
+            class="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent" />
+        </div>
+
+        <!-- Translations -->
+        <div id="translations-section">
+          <label class="block text-sm font-medium text-neutral-700 mb-2">Traducciones</label>
+          <div id="translations-fields" class="space-y-3">
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center justify-between pt-2">
+          <button type="button" id="btn-delete" class="hidden px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+            Eliminar
+          </button>
+          <div class="flex gap-2 ml-auto">
+            <button type="button" id="btn-cancel" class="px-4 py-2 text-sm font-medium text-neutral-600 hover:bg-neutral-100 rounded-lg transition-colors">
+              Cancelar
+            </button>
+            <button type="submit" class="px-4 py-2 bg-neutral-900 text-white rounded-lg text-sm font-medium hover:bg-neutral-800 transition-colors">
+              Guardar
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete confirm -->
+  <div id="delete-overlay" class="hidden fixed inset-0 z-60 bg-black/50 flex items-center justify-center">
+    <div class="bg-white rounded-xl shadow-xl p-6 max-w-sm mx-4 text-center">
+      <p id="delete-message" class="text-sm text-neutral-700 mb-4"></p>
+      <div class="flex gap-2 justify-center">
+        <button id="delete-cancel" class="px-4 py-2 text-sm font-medium text-neutral-600 hover:bg-neutral-100 rounded-lg transition-colors">Cancelar</button>
+        <button id="delete-confirm" class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors">Eliminar</button>
+      </div>
+    </div>
+  </div>
+</AdminLayout>
+
+<script>
+  import { pb } from "@/lib/pb";
+
+  const PB_URL = import.meta.env.DEV ? "http://localhost:8090" : "";
+
+  interface Category {
+    id: string;
+    name: string;
+    description: string;
+    image: string;
+    sort: number;
+    translations: Record<string, Record<string, string>> | null;
+    collectionId: string;
+  }
+
+  let categories: Category[] = [];
+  let productCounts: Record<string, number> = {};
+  let languages: string[] = [];
+  let defaultLanguage = "es";
+  let editingId: string | null = null;
+  let removeImage = false;
+
+  const listEl = document.getElementById("category-list")!;
+  const emptyEl = document.getElementById("empty-state")!;
+  const modalOverlay = document.getElementById("modal-overlay")!;
+  const modalTitle = document.getElementById("modal-title")!;
+  const formError = document.getElementById("form-error")!;
+  const deleteOverlay = document.getElementById("delete-overlay")!;
+  const deleteMessage = document.getElementById("delete-message")!;
+  const btnDelete = document.getElementById("btn-delete")!;
+  const previewContainer = document.getElementById("image-preview-container")!;
+  const previewImg = document.getElementById("image-preview") as HTMLImageElement;
+  const translationsFields = document.getElementById("translations-fields")!;
+
+  const fName = document.getElementById("f-name") as HTMLInputElement;
+  const fDescription = document.getElementById("f-description") as HTMLTextAreaElement;
+  const fImage = document.getElementById("f-image") as HTMLInputElement;
+  const fSort = document.getElementById("f-sort") as HTMLInputElement;
+
+  async function loadData() {
+    const [catRes, prodRes, configRes] = await Promise.all([
+      pb.collection("products_categories").getFullList<Category>({ sort: "sort", requestKey: null }),
+      pb.collection("products").getFullList<{ category: string }>({ fields: "category", requestKey: null }),
+      pb.collection("website_config").getFullList({ requestKey: null }).catch(() => []),
+    ]);
+
+    categories = catRes;
+
+    // Count products per category
+    productCounts = {};
+    for (const p of prodRes) {
+      if (p.category) {
+        productCounts[p.category] = (productCounts[p.category] || 0) + 1;
+      }
+    }
+
+    const config = configRes[0];
+    if (config) {
+      languages = ((config as any).languages as string[] || []).filter((l: string) => l !== ((config as any).default_language || "es"));
+      defaultLanguage = (config as any).default_language || "es";
+    }
+
+    render();
+  }
+
+  function render() {
+    if (categories.length === 0) {
+      listEl.classList.add("hidden");
+      emptyEl.classList.remove("hidden");
+      return;
+    }
+
+    listEl.classList.remove("hidden");
+    emptyEl.classList.add("hidden");
+
+    listEl.innerHTML = categories
+      .map((c) => {
+        const count = productCounts[c.id] || 0;
+        const imgUrl = c.image
+          ? `${PB_URL}/api/files/${c.collectionId}/${c.id}/${c.image}?thumb=80x80`
+          : "";
+
+        return `
+          <div class="flex items-center gap-4 px-4 py-3 hover:bg-neutral-50 cursor-pointer transition-colors" data-edit="${c.id}">
+            ${imgUrl
+              ? `<img src="${imgUrl}" alt="" class="w-10 h-10 rounded-lg object-cover flex-shrink-0" />`
+              : `<div class="w-10 h-10 rounded-lg bg-neutral-100 flex-shrink-0"></div>`
+            }
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm">${c.name}</div>
+            </div>
+            <div class="text-xs text-neutral-500">${count} producto${count !== 1 ? "s" : ""}</div>
+          </div>
+        `;
+      })
+      .join("");
+
+    listEl.querySelectorAll<HTMLElement>("[data-edit]").forEach((el) => {
+      el.addEventListener("click", () => openEdit(el.dataset.edit!));
+    });
+  }
+
+  function openModal(title: string) {
+    modalTitle.textContent = title;
+    formError.classList.add("hidden");
+    modalOverlay.classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeModal() {
+    modalOverlay.classList.add("hidden");
+    document.body.style.overflow = "";
+    editingId = null;
+    removeImage = false;
+    fImage.value = "";
+    previewContainer.classList.add("hidden");
+  }
+
+  function openCreate() {
+    editingId = null;
+    fName.value = "";
+    fDescription.value = "";
+    fSort.value = String(categories.length + 1);
+    fImage.value = "";
+    removeImage = false;
+    previewContainer.classList.add("hidden");
+    btnDelete.classList.add("hidden");
+    buildTranslationFields(null);
+    openModal("Nueva categoría");
+  }
+
+  function openEdit(id: string) {
+    const cat = categories.find((c) => c.id === id);
+    if (!cat) return;
+
+    editingId = id;
+    fName.value = cat.name;
+    fDescription.value = stripHtml(cat.description);
+    fSort.value = String(cat.sort);
+    fImage.value = "";
+    removeImage = false;
+
+    if (cat.image) {
+      previewImg.src = `${PB_URL}/api/files/${cat.collectionId}/${cat.id}/${cat.image}?thumb=200x200`;
+      previewContainer.classList.remove("hidden");
+    } else {
+      previewContainer.classList.add("hidden");
+    }
+
+    btnDelete.classList.remove("hidden");
+    buildTranslationFields(cat.translations);
+    openModal("Editar categoría");
+  }
+
+  function buildTranslationFields(translations: Record<string, Record<string, string>> | null) {
+    if (languages.length === 0) {
+      translationsFields.innerHTML = '<p class="text-xs text-neutral-400">Configura idiomas en website_config</p>';
+      return;
+    }
+
+    translationsFields.innerHTML = languages
+      .map((lang) => {
+        const nameVal = translations?.name?.[lang] || "";
+        return `
+          <div class="p-3 rounded-lg bg-neutral-50 space-y-2">
+            <div class="text-xs font-semibold uppercase text-neutral-500">${lang.toUpperCase()}</div>
+            <input type="text" placeholder="Nombre" value="${escapeAttr(nameVal)}"
+              data-tr-lang="${lang}" data-tr-field="name"
+              class="w-full px-3 py-1.5 border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent" />
+          </div>
+        `;
+      })
+      .join("");
+  }
+
+  function collectTranslations(): Record<string, Record<string, string>> {
+    const result: Record<string, Record<string, string>> = {};
+    translationsFields.querySelectorAll<HTMLInputElement>("[data-tr-lang]").forEach((input) => {
+      const lang = input.dataset.trLang!;
+      const field = input.dataset.trField!;
+      const val = input.value.trim();
+      if (val) {
+        if (!result[field]) result[field] = {};
+        result[field][lang] = val;
+      }
+    });
+    return result;
+  }
+
+  async function handleSave(e: Event) {
+    e.preventDefault();
+    formError.classList.add("hidden");
+
+    const name = fName.value.trim();
+    if (!name) {
+      formError.textContent = "El nombre es obligatorio";
+      formError.classList.remove("hidden");
+      return;
+    }
+
+    const fd = new FormData();
+    fd.append("name", name);
+    fd.append("description", fDescription.value.trim());
+    fd.append("sort", fSort.value || "0");
+
+    const translations = collectTranslations();
+    fd.append("translations", JSON.stringify(Object.keys(translations).length > 0 ? translations : null));
+
+    const file = fImage.files?.[0];
+    if (file) {
+      fd.append("image", file);
+    } else if (removeImage) {
+      fd.append("image", "");
+    }
+
+    try {
+      if (editingId) {
+        await pb.collection("products_categories").update(editingId, fd);
+      } else {
+        await pb.collection("products_categories").create(fd);
+      }
+      closeModal();
+      await loadData();
+    } catch (err: any) {
+      formError.textContent = err?.message || "Error al guardar";
+      formError.classList.remove("hidden");
+    }
+  }
+
+  function handleDelete() {
+    if (!editingId) return;
+    const count = productCounts[editingId] || 0;
+    if (count > 0) {
+      deleteMessage.textContent = `Esta categoría tiene ${count} producto${count !== 1 ? "s" : ""}. Elimina los productos primero.`;
+      deleteOverlay.classList.remove("hidden");
+      document.getElementById("delete-confirm")!.classList.add("hidden");
+    } else {
+      deleteMessage.textContent = "¿Eliminar esta categoría?";
+      deleteOverlay.classList.remove("hidden");
+      document.getElementById("delete-confirm")!.classList.remove("hidden");
+    }
+  }
+
+  async function confirmDelete() {
+    if (!editingId) return;
+    try {
+      await pb.collection("products_categories").delete(editingId);
+      deleteOverlay.classList.add("hidden");
+      closeModal();
+      await loadData();
+    } catch (err: any) {
+      formError.textContent = err?.message || "Error al eliminar";
+      formError.classList.remove("hidden");
+      deleteOverlay.classList.add("hidden");
+    }
+  }
+
+  function stripHtml(str: string | null): string {
+    if (!str) return "";
+    return str.replace(/<[^>]*>/g, "");
+  }
+
+  function escapeAttr(str: string): string {
+    return str.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+  }
+
+  // Event listeners
+  document.getElementById("btn-create")?.addEventListener("click", openCreate);
+  document.getElementById("modal-close")?.addEventListener("click", closeModal);
+  document.getElementById("btn-cancel")?.addEventListener("click", closeModal);
+  document.getElementById("category-form")?.addEventListener("submit", handleSave);
+  document.getElementById("btn-delete")?.addEventListener("click", handleDelete);
+  document.getElementById("delete-confirm")?.addEventListener("click", confirmDelete);
+  document.getElementById("delete-cancel")?.addEventListener("click", () => deleteOverlay.classList.add("hidden"));
+
+  fImage.addEventListener("change", () => {
+    const file = fImage.files?.[0];
+    if (file) {
+      previewImg.src = URL.createObjectURL(file);
+      previewContainer.classList.remove("hidden");
+      removeImage = false;
+    }
+  });
+  document.getElementById("image-remove")?.addEventListener("click", () => {
+    fImage.value = "";
+    previewContainer.classList.add("hidden");
+    removeImage = true;
+  });
+
+  modalOverlay.addEventListener("click", (e) => {
+    if (e.target === modalOverlay) closeModal();
+  });
+
+  loadData();
+</script>
+</AdminLayout>

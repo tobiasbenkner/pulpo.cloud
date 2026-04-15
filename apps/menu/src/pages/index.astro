@@ -1,0 +1,256 @@
+---
+import Layout from "@/layouts/Layout.astro";
+---
+
+<Layout title="Menu">
+  <!-- Category filter -->
+  <div class="sticky top-16 z-40 bg-white/90 backdrop-blur-sm border-b border-neutral-100">
+    <div class="max-w-5xl mx-auto px-4 py-3">
+      <div id="category-nav" class="flex gap-2 overflow-x-auto no-scrollbar">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading state -->
+  <div id="loading" class="max-w-5xl mx-auto px-4 py-16 text-center text-neutral-400">
+    <div class="animate-pulse" id="loading-text"></div>
+  </div>
+
+  <!-- Menu content -->
+  <div id="menu-content" class="max-w-5xl mx-auto px-4 py-8 hidden">
+    <!-- Filled by JS -->
+  </div>
+</Layout>
+
+<script>
+  import { t, getLang } from "@/lib/i18n";
+
+  const PB_URL = import.meta.env.DEV ? "http://localhost:8090" : "";
+
+  interface Config {
+    name?: string;
+    languages?: string[];
+    default_language?: string;
+    [key: string]: any;
+  }
+
+  interface Translatable {
+    translations?: Record<string, Record<string, string>>;
+    [key: string]: any;
+  }
+
+  interface Category extends Translatable {
+    id: string;
+    name: string;
+    description: string;
+    image: string;
+    sort: number;
+  }
+
+  interface Product extends Translatable {
+    id: string;
+    name: string;
+    description: string;
+    note: string;
+    price_gross: string;
+    image: string;
+    category: string;
+    sort: number;
+    collectionId?: string;
+  }
+
+  /** Resolve a translated field: translations.field.lang → fallback to record.field */
+  function tr(record: Translatable, field: string, lang: string, defaultLang: string): string {
+    if (lang !== defaultLang) {
+      const val = record.translations?.[field]?.[lang];
+      if (val) return val;
+    }
+    return record[field] || "";
+  }
+
+  async function fetchJSON<T>(path: string): Promise<T> {
+    const res = await fetch(`${PB_URL}${path}`);
+    return res.json();
+  }
+
+  function fileUrl(collectionId: string, recordId: string, filename: string): string {
+    if (!filename) return "";
+    return `${PB_URL}/api/files/${collectionId}/${recordId}/${filename}`;
+  }
+
+  async function init() {
+    // Fetch config (company + website_config)
+    const [companyRes, menuConfigRes, categoriesRes, productsRes] = await Promise.all([
+      fetchJSON<{ items: any[] }>("/api/collections/company/records"),
+      fetchJSON<{ items: any[] }>("/api/collections/website_config/records").catch(() => ({ items: [] })),
+      fetchJSON<{ items: Category[] }>("/api/collections/products_categories/records?sort=sort"),
+      fetchJSON<{ items: (Product & { collectionId: string })[] }>("/api/collections/products/records?sort=sort"),
+    ]);
+
+    const company = companyRes.items[0] || {};
+    const menuConfig = menuConfigRes.items[0] || {};
+    const config: Config = { ...company, ...menuConfig };
+    const categories = categoriesRes.items || [];
+    const products = productsRes.items || [];
+
+    const defaultLang = config.default_language || "es";
+    const lang = getLang(new URL(window.location.href), localStorage.getItem("menu-lang") || defaultLang);
+    localStorage.setItem("menu-lang", lang);
+
+    // Update page language
+    document.documentElement.lang = lang;
+
+    // Init header & footer
+    (window as any).__initHeader?.(config, lang, t);
+    (window as any).__initFooter?.(config, lang, t);
+
+    // Loading text
+    const loadingText = document.getElementById("loading-text");
+    if (loadingText) loadingText.textContent = t("loading", lang);
+
+    // Build category filter
+    const categoryNav = document.getElementById("category-nav");
+    if (categoryNav) {
+      const allBtn = createCategoryButton(t("allCategories", lang), "all", true);
+      categoryNav.appendChild(allBtn);
+
+      for (const cat of categories) {
+        const btn = createCategoryButton(tr(cat, "name", lang, defaultLang), cat.id, false);
+        categoryNav.appendChild(btn);
+      }
+    }
+
+    // Build menu sections
+    const menuContent = document.getElementById("menu-content");
+    if (menuContent) {
+      for (const cat of categories) {
+        const catProducts = products.filter((p) => p.category === cat.id);
+        if (catProducts.length === 0) continue;
+
+        const section = document.createElement("section");
+        section.dataset.category = cat.id;
+        section.className = "mb-12";
+
+        const heading = document.createElement("h2");
+        heading.className = "text-2xl font-bold mb-6 pb-2 border-b border-neutral-200";
+        heading.textContent = tr(cat, "name", lang, defaultLang);
+        section.appendChild(heading);
+
+        const grid = document.createElement("div");
+        grid.className = "grid gap-4 sm:grid-cols-2";
+
+        for (const prod of catProducts) {
+          grid.appendChild(createProductCard(prod, lang, defaultLang));
+        }
+
+        section.appendChild(grid);
+        menuContent.appendChild(section);
+      }
+    }
+
+    // Show content
+    document.getElementById("loading")?.classList.add("hidden");
+    menuContent?.classList.remove("hidden");
+  }
+
+  function createCategoryButton(label: string, id: string, active: boolean): HTMLButtonElement {
+    const btn = document.createElement("button");
+    btn.textContent = label;
+    btn.dataset.filter = id;
+    btn.className = active
+      ? "px-4 py-1.5 rounded-full text-sm font-medium bg-neutral-900 text-white whitespace-nowrap transition-colors"
+      : "px-4 py-1.5 rounded-full text-sm font-medium bg-neutral-100 text-neutral-600 hover:bg-neutral-200 whitespace-nowrap transition-colors";
+
+    btn.addEventListener("click", () => {
+      // Update active state
+      document.querySelectorAll("[data-filter]").forEach((b) => {
+        b.className = "px-4 py-1.5 rounded-full text-sm font-medium bg-neutral-100 text-neutral-600 hover:bg-neutral-200 whitespace-nowrap transition-colors";
+      });
+      btn.className = "px-4 py-1.5 rounded-full text-sm font-medium bg-neutral-900 text-white whitespace-nowrap transition-colors";
+
+      // Filter sections
+      const sections = document.querySelectorAll<HTMLElement>("[data-category]");
+      sections.forEach((s) => {
+        s.style.display = id === "all" || s.dataset.category === id ? "" : "none";
+      });
+    });
+
+    return btn;
+  }
+
+  function createProductCard(product: Product & { collectionId?: string }, lang: string, defaultLang: string): HTMLElement {
+    const card = document.createElement("div");
+    card.className = "flex gap-4 p-4 rounded-xl bg-surface hover:shadow-sm transition-shadow";
+
+    const imgUrl = product.image && product.collectionId
+      ? fileUrl(product.collectionId, product.id, product.image)
+      : "";
+
+    if (imgUrl) {
+      const img = document.createElement("img");
+      img.src = imgUrl;
+      img.alt = tr(product, "name", lang, defaultLang);
+      img.className = "w-24 h-24 rounded-lg object-cover flex-shrink-0";
+      img.loading = "lazy";
+      card.appendChild(img);
+    }
+
+    const info = document.createElement("div");
+    info.className = "flex-1 min-w-0";
+
+    const header = document.createElement("div");
+    header.className = "flex items-start justify-between gap-2";
+
+    const name = document.createElement("h3");
+    name.className = "font-semibold text-neutral-900";
+    name.textContent = tr(product, "name", lang, defaultLang);
+    header.appendChild(name);
+
+    if (product.price_gross) {
+      const price = document.createElement("span");
+      price.className = "font-semibold text-neutral-900 whitespace-nowrap";
+      price.textContent = formatPrice(product.price_gross);
+      header.appendChild(price);
+    }
+
+    info.appendChild(header);
+
+    const description = tr(product, "description", lang, defaultLang);
+    if (description) {
+      const desc = document.createElement("p");
+      desc.className = "text-sm text-muted mt-1 line-clamp-2";
+      desc.textContent = description.replace(/<[^>]*>/g, "");
+      info.appendChild(desc);
+    }
+
+    const note = tr(product, "note", lang, defaultLang);
+    if (note) {
+      const noteEl = document.createElement("p");
+      noteEl.className = "text-xs text-muted mt-1 italic";
+      noteEl.textContent = note.replace(/<[^>]*>/g, "");
+      info.appendChild(noteEl);
+    }
+
+    card.appendChild(info);
+    return card;
+  }
+
+  function formatPrice(value: string): string {
+    const num = parseFloat(value);
+    if (isNaN(num)) return value;
+    return num.toFixed(2).replace(".", ",") + " \u20AC";
+  }
+
+  init();
+</script>
+
+<style>
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+</style>

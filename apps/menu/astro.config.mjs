@@ -1,12 +1,14 @@
+// @ts-check
 import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
-import svelte from '@astrojs/svelte';
+import icon from 'astro-icon';
 
+// https://astro.build/config
 export default defineConfig({
-  output: 'static',
-  server: { host: '0.0.0.0', port: 4325 },
+  base: '/menu',
+  integrations: [icon()],
+  server: { host: '0.0.0.0', port: 4321 },
   vite: {
     plugins: [tailwindcss()],
-  },
-  integrations: [svelte()],
+  }
 });

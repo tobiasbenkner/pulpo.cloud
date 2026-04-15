@@ -1,0 +1,477 @@
+---
+import AdminLayout from "@/layouts/AdminLayout.astro";
+---
+
+<AdminLayout title="Productos">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold">Productos</h1>
+    <button id="btn-create" class="px-4 py-2 bg-neutral-900 text-white rounded-lg text-sm font-medium hover:bg-neutral-800 transition-colors">
+      + Nuevo producto
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="flex gap-3 mb-6">
+    <input
+      id="search"
+      type="text"
+      placeholder="Buscar..."
+      class="flex-1 px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent"
+    />
+    <select id="filter-category" class="px-3 py-2 border border-neutral-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-neutral-900">
+      <option value="">Todas las categorías</option>
+    </select>
+  </div>
+
+  <!-- Product list -->
+  <div id="product-list" class="bg-white rounded-xl border border-neutral-200 divide-y divide-neutral-100">
+    <!-- Filled by JS -->
+  </div>
+
+  <!-- Empty state -->
+  <div id="empty-state" class="hidden text-center py-12 text-neutral-400">
+    No hay productos
+  </div>
+
+  <!-- Modal overlay -->
+  <div id="modal-overlay" class="hidden fixed inset-0 z-50 bg-black/50 flex items-start justify-center pt-16 overflow-y-auto">
+    <div id="modal" class="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 mb-16">
+      <div class="flex items-center justify-between p-4 border-b border-neutral-100">
+        <h2 id="modal-title" class="text-lg font-semibold"></h2>
+        <button id="modal-close" class="text-neutral-400 hover:text-neutral-600 text-xl leading-none">&times;</button>
+      </div>
+
+      <form id="product-form" class="p-4 space-y-4">
+        <div id="form-error" class="hidden p-3 rounded-lg bg-red-50 text-red-700 text-sm"></div>
+
+        <!-- Name -->
+        <div>
+          <label class="block text-sm font-medium text-neutral-700 mb-1">Nombre *</label>
+          <input id="f-name" type="text" required
+            class="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent" />
+        </div>
+
+        <!-- Description -->
+        <div>
+          <label class="block text-sm font-medium text-neutral-700 mb-1">Descripción</label>
+          <textarea id="f-description" rows="2"
+            class="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent"></textarea>
+        </div>
+
+        <!-- Note -->
+        <div>
+          <label class="block text-sm font-medium text-neutral-700 mb-1">Nota</label>
+          <input id="f-note" type="text"
+            class="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent" />
+        </div>
+
+        <!-- Price + Category (row) -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm font-medium text-neutral-700 mb-1">Precio bruto</label>
+            <input id="f-price" type="text" placeholder="0,00"
+              class="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-neutral-700 mb-1">Categoría</label>
+            <select id="f-category"
+              class="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-neutral-900">
+              <option value="">—</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Image -->
+        <div>
+          <label class="block text-sm font-medium text-neutral-700 mb-1">Imagen</label>
+          <div id="image-preview-container" class="hidden mb-2">
+            <div class="relative inline-block">
+              <img id="image-preview" class="w-24 h-24 rounded-lg object-cover" />
+              <button type="button" id="image-remove" class="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs leading-none flex items-center justify-center">&times;</button>
+            </div>
+          </div>
+          <input id="f-image" type="file" accept="image/*"
+            class="w-full text-sm text-neutral-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-neutral-100 file:text-neutral-700 hover:file:bg-neutral-200" />
+        </div>
+
+        <!-- Sort -->
+        <div>
+          <label class="block text-sm font-medium text-neutral-700 mb-1">Orden</label>
+          <input id="f-sort" type="number" value="0"
+            class="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent" />
+        </div>
+
+        <!-- Translations -->
+        <div id="translations-section">
+          <label class="block text-sm font-medium text-neutral-700 mb-2">Traducciones</label>
+          <div id="translations-fields" class="space-y-3">
+            <!-- Filled by JS based on website_config.languages -->
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center justify-between pt-2">
+          <button type="button" id="btn-delete" class="hidden px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+            Eliminar
+          </button>
+          <div class="flex gap-2 ml-auto">
+            <button type="button" id="btn-cancel" class="px-4 py-2 text-sm font-medium text-neutral-600 hover:bg-neutral-100 rounded-lg transition-colors">
+              Cancelar
+            </button>
+            <button type="submit" class="px-4 py-2 bg-neutral-900 text-white rounded-lg text-sm font-medium hover:bg-neutral-800 transition-colors">
+              Guardar
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete confirm -->
+  <div id="delete-overlay" class="hidden fixed inset-0 z-60 bg-black/50 flex items-center justify-center">
+    <div class="bg-white rounded-xl shadow-xl p-6 max-w-sm mx-4 text-center">
+      <p class="text-sm text-neutral-700 mb-4">¿Eliminar este producto?</p>
+      <div class="flex gap-2 justify-center">
+        <button id="delete-cancel" class="px-4 py-2 text-sm font-medium text-neutral-600 hover:bg-neutral-100 rounded-lg transition-colors">Cancelar</button>
+        <button id="delete-confirm" class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors">Eliminar</button>
+      </div>
+    </div>
+  </div>
+</AdminLayout>
+
+<script>
+  import { pb } from "@/lib/pb";
+
+  const PB_URL = import.meta.env.DEV ? "http://localhost:8090" : "";
+
+  interface Product {
+    id: string;
+    name: string;
+    description: string;
+    note: string;
+    price_gross: string;
+    image: string;
+    category: string;
+    sort: number;
+    translations: Record<string, Record<string, string>> | null;
+    collectionId: string;
+    collectionName: string;
+  }
+
+  interface Category {
+    id: string;
+    name: string;
+    sort: number;
+  }
+
+  let products: Product[] = [];
+  let categories: Category[] = [];
+  let languages: string[] = [];
+  let defaultLanguage = "es";
+  let editingId: string | null = null;
+  let removeImage = false;
+
+  // DOM refs
+  const listEl = document.getElementById("product-list")!;
+  const emptyEl = document.getElementById("empty-state")!;
+  const searchEl = document.getElementById("search") as HTMLInputElement;
+  const filterCatEl = document.getElementById("filter-category") as HTMLSelectElement;
+  const modalOverlay = document.getElementById("modal-overlay")!;
+  const modalTitle = document.getElementById("modal-title")!;
+  const formError = document.getElementById("form-error")!;
+  const deleteOverlay = document.getElementById("delete-overlay")!;
+  const btnDelete = document.getElementById("btn-delete")!;
+  const previewContainer = document.getElementById("image-preview-container")!;
+  const previewImg = document.getElementById("image-preview") as HTMLImageElement;
+  const translationsFields = document.getElementById("translations-fields")!;
+
+  // Form fields
+  const fName = document.getElementById("f-name") as HTMLInputElement;
+  const fDescription = document.getElementById("f-description") as HTMLTextAreaElement;
+  const fNote = document.getElementById("f-note") as HTMLInputElement;
+  const fPrice = document.getElementById("f-price") as HTMLInputElement;
+  const fCategory = document.getElementById("f-category") as HTMLSelectElement;
+  const fImage = document.getElementById("f-image") as HTMLInputElement;
+  const fSort = document.getElementById("f-sort") as HTMLInputElement;
+
+  async function loadData() {
+    const [prodRes, catRes, configRes] = await Promise.all([
+      pb.collection("products").getFullList<Product>({ sort: "sort", requestKey: null }),
+      pb.collection("products_categories").getFullList<Category>({ sort: "sort", requestKey: null }),
+      pb.collection("website_config").getFullList({ requestKey: null }).catch(() => []),
+    ]);
+
+    products = prodRes;
+    categories = catRes;
+
+    const config = configRes[0];
+    if (config) {
+      languages = ((config as any).languages as string[] || []).filter((l: string) => l !== ((config as any).default_language || "es"));
+      defaultLanguage = (config as any).default_language || "es";
+    }
+
+    // Populate category filter
+    filterCatEl.innerHTML = '<option value="">Todas las categorías</option>';
+    fCategory.innerHTML = '<option value="">—</option>';
+    for (const cat of categories) {
+      filterCatEl.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
+      fCategory.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
+    }
+
+    render();
+  }
+
+  function render() {
+    const query = searchEl.value.toLowerCase().trim();
+    const catFilter = filterCatEl.value;
+
+    let filtered = products;
+    if (query) {
+      filtered = filtered.filter((p) => p.name.toLowerCase().includes(query));
+    }
+    if (catFilter) {
+      filtered = filtered.filter((p) => p.category === catFilter);
+    }
+
+    if (filtered.length === 0) {
+      listEl.classList.add("hidden");
+      emptyEl.classList.remove("hidden");
+      return;
+    }
+
+    listEl.classList.remove("hidden");
+    emptyEl.classList.add("hidden");
+
+    listEl.innerHTML = filtered
+      .map((p) => {
+        const cat = categories.find((c) => c.id === p.category);
+        const imgUrl = p.image
+          ? `${PB_URL}/api/files/${p.collectionId}/${p.id}/${p.image}?thumb=80x80`
+          : "";
+        const price = p.price_gross ? parseFloat(p.price_gross).toFixed(2).replace(".", ",") + " €" : "";
+
+        return `
+          <div class="flex items-center gap-4 px-4 py-3 hover:bg-neutral-50 cursor-pointer transition-colors" data-edit="${p.id}">
+            ${imgUrl
+              ? `<img src="${imgUrl}" alt="" class="w-10 h-10 rounded-lg object-cover flex-shrink-0" />`
+              : `<div class="w-10 h-10 rounded-lg bg-neutral-100 flex-shrink-0"></div>`
+            }
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">${p.name}</div>
+              <div class="text-xs text-neutral-500">${cat?.name || ""}</div>
+            </div>
+            <div class="text-sm font-medium text-neutral-700">${price}</div>
+          </div>
+        `;
+      })
+      .join("");
+
+    // Click handlers
+    listEl.querySelectorAll<HTMLElement>("[data-edit]").forEach((el) => {
+      el.addEventListener("click", () => openEdit(el.dataset.edit!));
+    });
+  }
+
+  function openModal(title: string) {
+    modalTitle.textContent = title;
+    formError.classList.add("hidden");
+    modalOverlay.classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeModal() {
+    modalOverlay.classList.add("hidden");
+    document.body.style.overflow = "";
+    editingId = null;
+    removeImage = false;
+    fImage.value = "";
+    previewContainer.classList.add("hidden");
+  }
+
+  function openCreate() {
+    editingId = null;
+    fName.value = "";
+    fDescription.value = "";
+    fNote.value = "";
+    fPrice.value = "";
+    fCategory.value = "";
+    fSort.value = String(products.length + 1);
+    fImage.value = "";
+    removeImage = false;
+    previewContainer.classList.add("hidden");
+    btnDelete.classList.add("hidden");
+    buildTranslationFields(null);
+    openModal("Nuevo producto");
+  }
+
+  function openEdit(id: string) {
+    const product = products.find((p) => p.id === id);
+    if (!product) return;
+
+    editingId = id;
+    fName.value = product.name;
+    fDescription.value = stripHtml(product.description);
+    fNote.value = stripHtml(product.note);
+    fPrice.value = product.price_gross || "";
+    fCategory.value = product.category || "";
+    fSort.value = String(product.sort);
+    fImage.value = "";
+    removeImage = false;
+
+    if (product.image) {
+      previewImg.src = `${PB_URL}/api/files/${product.collectionId}/${product.id}/${product.image}?thumb=200x200`;
+      previewContainer.classList.remove("hidden");
+    } else {
+      previewContainer.classList.add("hidden");
+    }
+
+    btnDelete.classList.remove("hidden");
+    buildTranslationFields(product.translations);
+    openModal("Editar producto");
+  }
+
+  function buildTranslationFields(translations: Record<string, Record<string, string>> | null) {
+    if (languages.length === 0) {
+      translationsFields.innerHTML = '<p class="text-xs text-neutral-400">Configura idiomas en website_config</p>';
+      return;
+    }
+
+    translationsFields.innerHTML = languages
+      .map((lang) => {
+        const nameVal = translations?.name?.[lang] || "";
+        const descVal = translations?.description?.[lang] || "";
+        return `
+          <div class="p-3 rounded-lg bg-neutral-50 space-y-2">
+            <div class="text-xs font-semibold uppercase text-neutral-500">${lang.toUpperCase()}</div>
+            <input type="text" placeholder="Nombre" value="${escapeAttr(nameVal)}"
+              data-tr-lang="${lang}" data-tr-field="name"
+              class="w-full px-3 py-1.5 border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent" />
+            <input type="text" placeholder="Descripción" value="${escapeAttr(descVal)}"
+              data-tr-lang="${lang}" data-tr-field="description"
+              class="w-full px-3 py-1.5 border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent" />
+          </div>
+        `;
+      })
+      .join("");
+  }
+
+  function collectTranslations(): Record<string, Record<string, string>> {
+    const result: Record<string, Record<string, string>> = {};
+    translationsFields.querySelectorAll<HTMLInputElement>("[data-tr-lang]").forEach((input) => {
+      const lang = input.dataset.trLang!;
+      const field = input.dataset.trField!;
+      const val = input.value.trim();
+      if (val) {
+        if (!result[field]) result[field] = {};
+        result[field][lang] = val;
+      }
+    });
+    return result;
+  }
+
+  async function handleSave(e: Event) {
+    e.preventDefault();
+    formError.classList.add("hidden");
+
+    const name = fName.value.trim();
+    if (!name) {
+      formError.textContent = "El nombre es obligatorio";
+      formError.classList.remove("hidden");
+      return;
+    }
+
+    const fd = new FormData();
+    fd.append("name", name);
+    fd.append("description", fDescription.value.trim());
+    fd.append("note", fNote.value.trim());
+    fd.append("price_gross", fPrice.value.trim().replace(",", "."));
+    fd.append("category", fCategory.value);
+    fd.append("sort", fSort.value || "0");
+
+    const translations = collectTranslations();
+    fd.append("translations", JSON.stringify(Object.keys(translations).length > 0 ? translations : null));
+
+    const file = fImage.files?.[0];
+    if (file) {
+      fd.append("image", file);
+    } else if (removeImage) {
+      fd.append("image", "");
+    }
+
+    try {
+      if (editingId) {
+        await pb.collection("products").update(editingId, fd);
+      } else {
+        await pb.collection("products").create(fd);
+      }
+      closeModal();
+      await loadData();
+    } catch (err: any) {
+      formError.textContent = err?.message || "Error al guardar";
+      formError.classList.remove("hidden");
+    }
+  }
+
+  async function handleDelete() {
+    if (!editingId) return;
+    deleteOverlay.classList.remove("hidden");
+  }
+
+  async function confirmDelete() {
+    if (!editingId) return;
+    try {
+      await pb.collection("products").delete(editingId);
+      deleteOverlay.classList.add("hidden");
+      closeModal();
+      await loadData();
+    } catch (err: any) {
+      formError.textContent = err?.message || "Error al eliminar";
+      formError.classList.remove("hidden");
+      deleteOverlay.classList.add("hidden");
+    }
+  }
+
+  function stripHtml(str: string | null): string {
+    if (!str) return "";
+    return str.replace(/<[^>]*>/g, "");
+  }
+
+  function escapeAttr(str: string): string {
+    return str.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+  }
+
+  // Event listeners
+  document.getElementById("btn-create")?.addEventListener("click", openCreate);
+  document.getElementById("modal-close")?.addEventListener("click", closeModal);
+  document.getElementById("btn-cancel")?.addEventListener("click", closeModal);
+  document.getElementById("product-form")?.addEventListener("submit", handleSave);
+  document.getElementById("btn-delete")?.addEventListener("click", handleDelete);
+  document.getElementById("delete-confirm")?.addEventListener("click", confirmDelete);
+  document.getElementById("delete-cancel")?.addEventListener("click", () => deleteOverlay.classList.add("hidden"));
+  searchEl.addEventListener("input", render);
+  filterCatEl.addEventListener("change", render);
+
+  // Image preview
+  fImage.addEventListener("change", () => {
+    const file = fImage.files?.[0];
+    if (file) {
+      previewImg.src = URL.createObjectURL(file);
+      previewContainer.classList.remove("hidden");
+      removeImage = false;
+    }
+  });
+  document.getElementById("image-remove")?.addEventListener("click", () => {
+    fImage.value = "";
+    previewContainer.classList.add("hidden");
+    removeImage = true;
+  });
+
+  // Close modal on overlay click
+  modalOverlay.addEventListener("click", (e) => {
+    if (e.target === modalOverlay) closeModal();
+  });
+
+  loadData();
+</script>
+</AdminLayout>

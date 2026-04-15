@@ -21,6 +21,31 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
 
+  apps/admin:
+    dependencies:
+      '@iconify-json/lucide':
+        specifier: ^1.2.98
+        version: 1.2.98
+      '@tailwindcss/vite':
+        specifier: ^4.2.1
+        version: 4.2.1(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))
+      astro:
+        specifier: ^6.0.8
+        version: 6.0.8(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(rollup@4.59.0)(terser@5.46.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
+      astro-icon:
+        specifier: ^1.1.5
+        version: 1.1.5
+      pocketbase:
+        specifier: ^0.26.8
+        version: 0.26.8
+      tailwindcss:
+        specifier: ^4.2.1
+        version: 4.2.1
+    devDependencies:
+      '@fontsource/inter':
+        specifier: ^5.2.5
+        version: 5.2.8
+
   apps/agenda:
     dependencies:
       '@astrojs/svelte':
@@ -123,6 +148,28 @@ importers:
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
+
+  apps/menu:
+    dependencies:
+      '@iconify-json/lucide':
+        specifier: ^1.2.98
+        version: 1.2.98
+      '@tailwindcss/vite':
+        specifier: ^4.2.1
+        version: 4.2.1(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))
+      astro:
+        specifier: ^6.0.8
+        version: 6.0.8(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(rollup@4.59.0)(terser@5.46.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
+      astro-icon:
+        specifier: ^1.1.5
+        version: 1.1.5
+      tailwindcss:
+        specifier: ^4.2.1
+        version: 4.2.1
+    devDependencies:
+      '@fontsource/inter':
+        specifier: ^5.2.5
+        version: 5.2.8
 
   apps/pulpo-app: {}
 
@@ -385,6 +432,8 @@ importers:
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
+
+  tools/proxy: {}
 
   tools/telegram_bot:
     dependencies:
@@ -1296,6 +1345,9 @@ packages:
 
   '@fontsource/dm-sans@5.2.8':
     resolution: {integrity: sha512-tlovG42m9ESG28WiHpLq3F5umAlm64rv0RkqTbYowRn70e9OlRr5a3yTJhrhrY+k5lftR/OFJjPzOLQzk8EfCA==}
+
+  '@fontsource/inter@5.2.8':
+    resolution: {integrity: sha512-P6r5WnJoKiNVV+zvW2xM13gNdFhAEpQ9dQJHt3naLvfg+LkF2ldgSLiF4T41lf1SQCM9QmkqPTn4TH568IRagg==}
 
   '@fontsource/syne@5.2.7':
     resolution: {integrity: sha512-OgWgLPSbieiSfdFXgMs0l/rspIFzVoDZxw8wKj15n39epRqO5+Uv36c0MXNDcw2GuK/TIBgpC9G8VAgs+bVm7A==}
@@ -7510,6 +7562,8 @@ snapshots:
   '@floating-ui/utils@0.2.11': {}
 
   '@fontsource/dm-sans@5.2.8': {}
+
+  '@fontsource/inter@5.2.8': {}
 
   '@fontsource/syne@5.2.7': {}
 

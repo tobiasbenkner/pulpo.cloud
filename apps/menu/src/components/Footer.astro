@@ -1,0 +1,27 @@
+---
+---
+
+<footer id="site-footer" class="border-t border-neutral-100 py-8 mt-auto">
+  <div class="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-neutral-500">
+    <span id="footer-copyright"></span>
+    <div class="flex gap-4">
+      <a href="/menu/imprint" id="footer-imprint" class="hover:text-neutral-700 transition-colors"></a>
+      <a href="/menu/privacy" id="footer-privacy" class="hover:text-neutral-700 transition-colors"></a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  function initFooter(config: any, lang: string, t: (key: string, lang: string) => string) {
+    const copyright = document.getElementById("footer-copyright");
+    if (copyright) copyright.textContent = `© ${new Date().getFullYear()} ${config?.name || ""}`;
+
+    const imprint = document.getElementById("footer-imprint");
+    if (imprint) imprint.textContent = t("imprint", lang);
+
+    const privacy = document.getElementById("footer-privacy");
+    if (privacy) privacy.textContent = t("privacy", lang);
+  }
+
+  (window as any).__initFooter = initFooter;
+</script>

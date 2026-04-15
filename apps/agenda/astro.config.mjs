@@ -4,18 +4,16 @@ import svelte from '@astrojs/svelte';
 
 export default defineConfig({
   output: 'static',
+  base: '/agenda',
 
   vite: {
     plugins: [tailwindcss()],
-    server: {
-      allowedHosts: ['local.pulpo.cloud'],
-    },
   },
 
   integrations: [svelte()],
 
   server: {
     host: "0.0.0.0",
-    port: 4321,
+    port: 4324,
   },
 });
