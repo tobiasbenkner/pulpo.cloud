@@ -122,13 +122,18 @@ func main() {
 			pbRoot = sub
 		}
 
-		// Launcher auf / servieren
-		if launcher, err := fs.Sub(pbRoot, "launcher"); err == nil {
-			se.Router.GET("/{path...}", apis.Static(launcher, true))
+		// Menu auf / servieren (Default-App)
+		if menu, err := fs.Sub(pbRoot, "menu"); err == nil {
+			se.Router.GET("/{path...}", apis.Static(menu, true))
 		}
 
-		// App-Frontends unter /shop, /agenda, /settings, /menu, /admin
-		for _, name := range []string{"shop", "agenda", "settings", "menu", "admin"} {
+		// Launcher unter /apps servieren
+		if launcher, err := fs.Sub(pbRoot, "launcher"); err == nil {
+			se.Router.GET("/apps/{path...}", apis.Static(launcher, true))
+		}
+
+		// App-Frontends unter /shop, /agenda, /admin
+		for _, name := range []string{"shop", "agenda", "admin"} {
 			sub, err := fs.Sub(pbRoot, name)
 			if err != nil {
 				continue

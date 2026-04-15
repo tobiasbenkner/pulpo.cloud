@@ -1,12 +1,16 @@
 ---
+import { Icon } from 'astro-icon/components';
 ---
 
 <footer id="site-footer" class="border-t border-neutral-100 py-8 mt-auto">
   <div class="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-neutral-500">
     <span id="footer-copyright"></span>
-    <div class="flex gap-4">
-      <a href="/menu/imprint" id="footer-imprint" class="hover:text-neutral-700 transition-colors"></a>
-      <a href="/menu/privacy" id="footer-privacy" class="hover:text-neutral-700 transition-colors"></a>
+    <div class="flex items-center gap-4">
+      <a href="/imprint" id="footer-imprint" class="hover:text-neutral-700 transition-colors"></a>
+      <a href="/privacy" id="footer-privacy" class="hover:text-neutral-700 transition-colors"></a>
+      <a href="/apps" aria-label="Administración" class="text-neutral-400 hover:text-neutral-700 transition-colors">
+        <Icon name="lucide:settings" class="w-4 h-4" />
+      </a>
     </div>
   </div>
 </footer>

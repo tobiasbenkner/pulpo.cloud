@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Icon from '@iconify/svelte';
   import { pb } from '../lib/pb';
 
   interface App {
@@ -6,7 +7,7 @@
     description: string;
     href: string;
     color: string;
-    iconPath: string;
+    icon: string;
   }
 
   const apps: App[] = [
@@ -15,14 +16,21 @@
       description: 'Punto de venta y facturación',
       href: '/shop',
       color: 'coral',
-      iconPath: 'M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.3 2.3c-.5.5-.1 1.3.6 1.3H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z',
+      icon: 'lucide:shopping-cart',
     },
     {
       name: 'Agenda',
       description: 'Reservas y gestión de turnos',
       href: '/agenda',
       color: 'navy',
-      iconPath: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z',
+      icon: 'lucide:calendar',
+    },
+    {
+      name: 'Administración',
+      description: 'Configuración y gestión',
+      href: '/admin',
+      color: 'navy',
+      icon: 'lucide:settings',
     },
   ];
 
@@ -44,7 +52,7 @@
   <!-- Header -->
   <div class="flex items-center justify-between mb-10 animate-reveal">
     <div class="flex items-center gap-3">
-      <img src="/assets/logo.png" alt="" class="w-8 h-8" />
+      <img src="/apps/assets/logo.png" alt="" class="w-8 h-8" />
       <span class="font-display text-xl font-bold text-navy-900 tracking-tight">Pulpo</span>
     </div>
     <button
@@ -72,17 +80,13 @@
         style="animation-delay: {0.08 + i * 0.06}s;"
       >
         <div class="flex-shrink-0 w-11 h-11 rounded-xl {getIconBg(app.color)} flex items-center justify-center">
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-            <path d={app.iconPath} />
-          </svg>
+          <Icon icon={app.icon} class="w-5 h-5" />
         </div>
         <div class="min-w-0">
           <div class="font-display font-semibold text-navy-900 text-[0.9375rem]">{app.name}</div>
           <div class="text-[0.8125rem] text-navy-400 mt-0.5">{app.description}</div>
         </div>
-        <svg class="ml-auto flex-shrink-0 w-4 h-4 text-navy-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 18l6-6-6-6" />
-        </svg>
+        <Icon icon="lucide:chevron-right" class="ml-auto flex-shrink-0 w-4 h-4 text-navy-300" />
       </a>
     {/each}
   </div>

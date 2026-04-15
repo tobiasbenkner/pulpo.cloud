@@ -10,8 +10,6 @@ pb_public/shop/*
 !pb_public/shop/.gitkeep
 pb_public/agenda/*
 !pb_public/agenda/.gitkeep
-pb_public/settings/*
-!pb_public/settings/.gitkeep
 pb_public/menu/*
 !pb_public/menu/.gitkeep
 pb_public/admin/*
