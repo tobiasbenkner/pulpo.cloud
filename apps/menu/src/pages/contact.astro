@@ -8,77 +8,116 @@ import PrivacyMap from "@/components/PrivacyMap.astro";
   <!-- Loading state -->
   <div id="loading" class="mx-auto max-w-2xl px-5 py-20 text-center">
     <div class="inline-flex flex-col items-center gap-3">
-      <div class="h-5 w-5 animate-spin rounded-full border-2 border-sand-dark border-t-accent"></div>
+      <div
+        class="h-5 w-5 animate-spin rounded-full border-2 border-sand-dark border-t-accent"
+      >
+      </div>
       <span class="text-sm text-stone" id="loading-text"></span>
     </div>
   </div>
 
   <!-- Contact content -->
   <div id="contact-content" class="mx-auto max-w-2xl px-5 pb-12 hidden">
-
-    <!-- Hero -->
-    <div class="reveal pt-12 pb-10 text-center">
-      <h1 id="contact-name" class="font-display text-[2rem] sm:text-[2.5rem] leading-tight text-bark"></h1>
-      <div class="mx-auto mt-5 flex items-center justify-center gap-3">
-        <div class="h-px w-10 bg-accent/25"></div>
-        <div class="h-1.5 w-1.5 rotate-45 border border-accent/40"></div>
-        <div class="h-px w-10 bg-accent/25"></div>
-      </div>
-    </div>
-
     <!-- Contact details card -->
-    <div class="divide-y divide-sand/60 overflow-hidden rounded-2xl border border-sand/60">
-
+    <div class="pt-8"></div>
+    <div
+      class="divide-y divide-sand/60 overflow-hidden rounded-2xl border border-sand/60"
+    >
       <!-- Address -->
       <div class="reveal bg-cream p-5 sm:p-6" style="transition-delay: 80ms">
         <div class="flex items-start gap-4">
-          <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-accent-light/80">
-            <Icon name="lucide:map-pin" class="h-[18px] w-[18px] text-accent" />
+          <div
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-light/80"
+          >
+            <Icon name="lucide:map-pin" class="h-4.5 w-4.5 text-accent" />
           </div>
           <div class="pt-0.5">
-            <h2 class="text-[11px] font-bold uppercase tracking-[0.14em] text-stone" id="label-address"></h2>
-            <p class="mt-1.5 text-[15px] leading-relaxed text-bark" id="contact-address"></p>
+            <h2
+              class="text-[11px] font-bold uppercase tracking-[0.14em] text-stone"
+              id="label-address"
+            >
+            </h2>
+            <p
+              class="mt-1.5 text-[15px] leading-relaxed text-bark"
+              id="contact-address"
+            >
+            </p>
           </div>
         </div>
       </div>
 
       <!-- Phone -->
-      <div id="phone-section" class="reveal bg-cream p-5 sm:p-6" style="transition-delay: 140ms">
+      <div
+        id="phone-section"
+        class="reveal bg-cream p-5 sm:p-6"
+        style="transition-delay: 140ms"
+      >
         <div class="flex items-start gap-4">
-          <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-accent-light/80">
-            <Icon name="lucide:phone" class="h-[18px] w-[18px] text-accent" />
+          <div
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-light/80"
+          >
+            <Icon name="lucide:phone" class="h-4.5 w-4.5 text-accent" />
           </div>
           <div class="pt-0.5">
-            <h2 class="text-[11px] font-bold uppercase tracking-[0.14em] text-stone" id="label-phone"></h2>
-            <a id="contact-phone" href="#" class="mt-1.5 block text-[15px] font-medium text-bark transition-colors hover:text-accent"></a>
+            <h2
+              class="text-[11px] font-bold uppercase tracking-[0.14em] text-stone"
+              id="label-phone"
+            >
+            </h2>
+            <a
+              id="contact-phone"
+              href="#"
+              class="mt-1.5 block text-[15px] font-medium text-bark transition-colors hover:text-accent"
+            ></a>
           </div>
         </div>
       </div>
 
       <!-- Email -->
-      <div id="email-section" class="reveal bg-cream p-5 sm:p-6" style="transition-delay: 200ms">
+      <div
+        id="email-section"
+        class="reveal bg-cream p-5 sm:p-6"
+        style="transition-delay: 200ms"
+      >
         <div class="flex items-start gap-4">
-          <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-accent-light/80">
-            <Icon name="lucide:mail" class="h-[18px] w-[18px] text-accent" />
+          <div
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-light/80"
+          >
+            <Icon name="lucide:mail" class="h-4.5 w-4.5 text-accent" />
           </div>
           <div class="pt-0.5">
-            <h2 class="text-[11px] font-bold uppercase tracking-[0.14em] text-stone" id="label-email"></h2>
-            <a id="contact-email" href="#" class="mt-1.5 block text-[15px] text-bark transition-colors hover:text-accent"></a>
+            <h2
+              class="text-[11px] font-bold uppercase tracking-[0.14em] text-stone"
+              id="label-email"
+            >
+            </h2>
+            <a
+              id="contact-email"
+              href="#"
+              class="mt-1.5 block text-[15px] text-bark transition-colors hover:text-accent"
+            ></a>
           </div>
         </div>
       </div>
-
     </div>
 
     <!-- Opening Hours -->
     <div id="hours-section" class="reveal mt-4" style="transition-delay: 260ms">
-      <div class="overflow-hidden rounded-2xl border border-sand/60 bg-cream-dark/40 p-5 sm:p-6">
+      <div
+        class="overflow-hidden rounded-2xl border border-sand/60 bg-cream-dark/40 p-5 sm:p-6"
+      >
         <div class="flex items-start gap-4">
-          <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-accent-light/80">
-            <Icon name="lucide:clock" class="h-[18px] w-[18px] text-accent" />
+          <div
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-light/80"
+          >
+            <Icon name="lucide:clock" class="h-4.5 w-4.5 text-accent" />
           </div>
           <div class="flex-1 pt-0.5">
-            <h2 class="text-[11px] font-bold uppercase tracking-[0.14em] text-stone" id="label-hours"></h2>
+            <h2
+              class="text-[11px] font-bold uppercase tracking-[0.14em] text-stone"
+              id="label-hours"
+            >
+            </h2>
             <table id="hours-table" class="mt-3 w-full text-[14px]">
               <!-- Filled by JS -->
             </table>
@@ -88,9 +127,17 @@ import PrivacyMap from "@/components/PrivacyMap.astro";
     </div>
 
     <!-- Social Links -->
-    <div id="social-section" class="reveal hidden" style="transition-delay: 320ms">
+    <div
+      id="social-section"
+      class="reveal hidden"
+      style="transition-delay: 320ms"
+    >
       <div class="mt-10 text-center">
-        <h2 class="text-[11px] font-bold uppercase tracking-[0.14em] text-stone mb-4" id="label-social"></h2>
+        <h2
+          class="text-[11px] font-bold uppercase tracking-[0.14em] text-stone mb-4"
+          id="label-social"
+        >
+        </h2>
         <div id="social-links" class="flex flex-wrap justify-center gap-3">
           <!-- Filled by JS -->
         </div>
@@ -98,12 +145,17 @@ import PrivacyMap from "@/components/PrivacyMap.astro";
     </div>
 
     <!-- Map -->
-    <div id="map-section" class="reveal mt-10 hidden" style="transition-delay: 380ms">
-      <div class="overflow-hidden rounded-2xl border border-sand/60 shadow-sm shadow-bark/5">
+    <div
+      id="map-section"
+      class="reveal mt-10 hidden"
+      style="transition-delay: 380ms"
+    >
+      <div
+        class="overflow-hidden rounded-2xl border border-sand/60 shadow-sm shadow-bark/5"
+      >
         <PrivacyMap />
       </div>
     </div>
-
   </div>
 </Layout>
 
@@ -132,7 +184,9 @@ import PrivacyMap from "@/components/PrivacyMap.astro";
   async function init() {
     const [companyRes, menuConfigRes] = await Promise.all([
       fetchJSON<{ items: any[] }>("/api/collections/company/records"),
-      fetchJSON<{ items: any[] }>("/api/collections/website_config/records").catch(() => ({ items: [] })),
+      fetchJSON<{ items: any[] }>(
+        "/api/collections/website_config/records",
+      ).catch(() => ({ items: [] })),
     ]);
 
     const company = companyRes.items[0] || {};
@@ -140,7 +194,10 @@ import PrivacyMap from "@/components/PrivacyMap.astro";
     const config = { ...company, ...menuConfig, _websiteConfig: menuConfig };
 
     const defaultLang = config.default_language || "es";
-    const lang = getLang(new URL(window.location.href), localStorage.getItem("menu-lang") || defaultLang);
+    const lang = getLang(
+      new URL(window.location.href),
+      localStorage.getItem("menu-lang") || defaultLang,
+    );
     localStorage.setItem("menu-lang", lang);
     document.documentElement.lang = lang;
 
@@ -150,9 +207,6 @@ import PrivacyMap from "@/components/PrivacyMap.astro";
     const loadingText = document.getElementById("loading-text");
     if (loadingText) loadingText.textContent = t("loading", lang);
 
-    // Page heading
-    setText("contact-name", t("contact", lang));
-
     // Labels
     setText("label-address", t("address", lang));
     setText("label-phone", t("phone", lang));
@@ -161,7 +215,12 @@ import PrivacyMap from "@/components/PrivacyMap.astro";
     setText("label-social", t("followUs", lang));
 
     // Address
-    const parts = [config.street, config.postcode && config.city ? `${config.postcode} ${config.city}` : config.city].filter(Boolean);
+    const parts = [
+      config.street,
+      config.postcode && config.city
+        ? `${config.postcode} ${config.city}`
+        : config.city,
+    ].filter(Boolean);
     const addressEl = document.getElementById("contact-address");
     if (addressEl) {
       addressEl.innerHTML = parts.join("<br>");
@@ -169,7 +228,9 @@ import PrivacyMap from "@/components/PrivacyMap.astro";
 
     // Phone
     if (config.phone) {
-      const phoneEl = document.getElementById("contact-phone") as HTMLAnchorElement | null;
+      const phoneEl = document.getElementById(
+        "contact-phone",
+      ) as HTMLAnchorElement | null;
       if (phoneEl) {
         phoneEl.textContent = config.phone;
         phoneEl.href = `tel:${config.phone.replace(/\s/g, "")}`;
@@ -180,7 +241,9 @@ import PrivacyMap from "@/components/PrivacyMap.astro";
 
     // Email
     if (config.email) {
-      const emailEl = document.getElementById("contact-email") as HTMLAnchorElement | null;
+      const emailEl = document.getElementById(
+        "contact-email",
+      ) as HTMLAnchorElement | null;
       if (emailEl) {
         emailEl.textContent = config.email;
         emailEl.href = `mailto:${config.email}`;
@@ -190,7 +253,9 @@ import PrivacyMap from "@/components/PrivacyMap.astro";
     }
 
     // Opening Hours
-    const hours = config.opening_hours as { day: string; open: string; close: string }[] | null;
+    const hours = config.opening_hours as
+      | { day: string; open: string; close: string }[]
+      | null;
     if (hours && hours.length > 0) {
       const table = document.getElementById("hours-table");
       if (table) {
@@ -203,9 +268,10 @@ import PrivacyMap from "@/components/PrivacyMap.astro";
 
           const timeCell = document.createElement("td");
           timeCell.className = "py-1.5 text-right text-stone";
-          timeCell.textContent = entry.open && entry.close
-            ? `${entry.open} \u2013 ${entry.close}`
-            : t("closed", lang);
+          timeCell.textContent =
+            entry.open && entry.close
+              ? `${entry.open} \u2013 ${entry.close}`
+              : t("closed", lang);
 
           row.appendChild(dayCell);
           row.appendChild(timeCell);
@@ -220,7 +286,11 @@ import PrivacyMap from "@/components/PrivacyMap.astro";
     const socials: { key: string; label: string; urlPrefix?: string }[] = [
       { key: "social_instagram", label: "Instagram" },
       { key: "social_facebook", label: "Facebook" },
-      { key: "social_whatsapp", label: "WhatsApp", urlPrefix: "https://wa.me/" },
+      {
+        key: "social_whatsapp",
+        label: "WhatsApp",
+        urlPrefix: "https://wa.me/",
+      },
     ];
     const socialLinksEl = document.getElementById("social-links");
     let hasSocials = false;
@@ -234,7 +304,8 @@ import PrivacyMap from "@/components/PrivacyMap.astro";
       link.href = s.urlPrefix ? `${s.urlPrefix}${value}` : value;
       link.target = "_blank";
       link.rel = "noopener noreferrer";
-      link.className = "inline-flex items-center gap-2 rounded-full border border-sand bg-cream-dark/50 px-4 py-2 text-[13px] font-medium text-bark transition-colors hover:border-accent hover:text-accent";
+      link.className =
+        "inline-flex items-center gap-2 rounded-full border border-sand bg-cream-dark/50 px-4 py-2 text-[13px] font-medium text-bark transition-colors hover:border-accent hover:text-accent";
       link.innerHTML = `${socialIcons[s.key] || ""}${s.label}`;
       socialLinksEl?.appendChild(link);
     }
@@ -242,7 +313,9 @@ import PrivacyMap from "@/components/PrivacyMap.astro";
 
     // Google Maps (via PrivacyMap consent component)
     if (config.google_maps_url) {
-      const iframe = document.querySelector(".privacy-map-iframe") as HTMLIFrameElement | null;
+      const iframe = document.querySelector(
+        ".privacy-map-iframe",
+      ) as HTMLIFrameElement | null;
       if (iframe) {
         iframe.setAttribute("data-src", config.google_maps_url);
       }
@@ -267,7 +340,9 @@ import PrivacyMap from "@/components/PrivacyMap.astro";
               (placeholder as HTMLElement).style.opacity = "0";
               (placeholder as HTMLElement).style.pointerEvents = "none";
               mapIframe.classList.remove("opacity-0");
-              setTimeout(() => { (placeholder as HTMLElement).style.display = "none"; }, 500);
+              setTimeout(() => {
+                (placeholder as HTMLElement).style.display = "none";
+              }, 500);
             }
           }
         });
