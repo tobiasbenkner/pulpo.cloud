@@ -34,6 +34,14 @@ Focus on:
 
 NEVER use generic AI-generated aesthetics like overused font families (Inter, Roboto, Arial, system fonts), cliched color schemes (particularly purple gradients on white backgrounds), predictable layouts and component patterns, and cookie-cutter design that lacks context-specific character.
 
+**Anti-patterns to avoid on regular pages** (these belong only to scroll-driven landing-page work — see the section below):
+- Numeric eyebrow labels above headings ("01 / Features", "001 — About"). They look editorial in the abstract but feel forced on menus, dashboards, settings, content pages, and most product UI. Build hierarchy with size, weight, and serif/sans contrast instead.
+- Oversized headings (3rem+) outside of hero/landing contexts.
+- Marquee text, horizontal scroll-text, and pinned-section gimmicks on utility pages.
+- GSAP / scroll-triggered count-ups on pages that aren't promotional.
+
+If the user is iterating on an existing app's UI (improving spacing, headings, components), default to refined-minimal moves. Reach for the scroll-driven playbook only when explicitly building a landing page or marketing site.
+
 Interpret creatively and make unexpected choices that feel genuinely designed for the context. No design should be the same. Vary between light and dark themes, different fonts, different aesthetics. NEVER converge on common choices (Space Grotesk, for example) across generations.
 
 **IMPORTANT**: Match implementation complexity to the aesthetic vision. Maximalist designs need elaborate code with extensive animations and effects. Minimalist or refined designs need restraint, precision, and careful attention to spacing, typography, and subtle details. Elegance comes from executing the vision well.
@@ -42,7 +50,9 @@ Remember: Claude is capable of extraordinary creative work. Don't hold back, sho
 
 ## Scroll-Driven Website Design Guidelines
 
-When this skill is invoked for a scroll-driven animated website (used alongside `video-to-website`), follow these additional rules:
+**Scope:** Apply this section ONLY when explicitly building a scroll-driven animated landing page or marketing site (typically alongside the `video-to-website` skill). Do NOT apply these rules to regular app UI, menus, dashboards, settings pages, or component-level work — the patterns below (oversized headings, numeric section labels, pinned sections, marquee text, GSAP count-ups) are out of place there.
+
+When that scope applies, follow these additional rules:
 
 ### Typography as Design
 - Hero headings: **6rem minimum**, tight line-height (0.9-1.0), heavy weight (700-800)

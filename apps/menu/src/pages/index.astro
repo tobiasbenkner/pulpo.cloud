@@ -112,29 +112,33 @@ import Layout from "@/layouts/Layout.astro";
     const menuContent = document.getElementById("menu-content");
     if (menuContent) {
       let revealDelay = 0;
+      let categoryIndex = 0;
 
       for (const cat of categories) {
         const catProducts = products.filter((p) => p.category === cat.id);
         if (catProducts.length === 0) continue;
+        categoryIndex++;
 
         const section = document.createElement("section");
         section.dataset.category = cat.id;
-        section.className = "pb-2";
+        // Asymmetric rhythm: generous space above (separates categories), tighter below
+        section.className = categoryIndex === 1 ? "pb-2" : "pt-16 pb-2";
 
         // Sticky category heading
         const headingBar = document.createElement("div");
-        headingBar.className = "sticky-heading reveal sticky top-14 -mx-5 mb-5 flex items-center gap-3 bg-cream/90 px-5 py-3 backdrop-blur-sm";
+        headingBar.className = "sticky-heading reveal sticky top-14 -mx-5 mb-6 bg-cream/95 px-5 backdrop-blur-sm";
         headingBar.style.transitionDelay = `${revealDelay}ms`;
         headingBar.style.zIndex = "30";
 
-        const heading = document.createElement("h2");
-        heading.className = "font-display text-xl text-bark whitespace-nowrap";
-        heading.textContent = tr(cat, "name", lang, defaultLang);
-        headingBar.appendChild(heading);
+        const inner = document.createElement("div");
+        inner.className = "border-b border-bark/25 py-3";
 
-        const line = document.createElement("div");
-        line.className = "h-px flex-1 bg-sand";
-        headingBar.appendChild(line);
+        const heading = document.createElement("h2");
+        heading.className = "font-display text-xl text-bark leading-none whitespace-nowrap";
+        heading.textContent = tr(cat, "name", lang, defaultLang);
+        inner.appendChild(heading);
+
+        headingBar.appendChild(inner);
 
         section.appendChild(headingBar);
         revealDelay += 60;
@@ -331,10 +335,3 @@ import Layout from "@/layouts/Layout.astro";
   init();
 </script>
 
-<style>
-  /* Subtle bottom border appears when heading is stuck */
-  .sticky-heading {
-    border-bottom: 1px solid transparent;
-    transition: border-color 0.2s ease;
-  }
-</style>
