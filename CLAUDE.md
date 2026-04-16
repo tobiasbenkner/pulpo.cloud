@@ -209,15 +209,23 @@ See `ARCHITECTURE.md` and `MIGRATION_PLAN.md` for the full plan.
 
 **Pages:**
 - `/` — Menu with categories, products (image/no-image layouts), allergens, lightbox
-- `/contact` — Contact info, opening hours, social links, Google Maps embed
-- `/imprint`, `/privacy` — Legal pages
+- `/contact` — Contact info, opening hours, social links, Google Maps (via PrivacyMap consent overlay)
+- `/imprint` — Legal notice (LSSI-CE), company data from PocketBase
+- `/privacy` — Privacy policy (GDPR/LOPDGDD), Google Maps consent toggle
+
+**Components:**
+- `Header.astro` — Sticky nav, logo, language switcher, active link highlight
+- `Footer.astro` — `© {year} {name}`, imprint/privacy links, admin link
+- `PrivacyMap.astro` — Google Maps iframe behind GDPR consent overlay, consent stored in `localStorage["maps-consent"]`
 
 **Design System (defined in `src/styles/global.css`):**
 - Colors: `cream`, `sand`, `bark`, `stone`, `accent` (dynamic via `--accent` CSS var)
 - Fonts: DM Sans (body), DM Serif Display (headings)
 - Utilities: `.reveal` (staggered entrance animation), `.dotted-leader`, `.grain`
 
-**i18n:** `src/lib/i18n.ts` — 28 translation keys, 7 languages (es, de, en, it, ca, fr, nl). Language selected via `?lang=` URL param or localStorage fallback. Product/category translations come from PocketBase `translations` JSON field.
+**i18n:** `src/lib/i18n.ts` — ~45 translation keys, 7 languages (es, de, en, it, ca, fr, nl). Language selected via `?lang=` URL param or localStorage fallback. Product/category translations come from PocketBase `translations` JSON field. Legal page content templates in es/de/en.
+
+**Dynamic page titles:** Each page sets `document.title` to `PageName | CompanyName` (translated). The Go backend also replaces `<title>` server-side for crawlers via `routes/og.go`.
 
 **Data loading:** All pages fetch from PocketBase API client-side (`/api/collections/...`). Header/Footer initialized via global `__initHeader`/`__initFooter` functions. Active nav link highlighted based on `window.location.pathname`.
 

@@ -38,6 +38,7 @@ routes/              # API endpoints, hooks, helpers
 ├── invoices.go      # POST /api/custom/invoices, POST /api/custom/invoices/rectify
 ├── cash_register.go # POST /api/custom/cash-register/open, /close
 ├── reports.go       # GET /api/custom/reports/{period}, /excel
+├── og.go            # MenuHandler — static file serving, OG meta + title injection
 ├── tax.go           # ResolveTaxRates(), TaxZoneName()
 ├── aggregator.go    # ComputeClosureSummary(), tax/product breakdown from items
 ├── email.go         # Closure email with Excel attachment via PocketBase SMTP
@@ -45,7 +46,7 @@ routes/              # API endpoints, hooks, helpers
 ├── *_test.go        # 57 tests
 migrations/          # Auto-generated PocketBase schema migrations
 pb_data/             # PocketBase SQLite data (gitignored)
-pb_public/           # Embedded static frontends (shop, agenda, settings, launcher)
+pb_public/           # Embedded static frontends (shop, agenda, menu, launcher)
 ```
 
 ### Custom API Endpoints
@@ -60,6 +61,13 @@ All endpoints are auth-protected (`/api/custom/*`):
 | `/api/custom/cash-register/close` | POST | Close register, compute all totals on-the-fly |
 | `/api/custom/reports/{period}` | GET | JSON report (daily/weekly/monthly/quarterly/yearly) |
 | `/api/custom/reports/{period}/excel` | GET | Excel download |
+
+### Menu Static File Serving (`routes/og.go`)
+
+`MenuHandler` serves the menu frontend (`apps/menu/`) as static files from the embedded FS:
+- Injects OG meta tags (title, description, image) from `company` + `website_config` collections into `<!-- OG_META -->` placeholder
+- Replaces `<title>` tag server-side with `PageName | CompanyName` (path-based: `/contact` → "Contacto", `/imprint` → "Aviso Legal", `/privacy` → "Privacidad")
+- `resolveFile()` handles trailing slashes (trims `/` before lookup) and falls back to `index.html` for SPA-style routing
 
 ### Hooks
 
