@@ -2,32 +2,45 @@
 import { Icon } from "astro-icon/components";
 ---
 
-<header id="site-header" class="sticky top-0 z-50 border-b border-sand/60 bg-cream/85 backdrop-blur-md">
-  <div class="mx-auto flex h-14 max-w-2xl items-center justify-between px-5">
+<header
+  id="site-header"
+  class="sticky top-0 z-50 border-b border-sand/60 bg-cream/85 backdrop-blur-md"
+>
+  <div
+    class="mx-auto flex h-14 max-w-2xl items-center justify-between gap-6 px-5"
+  >
     <!-- Logo / Name -->
-    <a href="/" class="flex items-center gap-2.5" id="header-brand">
-      <img id="header-logo" class="hidden h-8 w-8 rounded-full object-cover" alt="" />
-      <span id="header-name" class="font-display text-lg text-bark"></span>
+    <a
+      href="/"
+      class="flex min-w-0 shrink items-center pr-2"
+      id="header-brand"
+      aria-label="Home"
+    >
+      <img
+        id="header-logo"
+        class="hidden h-9 w-auto max-w-30 object-contain object-left"
+        alt=""
+      />
+      <span id="header-name" class="truncate font-display text-lg text-bark"
+      ></span>
     </a>
 
     <!-- Navigation -->
-    <nav class="flex items-center gap-1">
+    <nav class="flex items-center gap-5">
       <a
         href="/"
-        class="rounded-full px-3.5 py-1.5 text-[13px] font-medium text-bark-light transition-colors hover:bg-sand/50 hover:text-bark"
-        id="nav-menu"
-      ></a>
+        class="text-[13px] font-medium text-bark-light transition-colors hover:text-bark"
+        id="nav-menu"></a>
       <a
         href="/contact"
-        class="rounded-full px-3.5 py-1.5 text-[13px] font-medium text-bark-light transition-colors hover:bg-sand/50 hover:text-bark"
-        id="nav-contact"
-      ></a>
+        class="text-[13px] font-medium text-bark-light transition-colors hover:text-bark"
+        id="nav-contact"></a>
 
       <!-- Language switcher -->
-      <div class="relative ml-1" id="lang-wrapper">
+      <div class="relative" id="lang-wrapper">
         <button
           id="lang-trigger"
-          class="flex items-center gap-1 rounded-full px-2.5 py-1.5 text-[13px] font-medium text-stone transition-colors hover:bg-sand/50 hover:text-bark"
+          class="flex items-center gap-1 text-[13px] font-medium text-bark-light transition-colors hover:text-bark"
           aria-label="Language"
         >
           <Icon name="lucide:globe" class="h-3.5 w-3.5" />
@@ -35,7 +48,7 @@ import { Icon } from "astro-icon/components";
         </button>
         <div
           id="lang-dropdown"
-          class="invisible absolute right-0 top-full mt-1 min-w-[4.5rem] origin-top-right scale-95 rounded-lg border border-sand bg-cream p-1 opacity-0 shadow-lg shadow-bark/5 transition-all duration-150"
+          class="invisible absolute right-0 top-full mt-1 min-w-18 origin-top-right scale-95 rounded-lg border border-sand bg-cream p-1 opacity-0 shadow-lg shadow-bark/5 transition-all duration-150"
         >
           <!-- Filled by JS -->
         </div>
@@ -47,23 +60,39 @@ import { Icon } from "astro-icon/components";
 <script>
   import { pb } from "@/lib/pb";
 
-  function initHeader(config: any, lang: string, t: (key: string, lang: string) => string) {
+  function initHeader(
+    config: any,
+    lang: string,
+    t: (key: string, lang: string) => string,
+  ) {
     // Brand: logo + name
-    const logoEl = document.getElementById("header-logo") as HTMLImageElement | null;
+    const logoEl = document.getElementById(
+      "header-logo",
+    ) as HTMLImageElement | null;
     const nameEl = document.getElementById("header-name");
 
     const wc = config?._websiteConfig;
-    if (wc?.logo) {
-      if (logoEl) {
-        logoEl.src = pb.files.getURL(wc, wc.logo);
-        logoEl.classList.remove("hidden");
+    const hasLogo = Boolean(wc?.logo);
+
+    if (hasLogo && logoEl) {
+      logoEl.src = pb.files.getURL(wc, wc.logo);
+      logoEl.alt = config?.name || "";
+      logoEl.classList.remove("hidden");
+    }
+
+    if (nameEl) {
+      if (hasLogo) {
+        nameEl.classList.add("hidden");
+      } else {
+        nameEl.textContent = config?.name || "";
       }
     }
-    if (nameEl) nameEl.textContent = config?.name || "";
 
     // Favicon
     if (wc?.favicon) {
-      const link = document.getElementById("favicon-link") as HTMLLinkElement | null;
+      const link = document.getElementById(
+        "favicon-link",
+      ) as HTMLLinkElement | null;
       if (link) {
         link.href = pb.files.getURL(wc, wc.favicon);
         link.type = "image/png";
@@ -72,19 +101,27 @@ import { Icon } from "astro-icon/components";
 
     // Accent color
     if (config?._websiteConfig?.accent_color) {
-      document.documentElement.style.setProperty("--accent", config._websiteConfig.accent_color);
+      document.documentElement.style.setProperty(
+        "--accent",
+        config._websiteConfig.accent_color,
+      );
     }
 
     // Nav labels + active state
     const path = window.location.pathname;
-    const activeClass = "bg-accent/10 text-accent";
+    const activeClasses = [
+      "text-accent",
+      "underline",
+      "underline-offset-[6px]",
+      "decoration-[1.5px]",
+    ];
     const inactiveClass = "text-bark-light";
 
     const navMenu = document.getElementById("nav-menu");
     if (navMenu) {
       navMenu.textContent = t("menu", lang);
       if (path === "/" || path === "") {
-        navMenu.classList.add(...activeClass.split(" "));
+        navMenu.classList.add(...activeClasses);
         navMenu.classList.remove(inactiveClass);
       }
     }
@@ -93,7 +130,7 @@ import { Icon } from "astro-icon/components";
     if (navContact) {
       navContact.textContent = t("contact", lang);
       if (path === "/contact" || path === "/contact/") {
-        navContact.classList.add(...activeClass.split(" "));
+        navContact.classList.add(...activeClasses);
         navContact.classList.remove(inactiveClass);
       }
     }
@@ -106,7 +143,12 @@ import { Icon } from "astro-icon/components";
 
     if (langCurrent) langCurrent.textContent = lang;
 
-    if (config?.languages && config.languages.length > 1 && langDropdown && langTrigger) {
+    if (
+      config?.languages &&
+      config.languages.length > 1 &&
+      langDropdown &&
+      langTrigger
+    ) {
       const languages = config.languages as string[];
 
       for (const l of languages) {
