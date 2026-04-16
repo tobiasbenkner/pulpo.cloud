@@ -1,25 +1,26 @@
 @import "tailwindcss";
-@import "@fontsource/inter/400.css";
-@import "@fontsource/inter/500.css";
-@import "@fontsource/inter/600.css";
-@import "@fontsource/inter/700.css";
+@import "@fontsource/dm-sans/400.css";
+@import "@fontsource/dm-sans/500.css";
+@import "@fontsource/dm-sans/600.css";
+@import "@fontsource/dm-sans/700.css";
+@import "@fontsource/dm-serif-display/400.css";
 
 @theme {
-  --color-primary-50: #faf5ff;
-  --color-primary-100: #f3e8ff;
-  --color-primary-200: #e9d5ff;
-  --color-primary-300: #d8b4fe;
-  --color-primary-400: #c084fc;
-  --color-primary-500: #a855f7;
-  --color-primary-600: #9333ea;
-  --color-primary-700: #7e22ce;
-  --color-primary-800: #6b21a8;
-  --color-primary-900: #581c87;
+  --color-cream: #FAF8F4;
+  --color-cream-dark: #F0ECE4;
+  --color-sand: #E8E2D8;
+  --color-sand-dark: #D4CCBE;
+  --color-bark: #2C2418;
+  --color-bark-light: #4A3F30;
+  --color-stone: #8C8377;
+  --color-stone-light: #B0A89E;
 
-  --color-surface: #fafafa;
-  --color-muted: #737373;
+  --color-accent: var(--accent, #A67C52);
+  --color-accent-light: color-mix(in srgb, var(--accent, #A67C52) 15%, var(--color-cream));
+  --color-accent-hover: color-mix(in srgb, var(--accent, #A67C52) 85%, black);
 
-  --font-sans: "Inter", system-ui, sans-serif;
+  --font-sans: "DM Sans", system-ui, sans-serif;
+  --font-display: "DM Serif Display", Georgia, serif;
 }
 
 html {
@@ -28,6 +29,8 @@ html {
 
 body {
   font-family: var(--font-sans);
+  background-color: var(--color-cream);
+  color: var(--color-bark);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -36,4 +39,49 @@ body {
   html {
     scroll-behavior: auto;
   }
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* ── Reveal animation ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Dotted leader for text-only menu items ── */
+.dotted-leader {
+  flex: 1;
+  border-bottom: 1.5px dotted var(--color-sand-dark);
+  margin: 0 0.75rem;
+  position: relative;
+  top: -4px;
+}
+
+/* ── Scrollbar hiding for category nav ── */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Subtle grain overlay ── */
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.025;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 128px 128px;
 }

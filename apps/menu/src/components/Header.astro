@@ -1,26 +1,82 @@
 ---
+import { Icon } from "astro-icon/components";
 ---
 
-<header id="site-header" class="sticky top-0 z-50 bg-white/90 backdrop-blur-sm border-b border-neutral-100">
-  <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
-    <a href="/" class="font-semibold text-lg" id="header-name">
-      <!-- Filled by JS from config -->
+<header id="site-header" class="sticky top-0 z-50 border-b border-sand/60 bg-cream/85 backdrop-blur-md">
+  <div class="mx-auto flex h-14 max-w-2xl items-center justify-between px-5">
+    <!-- Logo / Name -->
+    <a href="/" class="flex items-center gap-2.5" id="header-brand">
+      <img id="header-logo" class="hidden h-8 w-8 rounded-full object-cover" alt="" />
+      <span id="header-name" class="font-display text-lg text-bark"></span>
     </a>
-    <nav class="flex items-center gap-6">
-      <a href="/" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 transition-colors" id="nav-menu"></a>
-      <a href="/contact" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 transition-colors" id="nav-contact"></a>
-      <select id="lang-switcher" class="text-sm bg-transparent border border-neutral-200 rounded-md px-2 py-1 cursor-pointer">
-        <!-- Filled by JS from config.languages -->
-      </select>
+
+    <!-- Navigation -->
+    <nav class="flex items-center gap-1">
+      <a
+        href="/"
+        class="rounded-full px-3.5 py-1.5 text-[13px] font-medium text-bark-light transition-colors hover:bg-sand/50 hover:text-bark"
+        id="nav-menu"
+      ></a>
+      <a
+        href="/contact"
+        class="rounded-full px-3.5 py-1.5 text-[13px] font-medium text-bark-light transition-colors hover:bg-sand/50 hover:text-bark"
+        id="nav-contact"
+      ></a>
+
+      <!-- Language switcher -->
+      <div class="relative ml-1" id="lang-wrapper">
+        <button
+          id="lang-trigger"
+          class="flex items-center gap-1 rounded-full px-2.5 py-1.5 text-[13px] font-medium text-stone transition-colors hover:bg-sand/50 hover:text-bark"
+          aria-label="Language"
+        >
+          <Icon name="lucide:globe" class="h-3.5 w-3.5" />
+          <span id="lang-current" class="uppercase"></span>
+        </button>
+        <div
+          id="lang-dropdown"
+          class="invisible absolute right-0 top-full mt-1 min-w-[4.5rem] origin-top-right scale-95 rounded-lg border border-sand bg-cream p-1 opacity-0 shadow-lg shadow-bark/5 transition-all duration-150"
+        >
+          <!-- Filled by JS -->
+        </div>
+      </div>
     </nav>
   </div>
 </header>
 
 <script>
   function initHeader(config: any, lang: string, t: (key: string, lang: string) => string) {
+    const PB_URL = (import.meta as any).env?.DEV ? "http://localhost:8090" : "";
+
+    // Brand: logo + name
+    const logoEl = document.getElementById("header-logo") as HTMLImageElement | null;
     const nameEl = document.getElementById("header-name");
+
+    if (config?._websiteConfig?.logo && config._websiteConfig.collectionId) {
+      const src = `${PB_URL}/api/files/${config._websiteConfig.collectionId}/${config._websiteConfig.id}/${config._websiteConfig.logo}`;
+      if (logoEl) {
+        logoEl.src = src;
+        logoEl.classList.remove("hidden");
+      }
+    }
     if (nameEl) nameEl.textContent = config?.name || "";
 
+    // Favicon
+    if (config?._websiteConfig?.favicon && config._websiteConfig.collectionId) {
+      const faviconUrl = `${PB_URL}/api/files/${config._websiteConfig.collectionId}/${config._websiteConfig.id}/${config._websiteConfig.favicon}`;
+      const link = document.getElementById("favicon-link") as HTMLLinkElement | null;
+      if (link) {
+        link.href = faviconUrl;
+        link.type = "image/png";
+      }
+    }
+
+    // Accent color
+    if (config?._websiteConfig?.accent_color) {
+      document.documentElement.style.setProperty("--accent", config._websiteConfig.accent_color);
+    }
+
+    // Nav labels
     const navMenu = document.getElementById("nav-menu");
     if (navMenu) navMenu.textContent = t("menu", lang);
 
@@ -28,22 +84,53 @@
     if (navContact) navContact.textContent = t("contact", lang);
 
     // Language switcher
-    const switcher = document.getElementById("lang-switcher") as HTMLSelectElement | null;
-    if (switcher && config?.languages) {
+    const langCurrent = document.getElementById("lang-current");
+    const langDropdown = document.getElementById("lang-dropdown");
+    const langTrigger = document.getElementById("lang-trigger");
+    const langWrapper = document.getElementById("lang-wrapper");
+
+    if (langCurrent) langCurrent.textContent = lang;
+
+    if (config?.languages && config.languages.length > 1 && langDropdown && langTrigger) {
       const languages = config.languages as string[];
-      switcher.innerHTML = languages
-        .map((l: string) => `<option value="${l}" ${l === lang ? "selected" : ""}>${l.toUpperCase()}</option>`)
-        .join("");
-      switcher.addEventListener("change", () => {
-        const url = new URL(window.location.href);
-        url.searchParams.set("lang", switcher.value);
-        window.location.href = url.toString();
+
+      for (const l of languages) {
+        const btn = document.createElement("button");
+        btn.textContent = l.toUpperCase();
+        btn.className = `block w-full rounded-md px-3 py-1.5 text-left text-[13px] font-medium transition-colors ${
+          l === lang
+            ? "bg-accent/10 text-accent"
+            : "text-stone hover:bg-sand/50 hover:text-bark"
+        }`;
+        btn.addEventListener("click", () => {
+          const url = new URL(window.location.href);
+          url.searchParams.set("lang", l);
+          window.location.href = url.toString();
+        });
+        langDropdown.appendChild(btn);
+      }
+
+      // Toggle dropdown
+      langTrigger.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const isOpen = langDropdown.classList.contains("visible");
+        if (isOpen) {
+          langDropdown.classList.remove("visible", "scale-100", "opacity-100");
+          langDropdown.classList.add("invisible", "scale-95", "opacity-0");
+        } else {
+          langDropdown.classList.remove("invisible", "scale-95", "opacity-0");
+          langDropdown.classList.add("visible", "scale-100", "opacity-100");
+        }
       });
-    } else if (switcher) {
-      switcher.style.display = "none";
+
+      document.addEventListener("click", () => {
+        langDropdown.classList.remove("visible", "scale-100", "opacity-100");
+        langDropdown.classList.add("invisible", "scale-95", "opacity-0");
+      });
+    } else if (langWrapper) {
+      langWrapper.style.display = "none";
     }
   }
 
-  // Expose for pages to call after fetching config
   (window as any).__initHeader = initHeader;
 </script>

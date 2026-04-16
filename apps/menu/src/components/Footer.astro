@@ -1,15 +1,15 @@
 ---
-import { Icon } from 'astro-icon/components';
+import { Icon } from "astro-icon/components";
 ---
 
-<footer id="site-footer" class="border-t border-neutral-100 py-8 mt-auto">
-  <div class="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-neutral-500">
-    <span id="footer-copyright"></span>
+<footer id="site-footer" class="mt-auto border-t border-sand/60 py-6">
+  <div class="mx-auto flex max-w-2xl flex-col items-center gap-3 px-5 text-[13px] text-stone">
+    <span id="footer-copyright" class="font-display"></span>
     <div class="flex items-center gap-4">
-      <a href="/imprint" id="footer-imprint" class="hover:text-neutral-700 transition-colors"></a>
-      <a href="/privacy" id="footer-privacy" class="hover:text-neutral-700 transition-colors"></a>
-      <a href="/apps" aria-label="Administración" class="text-neutral-400 hover:text-neutral-700 transition-colors">
-        <Icon name="lucide:settings" class="w-4 h-4" />
+      <a href="/imprint" id="footer-imprint" class="transition-colors hover:text-bark"></a>
+      <a href="/privacy" id="footer-privacy" class="transition-colors hover:text-bark"></a>
+      <a href="/apps" aria-label="Admin" class="text-stone-light transition-colors hover:text-bark">
+        <Icon name="lucide:settings" class="h-3.5 w-3.5" />
       </a>
     </div>
   </div>
@@ -18,7 +18,7 @@ import { Icon } from 'astro-icon/components';
 <script>
   function initFooter(config: any, lang: string, t: (key: string, lang: string) => string) {
     const copyright = document.getElementById("footer-copyright");
-    if (copyright) copyright.textContent = `© ${new Date().getFullYear()} ${config?.name || ""}`;
+    if (copyright) copyright.textContent = `${config?.name || ""}`;
 
     const imprint = document.getElementById("footer-imprint");
     if (imprint) imprint.textContent = t("imprint", lang);
