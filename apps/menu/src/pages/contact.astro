@@ -156,8 +156,8 @@ import { Icon } from "astro-icon/components";
     const loadingText = document.getElementById("loading-text");
     if (loadingText) loadingText.textContent = t("loading", lang);
 
-    // Restaurant name
-    setText("contact-name", config.name || "");
+    // Page heading
+    setText("contact-name", t("contact", lang));
 
     // Labels
     setText("label-address", t("address", lang));
