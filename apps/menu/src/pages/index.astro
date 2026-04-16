@@ -142,8 +142,13 @@ import Layout from "@/layouts/Layout.astro";
         const list = document.createElement("div");
         list.className = "flex flex-col";
 
-        for (const prod of catProducts) {
-          const card = createProductCard(prod, lang, defaultLang);
+        for (let i = 0; i < catProducts.length; i++) {
+          const prod = catProducts[i];
+          const nextProd = catProducts[i + 1];
+          const hasImage = !!(prod.image && prod.collectionId);
+          const nextHasImage = !!(nextProd?.image && nextProd?.collectionId);
+          const showBorder = hasImage && nextHasImage;
+          const card = createProductCard(prod, lang, defaultLang, showBorder);
           card.classList.add("reveal");
           card.style.transitionDelay = `${revealDelay}ms`;
           list.appendChild(card);
@@ -183,7 +188,7 @@ import Layout from "@/layouts/Layout.astro";
   }
 
   /** Product card — dotted leader without image, vertical stack with image */
-  function createProductCard(product: Product & { collectionId?: string }, lang: string, defaultLang: string): HTMLElement {
+  function createProductCard(product: Product & { collectionId?: string }, lang: string, defaultLang: string, showBorder = false): HTMLElement {
     const imgUrl = product.image && product.collectionId
       ? fileUrl(product.collectionId, product.id, product.image)
       : "";
@@ -191,11 +196,13 @@ import Layout from "@/layouts/Layout.astro";
 
     const item = document.createElement("div");
     item.className = hasImage
-      ? "flex gap-4 border-b border-sand/40 py-4 last:border-b-0"
-      : "border-b border-sand/40 py-3 last:border-b-0";
+      ? "flex gap-4 py-3"
+      : "py-2";
 
     if (hasImage) {
       // ── With image: vertical stack + thumbnail right ──
+      item.className = `flex gap-4 py-3${showBorder ? " border-b border-sand/40" : ""}`;
+
       const text = document.createElement("div");
       text.className = "flex-1 min-w-0";
 
