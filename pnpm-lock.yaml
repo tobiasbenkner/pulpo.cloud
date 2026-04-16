@@ -139,8 +139,8 @@ importers:
         specifier: ^6.0.8
         version: 6.0.8(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.31.1)(rollup@4.59.0)(terser@5.46.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2)
       pocketbase:
-        specifier: ^0.25.2
-        version: 0.25.2
+        specifier: ^0.26.8
+        version: 0.26.8
       svelte:
         specifier: ^5.50.0
         version: 5.50.0
@@ -401,8 +401,8 @@ importers:
         specifier: ^4.0.5
         version: 4.0.5
       pocketbase:
-        specifier: ^0.26.5
-        version: 0.26.5
+        specifier: ^0.26.8
+        version: 0.26.8
     devDependencies:
       '@types/node':
         specifier: ^25.0.3
@@ -429,8 +429,8 @@ importers:
         specifier: ^4.0.5
         version: 4.0.5
       pocketbase:
-        specifier: ^0.26.5
-        version: 0.26.5
+        specifier: ^0.26.8
+        version: 0.26.8
     devDependencies:
       '@types/node':
         specifier: ^25.0.3
@@ -453,8 +453,8 @@ importers:
         specifier: ^1.35.0
         version: 1.39.3
       pocketbase:
-        specifier: ^0.25.2
-        version: 0.25.2
+        specifier: ^0.26.8
+        version: 0.26.8
     devDependencies:
       '@types/node':
         specifier: ^25.0.3
@@ -5082,12 +5082,6 @@ packages:
   pngjs@3.4.0:
     resolution: {integrity: sha512-NCrCHhWmnQklfH4MtJMRjZ2a8c80qXeMlQMv2uVp9ISJMTt562SbGd6n2oq0PaPgKm7Z6pL9E2UlLIhC+SHL3w==}
     engines: {node: '>=4.0.0'}
-
-  pocketbase@0.25.2:
-    resolution: {integrity: sha512-ONZl1+qHJMnhR2uacBlBJ90lm7njtL/zy0606+1ROfK9hSL4LRBRc8r89rMcNRzPzRqCNyoFTh2Qg/lYXdEC1w==}
-
-  pocketbase@0.26.5:
-    resolution: {integrity: sha512-SXcq+sRvVpNxfLxPB1C+8eRatL7ZY4o3EVl/0OdE3MeR9fhPyZt0nmmxLqYmkLvXCN9qp3lXWV/0EUYb3MmMXQ==}
 
   pocketbase@0.26.8:
     resolution: {integrity: sha512-aQ/ewvS7ncvAE8wxoW10iAZu6ElgbeFpBhKPnCfvRovNzm2gW8u/sQNPGN6vNgVEagz44kK//C61oKjfa+7Low==}
@@ -11769,10 +11763,6 @@ snapshots:
   png-js@1.0.0: {}
 
   pngjs@3.4.0: {}
-
-  pocketbase@0.25.2: {}
-
-  pocketbase@0.26.5: {}
 
   pocketbase@0.26.8: {}
 
