@@ -18,7 +18,7 @@ import { Icon } from "astro-icon/components";
 <script>
   function initFooter(config: any, lang: string, t: (key: string, lang: string) => string) {
     const copyright = document.getElementById("footer-copyright");
-    if (copyright) copyright.textContent = `${config?.name || ""}`;
+    if (copyright) copyright.textContent = `© ${new Date().getFullYear()} ${config?.name || ""}`;
 
     const imprint = document.getElementById("footer-imprint");
     if (imprint) imprint.textContent = t("imprint", lang);

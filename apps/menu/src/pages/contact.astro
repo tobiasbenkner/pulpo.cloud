@@ -1,6 +1,7 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import { Icon } from "astro-icon/components";
+import PrivacyMap from "@/components/PrivacyMap.astro";
 ---
 
 <Layout title="Contact">
@@ -99,14 +100,7 @@ import { Icon } from "astro-icon/components";
     <!-- Map -->
     <div id="map-section" class="reveal mt-10 hidden" style="transition-delay: 380ms">
       <div class="overflow-hidden rounded-2xl border border-sand/60 shadow-sm shadow-bark/5">
-        <iframe
-          id="google-map"
-          class="h-72 w-full sm:h-96"
-          style="border:0"
-          loading="lazy"
-          allowfullscreen
-          referrerpolicy="no-referrer-when-downgrade"
-        ></iframe>
+        <PrivacyMap />
       </div>
     </div>
 
@@ -246,12 +240,37 @@ import { Icon } from "astro-icon/components";
     }
     if (hasSocials) show("social-section");
 
-    // Google Maps
+    // Google Maps (via PrivacyMap consent component)
     if (config.google_maps_url) {
-      const iframe = document.getElementById("google-map") as HTMLIFrameElement | null;
+      const iframe = document.querySelector(".privacy-map-iframe") as HTMLIFrameElement | null;
       if (iframe) {
-        iframe.src = config.google_maps_url;
-        show("map-section");
+        iframe.setAttribute("data-src", config.google_maps_url);
+      }
+      // Set translated consent texts
+      setText("privacy-map-title", t("loadMap", lang));
+      setText("privacy-map-accept", t("mapConsent", lang));
+      setText("privacy-map-btn-label", t("showMap", lang));
+      const privacyLink = document.getElementById("privacy-map-privacy-link");
+      if (privacyLink) privacyLink.textContent = t("privacy", lang);
+
+      show("map-section");
+
+      // Re-init maps in case consent was already given
+      if (localStorage.getItem("maps-consent") === "true") {
+        document.querySelectorAll(".privacy-map-wrapper").forEach((wrapper) => {
+          const mapIframe = wrapper.querySelector(".privacy-map-iframe");
+          const placeholder = wrapper.querySelector(".privacy-map-placeholder");
+          if (mapIframe && placeholder) {
+            const dataSrc = mapIframe.getAttribute("data-src");
+            if (dataSrc && !mapIframe.getAttribute("src")) {
+              mapIframe.setAttribute("src", dataSrc);
+              (placeholder as HTMLElement).style.opacity = "0";
+              (placeholder as HTMLElement).style.pointerEvents = "none";
+              mapIframe.classList.remove("opacity-0");
+              setTimeout(() => { (placeholder as HTMLElement).style.display = "none"; }, 500);
+            }
+          }
+        });
       }
     }
 

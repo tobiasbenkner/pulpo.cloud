@@ -1,0 +1,212 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { Icon } from "astro-icon/components";
+---
+
+<Layout title="Imprint">
+  <!-- Loading state -->
+  <div id="loading" class="mx-auto max-w-2xl px-5 py-20 text-center">
+    <div class="inline-flex flex-col items-center gap-3">
+      <div class="h-5 w-5 animate-spin rounded-full border-2 border-sand-dark border-t-accent"></div>
+      <span class="text-sm text-stone" id="loading-text"></span>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div id="page-content" class="mx-auto max-w-2xl px-5 pb-16 hidden">
+
+    <!-- Hero -->
+    <div class="reveal pt-14 pb-10 text-center">
+      <span class="inline-block text-[11px] font-bold uppercase tracking-[0.18em] text-stone mb-3" id="page-label"></span>
+      <h1 id="page-title" class="font-display text-[2.2rem] sm:text-[2.8rem] leading-[1.1] text-bark"></h1>
+      <div class="mx-auto mt-6 flex items-center justify-center gap-3">
+        <div class="h-px w-10 bg-accent/25"></div>
+        <div class="h-1.5 w-1.5 rotate-45 border border-accent/40"></div>
+        <div class="h-px w-10 bg-accent/25"></div>
+      </div>
+    </div>
+
+    <!-- Company card -->
+    <div class="reveal" style="transition-delay: 60ms">
+      <div id="company-card" class="relative overflow-hidden rounded-2xl border border-sand/60 bg-cream-dark/40 p-6 sm:p-8">
+        <div class="flex items-start gap-4">
+          <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-accent-light/80">
+            <Icon name="lucide:building-2" class="h-[18px] w-[18px] text-accent" />
+          </div>
+          <div class="pt-0.5 min-w-0">
+            <h2 class="text-[11px] font-bold uppercase tracking-[0.14em] text-stone" id="card-label"></h2>
+            <div id="company-details" class="mt-2 text-[15px] leading-relaxed text-bark"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Legal sections -->
+    <div id="legal-sections" class="mt-10 space-y-10">
+      <!-- Filled by JS -->
+    </div>
+
+  </div>
+</Layout>
+
+<style>
+  .legal-section {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .legal-section.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .legal-section .section-body p {
+    font-size: 0.875rem;
+    line-height: 1.75;
+    color: var(--color-stone);
+  }
+  .legal-section .section-body p + p {
+    margin-top: 0.5rem;
+  }
+</style>
+
+<script>
+  import { t, getLang } from "@/lib/i18n";
+
+  const PB_URL = import.meta.env.DEV ? "http://localhost:8090" : "";
+
+  async function fetchJSON<T>(path: string): Promise<T> {
+    const res = await fetch(`${PB_URL}${path}`);
+    return res.json();
+  }
+
+  interface Section { title: string; body: string; }
+
+  const content: Record<string, (c: any) => Section[]> = {
+    es: (c) => [
+      {
+        title: t("intellectualProperty", "es"),
+        body: `<p>En cumplimiento de la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la Información y de Comercio Electrónico (LSSI-CE), se informa que este sitio web es propiedad de la entidad indicada anteriormente.</p>
+        <p>Los contenidos de este sitio web, incluyendo textos, fotografías, gráficos, imágenes, iconos, tecnología, software, enlaces y demás contenidos audiovisuales o sonoros, así como su diseño gráfico y códigos fuente, son propiedad intelectual de ${c.name}, sin que puedan entenderse cedidos al usuario ninguno de los derechos de explotación reconocidos por la normativa vigente.</p>`,
+      },
+      {
+        title: t("liability", "es"),
+        body: `<p>${c.name} no se hace responsable del mal uso que se realice de los contenidos de su página web, siendo exclusiva responsabilidad de la persona que accede a ellos o los utiliza.</p>
+        <p>${c.name} no asume responsabilidad alguna por la información contenida en páginas web de terceros a las que se pueda acceder por enlaces desde este sitio web.</p>`,
+      },
+      {
+        title: t("applicableLaw", "es"),
+        body: `<p>Para la resolución de todas las controversias o cuestiones relacionadas con el presente sitio web, será de aplicación la legislación española, siendo competentes los Juzgados y Tribunales más cercanos a ${c.city}.</p>`,
+      },
+    ],
+    de: (c) => [
+      {
+        title: t("intellectualProperty", "de"),
+        body: `<p>Angaben gemäß Ley 34/2002 (LSSI-CE), dem spanischen Gesetz über Dienste der Informationsgesellschaft und den elektronischen Geschäftsverkehr. Inhaber dieser Website ist das oben genannte Unternehmen.</p>
+        <p>Alle Inhalte dieser Website, einschließlich Texte, Fotografien, Grafiken, Bilder, Software und sonstige audiovisuelle Inhalte sowie das grafische Design und der Quellcode, sind geistiges Eigentum von ${c.name}. Eine Nutzung über den privaten Gebrauch hinaus bedarf der schriftlichen Genehmigung.</p>`,
+      },
+      {
+        title: t("liability", "de"),
+        body: `<p>${c.name} übernimmt keine Haftung für den Missbrauch der auf dieser Website bereitgestellten Inhalte. Die Verantwortung liegt ausschließlich bei der Person, die auf diese Inhalte zugreift oder sie nutzt.</p>
+        <p>${c.name} übernimmt keine Verantwortung für Inhalte externer Websites, die über Links von dieser Website aus erreichbar sind.</p>`,
+      },
+      {
+        title: t("applicableLaw", "de"),
+        body: `<p>Für alle Streitigkeiten im Zusammenhang mit dieser Website gilt spanisches Recht. Zuständig sind die Gerichte in der Nähe von ${c.city}.</p>`,
+      },
+    ],
+    en: (c) => [
+      {
+        title: t("intellectualProperty", "en"),
+        body: `<p>In compliance with Spanish Law 34/2002 (LSSI-CE) on Information Society Services and Electronic Commerce, this website is owned by the entity identified above.</p>
+        <p>All content on this website, including text, photographs, graphics, images, software, and other audiovisual content, as well as its graphic design and source code, are the intellectual property of ${c.name}. No exploitation rights are transferred to the user.</p>`,
+      },
+      {
+        title: t("liability", "en"),
+        body: `<p>${c.name} is not responsible for any misuse of the content on this website. Responsibility lies solely with the person accessing or using the content.</p>
+        <p>${c.name} assumes no responsibility for information contained on third-party websites accessible via links from this site.</p>`,
+      },
+      {
+        title: t("applicableLaw", "en"),
+        body: `<p>All disputes arising in connection with this website shall be governed by Spanish law. The courts nearest to ${c.city} shall have jurisdiction.</p>`,
+      },
+    ],
+  };
+
+  function buildCompanyCard(c: any, lang: string, defaultLang: string): string {
+    const nifLabel = lang === "de" ? "Steuernummer" : lang === "en" ? "Tax ID" : "NIF";
+    const phoneLabel = lang === "de" ? "Tel" : lang === "en" ? "Phone" : "Tel";
+    const emailLabel = lang === "de" ? "E-Mail" : "Email";
+
+    let html = `<strong class="text-[16px]">${c.name}</strong><br>`;
+    if (c.nif) html += `${nifLabel}: ${c.nif}<br>`;
+    html += `${c.street}<br>${c.postcode} ${c.city}`;
+    if (c.phone) html += `<br>${phoneLabel}: ${c.phone}`;
+    if (c.email) html += `<br>${emailLabel}: ${c.email}`;
+    return html;
+  }
+
+  function renderSections(sections: Section[], container: HTMLElement) {
+    let delay = 140;
+    sections.forEach((section, i) => {
+      const el = document.createElement("div");
+      el.className = "legal-section";
+      el.style.transitionDelay = `${delay}ms`;
+
+      el.innerHTML = `
+        <h2 class="font-display text-[1.1rem] text-bark mb-3">${section.title}</h2>
+        <div class="section-body">${section.body}</div>
+      `;
+
+      container.appendChild(el);
+      delay += 80;
+    });
+  }
+
+  async function init() {
+    const [companyRes, menuConfigRes] = await Promise.all([
+      fetchJSON<{ items: any[] }>("/api/collections/company/records"),
+      fetchJSON<{ items: any[] }>("/api/collections/website_config/records").catch(() => ({ items: [] })),
+    ]);
+
+    const company = companyRes.items[0] || {};
+    const menuConfig = menuConfigRes.items[0] || {};
+    const config = { ...company, ...menuConfig, _websiteConfig: menuConfig };
+
+    const defaultLang = config.default_language || "es";
+    const lang = getLang(new URL(window.location.href), localStorage.getItem("menu-lang") || defaultLang);
+    localStorage.setItem("menu-lang", lang);
+    document.documentElement.lang = lang;
+
+    (window as any).__initHeader?.(config, lang, t);
+    (window as any).__initFooter?.(config, lang, t);
+
+    const loadingText = document.getElementById("loading-text");
+    if (loadingText) loadingText.textContent = t("loading", lang);
+
+    // Hero
+    const labelEl = document.getElementById("page-label");
+    if (labelEl) labelEl.textContent = t("legalNotice", lang);
+    const titleEl = document.getElementById("page-title");
+    if (titleEl) titleEl.textContent = company.name || "";
+
+    // Company card
+    const cardLabel = document.getElementById("card-label");
+    if (cardLabel) cardLabel.textContent = t("companyInfo", lang);
+    const cardDetails = document.getElementById("company-details");
+    if (cardDetails) cardDetails.innerHTML = buildCompanyCard(company, lang, defaultLang);
+
+    // Sections
+    const sectionsData = (content[lang] || content["es"])(company);
+    const sectionsContainer = document.getElementById("legal-sections");
+    if (sectionsContainer) renderSections(sectionsData, sectionsContainer);
+
+    // Show
+    document.getElementById("loading")?.classList.add("hidden");
+    document.getElementById("page-content")?.classList.remove("hidden");
+    requestAnimationFrame(() => {
+      document.querySelectorAll(".reveal, .legal-section").forEach((el) => el.classList.add("visible"));
+    });
+  }
+
+  init();
+</script>

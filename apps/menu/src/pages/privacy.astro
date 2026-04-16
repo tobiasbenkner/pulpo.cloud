@@ -1,0 +1,346 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { Icon } from "astro-icon/components";
+---
+
+<Layout title="Privacy">
+  <!-- Loading state -->
+  <div id="loading" class="mx-auto max-w-2xl px-5 py-20 text-center">
+    <div class="inline-flex flex-col items-center gap-3">
+      <div class="h-5 w-5 animate-spin rounded-full border-2 border-sand-dark border-t-accent"></div>
+      <span class="text-sm text-stone" id="loading-text"></span>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div id="page-content" class="mx-auto max-w-2xl px-5 pb-16 hidden">
+
+    <!-- Hero -->
+    <div class="reveal pt-14 pb-10 text-center">
+      <span class="inline-block text-[11px] font-bold uppercase tracking-[0.18em] text-stone mb-3" id="page-label"></span>
+      <h1 id="page-title" class="font-display text-[2.2rem] sm:text-[2.8rem] leading-[1.1] text-bark"></h1>
+      <div class="mx-auto mt-6 flex items-center justify-center gap-3">
+        <div class="h-px w-10 bg-accent/25"></div>
+        <div class="h-1.5 w-1.5 rotate-45 border border-accent/40"></div>
+        <div class="h-px w-10 bg-accent/25"></div>
+      </div>
+    </div>
+
+    <!-- Company card -->
+    <div class="reveal" style="transition-delay: 60ms">
+      <div id="company-card" class="relative overflow-hidden rounded-2xl border border-sand/60 bg-cream-dark/40 p-6 sm:p-8">
+        <div class="flex items-start gap-4">
+          <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-accent-light/80">
+            <Icon name="lucide:shield-check" class="h-[18px] w-[18px] text-accent" />
+          </div>
+          <div class="pt-0.5 min-w-0">
+            <h2 class="text-[11px] font-bold uppercase tracking-[0.14em] text-stone" id="card-label"></h2>
+            <div id="company-details" class="mt-2 text-[15px] leading-relaxed text-bark"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Legal sections -->
+    <div id="legal-sections" class="mt-10 space-y-10">
+      <!-- Filled by JS -->
+    </div>
+
+    <!-- Consent management -->
+    <div id="consent-section" class="reveal mt-12 hidden" style="transition-delay: 500ms">
+      <div class="rounded-2xl border border-sand/60 bg-cream-dark/40 p-6 sm:p-8">
+        <div class="flex items-start gap-4">
+          <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-accent-light/80">
+            <Icon name="lucide:settings-2" class="h-[18px] w-[18px] text-accent" />
+          </div>
+          <div class="pt-0.5 min-w-0 flex-1">
+            <h2 class="text-[11px] font-bold uppercase tracking-[0.14em] text-stone" id="consent-label"></h2>
+            <div class="mt-4 space-y-3">
+              <!-- Google Maps toggle -->
+              <div class="flex items-center justify-between gap-4">
+                <div>
+                  <p class="text-[14px] font-medium text-bark">Google Maps</p>
+                  <p class="text-[12px] text-stone mt-0.5" id="maps-status-text"></p>
+                </div>
+                <button id="maps-toggle" class="relative h-7 w-12 flex-shrink-0 rounded-full transition-colors duration-200" role="switch" aria-checked="false">
+                  <span class="absolute left-0.5 top-0.5 h-6 w-6 rounded-full bg-cream shadow-sm transition-transform duration-200"></span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</Layout>
+
+<style>
+  .legal-section {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .legal-section.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .legal-section .section-body p {
+    font-size: 0.875rem;
+    line-height: 1.75;
+    color: var(--color-stone);
+  }
+  .legal-section .section-body p + p {
+    margin-top: 0.5rem;
+  }
+  .legal-section .section-body ul {
+    font-size: 0.875rem;
+    line-height: 1.75;
+    color: var(--color-stone);
+    margin-top: 0.375rem;
+    margin-bottom: 0.375rem;
+    padding-left: 1.25rem;
+  }
+  .legal-section .section-body li {
+    position: relative;
+    padding-left: 0.25rem;
+    margin-bottom: 0.125rem;
+  }
+  .legal-section .section-body li::marker {
+    color: var(--color-accent);
+  }
+  .legal-section .section-body a {
+    color: var(--color-accent);
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .legal-section .section-body a:hover {
+    opacity: 0.75;
+  }
+  /* Toggle switch */
+  #maps-toggle {
+    background-color: var(--color-sand-dark);
+  }
+  #maps-toggle[aria-checked="true"] {
+    background-color: var(--color-accent);
+  }
+  #maps-toggle[aria-checked="true"] span {
+    transform: translateX(1.25rem);
+  }
+</style>
+
+<script>
+  import { t, getLang } from "@/lib/i18n";
+
+  const PB_URL = import.meta.env.DEV ? "http://localhost:8090" : "";
+
+  async function fetchJSON<T>(path: string): Promise<T> {
+    const res = await fetch(`${PB_URL}${path}`);
+    return res.json();
+  }
+
+  interface Section { title: string; body: string; }
+
+  const content: Record<string, (c: any) => Section[]> = {
+    es: (c) => [
+      {
+        title: t("dataCollected", "es"),
+        body: `<p>De conformidad con el Reglamento General de Protección de Datos (RGPD) y la Ley Orgánica 3/2018 de Protección de Datos Personales y Garantía de los Derechos Digitales (LOPDGDD), le informamos sobre el tratamiento de sus datos personales.</p>
+        <p>Este sitio web no recoge datos personales de los visitantes. No utilizamos formularios de contacto, registro de usuarios ni sistemas de análisis que recopilen información personal.</p>`,
+      },
+      {
+        title: t("purpose", "es"),
+        body: `<p>Este sitio web tiene como única finalidad informar sobre los servicios, carta y datos de contacto de ${c.name}.</p>`,
+      },
+      {
+        title: t("cookies", "es"),
+        body: `<p>Este sitio web no utiliza cookies. Se utiliza el almacenamiento local del navegador (localStorage) exclusivamente para:</p>
+        <ul>
+          <li>Recordar su preferencia de idioma</li>
+          <li>Almacenar su consentimiento para la carga de Google Maps</li>
+        </ul>
+        <p>Estos datos se almacenan únicamente en su dispositivo y no se transmiten a ningún servidor.</p>`,
+      },
+      {
+        title: t("thirdParty", "es"),
+        body: `<p><strong>Google Maps:</strong> Este sitio web puede integrar mapas de Google Maps (Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irlanda). El mapa solo se carga tras su consentimiento explícito. Al aceptar, se establece una conexión con los servidores de Google y se transfieren datos como su dirección IP. Puede consultar la política de privacidad de Google en <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">policies.google.com/privacy</a>.</p>
+        <p>Puede revocar su consentimiento en cualquier momento a través del panel de ajustes de privacidad que aparece más abajo.</p>`,
+      },
+      {
+        title: t("userRights", "es"),
+        body: `<p>Usted tiene derecho a acceder, rectificar, suprimir, limitar el tratamiento, portar sus datos y oponerse al tratamiento de sus datos personales. Para ejercer estos derechos, puede ponerse en contacto con nosotros a través de los datos indicados anteriormente.</p>
+        <p>Asimismo, tiene derecho a presentar una reclamación ante la Agencia Española de Protección de Datos (AEPD) si considera que sus derechos no han sido debidamente atendidos.</p>`,
+      },
+    ],
+    de: (c) => [
+      {
+        title: t("dataCollected", "de"),
+        body: `<p>Gemäß der Datenschutz-Grundverordnung (DSGVO) und dem spanischen Datenschutzgesetz (LOPDGDD) informieren wir Sie über die Verarbeitung Ihrer personenbezogenen Daten.</p>
+        <p>Diese Website erhebt keine personenbezogenen Daten der Besucher. Wir verwenden keine Kontaktformulare, Benutzerregistrierungen oder Analysesysteme, die persönliche Daten erfassen.</p>`,
+      },
+      {
+        title: t("purpose", "de"),
+        body: `<p>Diese Website dient ausschließlich der Information über die Dienstleistungen, die Speisekarte und die Kontaktdaten von ${c.name}.</p>`,
+      },
+      {
+        title: t("cookies", "de"),
+        body: `<p>Diese Website verwendet keine Cookies. Der lokale Speicher des Browsers (localStorage) wird ausschließlich verwendet für:</p>
+        <ul>
+          <li>Speicherung Ihrer Spracheinstellung</li>
+          <li>Speicherung Ihrer Einwilligung zum Laden von Google Maps</li>
+        </ul>
+        <p>Diese Daten werden nur auf Ihrem Gerät gespeichert und nicht an einen Server übertragen.</p>`,
+      },
+      {
+        title: t("thirdParty", "de"),
+        body: `<p><strong>Google Maps:</strong> Diese Website kann Karten von Google Maps einbinden (Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland). Die Karte wird erst nach Ihrer ausdrücklichen Einwilligung geladen. Dabei wird eine Verbindung zu Google-Servern hergestellt und Daten wie Ihre IP-Adresse übertragen. Die Datenschutzerklärung von Google finden Sie unter <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">policies.google.com/privacy</a>.</p>
+        <p>Sie können Ihre Einwilligung jederzeit über die Datenschutz-Einstellungen weiter unten widerrufen.</p>`,
+      },
+      {
+        title: t("userRights", "de"),
+        body: `<p>Sie haben das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit und Widerspruch gegen die Verarbeitung Ihrer personenbezogenen Daten. Zur Ausübung dieser Rechte können Sie uns über die oben genannten Kontaktdaten erreichen.</p>
+        <p>Darüber hinaus haben Sie das Recht, eine Beschwerde bei der spanischen Datenschutzbehörde (AEPD) einzureichen.</p>`,
+      },
+    ],
+    en: (c) => [
+      {
+        title: t("dataCollected", "en"),
+        body: `<p>In accordance with the General Data Protection Regulation (GDPR) and Spanish Data Protection Law (LOPDGDD), we inform you about the processing of your personal data.</p>
+        <p>This website does not collect any personal data from visitors. We do not use contact forms, user registration, or analytics systems that collect personal information.</p>`,
+      },
+      {
+        title: t("purpose", "en"),
+        body: `<p>The sole purpose of this website is to provide information about the services, menu, and contact details of ${c.name}.</p>`,
+      },
+      {
+        title: t("cookies", "en"),
+        body: `<p>This website does not use cookies. The browser's local storage (localStorage) is used exclusively for:</p>
+        <ul>
+          <li>Remembering your language preference</li>
+          <li>Storing your consent for loading Google Maps</li>
+        </ul>
+        <p>This data is stored only on your device and is not transmitted to any server.</p>`,
+      },
+      {
+        title: t("thirdParty", "en"),
+        body: `<p><strong>Google Maps:</strong> This website may embed maps from Google Maps (Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Ireland). The map is only loaded after your explicit consent. Upon acceptance, a connection is established with Google servers and data such as your IP address may be transferred. You can view Google's privacy policy at <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">policies.google.com/privacy</a>.</p>
+        <p>You can revoke your consent at any time using the privacy settings panel below.</p>`,
+      },
+      {
+        title: t("userRights", "en"),
+        body: `<p>You have the right to access, rectify, erase, restrict processing, data portability, and object to the processing of your personal data. To exercise these rights, you may contact us using the details provided above.</p>
+        <p>You also have the right to lodge a complaint with the Spanish Data Protection Agency (AEPD) if you believe your rights have not been properly addressed.</p>`,
+      },
+    ],
+  };
+
+  function buildCompanyCard(c: any, lang: string): string {
+    const nifLabel = lang === "de" ? "Steuernummer" : lang === "en" ? "Tax ID" : "NIF";
+    const emailLabel = lang === "de" ? "E-Mail" : "Email";
+
+    let html = `<strong class="text-[16px]">${c.name}</strong><br>`;
+    if (c.nif) html += `${nifLabel}: ${c.nif}<br>`;
+    html += `${c.street}<br>${c.postcode} ${c.city}`;
+    if (c.email) html += `<br>${emailLabel}: ${c.email}`;
+    return html;
+  }
+
+  function renderSections(sections: Section[], container: HTMLElement) {
+    let delay = 140;
+    sections.forEach((section, i) => {
+      const el = document.createElement("div");
+      el.className = "legal-section";
+      el.style.transitionDelay = `${delay}ms`;
+
+      el.innerHTML = `
+        <h2 class="font-display text-[1.1rem] text-bark mb-3">${section.title}</h2>
+        <div class="section-body">${section.body}</div>
+      `;
+
+      container.appendChild(el);
+      delay += 80;
+    });
+  }
+
+  async function init() {
+    const [companyRes, menuConfigRes] = await Promise.all([
+      fetchJSON<{ items: any[] }>("/api/collections/company/records"),
+      fetchJSON<{ items: any[] }>("/api/collections/website_config/records").catch(() => ({ items: [] })),
+    ]);
+
+    const company = companyRes.items[0] || {};
+    const menuConfig = menuConfigRes.items[0] || {};
+    const config = { ...company, ...menuConfig, _websiteConfig: menuConfig };
+
+    const defaultLang = config.default_language || "es";
+    const lang = getLang(new URL(window.location.href), localStorage.getItem("menu-lang") || defaultLang);
+    localStorage.setItem("menu-lang", lang);
+    document.documentElement.lang = lang;
+
+    (window as any).__initHeader?.(config, lang, t);
+    (window as any).__initFooter?.(config, lang, t);
+
+    const loadingText = document.getElementById("loading-text");
+    if (loadingText) loadingText.textContent = t("loading", lang);
+
+    // Hero
+    const labelEl = document.getElementById("page-label");
+    if (labelEl) labelEl.textContent = t("privacyPolicy", lang);
+    const titleEl = document.getElementById("page-title");
+    if (titleEl) titleEl.textContent = company.name || "";
+
+    // Company card
+    const cardLabel = document.getElementById("card-label");
+    if (cardLabel) cardLabel.textContent = t("dataController", lang);
+    const cardDetails = document.getElementById("company-details");
+    if (cardDetails) cardDetails.innerHTML = buildCompanyCard(company, lang);
+
+    // Sections
+    const sectionsData = (content[lang] || content["es"])(company);
+    const sectionsContainer = document.getElementById("legal-sections");
+    if (sectionsContainer) renderSections(sectionsData, sectionsContainer);
+
+    // Consent management
+    const consentSection = document.getElementById("consent-section");
+    const consentLabel = document.getElementById("consent-label");
+    const mapsToggle = document.getElementById("maps-toggle");
+    const mapsStatusText = document.getElementById("maps-status-text");
+
+    if (consentLabel) consentLabel.textContent = t("privacySettings", lang);
+
+    function updateToggleUI() {
+      const granted = localStorage.getItem("maps-consent") === "true";
+      if (mapsToggle) {
+        mapsToggle.setAttribute("aria-checked", String(granted));
+      }
+      if (mapsStatusText) {
+        mapsStatusText.textContent = granted
+          ? t("mapsConsentGranted", lang)
+          : t("mapsConsentRevoked", lang);
+      }
+    }
+
+    updateToggleUI();
+
+    mapsToggle?.addEventListener("click", () => {
+      const isGranted = localStorage.getItem("maps-consent") === "true";
+      if (isGranted) {
+        localStorage.removeItem("maps-consent");
+      } else {
+        localStorage.setItem("maps-consent", "true");
+      }
+      updateToggleUI();
+    });
+
+    consentSection?.classList.remove("hidden");
+
+    // Show
+    document.getElementById("loading")?.classList.add("hidden");
+    document.getElementById("page-content")?.classList.remove("hidden");
+    requestAnimationFrame(() => {
+      document.querySelectorAll(".reveal, .legal-section").forEach((el) => el.classList.add("visible"));
+    });
+  }
+
+  init();
+</script>

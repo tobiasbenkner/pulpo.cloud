@@ -1,0 +1,112 @@
+---
+import { Icon } from "astro-icon/components";
+---
+
+<div class="w-full relative bg-cream-dark group overflow-hidden privacy-map-wrapper h-72 sm:h-96">
+  <div
+    class="privacy-map-placeholder absolute inset-0 transition-opacity duration-500 z-10 flex items-center justify-center"
+  >
+    <!-- Background pattern -->
+    <div class="absolute inset-0 bg-linear-to-b from-sand/80 via-sand-dark/60 to-sand/80"></div>
+
+    <!-- Consent card -->
+    <div class="relative z-10 text-center max-w-sm mx-4 bg-cream/90 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-sand shadow-sm shadow-bark/5">
+      <!-- Pin icon -->
+      <div class="w-12 h-12 mx-auto mb-4 bg-accent rounded-full flex items-center justify-center">
+        <Icon name="lucide:map-pin" class="w-5 h-5 text-cream" />
+      </div>
+
+      <h3 id="privacy-map-title" class="text-lg font-display text-bark mb-1.5"></h3>
+      <p id="privacy-map-accept" class="text-stone text-[12px] leading-relaxed mb-5"></p>
+
+      <button
+        class="privacy-map-btn inline-flex items-center justify-center gap-2 bg-accent hover:bg-accent-hover text-cream font-semibold py-2.5 px-6 text-[13px] rounded-full transition-all duration-200 w-full"
+      >
+        <Icon name="lucide:eye" class="w-4 h-4" />
+        <span id="privacy-map-btn-label"></span>
+      </button>
+
+      <a href="/privacy" id="privacy-map-privacy-link" class="inline-block mt-3 text-stone-light hover:text-accent text-[11px] transition-colors"></a>
+    </div>
+  </div>
+
+  <iframe
+    width="100%"
+    height="100%"
+    style="border:0;"
+    allowfullscreen=""
+    loading="lazy"
+    referrerpolicy="no-referrer-when-downgrade"
+    title="Google Maps"
+    class="privacy-map-iframe absolute inset-0 w-full h-full opacity-0 transition-opacity duration-1000"
+  ></iframe>
+</div>
+
+<script>
+  const STORAGE_KEY = "maps-consent";
+
+  const activateMap = (wrapper: Element) => {
+    const iframe = wrapper.querySelector(".privacy-map-iframe");
+    const placeholder = wrapper.querySelector(".privacy-map-placeholder");
+
+    if (iframe && placeholder) {
+      const currentSrc = iframe.getAttribute("src");
+      const dataSrc = iframe.getAttribute("data-src");
+
+      if (!currentSrc && dataSrc) {
+        iframe.setAttribute("src", dataSrc);
+
+        (placeholder as HTMLElement).style.opacity = "0";
+        (placeholder as HTMLElement).style.pointerEvents = "none";
+        iframe.classList.remove("opacity-0");
+
+        setTimeout(() => {
+          (placeholder as HTMLElement).style.display = "none";
+        }, 500);
+      }
+    }
+  };
+
+  const revokeConsent = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    document.querySelectorAll(".privacy-map-wrapper").forEach((wrapper) => {
+      const iframe = wrapper.querySelector(".privacy-map-iframe");
+      const placeholder = wrapper.querySelector(".privacy-map-placeholder");
+      if (iframe) {
+        iframe.removeAttribute("src");
+        iframe.classList.add("opacity-0");
+      }
+      if (placeholder) {
+        (placeholder as HTMLElement).style.display = "";
+        (placeholder as HTMLElement).style.opacity = "1";
+        (placeholder as HTMLElement).style.pointerEvents = "";
+      }
+    });
+  };
+
+  // Expose globally for revoke button
+  (window as any).revokeMapConsent = revokeConsent;
+
+  const initMaps = () => {
+    const allMaps = document.querySelectorAll(".privacy-map-wrapper");
+    const hasConsent = localStorage.getItem(STORAGE_KEY) === "true";
+
+    if (hasConsent) {
+      allMaps.forEach((map) => activateMap(map));
+    }
+
+    allMaps.forEach((map) => {
+      const btn = map.querySelector(".privacy-map-btn");
+      if (btn) {
+        btn.addEventListener("click", () => {
+          localStorage.setItem(STORAGE_KEY, "true");
+          const mapsNow = document.querySelectorAll(".privacy-map-wrapper");
+          mapsNow.forEach((m) => activateMap(m));
+        });
+      }
+    });
+  };
+
+  initMaps();
+  document.addEventListener("astro:page-load", initMaps);
+</script>
