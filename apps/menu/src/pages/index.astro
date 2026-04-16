@@ -86,8 +86,8 @@ import Layout from "@/layouts/Layout.astro";
     const [companyRes, menuConfigRes, categoriesRes, productsRes] = await Promise.all([
       fetchJSON<{ items: any[] }>("/api/collections/company/records"),
       fetchJSON<{ items: any[] }>("/api/collections/website_config/records").catch(() => ({ items: [] })),
-      fetchJSON<{ items: Category[] }>("/api/collections/products_categories/records?sort=sort"),
-      fetchJSON<{ items: (Product & { collectionId: string })[] }>("/api/collections/products/records?sort=sort"),
+      fetchJSON<{ items: Category[] }>("/api/collections/products_categories/records?sort=sort&perPage=500"),
+      fetchJSON<{ items: (Product & { collectionId: string })[] }>("/api/collections/products/records?sort=sort&perPage=500"),
     ]);
 
     const company = companyRes.items[0] || {};
