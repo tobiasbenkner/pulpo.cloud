@@ -14,7 +14,9 @@ import (
 	"github.com/pulpo-cloud/pulpo-app/excel"
 )
 
-func sendClosureEmailSync(app core.App, closureID string, summary *ClosureSummary) error {
+// SendClosureEmail sends the closure report email with an Excel attachment.
+// Exported so hook packages can invoke it.
+func SendClosureEmail(app core.App, closureID string, summary *ClosureSummary) error {
 	// Load company
 	company, err := app.FindFirstRecordByFilter("company", "id != ''")
 	if err != nil {

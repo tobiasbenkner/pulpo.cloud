@@ -14,6 +14,7 @@ import (
 	"github.com/pocketbase/pocketbase/tools/osutils"
 	"github.com/pocketbase/pocketbase/tools/security"
 
+	"github.com/pulpo-cloud/pulpo-app/hooks"
 	_ "github.com/pulpo-cloud/pulpo-app/migrations"
 	"github.com/pulpo-cloud/pulpo-app/routes"
 )
@@ -46,7 +47,7 @@ func main() {
 	})
 
 	// Hooks (react to record changes)
-	routes.RegisterHooks(app)
+	hooks.Register(app)
 
 	// Create superuser + app user from env vars
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {

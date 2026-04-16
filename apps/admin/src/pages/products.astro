@@ -91,6 +91,11 @@ import AdminLayout from "@/layouts/AdminLayout.astro";
               <button type="button" id="image-remove" class="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs leading-none flex items-center justify-center">&times;</button>
             </div>
           </div>
+          <div id="image-loading" class="hidden mb-2">
+            <div class="w-24 h-24 rounded-lg bg-neutral-100 flex items-center justify-center">
+              <div class="w-6 h-6 border-2 border-neutral-300 border-t-neutral-900 rounded-full animate-spin"></div>
+            </div>
+          </div>
           <input id="f-image" type="file" accept="image/*"
             class="w-full text-sm text-neutral-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-neutral-100 file:text-neutral-700 hover:file:bg-neutral-200" />
         </div>
@@ -142,6 +147,7 @@ import AdminLayout from "@/layouts/AdminLayout.astro";
 
 <script>
   import { pb } from "@/lib/pb";
+  import { compressImage } from "@/lib/image-compress";
 
   const PB_URL = import.meta.env.DEV ? "http://localhost:8090" : "";
 
@@ -171,6 +177,7 @@ import AdminLayout from "@/layouts/AdminLayout.astro";
   let defaultLanguage = "es";
   let editingId: string | null = null;
   let removeImage = false;
+  let pendingImageFile: File | null = null;
 
   // DOM refs
   const listEl = document.getElementById("product-list")!;
@@ -184,6 +191,7 @@ import AdminLayout from "@/layouts/AdminLayout.astro";
   const btnDelete = document.getElementById("btn-delete")!;
   const previewContainer = document.getElementById("image-preview-container")!;
   const previewImg = document.getElementById("image-preview") as HTMLImageElement;
+  const loadingEl = document.getElementById("image-loading")!;
   const translationsFields = document.getElementById("translations-fields")!;
 
   // Form fields
@@ -285,6 +293,7 @@ import AdminLayout from "@/layouts/AdminLayout.astro";
     document.body.style.overflow = "";
     editingId = null;
     removeImage = false;
+    pendingImageFile = null;
     fImage.value = "";
     previewContainer.classList.add("hidden");
   }
@@ -299,6 +308,7 @@ import AdminLayout from "@/layouts/AdminLayout.astro";
     fSort.value = String(products.length + 1);
     fImage.value = "";
     removeImage = false;
+    pendingImageFile = null;
     previewContainer.classList.add("hidden");
     btnDelete.classList.add("hidden");
     buildTranslationFields(null);
@@ -318,6 +328,7 @@ import AdminLayout from "@/layouts/AdminLayout.astro";
     fSort.value = String(product.sort);
     fImage.value = "";
     removeImage = false;
+    pendingImageFile = null;
 
     if (product.image) {
       previewImg.src = `${PB_URL}/api/files/${product.collectionId}/${product.id}/${product.image}?thumb=200x200`;
@@ -392,9 +403,8 @@ import AdminLayout from "@/layouts/AdminLayout.astro";
     const translations = collectTranslations();
     fd.append("translations", JSON.stringify(Object.keys(translations).length > 0 ? translations : null));
 
-    const file = fImage.files?.[0];
-    if (file) {
-      fd.append("image", file);
+    if (pendingImageFile) {
+      fd.append("image", pendingImageFile);
     } else if (removeImage) {
       fd.append("image", "");
     }
@@ -452,17 +462,30 @@ import AdminLayout from "@/layouts/AdminLayout.astro";
   searchEl.addEventListener("input", render);
   filterCatEl.addEventListener("change", render);
 
-  // Image preview
-  fImage.addEventListener("change", () => {
+  // Image preview — compress immediately on change so HEIC previews work
+  // (browsers cannot render HEIC natively) and the upload is ready to go.
+  fImage.addEventListener("change", async () => {
     const file = fImage.files?.[0];
-    if (file) {
-      previewImg.src = URL.createObjectURL(file);
-      previewContainer.classList.remove("hidden");
-      removeImage = false;
+    if (!file) return;
+    previewContainer.classList.add("hidden");
+    loadingEl.classList.remove("hidden");
+    fImage.disabled = true;
+    try {
+      pendingImageFile = await compressImage(file);
+    } catch (err) {
+      console.warn("compressImage failed, using original:", err);
+      pendingImageFile = file;
+    } finally {
+      fImage.disabled = false;
+      loadingEl.classList.add("hidden");
     }
+    previewImg.src = URL.createObjectURL(pendingImageFile);
+    previewContainer.classList.remove("hidden");
+    removeImage = false;
   });
   document.getElementById("image-remove")?.addEventListener("click", () => {
     fImage.value = "";
+    pendingImageFile = null;
     previewContainer.classList.add("hidden");
     removeImage = true;
   });
