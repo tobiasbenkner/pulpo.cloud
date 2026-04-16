@@ -29,7 +29,9 @@ func MenuHandler(app core.App, fsys fs.FS) func(e *core.RequestEvent) error {
 
 		if strings.HasSuffix(filePath, ".html") {
 			ogTags := buildOGTags(app, e.Request)
-			data = []byte(strings.Replace(string(data), "<!-- OG_META -->", ogTags, 1))
+			html := strings.Replace(string(data), "<!-- OG_META -->", ogTags, 1)
+			html = replaceTitle(app, html, reqPath)
+			data = []byte(html)
 		}
 
 		ct := mime.TypeByExtension(filepath.Ext(filePath))
@@ -44,6 +46,7 @@ func MenuHandler(app core.App, fsys fs.FS) func(e *core.RequestEvent) error {
 }
 
 func resolveFile(fsys fs.FS, reqPath string) (string, []byte, error) {
+	reqPath = strings.TrimSuffix(reqPath, "/")
 	if reqPath == "" {
 		return readFSFile(fsys, "index.html")
 	}
@@ -119,6 +122,40 @@ func buildOGTags(app core.App, r *http.Request) string {
 	}
 
 	return b.String()
+}
+
+func replaceTitle(app core.App, html string, reqPath string) string {
+	company, err := app.FindFirstRecordByFilter("company", "1=1")
+	if err != nil {
+		return html
+	}
+	name := company.GetString("name")
+	if name == "" {
+		return html
+	}
+
+	// Map path to page suffix (Spanish default for crawlers)
+	pageName := "Carta"
+	cleanPath := strings.TrimSuffix(strings.TrimPrefix(reqPath, "/"), "/")
+	switch cleanPath {
+	case "contact":
+		pageName = "Contacto"
+	case "imprint":
+		pageName = "Aviso Legal"
+	case "privacy":
+		pageName = "Privacidad"
+	}
+
+	newTitle := "<title>" + pageName + " | " + escapeAttr(name) + "</title>"
+
+	// Replace existing <title>...</title>
+	start := strings.Index(html, "<title>")
+	end := strings.Index(html, "</title>")
+	if start != -1 && end != -1 {
+		html = html[:start] + newTitle + html[end+len("</title>"):]
+	}
+
+	return html
 }
 
 func escapeAttr(s string) string {

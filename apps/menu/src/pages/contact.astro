@@ -203,6 +203,7 @@ import PrivacyMap from "@/components/PrivacyMap.astro";
 
     (window as any).__initHeader?.(config, lang, t);
     (window as any).__initFooter?.(config, lang, t);
+    if (config.name) document.title = `${t("contact", lang)} | ${config.name}`;
 
     const loadingText = document.getElementById("loading-text");
     if (loadingText) loadingText.textContent = t("loading", lang);

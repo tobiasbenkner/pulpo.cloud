@@ -103,6 +103,7 @@ import Layout from "@/layouts/Layout.astro";
 
     (window as any).__initHeader?.(config, lang, t);
     (window as any).__initFooter?.(config, lang, t);
+    if (config.name) document.title = `${t("menu", lang)} | ${config.name}`;
 
     const loadingText = document.getElementById("loading-text");
     if (loadingText) loadingText.textContent = t("loading", lang);

@@ -174,6 +174,7 @@ import { Icon } from "astro-icon/components";
 
     (window as any).__initHeader?.(config, lang, t);
     (window as any).__initFooter?.(config, lang, t);
+    if (company.name) document.title = `${t("legalNotice", lang)} | ${company.name}`;
 
     const loadingText = document.getElementById("loading-text");
     if (loadingText) loadingText.textContent = t("loading", lang);
