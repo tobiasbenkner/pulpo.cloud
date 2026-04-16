@@ -3,15 +3,6 @@ import Layout from "@/layouts/Layout.astro";
 ---
 
 <Layout title="Menu">
-  <!-- Category filter -->
-  <div class="sticky top-14 z-40 border-b border-sand/40 bg-cream/85 backdrop-blur-md">
-    <div class="mx-auto max-w-2xl px-5 py-2.5">
-      <div id="category-nav" class="flex gap-2 overflow-x-auto no-scrollbar">
-        <!-- Filled by JS -->
-      </div>
-    </div>
-  </div>
-
   <!-- Loading state -->
   <div id="loading" class="mx-auto max-w-2xl px-5 py-20 text-center">
     <div class="inline-flex flex-col items-center gap-3">
@@ -115,15 +106,6 @@ import Layout from "@/layouts/Layout.astro";
     const loadingText = document.getElementById("loading-text");
     if (loadingText) loadingText.textContent = t("loading", lang);
 
-    // Build category filter
-    const categoryNav = document.getElementById("category-nav");
-    if (categoryNav) {
-      categoryNav.appendChild(createCategoryButton(t("allCategories", lang), "all", true));
-      for (const cat of categories) {
-        categoryNav.appendChild(createCategoryButton(tr(cat, "name", lang, defaultLang), cat.id, false));
-      }
-    }
-
     // Build menu sections
     const menuContent = document.getElementById("menu-content");
     if (menuContent) {
@@ -135,23 +117,24 @@ import Layout from "@/layouts/Layout.astro";
 
         const section = document.createElement("section");
         section.dataset.category = cat.id;
-        section.className = "mb-10";
+        section.className = "pb-2";
 
-        // Category heading
-        const headingWrap = document.createElement("div");
-        headingWrap.className = "reveal mb-5 flex items-center gap-3";
-        headingWrap.style.transitionDelay = `${revealDelay}ms`;
+        // Sticky category heading
+        const headingBar = document.createElement("div");
+        headingBar.className = "sticky-heading reveal sticky top-14 -mx-5 mb-5 flex items-center gap-3 bg-cream/90 px-5 py-3 backdrop-blur-sm";
+        headingBar.style.transitionDelay = `${revealDelay}ms`;
+        headingBar.style.zIndex = "30";
 
         const heading = document.createElement("h2");
         heading.className = "font-display text-xl text-bark whitespace-nowrap";
         heading.textContent = tr(cat, "name", lang, defaultLang);
-        headingWrap.appendChild(heading);
+        headingBar.appendChild(heading);
 
         const line = document.createElement("div");
         line.className = "h-px flex-1 bg-sand";
-        headingWrap.appendChild(line);
+        headingBar.appendChild(line);
 
-        section.appendChild(headingWrap);
+        section.appendChild(headingBar);
         revealDelay += 60;
 
         // Check if any product in this category has an image
@@ -187,30 +170,6 @@ import Layout from "@/layouts/Layout.astro";
     });
   }
 
-  function createCategoryButton(label: string, id: string, active: boolean): HTMLButtonElement {
-    const btn = document.createElement("button");
-    btn.textContent = label;
-    btn.dataset.filter = id;
-    const base = "whitespace-nowrap rounded-full px-4 py-1.5 text-[13px] font-medium transition-all duration-200";
-    btn.className = active
-      ? `${base} bg-accent text-white shadow-sm`
-      : `${base} bg-sand/50 text-stone hover:bg-sand hover:text-bark`;
-
-    btn.addEventListener("click", () => {
-      document.querySelectorAll<HTMLButtonElement>("[data-filter]").forEach((b) => {
-        b.className = `${base} bg-sand/50 text-stone hover:bg-sand hover:text-bark`;
-      });
-      btn.className = `${base} bg-accent text-white shadow-sm`;
-
-      const sections = document.querySelectorAll<HTMLElement>("[data-category]");
-      sections.forEach((s) => {
-        s.style.display = id === "all" || s.dataset.category === id ? "" : "none";
-      });
-    });
-
-    return btn;
-  }
-
   /** Card layout for categories that have images */
   function createImageCard(product: Product & { collectionId?: string }, lang: string, defaultLang: string): HTMLElement {
     const card = document.createElement("div");
@@ -229,7 +188,6 @@ import Layout from "@/layouts/Layout.astro";
       img.addEventListener("click", () => openLightbox(imgUrl, img.alt));
       card.appendChild(img);
     } else {
-      // Placeholder for alignment
       const placeholder = document.createElement("div");
       placeholder.className = "flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-lg bg-sand/40";
       const icon = document.createElement("span");
@@ -377,3 +335,11 @@ import Layout from "@/layouts/Layout.astro";
 
   init();
 </script>
+
+<style>
+  /* Subtle bottom border appears when heading is stuck */
+  .sticky-heading {
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s ease;
+  }
+</style>
