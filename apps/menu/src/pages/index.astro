@@ -235,7 +235,7 @@ import Layout from "@/layouts/Layout.astro";
       row.className = "flex items-baseline";
 
       const name = document.createElement("h3");
-      name.className = "text-[15px] font-semibold text-bark whitespace-nowrap";
+      name.className = "text-[15px] font-semibold text-bark";
       name.textContent = tr(product, "name", lang, defaultLang);
       row.appendChild(name);
 
@@ -263,7 +263,7 @@ import Layout from "@/layouts/Layout.astro";
     const description = tr(product, "description", lang, defaultLang);
     if (description) {
       const desc = document.createElement("p");
-      desc.className = "mt-0.5 text-[13px] leading-relaxed text-stone line-clamp-2";
+      desc.className = "mt-0.5 text-[13px] leading-relaxed text-stone";
       desc.textContent = description.replace(/<[^>]*>/g, "");
       parent.appendChild(desc);
     }
