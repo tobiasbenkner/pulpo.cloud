@@ -21,6 +21,7 @@ To run commands for a specific workspace:
 ```bash
 pnpm --filter @pulpo/website dev
 pnpm --filter @pulpo/shop build
+pnpm --filter @pulpo/menu dev   # Customer-facing menu website
 pnpm --filter @pulpo/app dev    # Go backend (reads .env automatically via godotenv)
 ```
 
@@ -31,6 +32,7 @@ pnpm --filter @pulpo/app dev    # Go backend (reads .env automatically via godot
 ```
 apps/           # Applications
 ├── agenda/     # Reservation & floorplan app (Astro + Svelte 5 + PocketBase)
+├── menu/       # Customer-facing menu & contact website (Astro + PocketBase)
 ├── pulpo-app/  # Go backend (PocketBase), serves agenda/shop as static files
 ├── shop/       # POS app (Astro + Svelte 5 + PocketBase SDK + nanostores)
 └── website/    # Standard website template
@@ -41,9 +43,8 @@ packages/       # Shared libraries
 └── invoice/            # Shared invoice calculation logic (@pulpo/invoice)
 
 websites/       # Client website instances
-├── beckernet.es/
-├── holacanterasclub.com/
-└── pulpo.cloud/          # Landing page
+├── docs/             # Documentation site
+└── landingpage/      # Landing page
 
 tools/          # Development and migration tools
 ├── migrate/    # Data migration scripts
@@ -200,11 +201,35 @@ See `ARCHITECTURE.md` and `MIGRATION_PLAN.md` for the full plan.
 - `seed_company.go`: seeds `counters` record separately
 - `seed_demo_data.go`: uses `counters` for prefix/counter
 
+### Menu App (@pulpo/menu)
+
+`apps/menu/` — Customer-facing restaurant website showing menu, contact info, and legal pages.
+
+**Stack:** Astro 6 + Tailwind CSS v4 + astro-icon (Lucide)
+
+**Pages:**
+- `/` — Menu with categories, products (image/no-image layouts), allergens, lightbox
+- `/contact` — Contact info, opening hours, social links, Google Maps embed
+- `/imprint`, `/privacy` — Legal pages
+
+**Design System (defined in `src/styles/global.css`):**
+- Colors: `cream`, `sand`, `bark`, `stone`, `accent` (dynamic via `--accent` CSS var)
+- Fonts: DM Sans (body), DM Serif Display (headings)
+- Utilities: `.reveal` (staggered entrance animation), `.dotted-leader`, `.grain`
+
+**i18n:** `src/lib/i18n.ts` — 28 translation keys, 7 languages (es, de, en, it, ca, fr, nl). Language selected via `?lang=` URL param or localStorage fallback. Product/category translations come from PocketBase `translations` JSON field.
+
+**Data loading:** All pages fetch from PocketBase API client-side (`/api/collections/...`). Header/Footer initialized via global `__initHeader`/`__initFooter` functions. Active nav link highlighted based on `window.location.pathname`.
+
+**PocketBase config:** Uses `website_config` collection for logo, favicon, accent color, and enabled languages.
+
 ### PocketBase Collections
 
 **Agenda:** `reservations`, `reservations_turns`, `reservations_tables`, `reservations_zones`, `reservations_table_groups`
 
 **Shop:** `company`, `counters`, `printers`, `tax_classes`, `tax_zones`, `tax_rules`, `cost_centers`, `customers`, `products_categories`, `products`, `closures`, `closure_denominations`, `invoices`, `invoice_items`, `invoice_payments`
+
+**Menu:** `website_config` (logo, favicon, accent_color, languages, default_language, google_maps_url, opening_hours, social links)
 
 ### Pending Phases
 
