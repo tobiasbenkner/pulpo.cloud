@@ -76,12 +76,28 @@ import { Icon } from "astro-icon/components";
       document.documentElement.style.setProperty("--accent", config._websiteConfig.accent_color);
     }
 
-    // Nav labels
+    // Nav labels + active state
+    const path = window.location.pathname;
+    const activeClass = "bg-accent/10 text-accent";
+    const inactiveClass = "text-bark-light";
+
     const navMenu = document.getElementById("nav-menu");
-    if (navMenu) navMenu.textContent = t("menu", lang);
+    if (navMenu) {
+      navMenu.textContent = t("menu", lang);
+      if (path === "/" || path === "") {
+        navMenu.classList.add(...activeClass.split(" "));
+        navMenu.classList.remove(inactiveClass);
+      }
+    }
 
     const navContact = document.getElementById("nav-contact");
-    if (navContact) navContact.textContent = t("contact", lang);
+    if (navContact) {
+      navContact.textContent = t("contact", lang);
+      if (path === "/contact" || path === "/contact/") {
+        navContact.classList.add(...activeClass.split(" "));
+        navContact.classList.remove(inactiveClass);
+      }
+    }
 
     // Language switcher
     const langCurrent = document.getElementById("lang-current");
