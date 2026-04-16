@@ -140,13 +140,10 @@ import Layout from "@/layouts/Layout.astro";
 
         // Products container
         const list = document.createElement("div");
-        list.className = "flex flex-col gap-1";
+        list.className = "flex flex-col";
 
         for (const prod of catProducts) {
-          const hasImage = !!(prod.image && prod.collectionId);
-          const card = hasImage
-            ? createImageCard(prod, lang, defaultLang)
-            : createTextCard(prod, lang, defaultLang);
+          const card = createProductCard(prod, lang, defaultLang);
           card.classList.add("reveal");
           card.style.transitionDelay = `${revealDelay}ms`;
           list.appendChild(card);
@@ -185,42 +182,83 @@ import Layout from "@/layouts/Layout.astro";
     parent.appendChild(wrap);
   }
 
-  /** Product with image — same dotted leader, image below text */
-  function createImageCard(product: Product & { collectionId?: string }, lang: string, defaultLang: string): HTMLElement {
-    const item = document.createElement("div");
-    item.className = "py-2";
-
+  /** Product card — dotted leader without image, vertical stack with image */
+  function createProductCard(product: Product & { collectionId?: string }, lang: string, defaultLang: string): HTMLElement {
     const imgUrl = product.image && product.collectionId
       ? fileUrl(product.collectionId, product.id, product.image)
       : "";
+    const hasImage = !!imgUrl;
 
-    const row = document.createElement("div");
-    row.className = "flex items-baseline";
+    const item = document.createElement("div");
+    item.className = hasImage
+      ? "flex gap-4 border-b border-sand/40 py-4 last:border-b-0"
+      : "border-b border-sand/40 py-3 last:border-b-0";
 
-    const name = document.createElement("h3");
-    name.className = "text-[15px] font-semibold text-bark whitespace-nowrap";
-    name.textContent = tr(product, "name", lang, defaultLang);
-    row.appendChild(name);
+    if (hasImage) {
+      // ── With image: vertical stack + thumbnail right ──
+      const text = document.createElement("div");
+      text.className = "flex-1 min-w-0";
 
-    if (product.price_gross) {
-      const leader = document.createElement("span");
-      leader.className = "dotted-leader";
-      row.appendChild(leader);
+      const name = document.createElement("h3");
+      name.className = "text-[15px] font-semibold text-bark";
+      name.textContent = tr(product, "name", lang, defaultLang);
+      text.appendChild(name);
 
-      const price = document.createElement("span");
-      price.className = "text-[15px] font-semibold text-accent whitespace-nowrap";
-      price.textContent = formatPrice(product.price_gross);
-      row.appendChild(price);
+      if (product.price_gross) {
+        const price = document.createElement("p");
+        price.className = "mt-0.5 text-[14px] font-medium text-accent";
+        price.textContent = formatPrice(product.price_gross);
+        text.appendChild(price);
+      }
+
+      appendDescription(text, product, lang, defaultLang);
+      appendAllergens(text, product.allergens, lang);
+      item.appendChild(text);
+
+      const img = document.createElement("img");
+      img.src = imgUrl;
+      img.alt = tr(product, "name", lang, defaultLang);
+      img.className = "h-20 w-20 flex-shrink-0 cursor-pointer self-center rounded-lg object-cover transition-opacity hover:opacity-80";
+      img.loading = "lazy";
+      img.addEventListener("click", () => openLightbox(imgUrl, img.alt));
+      item.appendChild(img);
+    } else {
+      // ── Without image: dotted leader ──
+      const row = document.createElement("div");
+      row.className = "flex items-baseline";
+
+      const name = document.createElement("h3");
+      name.className = "text-[15px] font-semibold text-bark whitespace-nowrap";
+      name.textContent = tr(product, "name", lang, defaultLang);
+      row.appendChild(name);
+
+      if (product.price_gross) {
+        const leader = document.createElement("span");
+        leader.className = "dotted-leader";
+        row.appendChild(leader);
+
+        const price = document.createElement("span");
+        price.className = "text-[15px] font-semibold text-accent whitespace-nowrap";
+        price.textContent = formatPrice(product.price_gross);
+        row.appendChild(price);
+      }
+
+      item.appendChild(row);
+      appendDescription(item, product, lang, defaultLang);
+      appendAllergens(item, product.allergens, lang);
     }
 
-    item.appendChild(row);
+    return item;
+  }
 
+  /** Shared: append description + note */
+  function appendDescription(parent: HTMLElement, product: Product, lang: string, defaultLang: string) {
     const description = tr(product, "description", lang, defaultLang);
     if (description) {
       const desc = document.createElement("p");
       desc.className = "mt-0.5 text-[13px] leading-relaxed text-stone line-clamp-2";
       desc.textContent = description.replace(/<[^>]*>/g, "");
-      item.appendChild(desc);
+      parent.appendChild(desc);
     }
 
     const note = tr(product, "note", lang, defaultLang);
@@ -228,67 +266,8 @@ import Layout from "@/layouts/Layout.astro";
       const noteEl = document.createElement("p");
       noteEl.className = "mt-0.5 text-xs italic text-stone-light";
       noteEl.textContent = note.replace(/<[^>]*>/g, "");
-      item.appendChild(noteEl);
+      parent.appendChild(noteEl);
     }
-
-    appendAllergens(item, product.allergens, lang);
-
-    const img = document.createElement("img");
-    img.src = imgUrl;
-    img.alt = tr(product, "name", lang, defaultLang);
-    img.className = "mt-2 aspect-square max-w-[160px] cursor-pointer rounded-lg object-cover transition-opacity hover:opacity-80";
-    img.loading = "lazy";
-    img.addEventListener("click", () => openLightbox(imgUrl, img.alt));
-    item.appendChild(img);
-
-    return item;
-  }
-
-  /** Text-only layout with dotted leader */
-  function createTextCard(product: Product & { collectionId?: string }, lang: string, defaultLang: string): HTMLElement {
-    const item = document.createElement("div");
-    item.className = "py-2";
-
-    const row = document.createElement("div");
-    row.className = "flex items-baseline";
-
-    const name = document.createElement("h3");
-    name.className = "text-[15px] font-semibold text-bark whitespace-nowrap";
-    name.textContent = tr(product, "name", lang, defaultLang);
-    row.appendChild(name);
-
-    if (product.price_gross) {
-      const leader = document.createElement("span");
-      leader.className = "dotted-leader";
-      row.appendChild(leader);
-
-      const price = document.createElement("span");
-      price.className = "text-[15px] font-semibold text-accent whitespace-nowrap";
-      price.textContent = formatPrice(product.price_gross);
-      row.appendChild(price);
-    }
-
-    item.appendChild(row);
-
-    const description = tr(product, "description", lang, defaultLang);
-    if (description) {
-      const desc = document.createElement("p");
-      desc.className = "mt-0.5 text-[13px] leading-relaxed text-stone";
-      desc.textContent = description.replace(/<[^>]*>/g, "");
-      item.appendChild(desc);
-    }
-
-    const note = tr(product, "note", lang, defaultLang);
-    if (note) {
-      const noteEl = document.createElement("p");
-      noteEl.className = "mt-0.5 text-xs italic text-stone-light";
-      noteEl.textContent = note.replace(/<[^>]*>/g, "");
-      item.appendChild(noteEl);
-    }
-
-    appendAllergens(item, product.allergens, lang);
-
-    return item;
   }
 
   // ── Lightbox ──
