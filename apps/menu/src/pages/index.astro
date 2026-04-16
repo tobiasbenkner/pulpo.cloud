@@ -27,24 +27,14 @@ import Layout from "@/layouts/Layout.astro";
 
 <script>
   import { t, getLang } from "@/lib/i18n";
+  import { pb, loadConfig } from "@/lib/pb";
+  import type { RecordModel } from "pocketbase";
 
-  const PB_URL = import.meta.env.DEV ? "http://localhost:8090" : "";
-
-  interface Config {
-    name?: string;
-    languages?: string[];
-    default_language?: string;
-    _websiteConfig?: any;
-    [key: string]: any;
-  }
-
-  interface Translatable {
+  interface Translatable extends RecordModel {
     translations?: Record<string, Record<string, string>>;
-    [key: string]: any;
   }
 
   interface Category extends Translatable {
-    id: string;
     name: string;
     description: string;
     image: string;
@@ -52,7 +42,6 @@ import Layout from "@/layouts/Layout.astro";
   }
 
   interface Product extends Translatable {
-    id: string;
     name: string;
     description: string;
     note: string;
@@ -61,7 +50,6 @@ import Layout from "@/layouts/Layout.astro";
     category: string;
     sort: number;
     allergens?: string[];
-    collectionId?: string;
   }
 
   function tr(record: Translatable, field: string, lang: string, defaultLang: string): string {
@@ -69,32 +57,15 @@ import Layout from "@/layouts/Layout.astro";
       const val = record.translations?.[field]?.[lang];
       if (val) return val;
     }
-    return record[field] || "";
-  }
-
-  async function fetchJSON<T>(path: string): Promise<T> {
-    const res = await fetch(`${PB_URL}${path}`);
-    return res.json();
-  }
-
-  function fileUrl(collectionId: string, recordId: string, filename: string): string {
-    if (!filename) return "";
-    return `${PB_URL}/api/files/${collectionId}/${recordId}/${filename}`;
+    return (record as any)[field] || "";
   }
 
   async function init() {
-    const [companyRes, menuConfigRes, categoriesRes, productsRes] = await Promise.all([
-      fetchJSON<{ items: any[] }>("/api/collections/company/records"),
-      fetchJSON<{ items: any[] }>("/api/collections/website_config/records").catch(() => ({ items: [] })),
-      fetchJSON<{ items: Category[] }>("/api/collections/products_categories/records?sort=sort&perPage=500"),
-      fetchJSON<{ items: (Product & { collectionId: string })[] }>("/api/collections/products/records?sort=sort&perPage=500"),
+    const [config, categories, products] = await Promise.all([
+      loadConfig(),
+      pb.collection("products_categories").getFullList<Category>({ sort: "sort", requestKey: null }),
+      pb.collection("products").getFullList<Product>({ sort: "sort", requestKey: null }),
     ]);
-
-    const company = companyRes.items[0] || {};
-    const menuConfig = menuConfigRes.items[0] || {};
-    const config: Config = { ...company, ...menuConfig, _websiteConfig: menuConfig };
-    const categories = categoriesRes.items || [];
-    const products = productsRes.items || [];
 
     const defaultLang = config.default_language || "es";
     const lang = getLang(new URL(window.location.href), localStorage.getItem("menu-lang") || defaultLang);
@@ -150,8 +121,8 @@ import Layout from "@/layouts/Layout.astro";
         for (let i = 0; i < catProducts.length; i++) {
           const prod = catProducts[i];
           const nextProd = catProducts[i + 1];
-          const hasImage = !!(prod.image && prod.collectionId);
-          const nextHasImage = !!(nextProd?.image && nextProd?.collectionId);
+          const hasImage = !!prod.image;
+          const nextHasImage = !!nextProd?.image;
           const showBorder = hasImage && nextHasImage;
           const card = createProductCard(prod, lang, defaultLang, showBorder);
           card.classList.add("reveal");
@@ -193,10 +164,8 @@ import Layout from "@/layouts/Layout.astro";
   }
 
   /** Product card — dotted leader without image, vertical stack with image */
-  function createProductCard(product: Product & { collectionId?: string }, lang: string, defaultLang: string, showBorder = false): HTMLElement {
-    const imgUrl = product.image && product.collectionId
-      ? fileUrl(product.collectionId, product.id, product.image)
-      : "";
+  function createProductCard(product: Product, lang: string, defaultLang: string, showBorder = false): HTMLElement {
+    const imgUrl = product.image ? pb.files.getURL(product, product.image) : "";
     const hasImage = !!imgUrl;
 
     const item = document.createElement("div");

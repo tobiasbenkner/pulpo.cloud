@@ -45,28 +45,27 @@ import { Icon } from "astro-icon/components";
 </header>
 
 <script>
-  function initHeader(config: any, lang: string, t: (key: string, lang: string) => string) {
-    const PB_URL = (import.meta as any).env?.DEV ? "http://localhost:8090" : "";
+  import { pb } from "@/lib/pb";
 
+  function initHeader(config: any, lang: string, t: (key: string, lang: string) => string) {
     // Brand: logo + name
     const logoEl = document.getElementById("header-logo") as HTMLImageElement | null;
     const nameEl = document.getElementById("header-name");
 
-    if (config?._websiteConfig?.logo && config._websiteConfig.collectionId) {
-      const src = `${PB_URL}/api/files/${config._websiteConfig.collectionId}/${config._websiteConfig.id}/${config._websiteConfig.logo}`;
+    const wc = config?._websiteConfig;
+    if (wc?.logo) {
       if (logoEl) {
-        logoEl.src = src;
+        logoEl.src = pb.files.getURL(wc, wc.logo);
         logoEl.classList.remove("hidden");
       }
     }
     if (nameEl) nameEl.textContent = config?.name || "";
 
     // Favicon
-    if (config?._websiteConfig?.favicon && config._websiteConfig.collectionId) {
-      const faviconUrl = `${PB_URL}/api/files/${config._websiteConfig.collectionId}/${config._websiteConfig.id}/${config._websiteConfig.favicon}`;
+    if (wc?.favicon) {
       const link = document.getElementById("favicon-link") as HTMLLinkElement | null;
       if (link) {
-        link.href = faviconUrl;
+        link.href = pb.files.getURL(wc, wc.favicon);
         link.type = "image/png";
       }
     }

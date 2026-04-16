@@ -169,6 +169,9 @@ importers:
       astro-icon:
         specifier: ^1.1.5
         version: 1.1.5
+      pocketbase:
+        specifier: ^0.26.8
+        version: 0.26.8
       tailwindcss:
         specifier: ^4.2.1
         version: 4.2.1

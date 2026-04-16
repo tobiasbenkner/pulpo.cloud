@@ -13,6 +13,7 @@
     "@tailwindcss/vite": "^4.2.1",
     "astro": "^6.0.8",
     "astro-icon": "^1.1.5",
+    "pocketbase": "^0.26.8",
     "tailwindcss": "^4.2.1"
   },
   "devDependencies": {
