@@ -124,8 +124,9 @@ func main() {
 		}
 
 		// Menu auf / servieren (Default-App)
+		// Uses custom handler to inject OG meta tags for link previews
 		if menu, err := fs.Sub(pbRoot, "menu"); err == nil {
-			se.Router.GET("/{path...}", apis.Static(menu, true))
+			se.Router.GET("/{path...}", routes.MenuHandler(app, menu))
 		}
 
 		// Launcher unter /apps servieren
