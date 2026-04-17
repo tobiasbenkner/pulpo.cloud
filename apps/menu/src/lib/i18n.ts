@@ -320,6 +320,35 @@ export function t(key: string, lang: string): string {
   return entry[lang] || entry["es"] || key;
 }
 
-export function getLang(url: URL, defaultLang: string): string {
-  return url.searchParams.get("lang") || defaultLang;
+/**
+ * Resolve the active language. Priority:
+ *   1. `?lang=` URL param (if enabled)
+ *   2. localStorage["menu-lang"] from a prior visit (if enabled)
+ *   3. Browser language (navigator.languages) matched against enabled list
+ *   4. defaultLang
+ */
+export function getLang(url: URL, defaultLang: string, enabledLanguages?: string[]): string {
+  const isEnabled = (code: string | null | undefined): code is string => {
+    if (!code) return false;
+    if (!enabledLanguages || enabledLanguages.length === 0) return true;
+    return enabledLanguages.includes(code);
+  };
+
+  const fromUrl = url.searchParams.get("lang");
+  if (isEnabled(fromUrl)) return fromUrl;
+
+  if (typeof localStorage !== "undefined") {
+    const stored = localStorage.getItem("menu-lang");
+    if (isEnabled(stored)) return stored;
+  }
+
+  if (typeof navigator !== "undefined") {
+    const candidates = navigator.languages?.length ? navigator.languages : [navigator.language];
+    for (const raw of candidates) {
+      const primary = raw?.toLowerCase().split("-")[0];
+      if (isEnabled(primary)) return primary;
+    }
+  }
+
+  return defaultLang;
 }

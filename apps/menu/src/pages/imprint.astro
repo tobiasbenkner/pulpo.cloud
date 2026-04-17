@@ -156,7 +156,7 @@ import { Icon } from "astro-icon/components";
     const company = config; // imprint templates read company fields directly
 
     const defaultLang = config.default_language || "es";
-    const lang = getLang(new URL(window.location.href), localStorage.getItem("menu-lang") || defaultLang);
+    const lang = getLang(new URL(window.location.href), defaultLang, config.languages);
     localStorage.setItem("menu-lang", lang);
     document.documentElement.lang = lang;
 
