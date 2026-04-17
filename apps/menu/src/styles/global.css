@@ -75,6 +75,59 @@ body {
   display: none;
 }
 
+/* ── Product row (clickable) ── */
+.product-row {
+  outline: none;
+}
+.product-row:focus-visible {
+  border-radius: 6px;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent, #171717) 35%, transparent);
+}
+@media (hover: hover) {
+  .product-row:hover .product-name {
+    color: var(--color-accent);
+  }
+  .product-row:hover img {
+    opacity: 0.85;
+  }
+}
+
+/* ── Product dialog ── */
+.dialog-backdrop {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.dialog-backdrop.is-open {
+  opacity: 1;
+}
+.dialog-panel {
+  transform: translateY(24px);
+  opacity: 0;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease;
+}
+@media (min-width: 640px) {
+  .dialog-panel {
+    transform: translateY(16px) scale(0.98);
+  }
+}
+.dialog-backdrop.is-open .dialog-panel {
+  transform: none;
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .dialog-backdrop,
+  .dialog-panel {
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+/* Allergen chip icons — neutralize the baked-in SVG colors */
+.allergen-chip img {
+  filter: grayscale(1) brightness(0.55);
+  opacity: 0.85;
+}
+
 /* ── Subtle grain overlay ── */
 .grain::after {
   content: "";

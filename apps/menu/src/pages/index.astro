@@ -16,12 +16,29 @@ import Layout from "@/layouts/Layout.astro";
     <!-- Filled by JS -->
   </div>
 
-  <!-- Lightbox -->
-  <div id="lightbox" class="fixed inset-0 z-[100] hidden items-center justify-center bg-bark/90 backdrop-blur-sm" role="dialog" aria-modal="true">
-    <button id="lightbox-close" class="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20" aria-label="Close">
-      <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
-    <img id="lightbox-img" class="max-h-[85vh] max-w-[90vw] rounded-lg object-contain opacity-0 transition-opacity duration-200" alt="" />
+  <!-- Product detail dialog -->
+  <div id="product-dialog" class="dialog-backdrop fixed inset-0 z-[100] hidden items-end justify-center bg-bark/85 px-0 pb-0 backdrop-blur-sm sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-labelledby="product-dialog-name">
+    <div id="product-dialog-panel" class="dialog-panel relative flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-2xl bg-cream shadow-2xl sm:max-w-xl sm:rounded-2xl">
+      <button id="product-dialog-close" class="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-cream/90 text-bark shadow-sm ring-1 ring-black/5 backdrop-blur-sm transition hover:bg-cream hover:shadow-md" aria-label="Close">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+
+      <div id="product-dialog-image-wrap" class="relative aspect-[16/11] w-full shrink-0 overflow-hidden bg-cream-dark">
+        <img id="product-dialog-img" class="h-full w-full object-cover" alt="" />
+      </div>
+
+      <div class="flex-1 overflow-y-auto px-6 py-6 sm:px-8 sm:py-7">
+        <h2 id="product-dialog-name" class="font-display text-2xl leading-tight text-bark sm:text-3xl"></h2>
+        <p id="product-dialog-price" class="mt-1 text-base font-medium text-accent"></p>
+        <p id="product-dialog-description" class="mt-4 text-[14.5px] leading-relaxed text-bark-light"></p>
+        <p id="product-dialog-note" class="mt-2 text-sm italic text-stone"></p>
+
+        <div id="product-dialog-allergens-wrap" class="mt-7 hidden border-t border-sand pt-5">
+          <h3 id="product-dialog-allergens-label" class="text-[11px] font-medium uppercase tracking-[0.18em] text-stone"></h3>
+          <div id="product-dialog-allergens" class="mt-3 flex flex-wrap gap-2"></div>
+        </div>
+      </div>
+    </div>
   </div>
 </Layout>
 
@@ -147,42 +164,34 @@ import Layout from "@/layouts/Layout.astro";
     });
   }
 
-  /** Render allergen icons if present */
-  function appendAllergens(parent: HTMLElement, allergens: string[] | undefined, lang: string) {
-    if (!allergens || allergens.length === 0) return;
-    const wrap = document.createElement("div");
-    wrap.className = "mt-1.5 flex flex-wrap gap-1.5";
-    for (const key of allergens) {
-      const icon = document.createElement("img");
-      icon.src = `/allergens/${key}.svg`;
-      icon.alt = t(key, lang);
-      icon.title = t(key, lang);
-      icon.className = "h-5 w-5 opacity-60";
-      wrap.appendChild(icon);
-    }
-    parent.appendChild(wrap);
-  }
-
   /** Product card — dotted leader without image, vertical stack with image */
   function createProductCard(product: Product, lang: string, defaultLang: string, showBorder = false): HTMLElement {
     const imgUrl = product.image ? pb.files.getURL(product, product.image) : "";
     const hasImage = !!imgUrl;
+    const productName = tr(product, "name", lang, defaultLang);
 
     const item = document.createElement("div");
-    item.className = hasImage
-      ? "flex gap-4 py-3"
-      : "py-2";
+    item.setAttribute("role", "button");
+    item.setAttribute("tabindex", "0");
+    item.setAttribute("aria-label", `${t("moreInfo", lang)}: ${productName}`);
+    item.addEventListener("click", () => openProductDialog(product, lang, defaultLang, imgUrl));
+    item.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        openProductDialog(product, lang, defaultLang, imgUrl);
+      }
+    });
 
     if (hasImage) {
       // ── With image: vertical stack + thumbnail right ──
-      item.className = `flex gap-4 py-3${showBorder ? " border-b border-sand/40" : ""}`;
+      item.className = `product-row flex cursor-pointer items-center gap-4 py-3${showBorder ? " border-b border-sand/40" : ""}`;
 
       const text = document.createElement("div");
       text.className = "flex-1 min-w-0";
 
       const name = document.createElement("h3");
-      name.className = "text-[15px] font-semibold text-bark";
-      name.textContent = tr(product, "name", lang, defaultLang);
+      name.className = "product-name text-[15px] font-semibold text-bark transition-colors";
+      name.textContent = productName;
       text.appendChild(name);
 
       if (product.price_gross) {
@@ -193,24 +202,24 @@ import Layout from "@/layouts/Layout.astro";
       }
 
       appendDescription(text, product, lang, defaultLang);
-      appendAllergens(text, product.allergens, lang);
       item.appendChild(text);
 
       const img = document.createElement("img");
       img.src = imgUrl;
-      img.alt = tr(product, "name", lang, defaultLang);
-      img.className = "h-20 w-20 flex-shrink-0 cursor-pointer self-center rounded-lg object-cover transition-opacity hover:opacity-80";
+      img.alt = productName;
+      img.className = "h-20 w-20 flex-shrink-0 rounded-lg object-cover transition-opacity";
       img.loading = "lazy";
-      img.addEventListener("click", () => openLightbox(imgUrl, img.alt));
       item.appendChild(img);
     } else {
       // ── Without image: dotted leader ──
+      item.className = "product-row cursor-pointer py-2";
+
       const row = document.createElement("div");
       row.className = "flex items-baseline";
 
       const name = document.createElement("h3");
-      name.className = "text-[15px] font-semibold text-bark";
-      name.textContent = tr(product, "name", lang, defaultLang);
+      name.className = "product-name text-[15px] font-semibold text-bark transition-colors";
+      name.textContent = productName;
       row.appendChild(name);
 
       if (product.price_gross) {
@@ -226,7 +235,6 @@ import Layout from "@/layouts/Layout.astro";
 
       item.appendChild(row);
       appendDescription(item, product, lang, defaultLang);
-      appendAllergens(item, product.allergens, lang);
     }
 
     return item;
@@ -251,48 +259,94 @@ import Layout from "@/layouts/Layout.astro";
     }
   }
 
-  // ── Lightbox ──
-  function openLightbox(src: string, alt: string) {
-    const lightbox = document.getElementById("lightbox");
-    const img = document.getElementById("lightbox-img") as HTMLImageElement | null;
-    if (!lightbox || !img) return;
+  // ── Product detail dialog ──
+  function openProductDialog(product: Product, lang: string, defaultLang: string, imgUrl: string) {
+    const dialog = document.getElementById("product-dialog");
+    const panel = document.getElementById("product-dialog-panel");
+    const imgWrap = document.getElementById("product-dialog-image-wrap");
+    const img = document.getElementById("product-dialog-img") as HTMLImageElement | null;
+    const nameEl = document.getElementById("product-dialog-name");
+    const priceEl = document.getElementById("product-dialog-price");
+    const descEl = document.getElementById("product-dialog-description");
+    const noteEl = document.getElementById("product-dialog-note");
+    const allergenWrap = document.getElementById("product-dialog-allergens-wrap");
+    const allergenLabel = document.getElementById("product-dialog-allergens-label");
+    const allergenList = document.getElementById("product-dialog-allergens");
+    if (!dialog || !panel || !imgWrap || !img || !nameEl || !priceEl || !descEl || !noteEl || !allergenWrap || !allergenLabel || !allergenList) return;
 
-    img.src = src;
-    img.alt = alt;
-    img.classList.remove("opacity-100");
-    img.classList.add("opacity-0");
+    const name = tr(product, "name", lang, defaultLang);
 
-    lightbox.classList.remove("hidden");
-    lightbox.classList.add("flex");
+    // Image
+    if (imgUrl) {
+      img.src = imgUrl;
+      img.alt = name;
+      imgWrap.classList.remove("hidden");
+    } else {
+      img.removeAttribute("src");
+      imgWrap.classList.add("hidden");
+    }
+
+    // Text
+    nameEl.textContent = name;
+    priceEl.textContent = product.price_gross ? formatPrice(product.price_gross) : "";
+    priceEl.classList.toggle("hidden", !product.price_gross);
+
+    const description = tr(product, "description", lang, defaultLang).replace(/<[^>]*>/g, "");
+    descEl.textContent = description;
+    descEl.classList.toggle("hidden", !description);
+
+    const note = tr(product, "note", lang, defaultLang).replace(/<[^>]*>/g, "");
+    noteEl.textContent = note;
+    noteEl.classList.toggle("hidden", !note);
+
+    // Allergens
+    allergenList.replaceChildren();
+    if (product.allergens && product.allergens.length > 0) {
+      allergenLabel.textContent = t("allergens", lang);
+      for (const key of product.allergens) {
+        const chip = document.createElement("span");
+        chip.className = "allergen-chip inline-flex items-center gap-1.5 rounded-full border border-sand bg-cream-dark px-2.5 py-1 text-[12px] text-bark-light";
+        const icon = document.createElement("img");
+        icon.src = `/allergens/${key}.svg`;
+        icon.alt = "";
+        icon.className = "h-3.5 w-3.5";
+        const label = document.createElement("span");
+        label.textContent = t(key, lang);
+        chip.appendChild(icon);
+        chip.appendChild(label);
+        allergenList.appendChild(chip);
+      }
+      allergenWrap.classList.remove("hidden");
+    } else {
+      allergenWrap.classList.add("hidden");
+    }
+
+    dialog.classList.remove("hidden");
+    dialog.classList.add("flex");
     document.body.style.overflow = "hidden";
+    requestAnimationFrame(() => dialog.classList.add("is-open"));
 
-    requestAnimationFrame(() => {
-      img.classList.remove("opacity-0");
-      img.classList.add("opacity-100");
-    });
+    const closeBtn = document.getElementById("product-dialog-close") as HTMLButtonElement | null;
+    closeBtn?.focus();
   }
 
-  function closeLightbox() {
-    const lightbox = document.getElementById("lightbox");
-    const img = document.getElementById("lightbox-img") as HTMLImageElement | null;
-    if (!lightbox) return;
-
-    img?.classList.remove("opacity-100");
-    img?.classList.add("opacity-0");
-
+  function closeProductDialog() {
+    const dialog = document.getElementById("product-dialog");
+    if (!dialog) return;
+    dialog.classList.remove("is-open");
     setTimeout(() => {
-      lightbox.classList.add("hidden");
-      lightbox.classList.remove("flex");
+      dialog.classList.add("hidden");
+      dialog.classList.remove("flex");
       document.body.style.overflow = "";
-    }, 200);
+    }, 180);
   }
 
-  document.getElementById("lightbox-close")?.addEventListener("click", closeLightbox);
-  document.getElementById("lightbox")?.addEventListener("click", (e) => {
-    if (e.target === e.currentTarget) closeLightbox();
+  document.getElementById("product-dialog-close")?.addEventListener("click", closeProductDialog);
+  document.getElementById("product-dialog")?.addEventListener("click", (e) => {
+    if (e.target === e.currentTarget) closeProductDialog();
   });
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeLightbox();
+    if (e.key === "Escape") closeProductDialog();
   });
 
   function formatPrice(value: string): string {
