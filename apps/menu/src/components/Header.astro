@@ -4,7 +4,7 @@ import { Icon } from "astro-icon/components";
 
 <header
   id="site-header"
-  class="sticky top-0 z-50 border-b border-sand/60 bg-cream/85 backdrop-blur-md"
+  class="sticky top-0 z-50 border-b border-sand-dark/70 bg-cream/85 backdrop-blur-md"
 >
   <div
     class="mx-auto flex h-14 max-w-2xl items-center justify-between gap-6 px-5"
@@ -37,18 +37,18 @@ import { Icon } from "astro-icon/components";
         id="nav-contact"></a>
 
       <!-- Language switcher -->
-      <div class="relative" id="lang-wrapper">
+      <div class="relative border-l border-sand pl-5" id="lang-wrapper">
         <button
           id="lang-trigger"
           class="flex items-center gap-1 text-[13px] font-medium text-bark-light transition-colors hover:text-bark"
           aria-label="Language"
         >
-          <Icon name="lucide:globe" class="h-3.5 w-3.5" />
           <span id="lang-current" class="uppercase"></span>
+          <Icon name="lucide:chevron-down" class="h-3 w-3" />
         </button>
         <div
           id="lang-dropdown"
-          class="invisible absolute right-0 top-full mt-1 min-w-18 origin-top-right scale-95 rounded-lg border border-sand bg-cream p-1 opacity-0 shadow-lg shadow-bark/5 transition-all duration-150"
+          class="invisible absolute right-0 top-full mt-2 origin-top-right scale-95 rounded-lg border border-sand bg-cream px-4 py-3 opacity-0 shadow-lg shadow-bark/5 transition-all duration-150"
         >
           <!-- Filled by JS -->
         </div>
@@ -150,14 +150,24 @@ import { Icon } from "astro-icon/components";
       langTrigger
     ) {
       const languages = config.languages as string[];
+      const nativeNames: Record<string, string> = {
+        es: "Español",
+        de: "Deutsch",
+        en: "English",
+        it: "Italiano",
+        ca: "Català",
+        fr: "Français",
+        nl: "Nederlands",
+      };
 
       for (const l of languages) {
         const btn = document.createElement("button");
-        btn.textContent = l.toUpperCase();
-        btn.className = `block w-full rounded-md px-3 py-1.5 text-left text-[13px] font-medium transition-colors ${
-          l === lang
-            ? "bg-accent/10 text-accent"
-            : "text-stone hover:bg-sand/50 hover:text-bark"
+        btn.textContent = nativeNames[l] || l.toUpperCase();
+        const isActive = l === lang;
+        btn.className = `block w-full py-1.5 text-left text-[13px] font-medium transition-colors ${
+          isActive
+            ? "text-accent underline underline-offset-[6px] decoration-[1.5px]"
+            : "text-bark-light hover:text-bark"
         }`;
         btn.addEventListener("click", () => {
           const url = new URL(window.location.href);

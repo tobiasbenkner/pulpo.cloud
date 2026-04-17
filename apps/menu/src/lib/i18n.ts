@@ -1,7 +1,7 @@
 const translations: Record<string, Record<string, string>> = {
   menu: {
     es: "Carta",
-    de: "Speisekarte",
+    de: "Karte",
     en: "Menu",
     it: "Menu",
     ca: "Carta",
