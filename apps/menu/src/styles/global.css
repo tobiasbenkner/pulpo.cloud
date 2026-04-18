@@ -122,12 +122,6 @@ body {
   }
 }
 
-/* Allergen chip icons — neutralize the baked-in SVG colors */
-.allergen-chip img {
-  filter: grayscale(1) brightness(0.55);
-  opacity: 0.85;
-}
-
 /* ── Subtle grain overlay ── */
 .grain::after {
   content: "";

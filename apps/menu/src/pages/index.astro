@@ -305,11 +305,11 @@ import Layout from "@/layouts/Layout.astro";
       allergenLabel.textContent = t("allergens", lang);
       for (const key of product.allergens) {
         const chip = document.createElement("span");
-        chip.className = "allergen-chip inline-flex items-center gap-1.5 rounded-full border border-sand bg-cream-dark px-2.5 py-1 text-[12px] text-bark-light";
+        chip.className = "allergen-chip inline-flex items-center gap-2 rounded-full border border-sand bg-cream-dark pl-1.5 pr-3 py-1 text-[12px] text-bark-light";
         const icon = document.createElement("img");
         icon.src = `/allergens/${key}.svg`;
         icon.alt = "";
-        icon.className = "h-3.5 w-3.5";
+        icon.className = "h-6 w-6";
         const label = document.createElement("span");
         label.textContent = t(key, lang);
         chip.appendChild(icon);
