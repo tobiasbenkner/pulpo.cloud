@@ -15,9 +15,11 @@
 	let name = $state("");
 	let nif = $state("");
 	let street = $state("");
+	let street_2 = $state("");
 	let zip = $state("");
 	let city = $state("");
 	let email = $state("");
+	let registry_entry = $state("");
 	let timezone = $state("Europe/Madrid");
 
 	const timezones = [
@@ -33,9 +35,11 @@
 			name = company.name ?? "";
 			nif = company.nif ?? "";
 			street = company.street ?? "";
+			street_2 = company.street_2 ?? "";
 			zip = company.zip ?? "";
 			city = company.city ?? "";
 			email = company.email ?? "";
+			registry_entry = company.registry_entry ?? "";
 			timezone = company.timezone ?? "Europe/Madrid";
 		} catch (e: any) {
 			error = e?.message ?? "Error al cargar los datos";
@@ -53,9 +57,11 @@
 				name,
 				nif,
 				street,
+				street_2: street_2 || null,
 				zip,
 				city,
 				email: email || null,
+				registry_entry: registry_entry || null,
 				timezone,
 			});
 			success = true;
@@ -97,6 +103,16 @@
 					>
 					<Input id="street" bind:value={street} required />
 				</div>
+				<div class="sm:col-span-2 space-y-1.5">
+					<label for="street_2" class="text-sm text-muted-foreground"
+						>Direccion (linea 2)</label
+					>
+					<Input
+						id="street_2"
+						bind:value={street_2}
+						placeholder="Portal, piso, puerta..."
+					/>
+				</div>
 				<div class="space-y-1.5">
 					<label for="zip" class="text-sm text-muted-foreground"
 						>Codigo postal</label
@@ -114,6 +130,18 @@
 						>Email</label
 					>
 					<Input id="email" type="email" bind:value={email} />
+				</div>
+				<div class="sm:col-span-2 space-y-1.5">
+					<label
+						for="registry_entry"
+						class="text-sm text-muted-foreground"
+						>Datos registrales (opcional)</label
+					>
+					<Input
+						id="registry_entry"
+						bind:value={registry_entry}
+						placeholder="Registro Mercantil de Madrid, Tomo 12345, Folio 67, Hoja M-89012"
+					/>
 				</div>
 				<div class="space-y-1.5">
 					<label for="timezone" class="text-sm text-muted-foreground"

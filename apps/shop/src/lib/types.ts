@@ -6,9 +6,11 @@ export interface Company extends RecordModel {
   name: string;
   nif: string | null;
   street: string;
+  street_2: string | null;
   zip: string;
   city: string;
   email: string | null;
+  registry_entry: string | null;
   timezone: string | null;
   closure_email: string | null;
   invoice_image: string | null;

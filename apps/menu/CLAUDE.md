@@ -88,7 +88,7 @@ PocketBase URL: `http://localhost:8090` in dev, `""` (same origin) in production
 
 ## PocketBase Collections Used
 
-- `company` — Name, NIF, street, postcode, city, phone, email, opening_hours (JSON array)
+- `company` — Name, NIF, street, street_2, zip, city, phone, email, registry_entry, opening_hours (JSON array)
 - `website_config` — logo, favicon, accent_color, languages (array), default_language, google_maps_url, social_instagram, social_facebook, social_whatsapp
 - `products_categories` — name, description, image, sort, translations
 - `products` — name, description, note, price_gross, image, category (relation), sort, allergens (array), translations

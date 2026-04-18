@@ -229,8 +229,11 @@ import { Icon } from "astro-icon/components";
 
     let html = `<strong class="text-[16px]">${c.name}</strong><br>`;
     if (c.nif) html += `${nifLabel}: ${c.nif}<br>`;
-    html += `${c.street}<br>${c.postcode} ${c.city}`;
+    html += `${c.street}<br>`;
+    if (c.street_2) html += `${c.street_2}<br>`;
+    html += `${c.zip} ${c.city}`;
     if (c.email) html += `<br>${emailLabel}: ${c.email}`;
+    if (c.registry_entry) html += `<br><span class="text-[13px] text-stone">${c.registry_entry}</span>`;
     return html;
   }
 

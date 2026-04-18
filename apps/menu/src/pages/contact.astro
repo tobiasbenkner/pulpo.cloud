@@ -200,8 +200,9 @@ import PrivacyMap from "@/components/PrivacyMap.astro";
     // Address
     const parts = [
       config.street,
-      config.postcode && config.city
-        ? `${config.postcode} ${config.city}`
+      config.street_2,
+      config.zip && config.city
+        ? `${config.zip} ${config.city}`
         : config.city,
     ].filter(Boolean);
     const addressEl = document.getElementById("contact-address");
